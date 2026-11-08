@@ -20,7 +20,7 @@ Images were searched and visually inspected for surroundings and broad scenery c
 
 | Circuit | Reference page | Cues used in original procedural scenery |
 |---|---|---|
-| Spa-Francorchamps | [Circuits of the Past — Eau Rouge or Raidillon](https://www.circuitsofthepast.com/eau-rouge-or-raidillon/) | Forested setting, hills, pit structures, red/yellow curb palette. Actual Raidillon elevation is not reconstructed. |
+| Spa-Francorchamps | [Circuits of the Past — Eau Rouge or Raidillon](https://www.circuitsofthepast.com/eau-rouge-or-raidillon/) | Forested setting, hills, pit structures, red/yellow curb palette. A hand-authored climb/dip suggests the elevation character; no surveyed Raidillon heights are claimed. |
 | Monaco | [Monaco waterfront/circuit reference](https://thefuture3d.com/blog/monaco-grand-prix-3d-scanning-street-circuit) | Dense pale buildings, waterfront and moored yachts. No exact street furniture or tunnel reconstruction. |
 | Monza | [Monza track aerial photography collection](https://www.istockphoto.com/photos/monza-track) | Parkland, mature trees and long straight sections. |
 | Silverstone | [Silverstone aerial imagery collection](https://gettyimages.com/videos/silverstone-aerial) | Open airfield-like landscape and angular-roof pit architecture. |
@@ -43,10 +43,18 @@ The central gameplay distinctions are low-aero classic cars, turbo boost buildup
 
 - `web/assets/heritage-hero.jpg`: AI-generated original motorsport concept artwork. Shown as concept art in the menu; **not an actual screenshot or third-party track photograph**. The image is generic promotional artwork and does not change to a photographic representation of each selected circuit.
 - WebGL car meshes, textures and world geometry: original procedural code in `web/graphics.js`.
-- Engine audio: original Web Audio oscillators; no sampled recordings or licensed sound bank.
+- Engine audio: original four-stroke-inspired wavetable synthesis, with custom harmonic spectra and noise/transient layers. Browser AudioWorklet and native CPAL stream render from Rust RPM/load/gear telemetry. No authentic sampled recordings or licensed sound bank. The era presets are illustrative, not acoustically measured replicas.
 - Three.js: MIT, https://github.com/mrdoob/three.js/blob/dev/LICENSE
 - Lucide: ISC/MIT attribution as shipped by the dependency, https://github.com/lucide-icons/lucide/blob/main/LICENSE
 - Macroquad: MIT/Apache-2.0 as shipped by the dependency, https://github.com/not-fl3/macroquad
 - Other dependencies retain their own notices in their packages. `package-lock.json` and `Cargo.lock` pin the dependency resolutions.
 
 This project is independent and not endorsed by Formula One Licensing B.V., the FIA, teams or circuits. Naming and commercial distribution require a separate rights review.
+
+## Elevation update (0.2)
+
+`scripts/build-elevation.py` contains explicitly authored progress/height keyframes for all ten tracks. Periodic monotonic cubic interpolation creates per-point `heights` and `ground_heights` in both copies of the map dataset. Values are relative metres, not absolute altitude. The selected gameplay height ranges are Spa 104 m, Monaco 43 m, Monza 9 m, Silverstone 18 m, Suzuka 40 m, Interlagos 43 m, Imola 31 m, Nürburgring GP 51 m, Montréal 5 m and Hockenheim 7 m. **These are authored settings, not newly verified geographic measurements.**
+
+Suzuka's upper branch receives an 8 m lift, while ground interpolation uses the underlying profile. The Rust core projects onto locally tracked segments to avoid crossover branch jumps, computes grade relative to heading and applies the corresponding gravity component. Web and native car pitch and height follow that core state. The model is constrained to the road surface, not a full vertical/suspension dynamics simulation.
+
+CPAL (Apache-2.0) is used only for native device output: https://github.com/RustAudio/cpal . Native audio-device playback has not been certified on physical speakers here; native DSP output is covered by numerical tests.

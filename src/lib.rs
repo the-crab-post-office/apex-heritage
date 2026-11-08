@@ -177,16 +177,15 @@ impl Simulation {
     pub fn reset(&mut self) {
         let p = self.track.points[0];
         let q = self.track.points[1];
+        let yaw = (q[0] - p[0]).atan2(q[1] - p[1]);
+        let road = self.track.surface_at(p[0], p[1], 0, yaw);
         self.state = State {
             x: p[0],
             z: p[1],
-            y: self.track.heights[0] + 0.1,
-            pitch: -self
-                .track
-                .surface_at(p[0], p[1], 0, (q[0] - p[0]).atan2(q[1] - p[1]))
-                .grade
-                .atan(),
-            yaw: (q[0] - p[0]).atan2(q[1] - p[1]),
+            y: road.height + 0.1,
+            grade: road.grade,
+            pitch: -road.grade.atan(),
+            yaw,
             gear: 1,
             rpm: powertrain::idle_rpm(self.spec.gears),
             lap: 1,
@@ -206,6 +205,10 @@ impl Simulation {
         self.state.yaw = (q[0] - p[0]).atan2(q[1] - p[1]);
         self.state.speed = 0.;
         self.state.lateral = 0.;
+        self.state.gear = 1;
+        self.state.rpm = powertrain::idle_rpm(self.spec.gears);
+        self.state.shift_cut = 0.;
+        self.shift_timer = 0.;
         self.state.invalid = true;
         let road = self
             .track

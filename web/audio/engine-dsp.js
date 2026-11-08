@@ -4,7 +4,7 @@ const TAU = Math.PI * 2,
   SIZE = 2048;
 export const ENGINE_PROFILES = [
   {
-    name: "1967 / cross-plane growl",
+    name: "1967 / mechanical V8 growl",
     cylinders: 8,
     peak: 10000,
     idle: 2400,
