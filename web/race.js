@@ -1,4 +1,5 @@
-import init, { Simulation } from "./wasm/apex.js";
+import * as Core from "./wasm/apex.js";
+import { assertCompatibleBuild } from "./build-check.js";
 import { World } from "./graphics.js";
 import { EngineAudio } from "./audio/engine-audio.js";
 import { eras, formatTime } from "./catalog.js";
@@ -6,8 +7,39 @@ const $ = (s) => document.querySelector(s);
 let wasmReady;
 export class Race {
   static async create(track, config, callbacks) {
-    wasmReady ??= init();
+    wasmReady ??= Core.default();
     await wasmReady;
+    let coreVersion, coreHash;
+    try {
+      coreVersion = Core.build_version?.();
+      coreHash = Core.track_data_hash?.();
+    } catch {}
+    const response = await fetch(`/version.json?check=${Date.now()}`, {
+      cache: "no-store",
+    });
+    if (!response.ok)
+      throw Object.assign(
+        new Error(
+          "Build verification failed. Extract and serve the complete latest web ZIP.",
+        ),
+        { code: "APEX_BUILD_MISMATCH" },
+      );
+    const server = await response.json();
+    const verified = assertCompatibleBuild({
+      version: __APP_VERSION__,
+      hash: __TRACK_DATA_HASH__,
+      htmlVersion: document.querySelector('meta[name="apex-build"]')?.content,
+      cssVersion: getComputedStyle(document.documentElement)
+        .getPropertyValue("--apex-build")
+        .trim()
+        .replace(/["']/g, ""),
+      coreVersion,
+      coreHash,
+      serverVersion: server.version,
+      serverHash: server.hash,
+    });
+    $("#hud-build").textContent =
+      `v${verified.version} · data ${verified.hash}`;
     const r = new Race(track, config, callbacks);
     await r.audio.ready;
     return r;
@@ -17,7 +49,7 @@ export class Race {
     this.config = config;
     this.callbacks = callbacks;
     this.config.color = eras[config.era].teams[config.team].color;
-    this.sim = new Simulation(
+    this.sim = new Core.Simulation(
       config.track,
       config.era,
       config.team,
@@ -134,6 +166,7 @@ export class Race {
     });
     this.updateAudioButton();
     this.frame = this.frame.bind(this);
+    this.updateHud(0);
   }
   start() {
     this.world.update(this.state, 1 / 60);

@@ -1,0 +1,202 @@
+//! Subtract the complete projected road footprint from terrain TRIANGLES.
+//! Vertex clearance alone cannot prevent triangle interiors piercing the road.
+use crate::Track;
+use std::collections::{HashMap, HashSet};
+pub type Point = [f64; 3];
+pub type Triangle = [Point; 3];
+pub fn road_point(t: &Track, i: usize, offset: f64, height: f64) -> Point {
+    let n = t.points.len();
+    let a = t.points[i];
+    let p = t.points[(i + n - 1) % n];
+    let q = t.points[(i + 1) % n];
+    let dx = (q[0] - p[0]) as f64;
+    let dz = (q[1] - p[1]) as f64;
+    let len = dx.hypot(dz).max(0.000001);
+    [
+        a[0] as f64 + dz / len * offset,
+        t.heights[i] as f64 + height,
+        a[1] as f64 - dx / len * offset,
+    ]
+}
+fn cross(a: Point, b: Point, p: Point) -> f64 {
+    (b[0] - a[0]) * (p[2] - a[2]) - (b[2] - a[2]) * (p[0] - a[0])
+}
+pub fn area(p: &[Point]) -> f64 {
+    if p.len() < 3 {
+        return 0.;
+    }
+    let a = p[0];
+    (1..p.len() - 1)
+        .map(|i| cross(a, p[i], p[i + 1]))
+        .sum::<f64>()
+        .abs()
+        / 2.
+}
+fn half_plane(poly: &[Point], a: Point, b: Point, inside: bool) -> Vec<Point> {
+    let mut out = Vec::new();
+    for i in 0..poly.len() {
+        let p = poly[i];
+        let q = poly[(i + 1) % poly.len()];
+        let cp = cross(a, b, p);
+        let cq = cross(a, b, q);
+        let pin = if inside { cp >= 0. } else { cp <= 0. };
+        let qin = if inside { cq >= 0. } else { cq <= 0. };
+        if pin {
+            out.push(p);
+        }
+        if pin != qin {
+            let t = cp / (cp - cq);
+            out.push([
+                p[0] + (q[0] - p[0]) * t,
+                p[1] + (q[1] - p[1]) * t,
+                p[2] + (q[2] - p[2]) * t,
+            ]);
+        }
+    }
+    out
+}
+pub fn subtract_triangle(poly: &[Point], mut clip: Triangle) -> Vec<Vec<Point>> {
+    if cross(clip[0], clip[1], clip[2]) < 0. {
+        clip.swap(0, 2);
+    }
+    let mut remaining = poly.to_vec();
+    let mut result = Vec::new();
+    for i in 0..3 {
+        if remaining.len() < 3 {
+            break;
+        }
+        let a = clip[i];
+        let b = clip[(i + 1) % 3];
+        let outside = half_plane(&remaining, a, b, false);
+        if area(&outside) > 1e-7 {
+            result.push(outside);
+        }
+        remaining = half_plane(&remaining, a, b, true);
+    }
+    result
+}
+pub struct RoadMask {
+    triangles: Vec<Triangle>,
+    cells: HashMap<(i32, i32), Vec<usize>>,
+}
+fn cells(poly: &[Point]) -> Vec<(i32, i32)> {
+    let minx = poly.iter().map(|p| p[0]).fold(f64::INFINITY, f64::min);
+    let maxx = poly.iter().map(|p| p[0]).fold(f64::NEG_INFINITY, f64::max);
+    let minz = poly.iter().map(|p| p[2]).fold(f64::INFINITY, f64::min);
+    let maxz = poly.iter().map(|p| p[2]).fold(f64::NEG_INFINITY, f64::max);
+    let mut out = Vec::new();
+    for x in (minx / 40.).floor() as i32..=(maxx / 40.).floor() as i32 {
+        for z in (minz / 40.).floor() as i32..=(maxz / 40.).floor() as i32 {
+            out.push((x, z));
+        }
+    }
+    out
+}
+impl RoadMask {
+    pub fn new(t: &Track) -> Self {
+        let mut triangles = Vec::new();
+        let w = t.width as f64 / 2.;
+        for i in 0..t.points.len() {
+            let j = (i + 1) % t.points.len();
+            let a = road_point(t, i, -w, 0.);
+            let b = road_point(t, j, -w, 0.);
+            let c = road_point(t, i, w, 0.);
+            let d = road_point(t, j, w, 0.);
+            triangles.extend([[a, b, c], [c, b, d]]);
+        }
+        let mut index: HashMap<(i32, i32), Vec<usize>> = HashMap::new();
+        for (i, t) in triangles.iter().enumerate() {
+            for key in cells(t) {
+                index.entry(key).or_default().push(i);
+            }
+        }
+        Self {
+            triangles,
+            cells: index,
+        }
+    }
+    pub fn cut(&self, tri: Triangle) -> Vec<Triangle> {
+        let mut ids = HashSet::new();
+        for cell in cells(&tri) {
+            if let Some(list) = self.cells.get(&cell) {
+                ids.extend(list.iter().copied());
+            }
+        }
+        // Stable order avoids nondeterministic triangulations between rebuilds.
+        let mut ids: Vec<usize> = ids.into_iter().collect();
+        ids.sort_unstable();
+        let mut parts = vec![tri.to_vec()];
+        for id in ids {
+            parts = parts
+                .into_iter()
+                .flat_map(|p| subtract_triangle(&p, self.triangles[id]))
+                .collect();
+            if parts.is_empty() {
+                break;
+            }
+        }
+        let mut out = Vec::new();
+        for p in parts {
+            for i in 1..p.len() - 1 {
+                let tri = [p[0], p[i], p[i + 1]];
+                if area(&tri) > 1e-7 {
+                    out.push(tri);
+                }
+            }
+        }
+        out
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn subtracts_interiors_and_interpolates_height() {
+        let poly = [[-10., 0., -10.], [10., 20., -10.], [0., 10., 10.]];
+        let clip = [[-2., 0., -2.], [2., 0., -2.], [0., 0., 2.]];
+        let parts = subtract_triangle(&poly, clip);
+        let total: f64 = parts.iter().map(|p| area(p)).sum();
+        assert!((total - (area(&poly) - area(&clip))).abs() < 1e-7);
+        for p in parts.iter().flatten() {
+            assert!((p[1] - (p[0] + 10.)).abs() < 1e-7);
+        }
+    }
+    #[test]
+    fn terrain_pieces_exclude_each_circuits_road() {
+        for t in crate::tracks() {
+            let mask = RoadMask::new(&t);
+            for i in (0..t.points.len()).step_by(67) {
+                let p = t.points[i];
+                let (x, z) = (p[0] as f64, p[1] as f64);
+                let tri = [
+                    [x - 30., 150., z - 30.],
+                    [x + 30., 170., z - 30.],
+                    [x, 160., z + 30.],
+                ];
+                for piece in mask.cut(tri) {
+                    let centroid = [
+                        (piece[0][0] + piece[1][0] + piece[2][0]) / 3.,
+                        0.,
+                        (piece[0][2] + piece[1][2] + piece[2][2]) / 3.,
+                    ];
+                    for id in cells(&piece)
+                        .iter()
+                        .filter_map(|c| mask.cells.get(c))
+                        .flatten()
+                    {
+                        let q = mask.triangles[*id];
+                        let a = cross(q[0], q[1], centroid);
+                        let b = cross(q[1], q[2], centroid);
+                        let c = cross(q[2], q[0], centroid);
+                        assert!(
+                            !((a > 1e-6 && b > 1e-6 && c > 1e-6)
+                                || (a < -1e-6 && b < -1e-6 && c < -1e-6)),
+                            "{}",
+                            t.name
+                        );
+                    }
+                }
+            }
+        }
+    }
+}

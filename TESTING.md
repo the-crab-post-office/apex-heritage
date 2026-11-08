@@ -1,27 +1,51 @@
-# Validation record — 0.3.1
+# Validation record — 0.3.2
 
 Validated in this workspace on **8 November 2026**.
 
 ## Root cause and former test gap
 
-The old elevation keyframes were hand-authored against lap fractions. Matching arrays and smooth loop seams did **not** prove that hills occurred at the correct geographic locations. The old profiles were removed, rather than merely rotated. New regressions test world-coordinate landmarks and start-index invariance against coordinate-sampled GLO-30 source grids.
+The 0.3.1 geographic-data correction did not fix the whole visible problem. Sampling scalar heights does not test raster-grid triangle interiors or independently triangulated full-width ribbons. An actual Three.js-mesh audit reproduced **six terrain intrusions and two shoulder/apron intrusions in Monaco**, with a maximum of **2.826 m**, and smaller centerline-to-rendered-road errors in Spa, Monaco, Suzuka and Imola. The road meshes now share centerline vertices; terrain and shoulder polygons are geometrically subtracted from the complete projected road footprint.
+
+The exact supplied Spa screenshot was not reproduced in the fresh source preview: its 35 m/+0.0% text matched the previous HTML defaults, whereas a fresh browser showed 53 m/+0.5% with the expected styles. Mixed/stale assets were a plausible additional issue, **not a proven explanation**. Version checks and a fresh preview origin make this distinguishable rather than relying on an instruction to clear the cache.
 
 ## Results
 
 | Check | Result |
 |---|---|
-| `cargo test --lib` | **22 passed** |
-| `cargo test --features native --lib` | **26 passed** (includes the same 22) |
+| Rust core library tests | **24 passed** |
+| Rust native-feature library tests | **28 passed** (includes the same 24) |
+| Actual native terrain mesh regression, all ten tracks | **1 passed**; native total **29** |
 | Python geographic/offline-regeneration tests | **5 passed** |
-| `npm run test:elevation` | **13 passed** |
-| `npm run test:scenery` | **12 passed** |
-| `npm run test:audio` | **13 passed** |
-| Browser development suite | **8 passed** |
-| Browser production suite on plain static HTTP server | **8 passed** |
+| Node elevation / scenery / audio | **13 / 12 / 13 passed** |
+| Node build-coherence / polygon geometry | **7 / 3 passed**; Node total **48** |
+| Browser development coverage (two batches) | **21 passed** |
+| Full browser production suite, plain static HTTP | **21 passed** |
 | Rust → WASM release / bindings | Passed |
 | Linux x86-64 native release build | Passed |
 | Native Xvfb rendering/physics smoke | 120 frames, acceleration assertion, **119.6 km/h** |
-| Elevation data and licence downloads | HTTP 200 in development and static production |
+
+## Actual-mesh rendering coverage
+
+Browser raycasts interrogate the **drawn Three.js meshes**, not `height()` functions. At five lateral positions on every eighth segment, **6,395 locations across all ten circuits** had zero missing road hits, terrain intrusions, shoulder/apron intrusions or centerline errors over the 1.5 cm tolerance. Terrain/overlay checks do not discard objects merely because they are more than 4 m above the road. Maximum measured centerline error was **0.00000361 m**, dominated by Float32 vertex storage. This is sampled regression coverage, not a mathematical test of every possible viewing position.
+
+| Circuit | Probe locations | Intrusions / missing road / center errors |
+|---|---:|---|
+| Spa, wet | 875 | 0 / 0 / 0 |
+| Monaco | 415 | 0 / 0 / 0 |
+| Monza | 725 | 0 / 0 / 0 |
+| Silverstone | 735 | 0 / 0 / 0 |
+| Suzuka | 730 | 0 / 0 / 0 |
+| Interlagos | 540 | 0 / 0 / 0 |
+| Imola | 615 | 0 / 0 / 0 |
+| Nürburgring GP | 645 | 0 / 0 / 0 |
+| Montréal | 545 | 0 / 0 / 0 |
+| Hockenheim | 570 | 0 / 0 / 0 |
+
+The native regression builds the **actual Macroquad terrain mesh** for every circuit, spatially indexes its final Float32 triangles and checks their interpolated interiors against the same road probe positions. It also verifies batches stay under the renderer's index/vertex limits. Rust and JS polygon tests verify area subtraction and interpolated y, including high triangles whose vertices alone do not establish road clearance. JS also tests upward winding on both shoulder sides.
+
+Camera walkthroughs render changing positions at geographic Spa Eau Rouge/Les Combes and Monaco hairpin/tunnel-road landmarks. Their saved images were inspected. These are injected camera/vehicle poses, **not autonomous physics laps**; actual keyboard-driven physics is tested separately. No enclosed architectural tunnel is claimed.
+
+Startup tests require compatible HTML, CSS, JS, WASM and server versions plus matching track-data hashes. Unit tests inject a stale/missing value for each component. A browser test deliberately serves an outdated `version.json` and confirms an explicit visible build-mismatch error with no race constructed. The visible v0.3.2 HUD and immediate non-placeholder telemetry are checked in the wet Spa session.
 
 ## Geographic elevation coverage
 
@@ -48,4 +72,4 @@ GLO-30 is an approximately **30 m digital surface model**, including vegetation 
 
 Headless Chromium/software WebGL and Linux Xvfb were used. No physical audio-driver/speaker, mobile/gamepad hardware, other browser engine or Windows/macOS native certification is claimed. Lap tests inject centerline positions, not autonomous full-physics laps. Native remains a simpler free-drive client without browser AI/weather/records features; headless native smoke disables device initialization and tests audio DSP separately.
 
-The driving model remains grounded 2.5D, not a suspension/jump simulator. Vite's bundled game/database chunks exceed its 500 kB advisory threshold; builds succeed. Static output is about **5.33 MB uncompressed**, including editable source/derived databases and licence downloads. This is not a frame-rate benchmark.
+The driving model remains grounded 2.5D, not a suspension/jump simulator. Vite's bundled game/database chunks exceed its 500 kB advisory threshold; builds succeed. Static output is about **5.3 MB uncompressed**, including editable source/derived databases and licence downloads. This is not a frame-rate benchmark.

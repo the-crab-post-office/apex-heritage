@@ -88,46 +88,56 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
         + 300.;
     let nx = (((max_x - min_x) / 28.).ceil() as usize).min(120);
     let nz = (((max_z - min_z) / 28.).ceil() as usize).min(120);
-    let mut vertices = Vec::new();
+    let mut points = Vec::new();
     for iz in 0..=nz {
         for ix in 0..=nx {
             let x = min_x + (max_x - min_x) * ix as f32 / nx as f32;
             let z = min_z + (max_z - min_z) * iz as f32 / nz as f32;
-            let y = t.terrain_height(x, z) - 1.25;
-            vertices.push(Vertex::new2(
-                vec3(x, y, z),
-                vec2(ix as f32 / nx as f32, iz as f32 / nz as f32),
-                Color::from_rgba(76, 94, 52, 255),
-            ));
+            points.push([x as f64, (t.terrain_height(x, z) - 1.25) as f64, z as f64]);
         }
     }
-    // Keep each draw under Macroquad's default 5,000-index capacity.
-    let mut chunks = Vec::new();
-    for z0 in (0..nz).step_by(20) {
-        for x0 in (0..nx).step_by(20) {
-            let w = (nx - x0).min(20);
-            let h = (nz - z0).min(20);
-            let mut vs = Vec::new();
-            let mut ids = Vec::new();
-            for z in 0..=h {
-                for x in 0..=w {
-                    vs.push(vertices[(z0 + z) * (nx + 1) + x0 + x].clone());
-                    if x < w && z < h {
-                        let a = (z * (w + 1) + x) as u16;
-                        let b = a + (w + 1) as u16;
-                        ids.extend_from_slice(&[a, b, a + 1, a + 1, b, b + 1]);
+    let mask = apex_heritage::surface_mesh::RoadMask::new(t);
+    let mut meshes = Vec::new();
+    let mut vertices = Vec::new();
+    let mut indices = Vec::new();
+    for z in 0..nz {
+        for x in 0..nx {
+            let a = z * (nx + 1) + x;
+            let b = a + nx + 1;
+            for tri in [
+                [points[a], points[b], points[a + 1]],
+                [points[a + 1], points[b], points[b + 1]],
+            ] {
+                for piece in mask.cut(tri) {
+                    if vertices.len() + 3 > 3996 {
+                        meshes.push(Mesh {
+                            vertices: std::mem::take(&mut vertices),
+                            indices: std::mem::take(&mut indices),
+                            texture: None,
+                        });
+                    }
+                    for p in piece {
+                        indices.push(vertices.len() as u16);
+                        vertices.push(Vertex::new2(
+                            vec3(p[0] as f32, p[1] as f32, p[2] as f32),
+                            vec2(0., 0.),
+                            Color::from_rgba(76, 94, 52, 255),
+                        ));
                     }
                 }
             }
-            chunks.push(Mesh {
-                vertices: vs,
-                indices: ids,
-                texture: None,
-            });
         }
     }
-    chunks
+    if !vertices.is_empty() {
+        meshes.push(Mesh {
+            vertices,
+            indices,
+            texture: None,
+        });
+    }
+    meshes
 }
+
 fn mapped_buildings(
     t: &Track,
     buildings: &[apex_heritage::scenery::Building],
@@ -363,16 +373,20 @@ async fn main() {
             let len = dx.hypot(dz);
             let r = vec3(dz / len, 0., -dx / len) * t.width * 0.5;
             let av = vec3(a[0], t.heights[i] + 0.05, a[1]);
-            let bv = vec3(b[0], t.heights[(i + 1) % n] + 0.05, b[1]);
-            let vertices = vec![
-                Vertex::new2(av - r, vec2(0., 0.), Color::from_rgba(48, 50, 52, 255)),
-                Vertex::new2(av + r, vec2(1., 0.), Color::from_rgba(48, 50, 52, 255)),
-                Vertex::new2(bv - r, vec2(0., 1.), Color::from_rgba(48, 50, 52, 255)),
-                Vertex::new2(bv + r, vec2(1., 1.), Color::from_rgba(48, 50, 52, 255)),
-            ];
+            let mut vertices = Vec::new();
+            for row in [i, (i + 1) % n] {
+                for offset in [-t.width as f64 / 2., 0., t.width as f64 / 2.] {
+                    let p = apex_heritage::surface_mesh::road_point(t, row, offset, 0.05);
+                    vertices.push(Vertex::new2(
+                        vec3(p[0] as f32, p[1] as f32, p[2] as f32),
+                        vec2(0., 0.),
+                        Color::from_rgba(48, 50, 52, 255),
+                    ));
+                }
+            }
             draw_mesh(&Mesh {
                 vertices,
-                indices: vec![0, 1, 2, 2, 1, 3],
+                indices: vec![0, 3, 1, 1, 3, 4, 1, 4, 2, 2, 4, 5],
                 texture: None,
             });
             if i % 3 == 0 {
@@ -519,5 +533,87 @@ async fn main() {
             }
         }
         next_frame().await
+    }
+}
+
+#[cfg(test)]
+mod surface_tests {
+    use super::*;
+    use std::collections::HashMap;
+    type Triangle = [[f64; 3]; 3];
+    fn height_at(p: [f64; 3], t: Triangle) -> Option<f64> {
+        let [a, b, c] = t;
+        let d = (b[2] - c[2]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[2] - c[2]);
+        if d.abs() < 1e-9 {
+            return None;
+        }
+        let u = ((b[2] - c[2]) * (p[0] - c[0]) + (c[0] - b[0]) * (p[2] - c[2])) / d;
+        let v = ((c[2] - a[2]) * (p[0] - c[0]) + (a[0] - c[0]) * (p[2] - c[2])) / d;
+        let w = 1. - u - v;
+        if u >= -1e-9 && v >= -1e-9 && w >= -1e-9 {
+            Some(u * a[1] + v * b[1] + w * c[1])
+        } else {
+            None
+        }
+    }
+    #[test]
+    fn actual_native_terrain_meshes_do_not_pierce_any_circuit() {
+        for t in tracks() {
+            let mut cells: HashMap<(i32, i32), Vec<Triangle>> = HashMap::new();
+            for mesh in terrain_mesh(&t) {
+                assert!(mesh.vertices.len() < 4000);
+                for ids in mesh.indices.chunks_exact(3) {
+                    let tri: Triangle = std::array::from_fn(|i| {
+                        let p = mesh.vertices[ids[i] as usize].position;
+                        [p.x as f64, p.y as f64, p.z as f64]
+                    });
+                    let minx = tri.iter().map(|p| p[0]).fold(f64::INFINITY, f64::min);
+                    let maxx = tri.iter().map(|p| p[0]).fold(f64::NEG_INFINITY, f64::max);
+                    let minz = tri.iter().map(|p| p[2]).fold(f64::INFINITY, f64::min);
+                    let maxz = tri.iter().map(|p| p[2]).fold(f64::NEG_INFINITY, f64::max);
+                    for x in (minx / 40.).floor() as i32..=(maxx / 40.).floor() as i32 {
+                        for z in (minz / 40.).floor() as i32..=(maxz / 40.).floor() as i32 {
+                            cells.entry((x, z)).or_default().push(tri);
+                        }
+                    }
+                }
+            }
+            let mut samples = 0;
+            for i in (0..t.points.len()).step_by(8) {
+                for fraction in [-0.85, -0.4, 0., 0.4, 0.85] {
+                    let a = apex_heritage::surface_mesh::road_point(
+                        &t,
+                        i,
+                        fraction * t.width as f64 / 2.,
+                        0.05,
+                    );
+                    let b = apex_heritage::surface_mesh::road_point(
+                        &t,
+                        (i + 1) % t.points.len(),
+                        fraction * t.width as f64 / 2.,
+                        0.05,
+                    );
+                    let p = std::array::from_fn(|k| (a[k] + b[k]) / 2.);
+                    samples += 1;
+                    if let Some(list) =
+                        cells.get(&((p[0] / 40.).floor() as i32, (p[2] / 40.).floor() as i32))
+                    {
+                        for tri in list {
+                            if let Some(y) = height_at(p, *tri) {
+                                assert!(
+                                    y <= p[1] + 0.01,
+                                    "{} sample {}: native terrain {} above road {}",
+                                    t.name,
+                                    i,
+                                    y,
+                                    p[1]
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            assert!(samples > 350);
+        }
     }
 }
