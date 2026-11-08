@@ -99,6 +99,10 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
     let mask = apex_heritage::surface_mesh::RoadMask::new(t);
     let pit_track = apex_heritage::pit::PitLane::new(t).as_track();
     let pit_mask = apex_heritage::surface_mesh::RoadMask::new_open(&pit_track);
+    let photo = apex_heritage::tracks()
+        .iter()
+        .position(|q| q.name == t.name)
+        .map(|i| apex_heritage::imagery::areas()[i].clone());
     let mut meshes = Vec::new();
     let mut vertices = Vec::new();
     let mut indices = Vec::new();
@@ -122,8 +126,16 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
                         indices.push(vertices.len() as u16);
                         vertices.push(Vertex::new2(
                             vec3(p[0] as f32, p[1] as f32, p[2] as f32),
-                            vec2(0., 0.),
-                            Color::from_rgba(76, 94, 52, 255),
+                            photo
+                                .as_ref()
+                                .map(|a| {
+                                    vec2(
+                                        (p[0] as f32 - a.bounds[0]) / (a.bounds[2] - a.bounds[0]),
+                                        (p[2] as f32 - a.bounds[1]) / (a.bounds[3] - a.bounds[1]),
+                                    )
+                                })
+                                .unwrap_or(vec2(0., 0.)),
+                            WHITE,
                         ));
                     }
                 }
@@ -225,6 +237,15 @@ async fn main() {
     let mut sound_on = true;
     let circuits = tracks();
     let mapped = apex_heritage::scenery::buildings();
+    let photo_areas = apex_heritage::imagery::areas();
+    let photos: Vec<Texture2D> = apex_heritage::imagery::PHOTOS
+        .iter()
+        .map(|b| {
+            let t = Texture2D::from_file_with_format(b, Some(ImageFormat::Jpeg));
+            t.set_filter(FilterMode::Linear);
+            t
+        })
+        .collect();
     let mut ti = 0usize;
     let mut era = 2usize;
     let mut team = 0usize;
@@ -236,6 +257,9 @@ async fn main() {
     let mut accumulator = 0.;
     let mut terrain_track = ti;
     let mut landscape = terrain_mesh(&circuits[ti]);
+    for mesh in &mut landscape {
+        mesh.texture = Some(photos[ti].clone());
+    }
     let mut pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
     let mut pit_mesh = pit_mesh_build(&pit_lane);
     let mut camera_mode = 0;
@@ -356,6 +380,9 @@ async fn main() {
             pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
             pit_mesh = pit_mesh_build(&pit_lane);
             landscape = terrain_mesh(&circuits[ti]);
+            for mesh in &mut landscape {
+                mesh.texture = Some(photos[ti].clone());
+            }
             buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
             terrain_track = ti;
         }
@@ -488,7 +515,8 @@ async fn main() {
             }
             if i % 20 == 0 {
                 let mut tree = av + r * 4.;
-                if !t.circle_clear(tree.x, tree.z, 3.)
+                if !apex_heritage::imagery::forest_at(&photo_areas[ti], tree.x, tree.z)
+                    || !t.circle_clear(tree.x, tree.z, 3.)
                     || pit_lane.distance(tree.x, tree.z) < pit_lane.width / 2. + 4.
                 {
                     continue;

@@ -5,6 +5,8 @@ use wasm_bindgen::prelude::*;
 pub mod controller;
 pub mod elevation;
 #[cfg(feature = "native")]
+pub mod imagery;
+#[cfg(feature = "native")]
 pub mod native_audio;
 pub mod pit;
 pub mod powertrain;
