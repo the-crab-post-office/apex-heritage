@@ -41,9 +41,9 @@ for t,pit,layer in zip(tracks,pits,buildings):
      x=a[0]+normal[0]*side*(t['width']/2+offset);z=a[1]+normal[1]*side*(t['width']/2+offset)
      # local +Z is toward the circuit: bleachers rise toward local -Z.
      syaw=yaw+(-math.pi/2 if side>0 else math.pi/2)
-     footprint=rect(x,z,syaw,32,17);poly=Polygon(footprint)
+     roof=len(stands)%3!=2;footprint=rect(x,z,syaw,34 if roof else 32,20 if roof else 17);poly=Polygon(footprint)
      if poly.intersects(protected)or any(poly.distance(Polygon(s['footprint']))<25 for s in stands):continue
-     stands.append({'index':i,'x':round(x,3),'z':round(z,3),'yaw':round(syaw,6),'width':32,'depth':17,'rows':9,'roof':len(stands)%3!=2,'footprint':footprint});found=True;break
+     stands.append({'index':i,'x':round(x,3),'z':round(z,3),'yaw':round(syaw,6),'width':32,'depth':17,'rows':9,'roof':roof,'footprint':footprint});found=True;break
     if found:break
    if found:break
   if len(stands)>=6:break

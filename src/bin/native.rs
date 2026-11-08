@@ -1024,6 +1024,15 @@ async fn main() {
             } else if s.offtrack {
                 draw_text("OFF TRACK", screen_width() / 2. - 90., 80., 30., ORANGE);
             }
+            if !s.offtrack && s.impact < 0.08 && s.rear_slip > 0.3 {
+                draw_text(
+                    "REAR GRIP LOSS — EASE THROTTLE / COUNTERSTEER",
+                    25.,
+                    screen_height() - 79.,
+                    18.,
+                    ORANGE,
+                );
+            }
             if paused {
                 draw_rectangle(
                     0.,

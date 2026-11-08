@@ -395,6 +395,12 @@ export class Race {
       } else if (s.offtrack) {
         m.textContent = "OFF TRACK · EASE BACK ON";
         m.classList.remove("countdown");
+      } else if (
+        s.rear_slip > 0.3 ||
+        Math.abs(Math.sin(s.yaw - s.travel_yaw)) > 0.35
+      ) {
+        m.textContent = "REAR GRIP LOSS · EASE THROTTLE · COUNTERSTEER";
+        m.classList.remove("countdown");
       } else if (time > this.messageUntil) m.textContent = "";
     }
     this.drawMap();

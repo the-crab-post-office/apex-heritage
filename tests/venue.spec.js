@@ -31,6 +31,9 @@ for (const [track, name] of [
       const r = window.__apex.race,
         w = r.world;
       r.paused = true;
+      r.countdown = -1;
+      r.world.update = () => {};
+      r.updateHud(performance.now() / 1000);
       const a = w.venueAudit;
       let blocked = 0,
         nonFinite = 0,
