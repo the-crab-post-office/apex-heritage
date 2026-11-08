@@ -62,6 +62,7 @@ export class Race {
     this.world = new World($("#race-canvas"), track, {
       ...this.config,
       pit: this.pit,
+      venue: JSON.parse(this.sim.venue_geometry_json()),
     });
     this.keys = new Set();
     this.touch = {};
@@ -388,8 +389,17 @@ export class Race {
       );
     if (this.countdown <= 0 && !this.finished) {
       const m = $("#race-message");
-      if (s.offtrack) {
+      if (s.impact > 0.08) {
+        m.textContent = "BARRIER IMPACT · LAP INVALID";
+        m.classList.remove("countdown");
+      } else if (s.offtrack) {
         m.textContent = "OFF TRACK · EASE BACK ON";
+        m.classList.remove("countdown");
+      } else if (
+        s.rear_slip > 0.3 ||
+        Math.abs(Math.sin(s.yaw - s.travel_yaw)) > 0.35
+      ) {
+        m.textContent = "REAR GRIP LOSS · EASE THROTTLE · COUNTERSTEER";
         m.classList.remove("countdown");
       } else if (time > this.messageUntil) m.textContent = "";
     }

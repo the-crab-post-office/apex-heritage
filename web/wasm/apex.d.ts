@@ -10,6 +10,7 @@ export class Simulation {
   toggle_limiter(): boolean;
   pit_geometry_json(): string;
   start_pit_practice(): void;
+  venue_geometry_json(): string;
   constructor(track_index: number, era: number, team: number, wet: boolean, assists: boolean);
   step(throttle: number, brake: number, steer: number, dt: number): void;
   reset(): void;
@@ -33,6 +34,7 @@ export interface InitOutput {
   readonly simulation_state_json: (a: number) => [number, number];
   readonly simulation_step: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly simulation_toggle_limiter: (a: number) => number;
+  readonly simulation_venue_geometry_json: (a: number) => [number, number];
   readonly track_data_hash: () => [number, number];
   readonly __wbindgen_externrefs: WebAssembly.Table;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;

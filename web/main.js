@@ -72,7 +72,7 @@ let config = {
 config.track = Math.min(9, Math.max(0, Number(config.track) || 0));
 config.era = Math.min(3, Math.max(0, Number(config.era) || 0));
 config.team = Math.min(3, Math.max(0, Number(config.team) || 0));
-let records = readStorage("apex-records-v5-classic-pits", []),
+let records = readStorage("apex-records-v6-rear-grip", []),
   race = null,
   filter = "all",
   toastTimer;
@@ -283,7 +283,7 @@ function showRecords() {
     $("#clear-records").onclick = () => {
       if (confirm("Delete all locally saved lap records?")) {
         records = [];
-        store("apex-records-v5-classic-pits", records);
+        store("apex-records-v6-rear-grip", records);
         showRecords();
       }
     };
@@ -371,7 +371,7 @@ function saveRecord(best) {
   if (!old || best < old.best) {
     if (old) old.best = best;
     else records.push({ ...config, best });
-    store("apex-records-v5-classic-pits", records);
+    store("apex-records-v6-rear-grip", records);
   }
 }
 function exitRace() {

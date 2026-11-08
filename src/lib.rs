@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 #[cfg(feature = "native")]
 pub mod controller;
+mod dynamics;
 pub mod elevation;
 #[cfg(feature = "native")]
 pub mod imagery;
@@ -14,6 +15,7 @@ pub mod powertrain;
 pub mod recorded_audio;
 pub mod scenery;
 pub mod surface_mesh;
+pub mod venue;
 
 #[wasm_bindgen]
 pub fn build_version() -> String {
@@ -174,6 +176,9 @@ pub struct State {
     pub pit_remaining: f32,
     pub pit_stops: u32,
     pub pit_missed: bool,
+    pub impact: f32,
+    pub rear_slip: f32,
+    pub travel_yaw: f32,
 }
 #[wasm_bindgen]
 pub struct Simulation {
@@ -189,6 +194,8 @@ pub struct Simulation {
     shift_timer: f32,
     era: usize,
     pit: pit::PitLane,
+    venue: venue::Venue,
+    rear_memory: dynamics::RearMemory,
 }
 #[wasm_bindgen]
 impl Simulation {
@@ -197,7 +204,10 @@ impl Simulation {
         let ts = tracks();
         let track = ts[track_index.min(ts.len() - 1)].clone();
         let pit = pit::PitLane::new(&track);
+        let venue = venue::Venue::for_track(&track.name);
         let mut s = Self {
+            venue,
+            rear_memory: dynamics::RearMemory::default(),
             pit,
             track,
             spec: car_spec(era, team),
@@ -226,6 +236,7 @@ impl Simulation {
             grade: road.grade,
             pitch: -road.grade.atan(),
             yaw,
+            travel_yaw: yaw,
             gear: 1,
             rpm: powertrain::idle_rpm(self.spec.gears),
             lap: 1,
@@ -238,6 +249,7 @@ impl Simulation {
         self.lap_start = 0.;
         self.lap_distance = 0.;
         self.shift_timer = 0.;
+        self.rear_memory = dynamics::RearMemory::default();
     }
     pub fn start_pit_practice(&mut self) {
         self.reset();
@@ -256,6 +268,9 @@ impl Simulation {
         self.state.pit_limiter = !self.state.pit_limiter;
         self.state.pit_limiter
     }
+    pub fn venue_geometry_json(&self) -> String {
+        serde_json::to_string(&self.venue).unwrap()
+    }
     pub fn pit_geometry_json(&self) -> String {
         serde_json::to_string(&self.pit).unwrap()
     }
@@ -269,6 +284,10 @@ impl Simulation {
         self.state.x = p[0];
         self.state.z = p[1];
         self.state.yaw = (q[0] - p[0]).atan2(q[1] - p[1]);
+        self.state.travel_yaw = self.state.yaw;
+        self.state.rear_slip = 0.;
+        self.state.impact = 0.;
+        self.rear_memory = dynamics::RearMemory::default();
         self.state.speed = 0.;
         self.state.lateral = 0.;
         self.state.yaw_rate = 0.;
@@ -311,6 +330,8 @@ impl Simulation {
             return;
         }
         let s = &mut self.state;
+        let old_position = [s.x, s.z];
+        s.impact = (s.impact - dt * 1.5).max(0.);
         let throttle = if s.fuel > 0. { throttle } else { 0. };
         let spec = self.spec;
         let surface = self.track.driving_surface(s.x, s.z, self.nearest, s.yaw);
@@ -318,6 +339,7 @@ impl Simulation {
         let grade_gravity = 9.81 * grade / (1. + grade * grade).sqrt();
         s.elapsed += dt;
         s.lap_time = s.elapsed - self.lap_start;
+        let previous_throttle = s.throttle;
         s.throttle = throttle;
         s.brake = brake;
         let classic = self.era == 0;
@@ -364,30 +386,41 @@ impl Simulation {
         let max_angle = spec.steer / (1. + s.speed * if classic { 0.045 } else { 0.038 });
         let desired_yaw =
             s.speed / if classic { 2.45 } else { 3.1 } * (s.steering * max_angle).tan();
-        let max_yaw = grip / s.speed.max(1.);
-        let target_yaw = desired_yaw.clamp(-max_yaw, max_yaw);
-        s.yaw_rate = if classic {
-            s.yaw_rate + (target_yaw - s.yaw_rate) * (1. - (-dt / 0.12).exp())
-        } else {
-            target_yaw
-        };
-        let yaw_rate = s.yaw_rate.clamp(-max_yaw, max_yaw);
-        s.slip = ((desired_yaw.abs() - max_yaw).max(0.) * 1.5
-            + if self.assists {
-                0.
-            } else {
-                (raw_accel - traction).max(0.) * 0.03
-            })
-        .min(1.);
-        s.yaw += yaw_rate * dt;
-        let lateral_target = if self.assists {
-            0.
-        } else {
-            -(desired_yaw - yaw_rate) * s.speed * if classic { 0.065 } else { 0.12 }
-        };
-        s.lateral += (lateral_target - s.lateral) * (dt * 4.).min(1.);
-        s.x += (s.yaw.sin() * s.speed + s.yaw.cos() * s.lateral) * dt;
-        s.z += (s.yaw.cos() * s.speed - s.yaw.sin() * s.lateral) * dt;
+        dynamics::advance(
+            s,
+            &mut self.rear_memory,
+            dynamics::RearInput {
+                grip,
+                desired_yaw,
+                raw_accel,
+                throttle,
+                brake,
+                previous_throttle,
+                classic,
+                assists: self.assists,
+            },
+            dt,
+        );
+        s.x += s.travel_yaw.sin() * s.speed * dt;
+        s.z += s.travel_yaw.cos() * s.speed * dt;
+        if let Some(hit) = self.venue.collide(
+            old_position,
+            [s.x, s.z],
+            [s.travel_yaw.sin() * s.speed, s.travel_yaw.cos() * s.speed],
+        ) {
+            s.x = hit.position[0];
+            s.z = hit.position[1];
+            s.speed = hit.velocity[0].hypot(hit.velocity[1]);
+            if s.speed > 0.05 {
+                s.travel_yaw = hit.velocity[0].atan2(hit.velocity[1]);
+            }
+            s.lateral = -s.speed * dynamics::angle(s.yaw - s.travel_yaw).sin();
+            s.yaw_rate *= 0.3;
+            if hit.strength > 1. {
+                s.impact = (hit.strength / 25.).min(1.);
+                s.invalid = true;
+            }
+        }
         powertrain::update_engine(s, spec.gears, &mut self.shift_timer, dt);
         let n = self.track.points.len();
         let old = self.nearest;
@@ -469,6 +502,9 @@ impl Simulation {
         s.invalid = true;
         s.offtrack = false;
         s.slip = 0.;
+        s.rear_slip = 0.;
+        s.impact = 0.;
+        self.rear_memory = dynamics::RearMemory::default();
         s.lateral = 0.;
         s.yaw_rate = 0.;
         s.steering = 0.;
@@ -517,6 +553,7 @@ impl Simulation {
         s.y = p[1] + 0.1;
         s.z = p[2];
         s.yaw = yaw;
+        s.travel_yaw = yaw;
         s.grade = grade;
         s.pitch = -grade.atan();
         s.progress = idx as f32 / self.track.points.len() as f32;
@@ -678,6 +715,31 @@ mod tests {
         s.reset();
         assert_eq!(s.state.lap, 1);
         assert!(!s.state.invalid);
+    }
+    #[test]
+    fn actual_simulation_transmits_slides_and_recover_resets_velocity_heading() {
+        for era in 0..4 {
+            let mut sim = Simulation::new(0, era, 0, false, false);
+            let p = sim.track.points[0];
+            // A fixed-speed on-road handling rig: hold position at the same
+            // road station so walls/runoff cannot confound rear-axle dynamics.
+            let mut peak = 0.0_f32;
+            for _ in 0..300 {
+                sim.state.x = p[0];
+                sim.state.z = p[1];
+                sim.state.speed = 30.;
+                sim.step(1., 0.9, 1., 1. / 120.);
+                peak = peak.max(dynamics::angle(sim.state.yaw - sim.state.travel_yaw).abs());
+            }
+            assert!(peak > 1.2, "era {era}, slip angle {peak}");
+            sim.recover();
+            assert_eq!(sim.state.travel_yaw, sim.state.yaw);
+            assert_eq!(sim.state.rear_slip, 0.);
+            assert_eq!(sim.state.yaw_rate, 0.);
+            sim.reset();
+            assert_eq!(sim.state.travel_yaw, sim.state.yaw);
+            assert_eq!(sim.state.rear_slip, 0.);
+        }
     }
     #[test]
     fn rejects_nan_input() {

@@ -13,6 +13,7 @@ export const simulation_start_pit_practice: (a: number) => void;
 export const simulation_state_json: (a: number) => [number, number];
 export const simulation_step: (a: number, b: number, c: number, d: number, e: number) => void;
 export const simulation_toggle_limiter: (a: number) => number;
+export const simulation_venue_geometry_json: (a: number) => [number, number];
 export const track_data_hash: () => [number, number];
 export const __wbindgen_externrefs: WebAssembly.Table;
 export const __wbindgen_free: (a: number, b: number, c: number) => void;
