@@ -1,3 +1,5 @@
+import mappedScenery from "./assets/buildings.json";
+import { CircuitClearance, inside, pointSegmentDistance } from "./scenery.js";
 import * as THREE from "three";
 import { ElevationField, profileAt } from "./elevation.js";
 import { Sky } from "three/addons/objects/Sky.js";
@@ -334,6 +336,9 @@ export class World {
       this.scene.add(sky);
     }
     this.elevationField = new ElevationField(track);
+    this.clearance = new CircuitClearance(track);
+    this.sceneryAudit = { trees: [], buildings: [], omittedBuildings: 0 };
+    this.buildMappedBuildings();
     this.buildTrack();
     this.buildScenery();
     this.buildLandmarks();
@@ -588,6 +593,57 @@ export class World {
     gantry.add(panel);
     this.scene.add(gantry);
   }
+  buildMappedBuildings() {
+    const layer = mappedScenery.tracks.find((t) => t.id === this.track.id);
+    this.mappedBuildings = (layer?.buildings || []).filter((b) => {
+      const safe = this.clearance.polygonClear(b.footprint);
+      if (!safe) this.sceneryAudit.omittedBuildings++;
+      return safe;
+    });
+    const group = new THREE.Group();
+    const mats = [
+      material("#b5b09c", 0.85),
+      material("#d0c6b2", 0.85),
+      material("#9b9f94", 0.85),
+    ];
+    for (const b of this.mappedBuildings) {
+      const shape = new THREE.Shape(
+        b.footprint.map(([x, z]) => new THREE.Vector2(x, -z)),
+      );
+      const geo = new THREE.ExtrudeGeometry(shape, {
+        depth: b.height,
+        bevelEnabled: false,
+        steps: 1,
+      });
+      geo.rotateX(-Math.PI / 2);
+      // Keep the whole floor embedded in sloping terrain, not floating off one edge.
+      const y =
+        Math.min(...b.footprint.map(([x, z]) => this.height(x, z))) - 0.2;
+      const mesh = new THREE.Mesh(geo, mats[b.osm_id % mats.length]);
+      mesh.position.y = y;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      group.add(mesh);
+      this.sceneryAudit.buildings.push(b);
+    }
+    mergeBody(group);
+    this.scene.add(group);
+  }
+  nearBuilding(x, z, radius) {
+    return this.mappedBuildings.some(
+      (b) =>
+        inside([x, z], b.footprint) ||
+        b.footprint.some(
+          (p, i) =>
+            pointSegmentDistance(
+              [x, z],
+              p,
+              b.footprint[(i + 1) % b.footprint.length],
+            ) <
+            radius + 1,
+        ),
+    );
+  }
   buildScenery() {
     const p = this.track.points,
       n = p.length,
@@ -612,7 +668,8 @@ export class World {
     );
     const matrix = new THREE.Object3D(),
       c = new THREE.Color();
-    for (let i = 0; i < count; i++) {
+    let accepted = 0;
+    for (let i = 0; i < count * 4 && accepted < count; i++) {
       let idx = Math.floor(rnd() * n),
         a = p[idx],
         b = p[(idx + 1) % n],
@@ -623,94 +680,40 @@ export class World {
       let offset = side * (this.track.width / 2 + 18 + rnd() * 260);
       let x = a[0] + (dz / len) * offset + (rnd() - 0.5) * 30,
         z = a[1] - (dx / len) * offset + (rnd() - 0.5) * 30;
-      // Avoid planting trees on other nearby parts of the track.
-      let tooClose = false;
-      for (let j = 0; j < n; j += 5)
-        if (Math.hypot(p[j][0] - x, p[j][1] - z) < this.track.width / 2 + 13) {
-          tooClose = true;
-          break;
-        }
-      if (tooClose) {
-        x += side * 400;
-        z += 250;
-      }
-      let y = this.height(x, z),
-        h = 5 + rnd() * 12;
+      const h = 5 + rnd() * 12,
+        radius = h * 0.35;
+      // Reject, never shove a failed candidate somewhere else without rechecking.
+      if (
+        !this.clearance.circleClear(x, z, radius) ||
+        this.nearBuilding(x, z, radius)
+      )
+        continue;
+      const y = this.height(x, z),
+        slot = accepted++;
+      this.sceneryAudit.trees.push({ x, z, radius });
+      matrix.rotation.set(0, 0, 0);
       matrix.position.set(x, y + h * 0.24, z);
       matrix.scale.set(1, h * 0.5, 1);
       matrix.updateMatrix();
-      trunk.setMatrixAt(i, matrix.matrix);
+      trunk.setMatrixAt(slot, matrix.matrix);
       for (let j = 0; j < 2; j++) {
         matrix.position.set(x, y + h * (j ? 0.72 : 0.48), z);
         matrix.scale.set(h * (j ? 0.25 : 0.35), h * 0.7, h * (j ? 0.25 : 0.35));
         matrix.rotation.y = rnd() * 6;
         matrix.updateMatrix();
-        leaf.setMatrixAt(i * 2 + j, matrix.matrix);
+        leaf.setMatrixAt(slot * 2 + j, matrix.matrix);
         c.setHSL(0.22 + rnd() * 0.07, 0.2 + rnd() * 0.2, 0.11 + rnd() * 0.13);
-        leaf.setColorAt(i * 2 + j, c);
+        leaf.setColorAt(slot * 2 + j, c);
       }
     }
+    trunk.count = accepted;
+    leaf.count = accepted * 2;
     trunk.castShadow = true;
     leaf.castShadow = true;
     leaf.receiveShadow = true;
     this.scene.add(trunk, leaf);
-    const buildingMat = material("#92998c", 0.8, 0.05),
-      roofMat = material("#303d39", 0.6, 0.3),
-      glassMat = material("#35515b", 0.25, 0.5);
-    const start = this.sample(0.005);
-    const pit = new THREE.Group();
-    pit.position.set(start.x, start.y, start.z);
-    pit.rotation.y = start.yaw;
-    const build = (x, y, z, w, h, d, m) => {
-      let o = new THREE.Mesh(boxGeo, m);
-      o.position.set(x, y, z);
-      o.scale.set(w, h, d);
-      o.castShadow = true;
-      o.receiveShadow = true;
-      pit.add(o);
-      return o;
-    };
-    for (let i = 0; i < 12; i++) {
-      let z = i * 11 - 65;
-      build(-32, 4.5, z, 17, 9, 10.5, buildingMat);
-      build(-32, 9.3, z, 19, 0.55, 11, roofMat);
-      build(-23.4, 3, z, 0.12, 4.7, 8, roofMat);
-      build(-23.35, 7.3, z, 0.1, 2, 9, glassMat);
-    }
-    // A long grandstand with individual colored seat rows.
-    for (let i = 0; i < 8; i++) {
-      build(
-        34 + i * 0.9,
-        1 + i * 0.65,
-        10,
-        1.2,
-        0.5,
-        110,
-        material(i % 3 === 0 ? "#b06b4c" : "#b8bfab"),
-      );
-    }
-    build(39, 8.7, 10, 16, 0.4, 116, roofMat);
-    for (let z of [-40, 0, 50]) build(44, 4.5, z, 0.4, 9, 0.4, roofMat);
-    this.scene.add(pit);
-    // Circuit-dependent architectural cues, not replicas of real buildings.
-    if (["coast", "city", "island", "japan"].includes(this.track.biome)) {
-      for (let i = 0; i < 60; i++) {
-        const idx = Math.floor(rnd() * n),
-          a = p[idx],
-          offset = 60 + rnd() * 240;
-        let x = a[0] + offset * (rnd() < 0.5 ? -1 : 1),
-          z = a[1] + offset * (rnd() < 0.5 ? -1 : 1),
-          h = 8 + rnd() * 45;
-        const b = new THREE.Mesh(
-          boxGeo,
-          material(["#b5b09c", "#d0c6b2", "#9b9f94"][i % 3]),
-        );
-        b.position.set(x, this.height(x, z) + h / 2, z);
-        b.scale.set(12 + rnd() * 20, h, 12 + rnd() * 20);
-        b.castShadow = true;
-        this.scene.add(b);
-      }
-    }
+    // Buildings, pits and stands now come from the mapped footprint layer.
+    // No random city blocks or arbitrary start-relative garage/stand placement.
     // Braking-distance boards every few hundred metres.
     const signCanvas = document.createElement("canvas");
     signCanvas.width = 128;
@@ -728,6 +731,9 @@ export class World {
     });
     for (let i = 30; i < n; i += 75) {
       const a = this.sample(i / n);
+      const bx = a.x + Math.cos(a.yaw) * (this.track.width / 2 + 5),
+        bz = a.z - Math.sin(a.yaw) * (this.track.width / 2 + 5);
+      if (!this.clearance.circleClear(bx, bz, 1.3)) continue;
       const board = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.8), sm);
       board.position.set(
         a.x + Math.cos(a.yaw) * (this.track.width / 2 + 5),
@@ -741,6 +747,7 @@ export class World {
   buildLandmarks() {
     const biome = this.track.biome;
     const makeBox = (x, y, z, w, h, d, color) => {
+      if (!this.clearance.circleClear(x, z, Math.hypot(w, d) / 2)) return null;
       const b = new THREE.Mesh(boxGeo, material(color, 0.7, 0.15));
       b.position.set(x, y, z);
       b.scale.set(w, h, d);
@@ -761,6 +768,7 @@ export class World {
         for (let i = 0; i < 24; i++) {
           const x = 515 + (i % 4) * 70,
             z = -170 + Math.floor(i / 4) * 95;
+          if (!this.clearance.circleClear(x, z, 24)) continue;
           const hull = new THREE.Mesh(
             new THREE.SphereGeometry(1, 12, 8),
             material("#e4e2d5", 0.25, 0.2),
@@ -809,58 +817,14 @@ export class World {
         wheel.add(pod);
       }
       mergeBody(wheel);
-      this.scene.add(wheel);
+      if (this.clearance.circleClear(x, z, 28)) this.scene.add(wheel);
       for (let side of [-1, 1]) {
         let support = makeBox(x + side * 8, y + 13, z, 1.2, 28, 1.2, "#acb5a2");
-        support.rotation.z = side * 0.32;
-      }
-    }
-    if (this.track.name === "Imola") {
-      const a = this.sample(0.006),
-        x = a.x + Math.cos(a.yaw) * 45,
-        z = a.z - Math.sin(a.yaw) * 45,
-        y = this.height(x, z);
-      makeBox(x, y + 15, z, 13, 30, 14, "#a5aaa1");
-      for (let j = 1; j < 7; j++)
-        makeBox(x, y + j * 4.1, z, 13.5, 0.8, 14.5, "#344345");
-      for (let dx of [-5, 5]) makeBox(x + dx, y + 32, z, 1.4, 6, 14, "#b74937");
-    }
-    if (this.track.name === "Silverstone") {
-      const a = this.sample(0.01),
-        x = a.x + 65,
-        z = a.z + 20,
-        y = this.height(x, z);
-      for (let i = 0; i < 3; i++) {
-        const roof = makeBox(
-          x + i * 18,
-          y + 12 + i * 2,
-          z,
-          27,
-          0.6,
-          90,
-          "#b9c0b3",
-        );
-        roof.rotation.z = 0.18;
-      }
-    }
-    if (this.track.name === "Hockenheim") {
-      const a = this.sample(0.91),
-        y = this.height(a.x, a.z);
-      for (let i = 0; i < 15; i++) {
-        const angle = (i / 15) * Math.PI * 1.3;
-        const b = makeBox(
-          a.x + Math.cos(angle) * 90,
-          y + 6,
-          a.z + Math.sin(angle) * 90,
-          20,
-          12,
-          8,
-          "#8f9c82",
-        );
-        b.rotation.y = -angle;
+        if (support) support.rotation.z = side * 0.32;
       }
     }
   }
+
   buildRain() {
     const count = 2000,
       pos = new Float32Array(count * 3);
