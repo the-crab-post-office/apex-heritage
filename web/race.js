@@ -359,7 +359,7 @@ export class Race {
       ? "PIT REQUESTED · P / X"
       : "REQUEST PIT · P / X";
     $("#pit-limiter").textContent =
-      `80 km/h LIMITER ${s.pit_limiter ? "ON" : "OFF"} · L / Y`;
+      `${Math.round(this.pit.limit * 3.6)} km/h LIMITER ${s.pit_limiter ? "ON" : "OFF"} · L / Y`;
     $("#pit-limiter").setAttribute("aria-pressed", String(s.pit_limiter));
     $("#hud-elevation").textContent = `${Math.round(s.y - 0.1)} m`;
     $("#hud-grade").textContent =
@@ -466,7 +466,7 @@ export class Race {
     this.state = JSON.parse(this.sim.state_json());
     this.callbacks.toast(
       on
-        ? "80 km/h limiter ON · brake to slow before entry"
+        ? `${Math.round(this.pit.limit * 3.6)} km/h limiter ON · brake to slow before entry`
         : "Pit limiter OFF",
     );
   }

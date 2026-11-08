@@ -31,6 +31,9 @@ function buildIdentity() {
 // Keep redistributed databases editable and asset-specific licenses accessible,
 // without maintaining another checked-in copy of the same data.
 const notices = {
+  "pit-lanes.json": "data/pit-lanes.json",
+  "pit-lanes-osm.json": "data/pit-lanes-osm.json",
+  "pits.md": "data/PITS-NOTICE.md",
   "materials.md": "data/MATERIALS-NOTICE.md",
   "OSM.md": "data/OSM-NOTICE.md",
   "imagery.md": "data/IMAGERY-NOTICE.md",

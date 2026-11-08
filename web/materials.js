@@ -36,7 +36,7 @@ export class SurfaceLibrary {
       map: this.map(asset),
       normalMap: this.map(asset, "NormalGL"),
       normalScale: new THREE.Vector2(normal, normal),
-      roughnessMap: this.map(asset, "Roughness"),
+      roughnessMap: asset === "Gravel001" ? null : this.map(asset, "Roughness"),
       roughness: 1,
       metalness: 0,
     });
