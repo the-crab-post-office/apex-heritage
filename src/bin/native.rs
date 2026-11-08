@@ -32,43 +32,326 @@ const TEAM_NAMES: [[&str; 4]; 4] = [
         "Aston Martin AMR23",
     ],
 ];
+fn loft(sections: &[[f32; 5]], color: Color) {
+    let mut vertices = Vec::new();
+    let mut indices = Vec::new();
+    let ring = 20;
+    for (i, s) in sections.iter().enumerate() {
+        for j in 0..ring {
+            let a = j as f32 / ring as f32 * std::f32::consts::TAU;
+            let shade = 0.72 + 0.28 * a.cos().max(0.);
+            vertices.push(Vertex::new2(
+                vec3(s[4] + a.sin() * s[1], s[2] + a.cos() * s[3], s[0]),
+                vec2(0., 0.),
+                Color::new(color.r * shade, color.g * shade, color.b * shade, 1.),
+            ));
+            if i + 1 < sections.len() {
+                let k = (i * ring + j) as u16;
+                let l = (i * ring + (j + 1) % ring) as u16;
+                let r = ring as u16;
+                indices.extend([k, k + r, l, l, k + r, l + r]);
+            }
+        }
+    }
+    draw_mesh(&Mesh {
+        vertices,
+        indices,
+        texture: None,
+    });
+}
 fn car(p: Vec3, yaw: f32, pitch: f32, color: Color, era: usize) {
-    // Transform the entire model so body, wings and wheels all follow heading.
     unsafe {
         get_internal_gl().quad_gl.push_model_matrix(
             Mat4::from_translation(p) * Mat4::from_rotation_y(yaw) * Mat4::from_rotation_x(pitch),
         );
     }
     let classic = era == 0;
-    draw_cube(
-        vec3(0., 0.48, 0.),
-        vec3(
-            if classic { 0.8 } else { 1.3 },
-            0.55,
-            if era == 3 { 4.4 } else { 3.6 },
-        ),
-        None,
+    let dark = Color::from_rgba(22, 25, 27, 255);
+    let length = if era == 3 {
+        5.2
+    } else if classic {
+        3.65
+    } else {
+        4.55
+    };
+    loft(
+        &[
+            [-1.8, 0.12, 0.4, 0.12, 0.],
+            [-1.1, 0.32, 0.48, 0.26, 0.],
+            [-0.4, 0.36, 0.51, 0.29, 0.],
+            [0.3, 0.32, 0.52, 0.25, 0.],
+            [1.1, 0.19, 0.4, 0.16, 0.],
+            [2., 0.06, 0.28, 0.06, 0.],
+        ],
         color,
     );
+    draw_cube(
+        vec3(0., 0.18, -0.1),
+        vec3(if classic { 0.7 } else { 1.65 }, 0.07, 3.2),
+        None,
+        dark,
+    );
+    draw_cube(vec3(0., 0.77, 0.12), vec3(0.47, 0.13, 0.62), None, dark);
+    draw_sphere(
+        vec3(0., 1., 0.08),
+        0.19,
+        None,
+        Color::from_rgba(232, 217, 181, 255),
+    );
+    draw_cube(vec3(0., 1.02, 0.24), vec3(0.3, 0.09, 0.04), None, dark);
     if !classic {
-        draw_cube(vec3(0., 0.24, 2.0), vec3(2.2, 0.12, 0.55), None, color);
-        draw_cube(vec3(0., 0.95, -1.8), vec3(2., 0.12, 0.55), None, color);
-        draw_cube(vec3(0., 0.7, -0.7), vec3(0.55, 0.6, 0.9), None, color);
-    }
-    draw_cube(vec3(0., 0.77, 0.2), vec3(0.45, 0.15, 0.6), None, BLACK);
-    draw_sphere(vec3(0., 1., 0.), 0.22, None, WHITE);
-    for x in [-1., 1.] {
-        for z in [-1.25, 1.25] {
-            draw_cube(
-                vec3(x, 0.36, z),
-                vec3(if classic { 0.3 } else { 0.48 }, 0.72, 0.72),
-                None,
-                Color::from_rgba(18, 19, 20, 255),
+        for side in [-1., 1.] {
+            loft(
+                &[
+                    [-1.55, 0.12, 0.32, 0.12, side * 0.43],
+                    [-0.9, 0.3, 0.4, 0.23, side * 0.62],
+                    [0.1, 0.34, 0.46, 0.23, side * 0.61],
+                    [0.57, 0.25, 0.47, 0.12, side * 0.57],
+                ],
+                color,
             );
+            draw_cube(
+                vec3(side * 0.59, 0.52, 0.6),
+                vec3(0.47, 0.18, 0.04),
+                None,
+                dark,
+            );
+            for i in 0..7 {
+                draw_cube(
+                    vec3(side * 0.61, 0.69, -0.25 - i as f32 * 0.1),
+                    vec3(0.24, 0.012, 0.025),
+                    None,
+                    dark,
+                );
+            }
+            draw_cube(
+                vec3(side * 0.76, 0.58, 0.73),
+                vec3(0.2, 0.12, 0.25),
+                None,
+                color,
+            );
+            draw_cube(
+                vec3(side * 0.62, 0.51, 0.73),
+                vec3(0.32, 0.035, 0.035),
+                None,
+                dark,
+            );
+            draw_cube(
+                vec3(side * 0.92, 0.34, length * 0.48),
+                vec3(0.055, 0.35, 0.6),
+                None,
+                color,
+            );
+            draw_cube(
+                vec3(side * 0.82, 0.9, -length * 0.43),
+                vec3(0.055, 0.55, 0.65),
+                None,
+                color,
+            );
+            for i in 0..3 {
+                draw_cube(
+                    vec3(side * (0.22 + i as f32 * 0.15), 0.2, -1.95),
+                    vec3(0.02, 0.2, 0.5),
+                    None,
+                    dark,
+                );
+            }
+        }
+        for i in 0..3 {
+            draw_cube(
+                vec3(
+                    0.,
+                    0.2 + i as f32 * 0.045,
+                    length * 0.48 + i as f32 * 0.12 - 0.12,
+                ),
+                vec3(1.9, 0.035, 0.16),
+                None,
+                color,
+            );
+        }
+        draw_cube(
+            vec3(0., 1.15, -length * 0.43),
+            vec3(1.68, 0.065, 0.55),
+            None,
+            color,
+        );
+        draw_cube(
+            vec3(0., 1.02, -length * 0.43 + 0.12),
+            vec3(1.65, 0.05, 0.35),
+            None,
+            dark,
+        );
+        loft(
+            &[
+                [-1.65, 0.07, 0.5, 0.09, 0.],
+                [-1., 0.19, 0.7, 0.33, 0.],
+                [-0.65, 0.22, 0.86, 0.46, 0.],
+                [-0.42, 0.18, 0.86, 0.32, 0.],
+            ],
+            color,
+        );
+        draw_cube(vec3(0., 1.3, -0.65), vec3(0.18, 0.14, 0.2), None, dark);
+        draw_cube(vec3(0., 0.52, -2.13), vec3(0.1, 0.07, 0.04), None, RED);
+    } else {
+        draw_cube(vec3(0., 0.7, -1.), vec3(0.44, 0.24, 0.9), None, GRAY);
+        for side in [-1., 1.] {
+            for i in 0..4 {
+                let z = -0.55 - i as f32 * 0.19;
+                draw_line_3d(
+                    vec3(side * 0.2, 0.82, z),
+                    vec3(side * 0.47, 0.5, -1.7),
+                    LIGHTGRAY,
+                );
+                draw_cube(
+                    vec3(side * 0.25, 0.9, z),
+                    vec3(0.1, 0.2, 0.1),
+                    None,
+                    LIGHTGRAY,
+                );
+            }
+            draw_line_3d(
+                vec3(side * 0.47, 0.5, -1.7),
+                vec3(side * 0.47, 0.5, -1.95),
+                LIGHTGRAY,
+            );
+        }
+    }
+    if era == 3 {
+        for i in 0..16 {
+            let a = i as f32 / 16. * std::f32::consts::PI;
+            let b = (i + 1) as f32 / 16. * std::f32::consts::PI;
+            draw_line_3d(
+                vec3(a.cos() * 0.36, 1.13, 0.1 + a.sin() * 0.4),
+                vec3(b.cos() * 0.36, 1.13, 0.1 + b.sin() * 0.4),
+                dark,
+            );
+        }
+        draw_line_3d(vec3(0., 0.7, 0.65), vec3(0., 1.13, 0.5), dark);
+    }
+    for side in [-1., 1.] {
+        for z in [-1.4, 1.4] {
+            let x = side * if classic { 0.82 } else { 1.02 };
+            let radius = if classic { 0.34 } else { 0.37 };
+            let width = if classic {
+                0.24
+            } else if z < 0. {
+                0.44
+            } else {
+                0.34
+            };
+            unsafe {
+                get_internal_gl().quad_gl.push_model_matrix(
+                    Mat4::from_translation(vec3(x + width / 2., 0.36, z))
+                        * Mat4::from_rotation_z(std::f32::consts::FRAC_PI_2),
+                );
+            }
+            draw_cylinder(vec3(0., 0., 0.), radius, radius, width, None, dark);
+            draw_cylinder(
+                vec3(0., -0.01, 0.),
+                radius * 0.53,
+                radius * 0.53,
+                width + 0.02,
+                None,
+                GRAY,
+            );
+            unsafe {
+                get_internal_gl().quad_gl.pop_model_matrix();
+            }
+            let outer = x + side * width * 0.52;
+            for i in 0..10 {
+                let a = i as f32 / 10. * std::f32::consts::TAU;
+                draw_line_3d(
+                    vec3(outer, 0.36, z),
+                    vec3(
+                        outer,
+                        0.36 + a.sin() * radius * 0.5,
+                        z + a.cos() * radius * 0.5,
+                    ),
+                    LIGHTGRAY,
+                );
+            }
+            for h in [0.27, 0.54] {
+                draw_line_3d(vec3(side * 0.26, h, z - 0.3), vec3(x, 0.36, z), dark);
+                draw_line_3d(vec3(side * 0.26, h, z + 0.3), vec3(x, 0.36, z), dark);
+            }
         }
     }
     unsafe {
         get_internal_gl().quad_gl.pop_model_matrix();
+    }
+}
+fn tunnel(t: &Track, range: Option<(usize, usize)>, player: Vec3, texture: &Texture2D) {
+    let Some((start, end)) = range else {
+        return;
+    };
+    let n = t.points.len();
+    let w = t.width / 2.;
+    for step in 0..(end - start + n) % n {
+        let i = (start + step) % n;
+        let j = (i + 1) % n;
+        let a = t.points[i];
+        let b = t.points[j];
+        let center = vec3(
+            (a[0] + b[0]) / 2.,
+            (t.heights[i] + t.heights[j]) / 2.,
+            (a[1] + b[1]) / 2.,
+        );
+        if center.distance(player) > 180. {
+            continue;
+        }
+        let dx = b[0] - a[0];
+        let dz = b[1] - a[1];
+        let len = dx.hypot(dz);
+        unsafe {
+            get_internal_gl().quad_gl.push_model_matrix(
+                Mat4::from_translation(center) * Mat4::from_rotation_y(dx.atan2(dz)),
+            );
+        }
+        draw_cube(
+            vec3(0., 4.65, 0.),
+            vec3(w * 2. + 1.3, 0.14, len + 0.1),
+            Some(texture),
+            Color::from_rgba(71, 65, 57, 255),
+        );
+        for side in [-1., 1.] {
+            let open = side > 0. && step as f32 > ((end - start + n) % n) as f32 * 0.72;
+            let height = if open { 1.5 } else { 4.55 };
+            draw_cube(
+                vec3(side * (w + 0.45), height / 2., 0.),
+                vec3(0.35, height, len + 0.05),
+                Some(texture),
+                LIGHTGRAY,
+            );
+            draw_cube(
+                vec3(side * (w + 0.25), 2.6, 0.),
+                vec3(0.32, 3.7, 0.18),
+                None,
+                DARKGRAY,
+            );
+            for y in [0.55, 0.78, 1.01] {
+                draw_cube(
+                    vec3(side * (w + 0.12), y, 0.),
+                    vec3(0.16, 0.095, len + 0.05),
+                    None,
+                    GRAY,
+                );
+            }
+            if step % 2 == 0 {
+                draw_cube(
+                    vec3(side * (w - 0.62), 4.25, 0.),
+                    vec3(0.55, 0.08, 0.82),
+                    None,
+                    if step % 4 == 0 {
+                        Color::from_rgba(210, 234, 255, 255)
+                    } else {
+                        Color::from_rgba(255, 214, 141, 255)
+                    },
+                );
+            }
+        }
+        unsafe {
+            get_internal_gl().quad_gl.pop_model_matrix();
+        }
     }
 }
 fn terrain_mesh(t: &Track) -> Vec<Mesh> {
@@ -99,10 +382,6 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
     let mask = apex_heritage::surface_mesh::RoadMask::new(t);
     let pit_track = apex_heritage::pit::PitLane::new(t).as_track();
     let pit_mask = apex_heritage::surface_mesh::RoadMask::new_open(&pit_track);
-    let photo = apex_heritage::tracks()
-        .iter()
-        .position(|q| q.name == t.name)
-        .map(|i| apex_heritage::imagery::areas()[i].clone());
     let mut meshes = Vec::new();
     let mut vertices = Vec::new();
     let mut indices = Vec::new();
@@ -126,15 +405,7 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
                         indices.push(vertices.len() as u16);
                         vertices.push(Vertex::new2(
                             vec3(p[0] as f32, p[1] as f32, p[2] as f32),
-                            photo
-                                .as_ref()
-                                .map(|a| {
-                                    vec2(
-                                        (p[0] as f32 - a.bounds[0]) / (a.bounds[2] - a.bounds[0]),
-                                        (p[2] as f32 - a.bounds[1]) / (a.bounds[3] - a.bounds[1]),
-                                    )
-                                })
-                                .unwrap_or(vec2(0., 0.)),
+                            vec2(p[0] as f32 / 4., p[2] as f32 / 4.),
                             WHITE,
                         ));
                     }
@@ -223,7 +494,11 @@ fn mapped_buildings(
             ][b.osm_id as usize % 3];
             for p in &b.footprint {
                 for h in [base, base + b.height] {
-                    vs.push(Vertex::new2(vec3(p[0], h, p[1]), vec2(0., 0.), color));
+                    vs.push(Vertex::new2(
+                        vec3(p[0], h, p[1]),
+                        vec2((p[0] + p[1]) / 6., (h - base) / 4.),
+                        color,
+                    ));
                 }
             }
             for i in 0..n {
@@ -253,18 +528,68 @@ async fn main() {
     let audio = NativeAudio::new();
     let mut sound_on = true;
     let circuits = tracks();
-    let mapped = apex_heritage::scenery::buildings();
-    let photo_areas = apex_heritage::imagery::areas();
-    let photos: Vec<Texture2D> = apex_heritage::imagery::PHOTOS
+    let metadata: serde_json::Value =
+        serde_json::from_str(include_str!("../../data/tracks.json")).unwrap();
+    let tunnel_ranges: Vec<Option<(usize, usize)>> = metadata
+        .as_array()
+        .unwrap()
         .iter()
-        .map(|b| {
-            let t = Texture2D::from_file_with_format(b, Some(ImageFormat::Jpeg));
-            t.set_filter(FilterMode::Linear);
-            t
+        .map(|t| {
+            t["road_corrections"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|c| c["type"] == "tunnel")
+                .map(|c| {
+                    (
+                        c["start_index"].as_u64().unwrap() as usize,
+                        c["end_index"].as_u64().unwrap() as usize,
+                    )
+                })
         })
         .collect();
-    let mut ti = 0usize;
-    let mut era = 2usize;
+    let mapped = apex_heritage::scenery::buildings();
+    let photo_areas = apex_heritage::imagery::areas();
+    let grass = Texture2D::from_file_with_format(
+        include_bytes!("../../web/assets/materials/Grass004_1K-JPG_Color.jpg"),
+        Some(ImageFormat::Jpeg),
+    );
+    grass.set_filter(FilterMode::Linear);
+    unsafe {
+        get_internal_gl().quad_context.texture_set_wrap(
+            grass.raw_miniquad_id(),
+            macroquad::miniquad::TextureWrap::Repeat,
+            macroquad::miniquad::TextureWrap::Repeat,
+        );
+    }
+    let walls: Vec<Texture2D> = [
+        include_bytes!("../../web/assets/materials/Bricks001_1K-JPG_Color.jpg").as_slice(),
+        include_bytes!("../../web/assets/materials/Concrete023_1K-JPG_Color.jpg").as_slice(),
+    ]
+    .iter()
+    .map(|b| {
+        let tex = Texture2D::from_file_with_format(b, Some(ImageFormat::Jpeg));
+        tex.set_filter(FilterMode::Linear);
+        unsafe {
+            get_internal_gl().quad_context.texture_set_wrap(
+                tex.raw_miniquad_id(),
+                macroquad::miniquad::TextureWrap::Repeat,
+                macroquad::miniquad::TextureWrap::Repeat,
+            );
+        }
+        tex
+    })
+    .collect();
+    let mut ti = std::env::var("APEX_SMOKE_TRACK")
+        .ok()
+        .and_then(|s| s.parse::<usize>().ok())
+        .unwrap_or(0)
+        .min(9);
+    let mut era = std::env::var("APEX_SMOKE_ERA")
+        .ok()
+        .and_then(|s| s.parse::<usize>().ok())
+        .unwrap_or(2)
+        .min(3);
     let mut team = 0usize;
     let mut wet = false;
     let mut assist = true;
@@ -275,12 +600,15 @@ async fn main() {
     let mut terrain_track = ti;
     let mut landscape = terrain_mesh(&circuits[ti]);
     for mesh in &mut landscape {
-        mesh.texture = Some(photos[ti].clone());
+        mesh.texture = Some(grass.clone());
     }
     let mut pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
     let mut pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
     let mut camera_mode = 0;
     let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
+    for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
+        mesh.texture = Some(walls[i % walls.len()].clone());
+    }
     loop {
         let pad = controller.poll();
         if pad.pressed.contains(&gilrs::Button::Select) && !menu {
@@ -402,9 +730,12 @@ async fn main() {
             pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
             landscape = terrain_mesh(&circuits[ti]);
             for mesh in &mut landscape {
-                mesh.texture = Some(photos[ti].clone());
+                mesh.texture = Some(grass.clone());
             }
             buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
+            for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
+                mesh.texture = Some(walls[i % walls.len()].clone());
+            }
             terrain_track = ti;
         }
         let s = sim.state();
@@ -440,6 +771,12 @@ async fn main() {
             vec2(10000., 10000.),
             None,
             Color::from_rgba(57, 78, 45, 255),
+        );
+        tunnel(
+            &circuits[ti],
+            tunnel_ranges[ti],
+            vec3(s.x, s.y, s.z),
+            &walls[1],
         );
         for mesh in &pit_mesh {
             draw_mesh(mesh);
