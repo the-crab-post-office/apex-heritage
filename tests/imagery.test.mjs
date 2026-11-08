@@ -2,12 +2,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { imageryFor, photoUV, forestAt } from "../web/imagery.js";
+const manifest = JSON.parse(
+  fs.readFileSync(new URL("../data/imagery.json", import.meta.url)),
+);
 const tracks = JSON.parse(
   fs.readFileSync(new URL("../data/tracks.json", import.meta.url)),
 );
 for (const t of tracks)
   test(`${t.name}: actual local photographic asset covers the complete circuit`, () => {
-    const a = imageryFor(t.id);
+    const a = imageryFor(manifest, t.id);
     assert.ok(a.source_url.startsWith("https://sentinel-cogs.s3."));
     assert.equal(a.source_resolution_m, 10);
     assert.equal(a.forest_mask.length, 4096);

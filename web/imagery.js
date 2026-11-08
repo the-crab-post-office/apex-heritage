@@ -1,5 +1,5 @@
-import manifest from "../data/imagery.json";
-export const imageryFor = (id) => manifest.tracks.find((t) => t.id === id);
+export const imageryFor = (manifest, id) =>
+  manifest.tracks.find((t) => t.id === id);
 export function photoUV(area, x, z) {
   const [a, b, c, d] = area.bounds;
   return [(x - a) / (c - a), 1 - (z - b) / (d - b)];

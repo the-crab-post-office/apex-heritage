@@ -32,7 +32,7 @@ test("wet Spa actual road triangles are not covered by terrain or shoulder meshe
   expect(result.terrainIntrusions).toBe(0);
   expect(result.overlayIntrusions).toBe(0);
   expect(result.centerErrors).toBe(0);
-  await expect(page.locator("#hud-build")).toContainText("v0.3.2");
+  await expect(page.locator("#hud-build")).toContainText("v0.4.0");
 });
 for (const name of [
   "Monaco",

@@ -1,14 +1,27 @@
-# Validation record — 0.3.2
+# Validation record — 0.4.0
 
 Validated in this workspace on **8 November 2026**.
 
-## Root cause and former test gap
+## 0.4 feature validation
+
+- **Rust:** 30 core tests; 36 native-feature library tests (including those 30), plus one actual native terrain-mesh regression = **37 total native-feature tests passed**. Native now decodes every actual shipped JPEG in a regression; an initial unsupported-JPEG smoke failure was caught and fixed by enabling the image decoder. Native Linux release build and 120-frame Xvfb physics/render smoke passed at **119.6 km/h**. No hardware controller/audio-device certification is claimed.
+- **Node:** **65 tests passed**: audio 16, imagery/projection 11, controller 3, build-coherence 7, polygon geometry 3, geographic elevation 13, scenery 12. Python offline geographic regeneration: **5 passed**.
+- **Browser new-feature suite:** **3 development tests passed**, covering simulated controller-driven menu/start/analog acceleration/brake/steering, one-shot camera/pit/limiter/pause actions and disconnect pause; a real WASM pit-practice drive into the lane, marked-box stop, timed service and exit; and local photographic terrain loading with pit-surface clearance. These three also passed in the full production suite; production additionally checks Back → setup, actual Monaco canopy presence and no external runtime asset requests.
+- Audio tests now check stable periodic firing pitch in the actual shipped recording-derived PCM at two RPM values for each sampled era. They also retain nonzero recording influence, RPM response, six-voice headroom, late-arriving bank and procedural fallback coverage. Tests establish DSP behaviour, not a subjective listening approval or exact historic-engine match.
+- Pit tests exercise all ten generated lane endpoints/box ranges, all four eras' service flow, no service for a missed box, no recover shortcut out of a stop, zero-dt service timing and era-specific fuel replenishment. Browser drives the public practice approach with steering, then throttle/brake control in the assisted lane; it is accelerated virtual-time regression, not a human full-lap test. Rendered pit meshes are raycast against actual terrain/shoulders.
+- Imagery tests verify real JPEG headers/native decoding, all ten source IDs/COG URLs/10 m native-resolution declarations, coverage of the complete geographic circuit, north-up UV orientation and vegetation masks. These do not establish facade, individual-tree or laser-scan fidelity.
+
+**Full production browser suite: 24 passed in 6.6 minutes**, served as plain static HTTP from the production `site/` directory. All ten circuits' **6,395 actual drawn-surface probes** still reported zero missing roads, terrain/overlay intrusions or centre errors. After a small controller-exit lifetime guard, **all three feature scenarios passed again in 1.0 minute** against the rebuilt production assets, including simultaneous Back + pit request with zero browser page errors.
+
+Reproduce: `npm run build`, serve `site/` over HTTP, then `APEX_URL=http://127.0.0.1:8080 npx playwright test`. Feature-only: append `tests/features.spec.js`. Logs/screenshots are disposable local `artifacts/`, deliberately not packaged.
+
+## Retained 0.3.2 terrain/road regression background
 
 The 0.3.1 geographic-data correction did not fix the whole visible problem. Sampling scalar heights does not test raster-grid triangle interiors or independently triangulated full-width ribbons. An actual Three.js-mesh audit reproduced **six terrain intrusions and two shoulder/apron intrusions in Monaco**, with a maximum of **2.826 m**, and smaller centerline-to-rendered-road errors in Spa, Monaco, Suzuka and Imola. The road meshes now share centerline vertices; terrain and shoulder polygons are geometrically subtracted from the complete projected road footprint.
 
 The exact supplied Spa screenshot was not reproduced in the fresh source preview: its 35 m/+0.0% text matched the previous HTML defaults, whereas a fresh browser showed 53 m/+0.5% with the expected styles. Mixed/stale assets were a plausible additional issue, **not a proven explanation**. Version checks and a fresh preview origin make this distinguishable rather than relying on an instruction to clear the cache.
 
-## Results
+## Historical 0.3.2 results (superseded by 0.4 above)
 
 | Check | Result |
 |---|---|
@@ -43,9 +56,9 @@ Browser raycasts interrogate the **drawn Three.js meshes**, not `height()` funct
 
 The native regression builds the **actual Macroquad terrain mesh** for every circuit, spatially indexes its final Float32 triangles and checks their interpolated interiors against the same road probe positions. It also verifies batches stay under the renderer's index/vertex limits. Rust and JS polygon tests verify area subtraction and interpolated y, including high triangles whose vertices alone do not establish road clearance. JS also tests upward winding on both shoulder sides.
 
-Camera walkthroughs render changing positions at geographic Spa Eau Rouge/Les Combes and Monaco hairpin/tunnel-road landmarks. Their saved images were inspected. These are injected camera/vehicle poses, **not autonomous physics laps**; actual keyboard-driven physics is tested separately. No enclosed architectural tunnel is claimed.
+Camera walkthroughs render changing positions at geographic Spa Eau Rouge/Les Combes and Monaco hairpin/tunnel-road landmarks. Their saved images were inspected. These are injected camera/vehicle poses, **not autonomous physics laps**; actual keyboard-driven physics is tested separately. The 0.4 browser now adds an approximate tunnel canopy/wall/columns; a complete surveyed architectural tunnel and native canopy parity are not claimed.
 
-Startup tests require compatible HTML, CSS, JS, WASM and server versions plus matching track-data hashes. Unit tests inject a stale/missing value for each component. A browser test deliberately serves an outdated `version.json` and confirms an explicit visible build-mismatch error with no race constructed. The visible v0.3.2 HUD and immediate non-placeholder telemetry are checked in the wet Spa session.
+Startup tests require compatible HTML, CSS, JS, WASM and server versions plus matching track-data hashes. Unit tests inject a stale/missing value for each component. A browser test deliberately serves an outdated `version.json` and confirms an explicit visible build-mismatch error with no race constructed. The visible versioned HUD and immediate non-placeholder telemetry are checked in the wet Spa session.
 
 ## Geographic elevation coverage
 
@@ -72,4 +85,4 @@ GLO-30 is an approximately **30 m digital surface model**, including vegetation 
 
 Headless Chromium/software WebGL and Linux Xvfb were used. No physical audio-driver/speaker, mobile/gamepad hardware, other browser engine or Windows/macOS native certification is claimed. Lap tests inject centerline positions, not autonomous full-physics laps. Native remains a simpler free-drive client without browser AI/weather/records features; headless native smoke disables device initialization and tests audio DSP separately.
 
-The driving model remains grounded 2.5D, not a suspension/jump simulator. Vite's bundled game/database chunks exceed its 500 kB advisory threshold; builds succeed. Static output is about **5.3 MB uncompressed**, including editable source/derived databases and licence downloads. This is not a frame-rate benchmark.
+The driving model remains grounded 2.5D, not a suspension/jump simulator. Vite's bundled game/database chunks exceed its 500 kB advisory threshold; builds succeed. Static output is about **6 MB uncompressed**, including editable source/derived databases and licence downloads. This is not a frame-rate benchmark.
