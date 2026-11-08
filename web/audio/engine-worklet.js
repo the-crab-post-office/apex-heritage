@@ -4,6 +4,13 @@ class HeritageEngineProcessor extends AudioWorkletProcessor {
     super();
     this.dsp = new EngineDSP(sampleRate);
     this.port.onmessage = (e) => {
+      if (e.data.type === "recordings") {
+        this.dsp.setRecordings(e.data.banks);
+        this.port.postMessage({
+          type: "recordings-loaded",
+          eras: Object.keys(e.data.banks),
+        });
+      }
       if (e.data.type === "telemetry") this.dsp.setTelemetry(e.data);
     };
   }

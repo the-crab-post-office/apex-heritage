@@ -1,4 +1,5 @@
-// Original procedural four-stroke engine synthesis; no sampled/official recordings.
+import { RecordedLayer } from "./recorded-layer.js";
+// Hybrid recorded exhaust plus original procedural transients / modern fallback.
 // Standalone DSP shared by AudioWorklet and deterministic offline audio tests.
 const TAU = Math.PI * 2,
   SIZE = 2048;
@@ -189,7 +190,19 @@ class Voice {
           ? 1
           : 0.45
         : 1;
-    let sample = (exhaust + body + intake + turbo + burble) * limiter;
+    const recorded = this.recording
+      ? this.recording.sample(this.rpm, this.doppler) *
+        (0.27 + 0.3 * load) *
+        cut
+      : 0;
+    let sample =
+      (exhaust * (this.recording ? 0.28 : 1) +
+        body * (this.recording ? 0.4 : 1) +
+        recorded +
+        intake +
+        turbo +
+        burble) *
+      limiter;
     if (this.id === 0) {
       sample +=
         this.noiseLP * this.slip * this.slip * 0.11 +
@@ -206,13 +219,28 @@ export class EngineDSP {
     this.sampleRate = sampleRate;
     this.voices = [];
     this.frames = 0;
+    this.recordings = {};
+  }
+  setRecordings(banks) {
+    this.recordings = banks;
+    for (const v of this.voices)
+      v.recording = banks[v.era]
+        ? new RecordedLayer(banks[v.era], this.sampleRate, (v.id * 0.137) % 1)
+        : null;
   }
   setTelemetry(packet) {
     const items = packet.voices || [];
     for (let i = 0; i < items.length; i++) {
       const t = items[i];
-      if (!this.voices[i] || this.voices[i].era !== t.era)
+      if (!this.voices[i] || this.voices[i].era !== t.era) {
         this.voices[i] = new Voice(t.era, this.sampleRate, i);
+        if (this.recordings[t.era])
+          this.voices[i].recording = new RecordedLayer(
+            this.recordings[t.era],
+            this.sampleRate,
+            (i * 0.137) % 1,
+          );
+      }
       this.voices[i].set(t);
     }
     for (let i = items.length; i < this.voices.length; i++)

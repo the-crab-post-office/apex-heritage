@@ -1,4 +1,4 @@
-//! Native streaming engine audio. No external sound files or per-frame restarts.
+//! Hybrid recorded/synthesized streaming audio; embedded CC BY-SA PCM loops.
 //! CPAL device errors degrade to silent gameplay rather than preventing launch.
 use crate::State;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
@@ -54,6 +54,7 @@ struct EngineTone {
     sr: f32,
     gear: u32,
     cut: f32,
+    recording: Option<crate::recorded_audio::RecordedLayer>,
 }
 impl EngineTone {
     fn new(era: usize, sr: f32) -> Self {
@@ -97,6 +98,7 @@ impl EngineTone {
             sr,
             gear: 1,
             cut: 0.,
+            recording: crate::recorded_audio::RecordedLayer::new(era, sr),
         }
     }
     fn read(table: &[f32], phase: f32) -> f32 {
@@ -139,7 +141,15 @@ impl EngineTone {
         let texture = (noise - self.filter) * (0.007 + 0.017 * load)
             + self.filter * self.slip * self.slip * 0.11
             + self.filter * (self.speed / 100.).min(1.).powi(2) * 0.035;
-        let value = (exhaust + body + turbo + texture) * self.gain;
+        let recorded = self
+            .recording
+            .as_mut()
+            .map(|r| r.sample(self.rpm) * (0.27 + 0.3 * load) * cut);
+        let value = if let Some(real) = recorded {
+            (exhaust * 0.28 + body * 0.4 + real + turbo + texture) * self.gain
+        } else {
+            (exhaust + body + turbo + texture) * self.gain
+        };
         value / (1. + value.abs() * 0.75)
     }
 }
