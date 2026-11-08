@@ -1,3 +1,9 @@
+import { imageryFor, photoUV, forestAt } from "./imagery.js";
+const aerialURLs = import.meta.glob("./assets/imagery/*.jpg", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
 import { RoadMask, ribbon } from "./road-surface.js";
 import mappedScenery from "./assets/buildings.json";
 import { CircuitClearance, inside, pointSegmentDistance } from "./scenery.js";
@@ -348,6 +354,7 @@ export class World {
       ? new CircuitClearance(this.pitTrack, 3)
       : null;
     this.pitMask = this.pitTrack ? new RoadMask(this.pitTrack) : null;
+    this.photoArea = imageryFor(track.id);
     this.elevationField = new ElevationField(track);
     this.clearance = new CircuitClearance(track);
     this.sceneryAudit = { trees: [], buildings: [], omittedBuildings: 0 };
@@ -357,6 +364,7 @@ export class World {
     this.buildPits();
     this.buildScenery();
     this.buildLandmarks();
+    this.buildTunnel();
     this.player = makeCar(config.era, config.color);
     this.scene.add(this.player);
     this.ai = [];
@@ -428,6 +436,18 @@ export class World {
     grassTexture.repeat.set(280, 280);
     const groundMat = material("#869061", 1, 0);
     groundMat.map = grassTexture;
+    if (this.photoArea) {
+      grassTexture.dispose();
+      groundMat.color.set("#ffffff");
+      groundMat.map = new THREE.TextureLoader().load(
+        aerialURLs[`./assets/imagery/${this.photoArea.file}`],
+      );
+      groundMat.map.colorSpace = THREE.SRGBColorSpace;
+      groundMat.map.anisotropy = Math.min(
+        8,
+        this.renderer.capabilities.getMaxAnisotropy(),
+      );
+    }
     const xs = this.track.points.map((p) => p[0]),
       zs = this.track.points.map((p) => p[1]);
     const minX = Math.min(...xs) - 420,
@@ -470,6 +490,15 @@ export class World {
     );
     terrain.dispose();
     this.terrainMesh = ground;
+    if (this.photoArea) {
+      const pos = ground.geometry.attributes.position,
+        uv = ground.geometry.attributes.uv;
+      for (let i = 0; i < pos.count; i++) {
+        const [u, v] = photoUV(this.photoArea, pos.getX(i), pos.getZ(i));
+        uv.setXY(i, u, v);
+      }
+      uv.needsUpdate = true;
+    }
     const wet = this.config.weather === "wet";
     // Multiplying a dark road texture by a dark metallic material made wet
     // asphalt nearly black; keep it readable without pretending to be a mirror.
@@ -519,7 +548,7 @@ export class World {
     }
     // Alternating red and cream curbs, continuous guardrails and fence poles.
     const curbMat = [
-      material("#d74836", 0.85, 0.05),
+      material("#ffffff", 0.85, 0.05),
       material("#e2d7b3", 0.9, 0.02),
     ];
     const railMat = material("#8d9991", 0.48, 0.7);
@@ -732,6 +761,22 @@ export class World {
       material("#d0c6b2", 0.85),
       material("#9b9f94", 0.85),
     ];
+    const facade = document.createElement("canvas");
+    facade.width = facade.height = 128;
+    const fctx = facade.getContext("2d");
+    fctx.fillStyle = "#e9e4d9";
+    fctx.fillRect(0, 0, 128, 128);
+    for (let y = 12; y < 116; y += 28)
+      for (let x = 10; x < 116; x += 23) {
+        fctx.fillStyle = "#64746f";
+        fctx.fillRect(x, y, 13, 16);
+        fctx.fillStyle = "#bcc7b6";
+        fctx.fillRect(x + 2, y + 2, 4, 10);
+      }
+    const facadeMap = new THREE.CanvasTexture(facade);
+    facadeMap.wrapS = facadeMap.wrapT = THREE.RepeatWrapping;
+    facadeMap.colorSpace = THREE.SRGBColorSpace;
+    for (const mat of mats) mat.map = facadeMap;
     for (const b of this.mappedBuildings) {
       const shape = new THREE.Shape(
         b.footprint.map(([x, z]) => new THREE.Vector2(x, -z)),
@@ -742,6 +787,13 @@ export class World {
         steps: 1,
       });
       geo.rotateX(-Math.PI / 2);
+      const uv = geo.attributes.uv,
+        normal = geo.attributes.normal;
+      for (let i = 0; i < uv.count; i++) {
+        if (Math.abs(normal.getY(i)) > 0.5) uv.setXY(i, 0.02, 0.02);
+        else uv.setXY(i, uv.getX(i) / 8, uv.getY(i) / 6);
+      }
+      uv.needsUpdate = true;
       // Keep the whole floor embedded in sloping terrain, not floating off one edge.
       const y =
         Math.min(...b.footprint.map(([x, z]) => this.height(x, z))) - 0.2;
@@ -810,6 +862,7 @@ export class World {
         radius = h * 0.35;
       // Reject, never shove a failed candidate somewhere else without rechecking.
       if (
+        !forestAt(this.photoArea, x, z) ||
         !this.clearance.circleClear(x, z, radius) ||
         (this.pitClearance && !this.pitClearance.circleClear(x, z, radius)) ||
         this.nearBuilding(x, z, radius)
@@ -953,6 +1006,67 @@ export class World {
     }
   }
 
+  buildTunnel() {
+    const tunnel = this.track.road_corrections?.find(
+      (c) => c.type === "tunnel",
+    );
+    if (!tunnel) return;
+    const w = this.track.width / 2,
+      n = this.track.points.length,
+      start = tunnel.start_index,
+      end = tunnel.end_index;
+    const faces = ribbon(this.track, -w - 1.2, w + 1.2, 5.8).filter((_, i) => {
+      const k = Math.floor(i / 2);
+      return start < end ? k >= start && k < end : k >= start || k < end;
+    });
+    const roof = material("#aaa99d", 0.92);
+    roof.side = THREE.DoubleSide;
+    const mesh = this.surfaceMesh(faces, roof);
+    mesh.castShadow = true;
+    const underside = this.surfaceMesh(
+      ribbon(this.track, -w - 1.2, w + 1.2, 5.73).filter((_, i) => {
+        const k = Math.floor(i / 2);
+        return start < end ? k >= start && k < end : k >= start || k < end;
+      }),
+      new THREE.MeshBasicMaterial({ color: "#363d38", side: THREE.DoubleSide }),
+    );
+    const p = this.track.points;
+    for (let step = 0; step < (end - start + n) % n; step++) {
+      const i = (start + step) % n,
+        j = (i + 1) % n,
+        a = p[i],
+        b = p[j],
+        dx = b[0] - a[0],
+        dz = b[1] - a[1],
+        len = Math.hypot(dx, dz),
+        yaw = Math.atan2(dx, dz),
+        rx = dz / len,
+        rz = -dx / len,
+        h = (this.track.heights[i] + this.track.heights[j]) / 2;
+      const wall = new THREE.Mesh(boxGeo, material("#777b6e", 1));
+      wall.position.set(
+        (a[0] + b[0]) / 2 + rx * (w + 1),
+        h + 2.9,
+        (a[1] + b[1]) / 2 + rz * (w + 1),
+      );
+      wall.rotation.y = yaw;
+      wall.scale.set(0.45, 5.8, len + 0.12);
+      wall.castShadow = true;
+      this.scene.add(wall);
+      if (step % 5 === 0) {
+        const col = new THREE.Mesh(boxGeo, material("#c0bdae", 0.9));
+        col.position.set(
+          a[0] - rx * (w + 0.9),
+          this.track.heights[i] + 2.9,
+          a[1] - rz * (w + 0.9),
+        );
+        col.rotation.y = yaw;
+        col.scale.set(0.55, 5.8, 0.65);
+        col.castShadow = true;
+        this.scene.add(col);
+      }
+    }
+  }
   buildRain() {
     const count = 2000,
       pos = new Float32Array(count * 3);

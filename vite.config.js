@@ -32,6 +32,8 @@ function buildIdentity() {
 // without maintaining another checked-in copy of the same data.
 const notices = {
   "OSM.md": "data/OSM-NOTICE.md",
+  "imagery.md": "data/IMAGERY-NOTICE.md",
+  "imagery.json": "data/imagery.json",
   "elevation.md": "data/ELEVATION-NOTICE.md",
   "elevation-dem.json": "data/elevation-dem.json",
   "road-structures.json": "data/road-structures.json",
