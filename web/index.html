@@ -206,7 +206,24 @@
     </div>
     <div id="build-error" role="alert" hidden></div>
     <div id="race-view" hidden>
-      <div id="controller-status" class="controller-status">KEYBOARD / TOUCH · Connect a standard gamepad</div>
+      <aside class="pit-panel">
+        <div id="pit-status">P / X · REQUEST PIT STOP</div>
+        <small id="pit-resources"></small>
+        <div class="pit-actions">
+          <button id="pit-practice">PIT ENTRY PRACTICE · RESET LAP</button>
+          <button id="request-pit">REQUEST PIT · P / X</button
+          ><button id="pit-limiter" aria-pressed="false">
+            80 km/h LIMITER OFF · L / Y
+          </button>
+        </div>
+        <small
+          >Assisted lane · brake inside yellow box<br />Prototype lane, not
+          surveyed pit geometry</small
+        >
+      </aside>
+      <div id="controller-status" class="controller-status">
+        KEYBOARD / TOUCH · Connect a standard gamepad
+      </div>
       <div id="hud-build" class="hud-build">v0.3.2 · checking build</div>
       <canvas id="race-canvas" aria-label="3D racing game"></canvas>
       <div class="race-vignette"></div>

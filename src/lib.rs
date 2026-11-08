@@ -6,6 +6,7 @@ pub mod controller;
 pub mod elevation;
 #[cfg(feature = "native")]
 pub mod native_audio;
+pub mod pit;
 pub mod powertrain;
 #[cfg(feature = "native")]
 pub mod recorded_audio;
@@ -161,6 +162,16 @@ pub struct State {
     pub brake: f32,
     pub boost: f32,
     pub invalid: bool,
+    pub fuel: f32,
+    pub tyre_condition: f32,
+    pub pit_requested: bool,
+    pub pit_active: bool,
+    pub pit_limiter: bool,
+    pub pit_phase: u8,
+    pub pit_distance: f32,
+    pub pit_remaining: f32,
+    pub pit_stops: u32,
+    pub pit_missed: bool,
 }
 #[wasm_bindgen]
 pub struct Simulation {
@@ -175,6 +186,7 @@ pub struct Simulation {
     lap_distance: f32,
     shift_timer: f32,
     era: usize,
+    pit: pit::PitLane,
 }
 #[wasm_bindgen]
 impl Simulation {
@@ -182,7 +194,9 @@ impl Simulation {
     pub fn new(track_index: usize, era: usize, team: usize, wet: bool, assists: bool) -> Self {
         let ts = tracks();
         let track = ts[track_index.min(ts.len() - 1)].clone();
+        let pit = pit::PitLane::new(&track);
         let mut s = Self {
+            pit,
             track,
             spec: car_spec(era, team),
             state: State::default(),
@@ -213,6 +227,8 @@ impl Simulation {
             gear: 1,
             rpm: powertrain::idle_rpm(self.spec.gears),
             lap: 1,
+            fuel: 1.,
+            tyre_condition: 1.,
             ..State::default()
         };
         self.nearest = 0;
@@ -221,7 +237,31 @@ impl Simulation {
         self.lap_distance = 0.;
         self.shift_timer = 0.;
     }
+    pub fn start_pit_practice(&mut self) {
+        self.reset();
+        self.nearest = self.pit.entry_index.saturating_sub(10);
+        self.recover();
+        self.state.pit_requested = true;
+        self.state.pit_limiter = true;
+    }
+    pub fn request_pit(&mut self) -> bool {
+        if !self.state.pit_active {
+            self.state.pit_requested = !self.state.pit_requested;
+        }
+        self.state.pit_requested
+    }
+    pub fn toggle_limiter(&mut self) -> bool {
+        self.state.pit_limiter = !self.state.pit_limiter;
+        self.state.pit_limiter
+    }
+    pub fn pit_geometry_json(&self) -> String {
+        serde_json::to_string(&self.pit).unwrap()
+    }
     pub fn recover(&mut self) {
+        if self.state.pit_active {
+            return;
+        }
+
         let p = self.track.points[self.nearest];
         let q = self.track.points[(self.nearest + 3) % self.track.points.len()];
         self.state.x = p[0];
@@ -250,7 +290,26 @@ impl Simulation {
         let throttle = throttle.clamp(0., 1.);
         let brake = brake.clamp(0., 1.);
         let steer = steer.clamp(-1., 1.);
+        if self.state.pit_requested && !self.state.pit_active {
+            let e = self.pit.points[0];
+            let distance = (self.state.x - e[0]).hypot(self.state.z - e[2]);
+            let (_, yaw, _, _) = self.pit.sample(0., self.track.points.len());
+            let along = (self.state.x - e[0]) * yaw.sin() + (self.state.z - e[2]) * yaw.cos();
+            if distance < 9. && along >= 0. && (self.state.yaw - yaw).cos() > 0.5 {
+                self.state.pit_active = true;
+                self.state.pit_phase = 1;
+                let along = (self.state.x - e[0]) * yaw.sin() + (self.state.z - e[2]) * yaw.cos();
+                self.state.pit_distance = along.max(0.);
+                self.state.pit_missed = false;
+                self.state.invalid = true;
+            }
+        }
+        if self.state.pit_active {
+            self.step_pit(throttle, brake, dt);
+            return;
+        }
         let s = &mut self.state;
+        let throttle = if s.fuel > 0. { throttle } else { 0. };
         let spec = self.spec;
         let surface = self.track.driving_surface(s.x, s.z, self.nearest, s.yaw);
         let grade = surface.grade;
@@ -264,7 +323,9 @@ impl Simulation {
         s.steering += (steer - s.steering) * (1. - (-dt * response).exp());
         let wet_factor = if self.wet { 0.70 } else { 1. };
         let terrain = if s.offtrack { 0.48 } else { 1. };
-        let grip = spec.grip * 9.81 / (1. + grade * grade).sqrt() * wet_factor * terrain
+        let grip = spec.grip * (0.8 + 0.2 * s.tyre_condition) * 9.81 / (1. + grade * grade).sqrt()
+            * wet_factor
+            * terrain
             + spec.aero * s.speed * s.speed / spec.mass * wet_factor;
         let target_boost = if throttle > 0.4 { 1. } else { 0. };
         s.boost += (target_boost - s.boost) * (dt / (spec.lag + 0.06)).min(1.);
@@ -283,7 +344,11 @@ impl Simulation {
         } else {
             1.
         };
-        let acceleration = raw_accel.min(traction * combined);
+        let acceleration = if s.pit_limiter && s.speed >= self.pit.limit {
+            0.
+        } else {
+            raw_accel.min(traction * combined)
+        };
         let resistance = spec.drag * s.speed * s.speed / spec.mass
             + 0.30
             + if s.offtrack { s.speed * 0.12 } else { 0. };
@@ -348,6 +413,22 @@ impl Simulation {
         s.y = driving.height + 0.1;
         s.grade = driving.grade;
         s.pitch = -driving.grade.atan();
+        s.fuel = (s.fuel - dt * (0.00015 + throttle * 0.0004)).max(0.);
+        s.tyre_condition = (s.tyre_condition - dt * (0.00022 + s.slip * 0.0008)).max(0.);
+        self.advance_lap(idx, old);
+    }
+
+    pub fn state_json(&self) -> String {
+        serde_json::to_string(&self.state).unwrap()
+    }
+    pub fn spec_json(&self) -> String {
+        serde_json::to_string(&self.spec).unwrap()
+    }
+}
+impl Simulation {
+    fn advance_lap(&mut self, idx: usize, old: usize) {
+        let n = self.track.points.len();
+        let s = &mut self.state;
         let delta = (idx as i32 - old as i32 + n as i32 / 2).rem_euclid(n as i32) - n as i32 / 2;
         if delta > 0 && !s.offtrack {
             self.lap_distance += delta as f32 / n as f32;
@@ -378,11 +459,75 @@ impl Simulation {
             s.invalid = false;
         }
     }
-    pub fn state_json(&self) -> String {
-        serde_json::to_string(&self.state).unwrap()
-    }
-    pub fn spec_json(&self) -> String {
-        serde_json::to_string(&self.spec).unwrap()
+    fn step_pit(&mut self, throttle: f32, brake: f32, dt: f32) {
+        let old = self.nearest;
+        let s = &mut self.state;
+        s.elapsed += dt;
+        s.lap_time = s.elapsed - self.lap_start;
+        s.invalid = true;
+        s.offtrack = false;
+        s.slip = 0.;
+        s.lateral = 0.;
+        s.yaw_rate = 0.;
+        s.steering = 0.;
+        if s.pit_phase == 2 {
+            s.speed = 0.;
+            s.throttle = 0.;
+            s.brake = 1.;
+            s.pit_remaining = (s.pit_remaining - dt).max(0.);
+            if s.pit_remaining <= 0. {
+                s.tyre_condition = 1.;
+                if pit::refuelling_allowed(self.era) {
+                    s.fuel = 1.;
+                }
+                s.pit_stops += 1;
+                s.pit_phase = 3;
+            }
+        } else {
+            let throttle = if s.fuel > 0. { throttle } else { 0. };
+            s.throttle = throttle;
+            s.brake = brake;
+            let accel = if s.pit_limiter && s.speed >= self.pit.limit {
+                0.
+            } else {
+                throttle * 6.
+            };
+            s.speed = (s.speed + (accel - brake * 12. - 0.5) * dt).max(0.);
+            s.pit_distance = (s.pit_distance + s.speed * dt).min(self.pit.length);
+            let box_error = (s.pit_distance - self.pit.box_distance).abs();
+            if s.pit_phase == 1 && box_error < 1.75 && s.speed < 0.7 {
+                s.pit_phase = 2;
+                s.speed = 0.;
+                s.pit_remaining = [12., 7., 4., 2.8][self.era];
+                if pit::refuelling_allowed(self.era) {
+                    s.pit_remaining = s
+                        .pit_remaining
+                        .max((1. - s.fuel) * [18., 0., 12., 0.][self.era]);
+                }
+            } else if s.pit_phase == 1 && s.pit_distance > self.pit.box_distance + 1.75 {
+                s.pit_missed = true;
+                s.pit_phase = 3;
+            }
+            s.fuel = (s.fuel - dt * (0.00015 + throttle * 0.0004)).max(0.);
+        }
+        let (p, yaw, grade, idx) = self.pit.sample(s.pit_distance, self.track.points.len());
+        s.x = p[0];
+        s.y = p[1] + 0.1;
+        s.z = p[2];
+        s.yaw = yaw;
+        s.grade = grade;
+        s.pitch = -grade.atan();
+        s.progress = idx as f32 / self.track.points.len() as f32;
+        powertrain::update_engine(s, self.spec.gears, &mut self.shift_timer, dt);
+        self.nearest = idx;
+        self.advance_lap(idx, old);
+        if self.state.pit_distance >= self.pit.length {
+            self.state.pit_active = false;
+            self.state.pit_requested = false;
+            self.state.pit_phase = 0;
+            self.state.pit_limiter = false;
+            self.state.invalid = true;
+        }
     }
 }
 impl Simulation {
@@ -410,6 +555,81 @@ mod tests {
         assert!(car_spec(0, 0).aero < 0.1);
         sim.recover();
         assert_eq!(sim.state.yaw_rate, 0.);
+    }
+    #[test]
+    fn pit_stops_enter_service_and_exit_in_all_eras() {
+        for era in 0..4 {
+            let mut sim = Simulation::new(0, era, 0, false, true);
+            let e = sim.pit.points[0];
+            let (_, yaw, _, _) = sim.pit.sample(0., sim.track.points.len());
+            sim.state.x = e[0];
+            sim.state.z = e[2];
+            sim.state.yaw = yaw;
+            sim.nearest = sim.pit.entry_index;
+            sim.state.fuel = 0.4;
+            sim.state.tyre_condition = 0.3;
+            sim.request_pit();
+            sim.toggle_limiter();
+            for _ in 0..12000 {
+                let remaining = sim.pit.box_distance - sim.state.pit_distance;
+                let target = (2. * 8. * (remaining - 0.3).max(0.)).sqrt().min(15.);
+                let speed = sim.state.speed;
+                sim.step(
+                    if speed < target - 0.1 { 1. } else { 0. },
+                    if speed > target + 0.1 { 1. } else { 0. },
+                    0.,
+                    1. / 120.,
+                );
+                assert!(sim.state.speed <= sim.pit.limit + 0.1);
+                if sim.state.pit_phase == 2 {
+                    break;
+                }
+            }
+            assert_eq!(
+                sim.state.pit_phase, 2,
+                "era {era}, distance {} box {}",
+                sim.state.pit_distance, sim.pit.box_distance
+            );
+            let before = sim.state.pit_remaining;
+            sim.step(1., 0., 0., 0.);
+            assert_eq!(sim.state.pit_remaining, before);
+            for _ in 0..3000 {
+                sim.step(1., 0., 0., 1. / 120.);
+                if sim.state.pit_phase == 3 {
+                    break;
+                }
+            }
+            assert_eq!(sim.state.pit_stops, 1);
+            assert_eq!(sim.state.tyre_condition, 1.);
+            assert_eq!(sim.state.speed, 0.);
+            if pit::refuelling_allowed(era) {
+                assert_eq!(sim.state.fuel, 1.);
+            } else {
+                assert!(sim.state.fuel < 0.4);
+            }
+            for _ in 0..12000 {
+                sim.step(1., 0., 0., 1. / 120.);
+                if !sim.state.pit_active {
+                    break;
+                }
+            }
+            assert!(!sim.state.pit_active && !sim.state.pit_requested);
+            assert!(sim.state.invalid);
+            assert_eq!(sim.state.pit_stops, 1);
+        }
+    }
+    #[test]
+    fn missed_box_does_not_award_free_service_and_recover_does_not_bypass_pits() {
+        let mut s = Simulation::new(1, 2, 0, false, true);
+        s.state.pit_active = true;
+        s.state.pit_phase = 1;
+        s.state.pit_distance = s.pit.box_distance + 4.;
+        s.state.speed = 10.;
+        s.recover();
+        assert!(s.state.pit_active);
+        s.step(1., 0., 0., 1. / 120.);
+        assert!(s.state.pit_missed);
+        assert_eq!(s.state.pit_stops, 0);
     }
     #[test]
     fn ten_tracks_are_closed_and_sensible() {

@@ -94,6 +94,38 @@ export class Simulation {
         }
     }
     /**
+     * @returns {boolean}
+     */
+    request_pit() {
+        const ret = wasm.simulation_request_pit(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @returns {boolean}
+     */
+    toggle_limiter() {
+        const ret = wasm.simulation_toggle_limiter(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @returns {string}
+     */
+    pit_geometry_json() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.simulation_pit_geometry_json(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
+    }
+    start_pit_practice() {
+        wasm.simulation_start_pit_practice(this.__wbg_ptr);
+    }
+    /**
      * @param {number} track_index
      * @param {number} era
      * @param {number} team

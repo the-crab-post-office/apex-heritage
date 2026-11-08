@@ -336,12 +336,25 @@ export class World {
       u.sunPosition.value.set(0.55, 0.3, 0.4);
       this.scene.add(sky);
     }
+    this.pitTrack = config.pit
+      ? {
+          points: config.pit.points.map((p) => [p[0], p[2]]),
+          heights: config.pit.points.map((p) => p[1]),
+          width: config.pit.width,
+          closed: false,
+        }
+      : null;
+    this.pitClearance = this.pitTrack
+      ? new CircuitClearance(this.pitTrack, 3)
+      : null;
+    this.pitMask = this.pitTrack ? new RoadMask(this.pitTrack) : null;
     this.elevationField = new ElevationField(track);
     this.clearance = new CircuitClearance(track);
     this.sceneryAudit = { trees: [], buildings: [], omittedBuildings: 0 };
     this.buildMappedBuildings();
     this.surfaceOverlays = [];
     this.buildTrack();
+    this.buildPits();
     this.buildScenery();
     this.buildLandmarks();
     this.player = makeCar(config.era, config.color);
@@ -449,7 +462,9 @@ export class World {
         }),
       );
     const ground = this.surfaceMesh(
-      terrainMask.cutAll(triangles),
+      this.pitMask
+        ? this.pitMask.cutAll(terrainMask.cutAll(triangles))
+        : terrainMask.cutAll(triangles),
       groundMat,
       2200,
     );
@@ -494,7 +509,9 @@ export class World {
       ]) {
         const triangles = ribbon(this.track, side * a, side * b, h);
         const layer = this.surfaceMesh(
-          roadMask.cutAll(triangles),
+          this.pitMask
+            ? this.pitMask.cutAll(roadMask.cutAll(triangles))
+            : roadMask.cutAll(triangles),
           material(color, 1, 0),
         );
         this.surfaceOverlays.push(layer);
@@ -539,23 +556,28 @@ export class World {
         );
         matrix.scale.set(0.8, 0.1, len + 0.1);
         matrix.updateMatrix();
-        curbs.setMatrixAt(ci, matrix.matrix);
-        c.set(
-          i % 2
-            ? this.track.code === "BE"
-              ? "#e5c143"
-              : "#ded8bd"
-            : "#b94330",
-        );
-        curbs.setColorAt(ci++, c);
+        if (!this.pitClearance || this.pitClearance.circleClear(cx, cz, 0)) {
+          curbs.setMatrixAt(ci, matrix.matrix);
+          c.set(
+            i % 2
+              ? this.track.code === "BE"
+                ? "#e5c143"
+                : "#ded8bd"
+              : "#b94330",
+          );
+          curbs.setColorAt(ci++, c);
+        }
         let x = cx + rx * side * 5,
           z = cz + rz * side * 5;
         matrix.position.set(x, this.roadHeight(x, z, (i + 0.5) / n) + 0.8, z);
         matrix.scale.set(0.12, 0.64, len + 0.05);
         matrix.updateMatrix();
-        rails.setMatrixAt(ri++, matrix.matrix);
+        if (!this.pitClearance || this.pitClearance.circleClear(x, z, 0))
+          rails.setMatrixAt(ri++, matrix.matrix);
       }
     }
+    rails.count = ri;
+    curbs.count = ci;
     rails.castShadow = true;
     curbs.receiveShadow = true;
     this.scene.add(rails, curbs);
@@ -614,10 +636,93 @@ export class World {
     gantry.add(panel);
     this.scene.add(gantry);
   }
+  buildPits() {
+    if (!this.pitTrack) return;
+    const t = this.pitTrack,
+      w = t.width / 2;
+    this.pitMesh = this.surfaceMesh(
+      ribbon(t, -w, w, 0.07),
+      material("#50534e", 0.9),
+    );
+    for (const side of [-1, 1])
+      this.surfaceMesh(
+        ribbon(t, side * w, side * (w - 0.12), 0.08),
+        material("#eee7bb"),
+      );
+    const lane = this.config.pit;
+    let k = lane.distances.findIndex((d) => d >= lane.box_distance);
+    const p = lane.points[k],
+      q = lane.points[k + 1],
+      yaw = Math.atan2(q[0] - p[0], q[2] - p[2]);
+    const box = new THREE.Group();
+    box.position.set(p[0], p[1] + 0.13, p[2]);
+    box.rotation.y = yaw;
+    for (const x of [-2.2, 2.2]) {
+      const a = new THREE.Mesh(boxGeo, material("#e2c25a"));
+      a.position.x = x;
+      a.scale.set(0.12, 0.025, 9);
+      box.add(a);
+    }
+    for (const z of [-4.5, 4.5]) {
+      const a = new THREE.Mesh(boxGeo, material("#e2c25a"));
+      a.position.z = z;
+      a.scale.set(4.5, 0.025, 0.14);
+      box.add(a);
+    }
+    this.pitCrew = [];
+    for (const x of [-4.2, 4.2])
+      for (const z of [-1.5, 1.5]) {
+        const person = new THREE.Group();
+        const body = new THREE.Mesh(cylGeo, material(this.config.color));
+        body.position.y = 0.8;
+        body.scale.set(0.25, 0.5, 0.25);
+        person.add(body);
+        const head = new THREE.Mesh(sphereGeo, material("#e3d5bb"));
+        head.position.y = 1.45;
+        head.scale.set(0.22, 0.22, 0.22);
+        person.add(head);
+        person.position.set(x, 0, z);
+        person.userData.side = Math.sign(x);
+        box.add(person);
+        this.pitCrew.push(person);
+      }
+    this.scene.add(box);
+    const start = lane.points[4],
+      next = lane.points[5],
+      sign = new THREE.Group();
+    sign.position.set(start[0], start[1] + 2.7, start[2]);
+    sign.rotation.y = Math.atan2(next[0] - start[0], next[2] - start[2]);
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 96;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#183d2a";
+    ctx.fillRect(0, 0, 256, 96);
+    ctx.fillStyle = "#ffe5a0";
+    ctx.font = "bold 32px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("PIT → 80", 128, 60);
+    const map = new THREE.CanvasTexture(canvas);
+    const board = new THREE.Mesh(
+      new THREE.PlaneGeometry(4.5, 1.6),
+      new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide }),
+    );
+    sign.add(board);
+    this.scene.add(sign);
+  }
+  updatePit(s) {
+    if (this.pitCrew)
+      for (const p of this.pitCrew) {
+        p.position.x = p.userData.side * (s.pit_phase === 2 ? 1.45 : 4.2);
+        p.rotation.z = s.pit_phase === 2 ? p.userData.side * 0.18 : 0;
+      }
+  }
   buildMappedBuildings() {
     const layer = mappedScenery.tracks.find((t) => t.id === this.track.id);
     this.mappedBuildings = (layer?.buildings || []).filter((b) => {
-      const safe = this.clearance.polygonClear(b.footprint);
+      const safe =
+        this.clearance.polygonClear(b.footprint) &&
+        (!this.pitClearance || this.pitClearance.polygonClear(b.footprint));
       if (!safe) this.sceneryAudit.omittedBuildings++;
       return safe;
     });
@@ -706,6 +811,7 @@ export class World {
       // Reject, never shove a failed candidate somewhere else without rechecking.
       if (
         !this.clearance.circleClear(x, z, radius) ||
+        (this.pitClearance && !this.pitClearance.circleClear(x, z, radius)) ||
         this.nearBuilding(x, z, radius)
       )
         continue;

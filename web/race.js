@@ -58,7 +58,11 @@ export class Race {
       config.assists,
     );
     this.state = JSON.parse(this.sim.state_json());
-    this.world = new World($("#race-canvas"), track, this.config);
+    this.pit = JSON.parse(this.sim.pit_geometry_json());
+    this.world = new World($("#race-canvas"), track, {
+      ...this.config,
+      pit: this.pit,
+    });
     this.keys = new Set();
     this.touch = {};
     this.audio = new EngineAudio(
@@ -131,6 +135,8 @@ export class Race {
       if (!e.repeat) {
         if (e.code === "Escape") this.togglePause();
         if (e.code === "KeyC") this.cycleCamera();
+        if (e.code === "KeyP") this.requestPit();
+        if (e.code === "KeyL") this.toggleLimiter();
         if (e.code === "KeyR" && !this.paused && this.countdown <= 0)
           this.recover();
       }
@@ -164,6 +170,17 @@ export class Race {
       b.addEventListener("lostpointercapture", up);
       this.touchListeners.push([b, down, up]);
     });
+    $("#request-pit").onclick = () => this.requestPit();
+    $("#pit-practice").hidden = config.mode !== "practice";
+    $("#pit-practice").onclick = () => {
+      if (this.paused) return;
+      this.sim.start_pit_practice();
+      this.state = JSON.parse(this.sim.state_json());
+      this.world.cameraInitialized = false;
+      this.countdown = -1;
+      this.callbacks.toast("Pit practice · staged before entry · invalid lap");
+    };
+    $("#pit-limiter").onclick = () => this.toggleLimiter();
     this.updateAudioButton();
     this.frame = this.frame.bind(this);
     this.updateHud(0);
@@ -198,6 +215,8 @@ export class Race {
     if (pad.pressed.size || throttle > 0) this.audio.resume();
     if (pad.pressed.has(9)) this.togglePause();
     if (pad.pressed.has(5)) this.cycleCamera();
+    if (pad.pressed.has(2)) this.requestPit();
+    if (pad.pressed.has(3)) this.toggleLimiter();
     if (pad.pressed.has(1) && !this.paused && this.countdown <= 0)
       this.recover();
     if (this.controller.lost && !this.paused) this.togglePause(true);
@@ -314,6 +333,27 @@ export class Race {
   }
   updateHud(time) {
     const s = this.state;
+    $("#pit-resources").textContent =
+      `TYRES ${Math.round(s.tyre_condition * 100)}% · FUEL ${Math.round(s.fuel * 100)}% · STOPS ${s.pit_stops}`;
+    const distance = Math.max(0, this.pit.box_distance - s.pit_distance);
+    $("#pit-status").textContent =
+      s.pit_phase === 2
+        ? `SERVICING · ${s.pit_remaining.toFixed(1)}s · ${[0, 2].includes(this.config.era) ? "TYRES + FUEL" : "TYRES ONLY"}`
+        : s.pit_active
+          ? s.pit_missed
+            ? "BOX MISSED · DRIVE TO EXIT"
+            : s.pit_phase === 3
+              ? "SERVICE COMPLETE · DRIVE TO EXIT"
+              : `PIT ASSIST · BOX ${distance.toFixed(0)}m · BRAKE TO STOP`
+          : s.pit_requested
+            ? "PIT REQUESTED · ENTER AT MARKED LANE"
+            : "P / X · REQUEST PIT STOP";
+    $("#request-pit").textContent = s.pit_requested
+      ? "PIT REQUESTED · P / X"
+      : "REQUEST PIT · P / X";
+    $("#pit-limiter").textContent =
+      `80 km/h LIMITER ${s.pit_limiter ? "ON" : "OFF"} · L / Y`;
+    $("#pit-limiter").setAttribute("aria-pressed", String(s.pit_limiter));
     $("#hud-elevation").textContent = `${Math.round(s.y - 0.1)} m`;
     $("#hud-grade").textContent =
       `${s.grade >= 0 ? "+" : ""}${(s.grade * 100).toFixed(1)}%`;
@@ -332,6 +372,7 @@ export class Race {
     $("#invalid-label").hidden = !s.invalid;
     $("#hud-position").textContent =
       this.config.mode === "race" ? `P${this.position()} / 6` : "FREE RUN";
+    this.world.updatePit?.(s);
     const peak = [10000, 12500, 19000, 12500][this.config.era];
     document
       .querySelectorAll("#rpm-leds i")
@@ -401,6 +442,26 @@ export class Race {
     ctx.strokeStyle = "#ffdcc2";
     ctx.lineWidth = 1.5;
     ctx.stroke();
+  }
+  requestPit() {
+    if (this.paused || this.finished) return;
+    const requested = this.sim.request_pit();
+    this.state = JSON.parse(this.sim.state_json());
+    this.callbacks.toast(
+      requested
+        ? "Pit stop requested · follow PIT entry arrows · P/X cancels"
+        : "Pit request cancelled",
+    );
+  }
+  toggleLimiter() {
+    if (this.paused || this.finished) return;
+    const on = this.sim.toggle_limiter();
+    this.state = JSON.parse(this.sim.state_json());
+    this.callbacks.toast(
+      on
+        ? "80 km/h limiter ON · brake to slow before entry"
+        : "Pit limiter OFF",
+    );
   }
   cycleCamera() {
     this.world.cameraMode = (this.world.cameraMode + 1) % 3;

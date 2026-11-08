@@ -44,6 +44,7 @@ export class CircuitClearance {
     this.cells = new Map();
     this.size = 50;
     this.points.forEach((a, i) => {
+      if (track.closed === false && i === this.points.length - 1) return;
       const b = this.points[(i + 1) % this.points.length],
         r = this.clearance;
       this.visit(
