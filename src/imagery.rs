@@ -48,6 +48,9 @@ mod tests {
         for (i, area) in a.iter().enumerate() {
             assert_eq!(area.forest_mask.len(), 64 * 64);
             assert!(PHOTOS[i].starts_with(&[255, 216]));
+            let decoded = image::load_from_memory(PHOTOS[i]).expect("native JPEG decoder");
+            assert_eq!(decoded.width(), 512);
+            assert_eq!(decoded.height(), 512);
             assert!(area.bounds[2] > area.bounds[0] && area.bounds[3] > area.bounds[1]);
         }
     }

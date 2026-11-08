@@ -266,6 +266,10 @@ async fn main() {
     let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
     loop {
         let pad = controller.poll();
+        if pad.pressed.contains(&gilrs::Button::Select) && !menu {
+            menu = true;
+            paused = false;
+        }
         if pad.lost && !menu {
             paused = true;
         }

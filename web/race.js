@@ -42,7 +42,7 @@ export class Race {
     $("#hud-build").textContent =
       `v${verified.version} · data ${verified.hash}`;
     const r = new Race(track, config, callbacks);
-    await r.audio.ready;
+    await Promise.all([r.audio.ready, r.world.photoReady]);
     return r;
   }
   constructor(track, config, callbacks) {
@@ -178,6 +178,8 @@ export class Race {
       this.state = JSON.parse(this.sim.state_json());
       this.world.cameraInitialized = false;
       this.countdown = -1;
+      $("#race-message").textContent = "";
+      $("#race-message").classList.remove("countdown");
       this.callbacks.toast("Pit practice · staged before entry · invalid lap");
     };
     $("#pit-limiter").onclick = () => this.toggleLimiter();
@@ -214,6 +216,10 @@ export class Race {
     brake = Math.max(brake, pad.brake);
     if (pad.pressed.size || throttle > 0) this.audio.resume();
     if (pad.pressed.has(9)) this.togglePause();
+    if (pad.pressed.has(8) && (this.paused || this.finished)) {
+      this.callbacks.onExit();
+      return { throttle: 0, brake: 0, steer: 0 };
+    }
     if (pad.pressed.has(5)) this.cycleCamera();
     if (pad.pressed.has(2)) this.requestPit();
     if (pad.pressed.has(3)) this.toggleLimiter();
@@ -234,6 +240,7 @@ export class Race {
     const dt = Math.min(this.wallDelta, 0.075);
     this.lastTime = time;
     const input = this.input();
+    if (!this.running) return;
     if (!this.paused && !this.finished) {
       if (this.countdown > 0) {
         this.countdown -= this.wallDelta || dt;
@@ -514,6 +521,8 @@ export class Race {
     this.audio.dispose();
     this.world.dispose();
     this.sim.free();
+    for (const id of ["#request-pit", "#pit-limiter", "#pit-practice"])
+      $(id).onclick = null;
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("keyup", this.onKeyUp);
     window.removeEventListener("blur", this.onBlur);

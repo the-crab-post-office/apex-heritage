@@ -4,7 +4,21 @@
 
 The driving model is written in **Rust** and shared by both clients. The web client compiles that core to **WebAssembly** and renders with Three.js; the native client uses **Macroquad**. Browser rendering/UI are JavaScript, not Rust. No physics JavaScript fallback is used.
 
-> This is the agreed playable-prototype scope, not a photorealistic production simulator. The menu uses clearly labeled AI-generated concept artwork. Actual gameplay uses simplified original car models and textures, with mapped building footprints. Photographs are references only; no third-party photographs are game textures.
+> This is the agreed playable-prototype scope, not a photorealistic production simulator. The menu uses clearly labeled AI-generated concept artwork. Actual gameplay uses simplified original car models and textures, with mapped building footprints. Real georeferenced Copernicus satellite-photo crops now texture the surrounding terrain; trackside photographs are references only. Road surfaces, cars and facade textures remain original simplified art.
+
+## New in 0.4 — controllers, photo terrain, pit stops and classic handling
+
+- **Controllers, both clients:** analog RT/LT, rescaled 12% stick deadzone, progressive steering, D-pad steering, edge-triggered actions, controller-driven setup and automatic pause on disconnect. Browser uses the standard Gamepad API; native uses gilrs. Keyboard and touch remain available. Simulated input is tested; no physical controller hardware certification is claimed.
+- **Real photographic terrain on all ten circuits:** locally bundled, georeferenced **2025 Copernicus Sentinel-2 satellite crops**, about **10 m native resolution**, draped onto the existing terrain. Approximate dark-green photo masks guide tree placement instead of putting the same tree distribution everywhere. Mapped buildings now have original window detail. Monaco has an approximate canopy/wall/columns over its mapped tunnel segment, informed by a public reference photo.
+- **1967 / 1988 / 2004 rev/audio correction:** the old trackside loops contained their own source acceleration/Doppler pitch sweeps. They now supply stable recording-derived periodic timbres, phase-locked to the simulated engine. The two timbres share phase; rev pitch no longer resets or wanders at clip boundaries. Launch revs respond to throttle; shifts use one authoritative cut envelope rather than double-counting cuts. Sources/years remain explicit; these are not exact recordings of each roster car.
+- **Playable player pit stops in both clients:** request/cancel, marked entry and exit, 80 km/h power limiter, assisted lane steering, player throttle/brake control, a marked stopping box, timed service and simple animated crew poses. Tyres are renewed; fuel is replenished only for 1967/2004 presets. 1988/modern stops are tyres-only. Basic tyre wear and fuel use make the service meaningful. Missing the box does not award service.
+- **1967 handling:** gentler steering buildup and yaw response, shorter effective wheelbase/more low-speed lock, modest mechanical-grip increase, combined cornering/acceleration grip and less abrupt lateral breakaway. It retains low aero and weaker braking than later eras; this is gameplay tuning, not historic telemetry validation. New lap records use a new balance-version key.
+
+**Important realism limits:** the imagery is actual satellite photography, **not laser scans, close-up photogrammetry, facade photography or surveyed road heights**. Ground heights remain the existing approximate GLO-30 estimates. Pit lanes are **authored parallel prototype routes near the start**, not the real mapped lane shapes or historic pit rules, and assisted pit laps are invalid for records. Refuelling permission is era-inspired; service times/crew and fuel/tyre models are simplified. AI does not make pit stops. No commercial simulator track files were copied. See `data/IMAGERY-NOTICE.md`, `SOURCES.md` and `TESTING.md`.
+
+### Try a pit stop quickly
+
+Select **Practice**, start driving, then click **PIT ENTRY PRACTICE · RESET LAP**. This explicitly stages the car before the pit approach and invalidates the lap. Drive to the marked entry; the requested lane engages assisted steering. Use RT/W to accelerate, LT/Space to brake, and stop with the car centred in the yellow box. Wait for service, then accelerate out. Native: **O** stages the same practice approach. In normal driving use **P / X** to request the next pit entry and **L / Y** to enable the limiter; brake before entering, as the power limiter is not an automatic braking system.
 
 ## Corrected in 0.3.2 — terrain/road mesh intersections
 
@@ -13,10 +27,10 @@ The 0.3.1 fix was incomplete: checking sampled height arrays did **not** check t
 - Terrain triangles are now **clipped out of the projected road footprint**, rather than merely lowering their vertices. Web and native both use spatially indexed polygon subtraction.
 - Asphalt and edge paint are disjoint bands with shared centerline cross-sections. Shoulder/apron bands no longer cover the asphalt. Their winding and road texture scale are tested as well.
 - Wet asphalt is less excessively dark. This is a readability/material correction, not a new weather or lighting simulation.
-- A visible **v0.3.2** web HUD label identifies this release. Startup verifies HTML, CSS, JS and WASM versions plus the Rust/bundled track-data hash against `version.json`; mixed builds stop with an explicit error. Elevation/grade placeholders are now “—”, and actual telemetry initializes before the first animation frame.
+- A visible version label (now **v0.4.0**) identifies the web build. Startup verifies HTML, CSS, JS and WASM versions plus the Rust/bundled track-data hash against `version.json`; mixed builds stop with an explicit error. Elevation/grade placeholders are now “—”, and actual telemetry initializes before the first animation frame.
 - The previous elevation source/data have **not** been replaced in this patch. They remain filtered, approximately 30 m DSM estimates, **not surveyed road heights**. This fixes demonstrated mesh intersections; it does not certify every real-world crest, gradient or corner elevation.
 
-**Updating:** use the fresh preview labeled v0.3.2, or extract the complete new web ZIP into an **empty directory** and serve it over HTTP. Do not copy individual assets into an older release. See `TESTING.md` for the actual-triangle and camera-walkthrough coverage.
+**Updating:** use the fresh preview labeled v0.4.0, or extract the complete new web ZIP into an **empty directory** and serve it over HTTP. Do not copy individual assets into an older release. See `TESTING.md` for the actual-triangle and camera-walkthrough coverage.
 
 ## Earlier 0.3.1 — geographically anchored elevation
 
@@ -43,7 +57,7 @@ npm run test:elevation
 
 ## New in 0.3 — real recordings + mapped scenery
 
-- **Real engine recordings** for the first three eras: Edvvc (Ed Pond)'s Lotus-BRM 24 (1962), Toleman-Hart TG183B (1983) and Williams-Renault FW18 (1996), CC BY-SA 3.0. Six seamless low/high PCM loops blend with synthesis, follow RPM/load/gear cuts, and work in both browser and native. Browser AI retains spatial panning and Doppler. Modern 2023 V6 remains synthesized; missing browser samples also fall back safely.
+- **Real engine recordings** for the first three eras: Edvvc (Ed Pond)'s Lotus-BRM 24 (1962), Toleman-Hart TG183B (1983) and Williams-Renault FW18 (1996), CC BY-SA 3.0. The 0.4 update replaces the old looping pitch sweeps with phase-locked recording-derived low/high timbre tables, blended with original synthesis in browser and native. Browser AI retains spatial panning and Doppler. Modern 2023 V6 remains synthesized; missing browser samples also fall back safely.
 - **2,878 mapped OpenStreetMap building footprints across all ten circuits**, with original way IDs and height provenance. Positions follow projected polygons rather than random city blocks or arbitrary start-relative pit/stand offsets. Heights use mapped heights, estimated floor counts, or an explicit 8 m default. Present-day maps, not historical architecture.
 - **No trees or buildings on the rendered circuit:** continuous checks against every closed-loop segment, complete building polygons and tree-canopy radii. Unsafe candidates are rejected, never shoved somewhere else without a recheck. Forty-six mapped footprint overlaps with the road/margin were omitted rather than relocated.
 - **Monaco starts on Boulevard Albert Ier**, snapped to OSM start/finish node 4937755860, not the Casino-area source point zero. Silverstone, Imola, Nürburgring GP and Hockenheim also use mapped start markers. Points, road heights and ground heights rotate together. In 0.3.1, geographic resampling additionally makes this independent of the chosen start index.
@@ -97,7 +111,7 @@ python3 -m http.server 8080 --directory site
 cargo run --release --features native --bin apex-native
 ```
 
-On Linux, the desktop client needs a graphical session, OpenGL, X11 and the ALSA runtime. Building native audio from source also needs `pkg-config` and ALSA development headers (`sudo apt install pkg-config libasound2-dev` on Debian/Ubuntu). It was release-built and smoke-tested under Xvfb on Linux x86-64. Windows/macOS targets have not been tested here; compile from source on those platforms. No Windows/macOS binaries are claimed.
+On Linux, the desktop client needs a graphical session, OpenGL, X11 and the ALSA runtime. Building native audio from source also needs `pkg-config` and ALSA and udev development headers (`sudo apt install pkg-config libasound2-dev libudev-dev` on Debian/Ubuntu). It was release-built and smoke-tested under Xvfb on Linux x86-64. Windows/macOS targets have not been tested here; compile from source on those platforms. No Windows/macOS binaries are claimed.
 
 A Linux x86-64 executable is supplied separately with this delivery. To run a downloaded copy:
 
@@ -115,13 +129,28 @@ chmod +x apex-native-linux-x86_64
 | Steer | A/D / Left/Right | A/D / Left/Right |
 | Recover to track | R; invalidates current lap | R; invalidates current lap |
 | Pause / resume | Escape | Escape |
-| Camera | C: chase, cockpit, high chase | Chase camera |
+| Camera | C: chase, cockpit, high chase | C: chase, cockpit, high chase |
+| Pit request / cancel | P or on-screen button | P |
+| 80 km/h limiter | L or on-screen button | L |
+| Pit entry practice (resets lap) | Practice-mode PIT ENTRY PRACTICE button | O |
 | Audio | In-session AUDIO button; master volume in setup settings | V |
 | Exit to setup | Pause → Return to paddock | M |
 
 Native setup: Left/Right selects the track; E changes era; T changes team; W toggles wet conditions; A toggles assists; Enter starts driving. **Native has deliberately simpler visuals and a free-drive mode, not feature parity with the browser.**
 
-Web also supports standard gamepads: left stick steering, RT accelerate, LT brake, A recover, Start pause. Touch controls appear on narrow screens. These input paths are implemented; automated tests exercised keyboard input and mobile layout, not physical gamepad hardware. Gears shift automatically in both clients.
+### Controller layout (standard Xbox-style labels)
+
+| Action | Both clients |
+|---|---|
+| Steering / acceleration / brake | Left stick or D-pad / RT / LT |
+| Recover (not during a pit stop) | B |
+| Request / cancel pit stop | X |
+| Toggle 80 km/h limiter | Y |
+| Camera | RB while driving |
+| Pause / resume | Start / Menu |
+| Return to setup | View / Back (web: while paused/finished) |
+
+Browser setup: D-pad Left/Right = circuit, Up/Down = team, LB/RB = era, A = start. Native setup: D-pad Left/Right = circuit, LB = era, RB = team, A = start. Connect a standard pad and press a button to expose it to the browser. Nonstandard browser mappings are not guessed; use a standard mapping or keyboard. If the embedded preview blocks the Gamepad API, open the preview in its own browser tab. Custom wheel/pedal mappings and force feedback are not implemented. Touch driving and on-screen pit buttons remain available. Gears shift automatically in both clients. Physical Xbox/PlayStation controllers, Bluetooth hot-plug and macOS/Windows native hardware have **not** been tested here.
 
 ## The ten circuits
 
@@ -136,7 +165,7 @@ Web also supports standard gamepads: left stick steering, RT accelerate, LT brak
 9. Circuit Gilles-Villeneuve / Montréal
 10. Hockenheim
 
-Circuit outlines are derived from MIT-licensed GeoJSON maps by Tomislav Bacinger, projected into metres, lightly smoothed and uniformly resampled. All eras share the same sourced map version. These are not period-specific, laser-scanned or survey-accurate reproductions. See [SOURCES.md](SOURCES.md) for photo references, implementation notes and map provenance. Elevations are filtered geographic surface estimates; widths, vegetation and non-building landmarks remain artistic approximations; building footprints now use OSM data, with simplified roofs and sometimes estimated heights. The same per-point heights are read by Rust and the renderers. Grade gravity, relative height and pitch are computed in the core. Suzuka has a separated overpass with lower underlying terrain. Surrounding terrain comes from a geographic 2D DSM grid, blended to the road bed; it is not a survey.
+Circuit outlines are derived from MIT-licensed GeoJSON maps by Tomislav Bacinger, projected into metres, lightly smoothed and uniformly resampled. All eras share the same sourced map version. These are not period-specific, laser-scanned or survey-accurate reproductions. See [SOURCES.md](SOURCES.md) for photo references, implementation notes and map provenance. Elevations are filtered geographic surface estimates; widths and non-building landmarks remain artistic approximations; vegetation now uses a coarse photo-derived green mask, not surveyed tree locations; building footprints now use OSM data, with simplified roofs and sometimes estimated heights. The same per-point heights are read by Rust and the renderers. Grade gravity, relative height and pitch are computed in the core. Suzuka has a separated overpass with lower underlying terrain. Surrounding terrain comes from a geographic 2D DSM grid, blended to the road bed; it is not a survey.
 
 ## Four eras, sixteen historically referenced machines
 
@@ -164,7 +193,7 @@ Power, grip and braking are independently modified for each team. The displayed 
 
 - This is a simplified grounded, road-following 2.5D driving model with grade gravity, **not** a validated tyre, suspension, drivetrain or aerodynamic simulation. Vehicles do not become airborne over crests.
 - No vehicle-to-vehicle or barrier collision response. AI cars are intentionally non-colliding, follow a mapped path and do not use the player's full dynamics model.
-- No damage, tyre wear/temperature, fuel strategy, pit stops, DRS, ERS management, multiplayer, championship or official assets.
+- Basic fuel use/tyre wear and player pit service are present. No tyre-temperature model, detailed compound strategy, damage, DRS, ERS management, multiplayer, championship or official assets.
 - The 1967 and 1988 rosters include different real engine architectures; the era handling model is shared, with per-team modifiers rather than engine-by-engine simulation.
 - Historical cars use one circuit map version, not historical layouts. Scenery and landmarks are recognizable cues, not architectural reconstructions.
 - Native rendering is a lightweight, elevated, simplified free-drive client with its own engine audio. Browser UI, AI races/spatial opponent audio, weather particles, touch controls and persistent records are not present there. Use `APEX_NO_AUDIO=1` to disable native device initialization if needed.
@@ -195,7 +224,7 @@ APEX_URL=http://127.0.0.1:8080 npm run test:web
 Linux rendering/physics smoke test (requires Xvfb):
 
 ```sh
-APEX_SMOKE=1 xvfb-run -a ./target/release/apex-native
+APEX_SMOKE=1 APEX_NO_AUDIO=1 xvfb-run -a ./target/release/apex-native
 ```
 
 It renders 120 frames, advances the same Rust driving model, checks acceleration and exits cleanly. See [TESTING.md](TESTING.md) for recorded results.
@@ -260,3 +289,15 @@ git log --graph --oneline --all
 ## Rights and attribution
 
 Independent, unofficial motorsport tribute, not affiliated with Formula 1, the FIA, any team or any circuit. Names and marks belong to their owners. Team/circuit branding and commercial distribution may require additional permissions and legal review. Source code is MIT; circuit centreline maps retain their upstream MIT notice. Copernicus-derived surface heights retain their separate free/open user licence and attribution notice. OSM-derived data is ODbL 1.0, and adapted recording assets are CC BY-SA 3.0, not MIT. Asset notices, editable data and author/source links are supplied with releases and in runtime credits. Reference photography is **not** included in the source distribution or web release. Original menu artwork is AI-generated. Three.js, Lucide, Macroquad, CPAL and other dependencies retain their respective licenses. CPAL’s Apache-2.0 text is included in `data/CPAL-LICENSE` for native distribution.
+
+## Package a validated release
+
+```sh
+. "$HOME/.cargo/env"
+./scripts/build-web.sh
+cargo build --release --features native --bin apex-native
+python3 scripts/package-release.py
+(cd releases && sha256sum -c SHA256SUMS.txt)
+```
+
+Commit/tag first so `BUILD-INFO.txt` and `GIT-REFS.txt` identify the source correctly. The packager retains only tracked source files plus required notices in the source ZIP; production assets in the web ZIP; and the Linux executable, editable geographic data, audio adaptations and notices in the native ZIP. No `node_modules`, Cargo targets, test reports, research thumbnails or Git object history are archived. It copies installed dependency licences plus the documented upstream omissions in `data/dependency-licenses/`; fetching/building dependencies first is required.

@@ -1,10 +1,11 @@
+import imageryManifest from "../data/imagery.json";
 import { imageryFor, photoUV, forestAt } from "./imagery.js";
 const aerialURLs = import.meta.glob("./assets/imagery/*.jpg", {
   eager: true,
   query: "?url",
   import: "default",
 });
-import { RoadMask, ribbon } from "./road-surface.js";
+import { RoadMask, ribbon, roadPoint } from "./road-surface.js";
 import mappedScenery from "./assets/buildings.json";
 import { CircuitClearance, inside, pointSegmentDistance } from "./scenery.js";
 import * as THREE from "three";
@@ -354,7 +355,7 @@ export class World {
       ? new CircuitClearance(this.pitTrack, 3)
       : null;
     this.pitMask = this.pitTrack ? new RoadMask(this.pitTrack) : null;
-    this.photoArea = imageryFor(track.id);
+    this.photoArea = imageryFor(imageryManifest, track.id);
     this.elevationField = new ElevationField(track);
     this.clearance = new CircuitClearance(track);
     this.sceneryAudit = { trees: [], buildings: [], omittedBuildings: 0 };
@@ -437,16 +438,29 @@ export class World {
     const groundMat = material("#869061", 1, 0);
     groundMat.map = grassTexture;
     if (this.photoArea) {
-      grassTexture.dispose();
       groundMat.color.set("#ffffff");
-      groundMat.map = new THREE.TextureLoader().load(
-        aerialURLs[`./assets/imagery/${this.photoArea.file}`],
-      );
-      groundMat.map.colorSpace = THREE.SRGBColorSpace;
-      groundMat.map.anisotropy = Math.min(
-        8,
-        this.renderer.capabilities.getMaxAnisotropy(),
-      );
+      this.photoReady = new Promise((resolve) => {
+        const photo = new THREE.TextureLoader().load(
+          aerialURLs[`./assets/imagery/${this.photoArea.file}`],
+          () => {
+            grassTexture.dispose();
+            resolve(true);
+          },
+          undefined,
+          () => {
+            groundMat.map = grassTexture;
+            groundMat.color.set("#869061");
+            groundMat.needsUpdate = true;
+            resolve(false);
+          },
+        );
+        photo.colorSpace = THREE.SRGBColorSpace;
+        photo.anisotropy = Math.min(
+          8,
+          this.renderer.capabilities.getMaxAnisotropy(),
+        );
+        groundMat.map = photo;
+      });
     }
     const xs = this.track.points.map((p) => p[0]),
       zs = this.track.points.map((p) => p[1]);
@@ -1023,6 +1037,7 @@ export class World {
     roof.side = THREE.DoubleSide;
     const mesh = this.surfaceMesh(faces, roof);
     mesh.castShadow = true;
+    this.tunnelRoof = mesh;
     const underside = this.surfaceMesh(
       ribbon(this.track, -w - 1.2, w + 1.2, 5.73).filter((_, i) => {
         const k = Math.floor(i / 2);
@@ -1164,6 +1179,40 @@ export class World {
       a.needsUpdate = true;
     }
     this.renderer.render(this.scene, this.camera);
+  }
+  auditPitSurface(stride = 3) {
+    this.scene.updateMatrixWorld(true);
+    const t = this.pitTrack,
+      ray = new THREE.Raycaster();
+    let intrusions = 0,
+      missing = 0,
+      samples = 0;
+    if (!t) return { samples, intrusions, missing };
+    for (let i = 0; i < t.points.length - 1; i += stride)
+      for (const f of [-0.8, 0, 0.8]) {
+        const a = roadPoint(t, i, (f * t.width) / 2, 0.07),
+          b = roadPoint(t, i + 1, (f * t.width) / 2, 0.07),
+          p = a.map((v, k) => (v + b[k]) / 2);
+        ray.set(
+          new THREE.Vector3(p[0], Math.max(...this.track.heights) + 100, p[2]),
+          new THREE.Vector3(0, -1, 0),
+        );
+        const hit = ray
+          .intersectObject(this.pitMesh)
+          .find((h) => Math.abs(h.point.y - p[1]) < 0.5);
+        samples++;
+        if (!hit) {
+          missing++;
+          continue;
+        }
+        if (
+          ray
+            .intersectObjects([this.terrainMesh, ...this.surfaceOverlays])
+            .some((h) => h.point.y > hit.point.y + 0.01)
+        )
+          intrusions++;
+      }
+    return { samples, intrusions, missing };
   }
   auditRoadSurface(stride = 10) {
     this.scene.updateMatrixWorld(true);

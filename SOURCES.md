@@ -16,7 +16,7 @@ Cross-reference maps/history: [F1 Chronicle circuit map collection](https://f1ch
 
 ## Photographic references
 
-Images were searched and visually inspected for surroundings and broad scenery cues. **No third-party photographs or thumbnails are copied into the application, release package or source archive.** Stock-photo previews remain reference-only; licenses for redistribution were not obtained.
+Images were searched and visually inspected for surroundings and broad scenery cues. **No third-party trackside photographs or search thumbnails are copied into the application, release package or source archive. The separately credited 0.4 Sentinel-2 satellite crops below are intentionally redistributed.** Stock-photo previews remain reference-only; licenses for redistribution were not obtained.
 
 | Circuit | Reference page | Cues used in original procedural scenery |
 |---|---|---|
@@ -69,7 +69,7 @@ Monaco's source point zero was near Casino rather than Boulevard Albert Ier. OSM
 
 ## Real engine recordings (0.3)
 
-The first three era presets now use low/high PCM loops derived from Edvvc (Ed Pond)'s real Goodwood 2010 recordings: Lotus-BRM 24 (1962), Toleman-Hart TG183B (1983) and Williams-Renault FW18 (1996). Explicit Commons file-page grants are CC BY-SA 3.0. Full credits, source pages, license basis (including the older embedded NC metadata discrepancy), adaptations and limitations are in `web/assets/audio/NOTICE.md`; machine-readable windows and playback anchors are in `recordings.json`. `scripts/build-recordings.py` reproduces all six loops.
+The first three era presets now use low/high PCM loops derived from Edvvc (Ed Pond)'s real Goodwood 2010 recordings: Lotus-BRM 24 (1962), Toleman-Hart TG183B (1983) and Williams-Renault FW18 (1996). Explicit Commons file-page grants are CC BY-SA 3.0. Full credits, source pages, license basis (including the older embedded NC metadata discrepancy), adaptations and limitations are in `web/assets/audio/NOTICE.md`; machine-readable windows and playback anchors are in `recordings.json`. In 0.4, `scripts/build-recordings.py` derives stable periodic timbre tables from short source windows; phase-locked playback replaces the former accelerating/Doppler-shifted loops. This is recording-derived resynthesis, not intact natural loops or source-RPM measurement.
 
 Both native CPAL and browser AudioWorklet interpolate the same embedded/shipped 24 kHz PCM and blend it with original synthesized drivetrain/transient/noise layers. Browser AI also uses recorded layers, with spatial gain/pan and Doppler. Missing browser samples retain a synthesized fallback. The modern 2023 V6 remains synthesized: no matching verified recording was obtained. Real trackside samples do not establish exact engine-model or RPM calibration; the Hart sample is four-cylinder rather than the 1988 V6 roster's engine architecture.
 
@@ -87,3 +87,13 @@ Full source, required Copernicus copyright/derived-product notice, licence links
 ## Road-surface rendering correction (0.3.2)
 
 No new external geographic sources or terrain heights were introduced. The rendering correction uses original polygon-clipping code in `web/road-surface.js` and `src/surface_mesh.rs` to keep drawn terrain and grass out of the projected asphalt footprint, with centerline-split road bands. The data provenance/approximation limits above remain unchanged. Build hashes identify matching data, not geographic accuracy.
+
+## Public photographic terrain and reference-guided detail (0.4)
+
+**Contains modified Copernicus Sentinel data 2025.** Ten real Sentinel-2 Level-2A true-colour crops, sourced from [Element 84 Earth Search](https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a), are bundled locally in `web/assets/imagery/`. Metadata, COG source URLs and scene dates: `data/imagery.json`. They are reprojected into the existing track-map metre coordinates, bilinearly resampled and JPEG-compressed; source true-colour resolution is about 10 m. The 512 px output size does not make the original pixels higher-resolution. The green threshold only guides approximate vegetation, not individual measured trees.
+
+[Copernicus Sentinel-2 programme](https://dataspace.copernicus.eu/data-collections/copernicus-sentinel-missions/sentinel-2) and [official Sentinel legal notice](https://sentinels.copernicus.eu/documents/247904/690755/Sentinel_Data_Legal_Notice): free/full/open reuse, including distribution/adaptation, with source/modification notices and no warranties. Full attribution/processing/limits are in `data/IMAGERY-NOTICE.md`; the web build exposes this and the editable manifest under `/licenses/`. These satellite data rights are separate from the GLO-30 elevation notice.
+
+The Monaco canopy/wall/columns follow the existing mapped Boulevard Louis II tunnel extent. [Arrr! / Monaco Tunnel photo](https://flickr.com/photos/gasheadsteve/3884456661) was viewed as a construction/appearance reference only: concrete overhead cover, open sea-side supports and an inner wall. The photo is not redistributed or used as a texture. Dimensions/materials are approximate original geometry, not a survey, photo mesh or authentic hotel reconstruction. Window patterns on the existing mapped building footprints are original procedural detail, not photographed facades.
+
+No usable licensed complete all-ten-circuit laser-scan set was imported. Wallonia's public high-resolution terrain datasets were investigated but **not used**; do not confuse those with this release's unchanged GLO-30 heights. Pit paths and crew are original authored prototype geometry, not claimed as OSM-mapped real pit lanes. Their editable construction is in `src/pit.rs` and shared between clients. Existing OSM buildings that intersect the prototype pit corridor are omitted from rendering instead of letting them obstruct it.
