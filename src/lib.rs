@@ -14,6 +14,7 @@ pub mod powertrain;
 pub mod recorded_audio;
 pub mod scenery;
 pub mod surface_mesh;
+pub mod venue;
 
 #[wasm_bindgen]
 pub fn build_version() -> String {
@@ -174,6 +175,7 @@ pub struct State {
     pub pit_remaining: f32,
     pub pit_stops: u32,
     pub pit_missed: bool,
+    pub impact: f32,
 }
 #[wasm_bindgen]
 pub struct Simulation {
@@ -189,6 +191,7 @@ pub struct Simulation {
     shift_timer: f32,
     era: usize,
     pit: pit::PitLane,
+    venue: venue::Venue,
 }
 #[wasm_bindgen]
 impl Simulation {
@@ -197,7 +200,9 @@ impl Simulation {
         let ts = tracks();
         let track = ts[track_index.min(ts.len() - 1)].clone();
         let pit = pit::PitLane::new(&track);
+        let venue = venue::Venue::for_track(&track.name);
         let mut s = Self {
+            venue,
             pit,
             track,
             spec: car_spec(era, team),
@@ -256,6 +261,9 @@ impl Simulation {
         self.state.pit_limiter = !self.state.pit_limiter;
         self.state.pit_limiter
     }
+    pub fn venue_geometry_json(&self) -> String {
+        serde_json::to_string(&self.venue).unwrap()
+    }
     pub fn pit_geometry_json(&self) -> String {
         serde_json::to_string(&self.pit).unwrap()
     }
@@ -311,6 +319,8 @@ impl Simulation {
             return;
         }
         let s = &mut self.state;
+        let old_position = [s.x, s.z];
+        s.impact = (s.impact - dt * 1.5).max(0.);
         let throttle = if s.fuel > 0. { throttle } else { 0. };
         let spec = self.spec;
         let surface = self.track.driving_surface(s.x, s.z, self.nearest, s.yaw);
@@ -388,6 +398,24 @@ impl Simulation {
         s.lateral += (lateral_target - s.lateral) * (dt * 4.).min(1.);
         s.x += (s.yaw.sin() * s.speed + s.yaw.cos() * s.lateral) * dt;
         s.z += (s.yaw.cos() * s.speed - s.yaw.sin() * s.lateral) * dt;
+        if let Some(hit) = self.venue.collide(
+            old_position,
+            [s.x, s.z],
+            [
+                (s.yaw.sin() * s.speed + s.yaw.cos() * s.lateral),
+                (s.yaw.cos() * s.speed - s.yaw.sin() * s.lateral),
+            ],
+        ) {
+            s.x = hit.position[0];
+            s.z = hit.position[1];
+            s.speed = hit.velocity[0].hypot(hit.velocity[1]);
+            s.lateral = hit.velocity[0] * s.yaw.cos() - hit.velocity[1] * s.yaw.sin();
+            s.yaw_rate *= 0.3;
+            if hit.strength > 1. {
+                s.impact = (hit.strength / 25.).min(1.);
+                s.invalid = true;
+            }
+        }
         powertrain::update_engine(s, spec.gears, &mut self.shift_timer, dt);
         let n = self.track.points.len();
         let old = self.nearest;

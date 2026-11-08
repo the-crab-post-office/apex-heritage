@@ -1,5 +1,6 @@
 import imageryManifest from "../data/imagery.json";
 import { imageryFor, forestAt } from "./imagery.js";
+import { buildVenue } from "./venue.js";
 import { SurfaceLibrary } from "./materials.js";
 import { RoadMask, ribbon, roadPoint } from "./road-surface.js";
 import mappedScenery from "./assets/buildings.json";
@@ -556,6 +557,7 @@ export class World {
     this.buildScenery();
     this.buildLandmarks();
     this.buildTunnel();
+    buildVenue(this);
     this.photoReady = Promise.all(this.surfaces.pending);
     this.player = makeCar(config.era, config.color);
     this.scene.add(this.player);
@@ -819,7 +821,7 @@ export class World {
           rails.setMatrixAt(ri++, matrix.matrix);
       }
     }
-    rails.count = ri;
+    rails.count = this.config.venue ? 0 : ri;
     curbs.count = ci;
     rails.castShadow = true;
     curbs.receiveShadow = true;
@@ -1009,6 +1011,22 @@ export class World {
     this.scene.add(group);
   }
   nearBuilding(x, z, radius) {
+    if (
+      this.config.venue?.grandstands.some(
+        (s) =>
+          inside([x, z], s.footprint) ||
+          s.footprint.some(
+            (p, i) =>
+              pointSegmentDistance(
+                [x, z],
+                p,
+                s.footprint[(i + 1) % s.footprint.length],
+              ) <
+              radius + 1,
+          ),
+      )
+    )
+      return true;
     return this.mappedBuildings.some(
       (b) =>
         inside([x, z], b.footprint) ||

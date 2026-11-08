@@ -1,4 +1,5 @@
 //! Lightweight native renderer using exactly the same Rust simulation as the browser.
+mod venue;
 use apex_heritage::native_audio::NativeAudio;
 use apex_heritage::{tracks, Simulation, Track};
 use macroquad::prelude::*;
@@ -604,6 +605,8 @@ async fn main() {
     }
     let mut pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
     let mut pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
+    let mut safety = apex_heritage::venue::Venue::for_track(&circuits[ti].name);
+    let mut safety_mesh = venue::build(&circuits[ti], &safety);
     let mut camera_mode = 0;
     let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
     for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
@@ -726,6 +729,8 @@ async fn main() {
             }
         }
         if terrain_track != ti {
+            safety = apex_heritage::venue::Venue::for_track(&circuits[ti].name);
+            safety_mesh = venue::build(&circuits[ti], &safety);
             pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
             pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
             landscape = terrain_mesh(&circuits[ti]);
@@ -778,6 +783,7 @@ async fn main() {
             vec3(s.x, s.y, s.z),
             &walls[1],
         );
+        venue::draw(&safety_mesh);
         for mesh in &pit_mesh {
             draw_mesh(mesh);
         }
@@ -884,6 +890,18 @@ async fn main() {
                     || !t.circle_clear(tree.x, tree.z, 3.)
                     || pit_lane.distance(tree.x, tree.z) < pit_lane.width / 2. + 4.
                 {
+                    continue;
+                }
+                if safety.grandstands.iter().any(|s| {
+                    apex_heritage::scenery::inside([tree.x, tree.z], &s.footprint)
+                        || s.footprint.iter().enumerate().any(|(i, a)| {
+                            apex_heritage::scenery::point_segment(
+                                [tree.x, tree.z],
+                                *a,
+                                s.footprint[(i + 1) % s.footprint.len()],
+                            ) < 4.
+                        })
+                }) {
                     continue;
                 }
                 if mapped[ti]
@@ -995,7 +1013,15 @@ async fn main() {
                 20.,
                 WHITE,
             );
-            if s.offtrack {
+            if s.impact > 0.08 {
+                draw_text(
+                    "BARRIER IMPACT — LAP INVALID",
+                    screen_width() / 2. - 220.,
+                    80.,
+                    26.,
+                    ORANGE,
+                );
+            } else if s.offtrack {
                 draw_text("OFF TRACK", screen_width() / 2. - 90., 80., 30., ORANGE);
             }
             if paused {
