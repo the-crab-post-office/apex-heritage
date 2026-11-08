@@ -1,54 +1,51 @@
-# Validation record — 0.3
+# Validation record — 0.3.1
 
 Validated in this workspace on **8 November 2026**.
 
+## Root cause and former test gap
+
+The old elevation keyframes were hand-authored against lap fractions. Matching arrays and smooth loop seams did **not** prove that hills occurred at the correct geographic locations. The old profiles were removed, rather than merely rotated. New regressions test world-coordinate landmarks and start-index invariance against coordinate-sampled GLO-30 source grids.
+
+## Results
+
 | Check | Result |
 |---|---|
-| `cargo test --lib` | **20 passed** |
-| `cargo test --features native --lib` | **24 passed** (includes the same 20) |
-| `npm run test:audio` | **13 passed** |
+| `cargo test --lib` | **22 passed** |
+| `cargo test --features native --lib` | **26 passed** (includes the same 22) |
+| Python geographic/offline-regeneration tests | **5 passed** |
+| `npm run test:elevation` | **13 passed** |
 | `npm run test:scenery` | **12 passed** |
-| Browser development tests | **8 passed** in one run |
-| Browser production tests, plain HTTP static server | **8 passed** in one run |
+| `npm run test:audio` | **13 passed** |
+| Browser development suite | **8 passed** |
+| Browser production suite on plain static HTTP server | **8 passed** |
 | Rust → WASM release / bindings | Passed |
 | Linux x86-64 native release build | Passed |
-| Native Xvfb smoke | 120 rendered frames, acceleration assertion, **119.4 km/h** |
-| Editable databases and notices | HTTP 200 in both dev and static production |
-| Elevation regeneration | Byte-identical before/after `build-elevation.py`, including rotated tracks |
+| Native Xvfb rendering/physics smoke | 120 frames, acceleration assertion, **119.6 km/h** |
+| Elevation data and licence downloads | HTTP 200 in development and static production |
 
-## New map and start coverage
+## Geographic elevation coverage
 
-- All **2,878 exported building polygons** on all ten circuits clear the entire closed road corridor in independent Rust and JavaScript geometry checks. The importer excludes the road plus 3.5 m; runtime checks retain 3 m.
-- Synthetic cases cover objects halfway between widely spaced vertices, closing-segment clearance, canopy overhang, polygon edges crossing the road, a large polygon enclosing the road, and a safe interior footprint. Grid acceleration is used only in the browser; native tests check all segments directly.
-- A concave L-shaped roof triangulates to four triangles with the correct total area. Native renders the actual mapped polygons, not covering boxes.
-- Monaco's source index is rotated to the mapped start node, with northwest heading toward Sainte Dévote and low Albert Ier elevation. The browser verifies actual Rust WASM spawn and height against the same point zero and checks every generated tree canopy and rendered building footprint for road clearance.
-- Five corrected markers have less than 2 m snap distance to uniformly sampled points. Both copies of building and track data must be byte-identical. Five other starts are explicitly marked unverified, not silently certified.
-- Elevation profiles and their relative ground/bridge alignment remain covered by the previous tests, including Suzuka's crossover and signed grade gravity.
+- All ten circuits have bounded source windows from Copernicus GLO-30, retained with source URLs, local metre-space grid spacing/origins and absolute source elevations. Offline regeneration reproduces the checked-in output.
+- Rotating point zero on **every circuit** and rebuilding leaves heights at the same world coordinates unchanged within 2 mm numeric tolerance. There are no fractional-lap authoring keys or profile offsets left.
+- Fixed geographic positions in Spa check that the Les Combes area is higher than Eau Rouge and Stavelot. Monaco checks that Casino is substantially higher than Boulevard Albert Ier, and that the main tunnel road stays below the surface model.
+- Tunnel geometry comes from mapped Boulevard Louis II, OSM way 4230891. Deep inside the corrected tunnel, the road remains near an explicitly authored 6 m above-sea-level height, rather than following the hotel/cliff above it. Portal transitions have bounded gradients.
+- Suzuka's upper/lower legs are identified at the geographic crossover; ground heights agree while the upper road retains more than 7.5 m separation, using an authored 8 m clearance.
+- JavaScript and Rust both test bilinear 2D grid sampling and agreement between every circuit's road bed and road-point base heights. Far-field terrain must sample the geographic grid instead of extruding a nearby road section's height.
+- Native/core tests verify that off-road vehicles follow the rendered geographic ground instead of hovering at the nearest road height. The terrain mesh's deliberate vertical clearance and shoulder blend are included in that calculation.
+- Existing grade, reverse-heading, uphill/downhill gravity, loop continuity, finite height and bounded-gradient tests remain active.
 
-## New recording coverage
+## Scenery, audio and gameplay regressions
 
-- Real shipped PCM loops are decoded and rendered, not mocked. The three sampled era tests compare real-PCM rendering with zeroed-PCM rendering and require an audible-level numeric difference, finite output, headroom with six voices and RPM-dependent fractional playback.
-- Samples arriving after telemetry must attach to existing player/AI voices. Switching to the modern unsampled era removes the recorded layer.
-- Native tests verify sample count, nonzero RMS, boundary continuity, finite/bounded playback, RPM response and the explicit modern fallback.
-- Browser tests require an acknowledgment from the actual AudioWorklet after it receives the recording bank. They verify the recorded car metadata and absence of asset-load errors. Deliberately blocking `.pcm` requests must leave working procedural audio rather than preventing the race.
-- Prior signal tests still cover synthesized fallback timbres, throttle response, firing frequency, spatial panning, shift/lift transients, six-voice mixing and smooth muting. Actual worklet output is inspected through an AnalyserNode.
+All **2,878 exported building polygons** clear the entire closed road corridor in independent Rust and JavaScript checks. Synthetic cases cover long segments, the closing segment, canopy overhang, crossing polygon edges and enclosing polygons. Native concave roofs retain their mapped footprint.
 
-These are engineering signal/asset checks, **not acoustic certification**. The recordings are trackside pullaways with ambient sound and changing RPM, not isolated measured in-car banks. No exact car match, measured playback RPM anchor or verified modern recording is claimed.
+Real shipped PCM is decoded and rendered, not mocked. Sampled-era tests compare real-PCM output against zeroed-PCM output, check fractional playback/RPM response and headroom, and apply late-arriving banks to player/AI voices. The actual browser AudioWorklet acknowledges its recording bank. Blocked PCM requests must retain working synthesized audio, and the modern unsampled era is explicitly labeled as procedural. Earlier synthesis, shift, stereo, throttle and muting tests remain active.
 
-## Eight browser tests
+Browser tests cover circuit/era/team selection and persistence; actual WASM driving, braking, steering and recovery; matching car/render height; pause/camera/exit; nonzero AudioWorklet output; wet Suzuka AI/bridge/voices; mobile layout; elevation chart and volume; Monaco's mapped start and complete generated-scenery exclusion; modern fallback; and deliberately missing recording assets.
 
-1. Ten circuits, filters, four eras/four teams, comparison, weather/assists, persistence, garage and records.
-2. Actual WASM acceleration/braking/steering, recovery, camera, pause/resume/exit, matching render height and nonzero worklet output.
-3. Wet Suzuka race: five AI, rain, separated bridge, six audio voices.
-4. Mobile menu at 390×844 with no horizontal overflow.
-5. Elevation chart and persisted master-volume slider.
-6. Monaco marker/spawn/height, real recording acknowledgment, complete generated scenery exclusion.
-7. Explicit modern V6 procedural fallback.
-8. Missing recording assets preserve synthesized audio and playable race startup.
+## Accuracy and validation limits
 
-## Limits
+GLO-30 is an approximately **30 m digital surface model**, including vegetation and buildings. Filtering cannot completely remove canopy/building error. It is not bare-earth lidar, laser-scanned road height, camber or kerb geometry. The Monaco tunnel's 6 m road level and Suzuka's 8 m clearance are authored exceptions at mapped/geometric locations, not surveyed measurements. The tests establish geographic anchoring and implementation consistency, not survey certification. Full provenance and rights: `data/ELEVATION-NOTICE.md`.
 
-- Headless Chromium/software WebGL and Linux Xvfb only; no physical speakers, host audio-driver certification, gamepad/mobile hardware, other browser engines or Windows/macOS binary certification.
-- Full-lap logic tests inject centerline positions, not an autonomous physics-driven lap. The driving model is grounded 2.5D with authored elevations, not measured terrain or wheel suspension.
-- Native remains a simpler free-drive client without browser AI/weather/records features. Audio device initialization is intentionally disabled in headless native smoke; DSP is tested separately.
-- Vite's lazy race/3D/database chunk exceeds its 500 kB advisory threshold. Build succeeds. Production output is approximately **3.52 MB uncompressed**, including editable ODbL database downloads; this is not a frame-rate benchmark.
+Headless Chromium/software WebGL and Linux Xvfb were used. No physical audio-driver/speaker, mobile/gamepad hardware, other browser engine or Windows/macOS native certification is claimed. Lap tests inject centerline positions, not autonomous full-physics laps. Native remains a simpler free-drive client without browser AI/weather/records features; headless native smoke disables device initialization and tests audio DSP separately.
+
+The driving model remains grounded 2.5D, not a suspension/jump simulator. Vite's bundled game/database chunks exceed its 500 kB advisory threshold; builds succeed. Static output is about **5.33 MB uncompressed**, including editable source/derived databases and licence downloads. This is not a frame-rate benchmark.

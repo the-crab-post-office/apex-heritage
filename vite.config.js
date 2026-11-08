@@ -4,6 +4,9 @@ import { readFileSync } from "node:fs";
 // without maintaining another checked-in copy of the same data.
 const notices = {
   "OSM.md": "data/OSM-NOTICE.md",
+  "elevation.md": "data/ELEVATION-NOTICE.md",
+  "elevation-dem.json": "data/elevation-dem.json",
+  "road-structures.json": "data/road-structures.json",
   "audio.md": "web/assets/audio/NOTICE.md",
   "recordings.json": "web/assets/audio/recordings.json",
   "buildings.json": "data/buildings.json",

@@ -156,6 +156,7 @@ mod tests {
             points: vec![[0., 0.], [100., 0.], [100., 100.], [0., 100.]],
             heights: vec![0.; 4],
             ground_heights: vec![0.; 4],
+            terrain: None,
         };
         assert!(!t.circle_clear(50., 1., 0.));
         assert!(!t.circle_clear(50., 14., 7.));

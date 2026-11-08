@@ -177,7 +177,10 @@ test("wet turbo quick race creates five AI cars and rain", async ({ page }) => {
   expect(
     await page.evaluate(() => {
       const w = window.__apex.race.world,
-        p = w.sample(0.7956);
+        p = w.sample(
+          w.track.road_corrections.find((c) => c.type === "bridge")
+            .upper_index / w.track.points.length,
+        );
       return p.y - w.height(p.x, p.z) > 5;
     }),
   ).toBe(true);
@@ -204,7 +207,7 @@ test("mobile layout has touch controls and no horizontal overflow", async ({
 test("elevation preview and master volume setting", async ({ page }) => {
   await page.goto("/");
   await page.locator("#view-circuit").click();
-  await expect(page.locator(".elevation-chart")).toContainText("104 m");
+  await expect(page.locator(".elevation-chart")).toContainText("103 m");
   await expect(page.locator(".elevation-chart svg")).toHaveAttribute(
     "aria-label",
     /elevation profile/,

@@ -88,7 +88,7 @@ test("corrected markers retain height alignment, direction and shared browser/na
   }
   const m = tracks[1];
   assert.equal(m.start_reference.osm_node, 4937755860);
-  assert.ok(m.heights[0] < 5);
+  assert.ok(m.heights[0] < 12);
   assert.ok(m.points[1][0] < m.points[0][0]);
   assert.ok(m.points[1][1] < m.points[0][1]);
 });
