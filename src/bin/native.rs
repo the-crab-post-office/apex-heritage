@@ -152,29 +152,46 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
     meshes
 }
 
-fn pit_mesh_build(pit: &apex_heritage::pit::PitLane) -> Mesh {
+fn pit_mesh_build(pit: &apex_heritage::pit::PitLane, road: &Track) -> Vec<Mesh> {
     let t = pit.as_track();
+    let mask = apex_heritage::surface_mesh::RoadMask::new(road);
+    let mut meshes = Vec::new();
     let mut vertices = Vec::new();
     let mut indices = Vec::new();
-    for i in 0..t.points.len() {
-        for offset in [-t.width as f64 / 2., t.width as f64 / 2.] {
-            let p = apex_heritage::surface_mesh::road_point_open(&t, i, offset, 0.07);
-            vertices.push(Vertex::new2(
-                vec3(p[0] as f32, p[1] as f32, p[2] as f32),
-                vec2(0., 0.),
-                Color::from_rgba(80, 82, 75, 255),
-            ));
-        }
-        if i < t.points.len() - 1 {
-            let a = (i * 2) as u16;
-            indices.extend([a, a + 2, a + 1, a + 1, a + 2, a + 3]);
+    for i in 0..t.points.len() - 1 {
+        let a = apex_heritage::surface_mesh::road_point_open(&t, i, -t.width as f64 / 2., 0.035);
+        let b =
+            apex_heritage::surface_mesh::road_point_open(&t, i + 1, -t.width as f64 / 2., 0.035);
+        let c = apex_heritage::surface_mesh::road_point_open(&t, i, t.width as f64 / 2., 0.035);
+        let d = apex_heritage::surface_mesh::road_point_open(&t, i + 1, t.width as f64 / 2., 0.035);
+        for tri in [[a, b, c], [c, b, d]] {
+            for piece in mask.cut(tri) {
+                if vertices.len() + 3 > 3996 {
+                    meshes.push(Mesh {
+                        vertices: std::mem::take(&mut vertices),
+                        indices: std::mem::take(&mut indices),
+                        texture: None,
+                    });
+                }
+                for p in piece {
+                    indices.push(vertices.len() as u16);
+                    vertices.push(Vertex::new2(
+                        vec3(p[0] as f32, p[1] as f32, p[2] as f32),
+                        vec2(p[0] as f32 / 4., p[2] as f32 / 4.),
+                        Color::from_rgba(90, 93, 90, 255),
+                    ));
+                }
+            }
         }
     }
-    Mesh {
-        vertices,
-        indices,
-        texture: None,
+    if !vertices.is_empty() {
+        meshes.push(Mesh {
+            vertices,
+            indices,
+            texture: None,
+        });
     }
+    meshes
 }
 fn mapped_buildings(
     t: &Track,
@@ -261,7 +278,7 @@ async fn main() {
         mesh.texture = Some(photos[ti].clone());
     }
     let mut pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
-    let mut pit_mesh = pit_mesh_build(&pit_lane);
+    let mut pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
     let mut camera_mode = 0;
     let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
     loop {
@@ -382,7 +399,7 @@ async fn main() {
         }
         if terrain_track != ti {
             pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
-            pit_mesh = pit_mesh_build(&pit_lane);
+            pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
             landscape = terrain_mesh(&circuits[ti]);
             for mesh in &mut landscape {
                 mesh.texture = Some(photos[ti].clone());
@@ -424,7 +441,9 @@ async fn main() {
             None,
             Color::from_rgba(57, 78, 45, 255),
         );
-        draw_mesh(&pit_mesh);
+        for mesh in &pit_mesh {
+            draw_mesh(mesh);
+        }
         let (box_p, box_yaw, _, _) =
             pit_lane.sample(pit_lane.box_distance, circuits[ti].points.len());
         let box_center = vec3(box_p[0], box_p[1] + 0.14, box_p[2]);
@@ -722,10 +741,11 @@ mod surface_tests {
         }
     }
     #[test]
-    fn actual_native_terrain_meshes_do_not_pierce_any_circuit() {
+    fn actual_native_terrain_and_pit_meshes_do_not_pierce_any_circuit() {
         for t in tracks() {
             let mut cells: HashMap<(i32, i32), Vec<Triangle>> = HashMap::new();
-            for mesh in terrain_mesh(&t) {
+            let pit = apex_heritage::pit::PitLane::new(&t);
+            for mesh in terrain_mesh(&t).into_iter().chain(pit_mesh_build(&pit, &t)) {
                 assert!(mesh.vertices.len() < 4000);
                 for ids in mesh.indices.chunks_exact(3) {
                     let tri: Triangle = std::array::from_fn(|i| {

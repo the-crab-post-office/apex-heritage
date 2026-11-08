@@ -843,7 +843,7 @@ export class World {
       w = t.width / 2;
     this.pitMesh = this.surfaceMesh(
       new RoadMask(this.track).cutAll(ribbon(t, -w, w, 0.035)),
-      material("#676b68", 0.9),
+      this.surfaces.pbr("Asphalt012", "#d3d5ce", 0.22),
     );
     for (const side of [-1, 1])
       this.surfaceMesh(
@@ -904,7 +904,7 @@ export class World {
     ctx.fillStyle = "#ffe5a0";
     ctx.font = "bold 32px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("PIT → 80", 128, 60);
+    ctx.fillText(`PIT → ${Math.round(lane.limit * 3.6)}`, 128, 60);
     const map = new THREE.CanvasTexture(canvas);
     const board = new THREE.Mesh(
       new THREE.PlaneGeometry(4.5, 1.6),
@@ -1454,8 +1454,8 @@ export class World {
           new THREE.Vector3(0, -1, 0),
         );
         const hit = ray
-          .intersectObject(this.pitMesh)
-          .find((h) => Math.abs(h.point.y - p[1]) < 0.5);
+          .intersectObjects([this.pitMesh, this.roadMesh])
+          .find((h) => Math.abs(h.point.y - p[1]) < 1);
         samples++;
         if (!hit) {
           missing++;
@@ -1521,7 +1521,10 @@ export class World {
           .intersectObject(this.terrainMesh)
           .find((h) => h.point.y > road.point.y + 0.01);
         const overlay = ray
-          .intersectObjects(this.surfaceOverlays)
+          .intersectObjects([
+            ...this.surfaceOverlays,
+            ...(this.pitMesh ? [this.pitMesh] : []),
+          ])
           .find((h) => h.point.y > road.point.y + 0.01);
         if (ground) {
           terrainIntrusions++;
