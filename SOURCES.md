@@ -51,7 +51,9 @@ The central gameplay distinctions are low-aero classic cars, turbo boost buildup
 
 This project is independent and not endorsed by Formula One Licensing B.V., the FIA, teams or circuits. Naming and commercial distribution require a separate rights review.
 
-## Elevation update (0.2)
+## Original elevation update (0.2, superseded in 0.3.1)
+
+**Historical implementation note: the fraction-keyed authoring approach below was removed because it misplaced hills geographically. Current heights use the coordinate-based GLO-30 process documented at the end of this file.**
 
 `scripts/build-elevation.py` contains explicitly authored progress/height keyframes for all ten tracks. Periodic monotonic cubic interpolation creates per-point `heights` and `ground_heights` in both copies of the map dataset. Values are relative metres, not absolute altitude. The selected gameplay height ranges are Spa 104 m, Monaco 43 m, Monza 9 m, Silverstone 18 m, Suzuka 40 m, Interlagos 43 m, Imola 31 m, Nürburgring GP 51 m, Montréal 5 m and Hockenheim 7 m. **These are authored settings, not newly verified geographic measurements.**
 
@@ -70,3 +72,14 @@ Monaco's source point zero was near Casino rather than Boulevard Albert Ier. OSM
 The first three era presets now use low/high PCM loops derived from Edvvc (Ed Pond)'s real Goodwood 2010 recordings: Lotus-BRM 24 (1962), Toleman-Hart TG183B (1983) and Williams-Renault FW18 (1996). Explicit Commons file-page grants are CC BY-SA 3.0. Full credits, source pages, license basis (including the older embedded NC metadata discrepancy), adaptations and limitations are in `web/assets/audio/NOTICE.md`; machine-readable windows and playback anchors are in `recordings.json`. `scripts/build-recordings.py` reproduces all six loops.
 
 Both native CPAL and browser AudioWorklet interpolate the same embedded/shipped 24 kHz PCM and blend it with original synthesized drivetrain/transient/noise layers. Browser AI also uses recorded layers, with spatial gain/pan and Doppler. Missing browser samples retain a synthesized fallback. The modern 2023 V6 remains synthesized: no matching verified recording was obtained. Real trackside samples do not establish exact engine-model or RPM calibration; the Hart sample is four-cylinder rather than the 1988 V6 roster's engine architecture.
+
+
+## Geographic elevation correction (0.3.1)
+
+The original lap-fraction elevation keyframes were not geographic evidence and misplaced terrain features. They were removed entirely. `data/elevation-dem.json` now retains bounded GLO-30 Public source windows downloaded by HTTP range reads from the public AWS Copernicus COG distribution on 8 November 2026. `scripts/build-elevation.py` regenerates all ten profiles offline by sampling map coordinates, not sample-zero-relative progress. `tests/test_elevation.py` rotates each circuit's point zero, rebuilds and verifies that world-coordinate heights are unchanged.
+
+The DSM is a surface model, including trees and buildings, at approximately 30 m resolution—not track surveys or bare-earth lidar. Spatial median/Gaussian filters and periodic along-road filtering suppress artefacts; residual canopy/building error is still possible. Surrounding terrain is a 2D geographic field, with a broad road-bed blend, not an extrusion of whichever piece of track happens to be nearest. The sea-level offset uses the same local datum. Cars leaving the shoulders follow rendered ground instead of floating at the nearest road height.
+
+OSM way [4230891](https://www.openstreetmap.org/way/4230891), Boulevard Louis II, identifies Monaco's main tunnel. Road geometry and portal references are retained in `data/road-structures.json`, ODbL. The tunnel's approximate 6 m above-sea-level road correction avoids sampling the hotel/cliff over the tunnel; it is explicitly authored, not measured. Suzuka's two crossing legs are identified geographically, with an authored 8 m clearance on the upper leg. No absolute-survey accuracy is claimed for those corrections.
+
+Full source, required Copernicus copyright/derived-product notice, licence links, parameters and limitations: `data/ELEVATION-NOTICE.md`. Editable source grids and derived track arrays are shipped and available under `/licenses/` in web builds. The browser credits reproduce the Copernicus notice. Data redistribution is separate from the MIT code licence.

@@ -1,51 +1,65 @@
 #!/usr/bin/env python3
-"""Author smooth, periodic gameplay profiles. NOT survey/DEM elevation data.
-Keys are fractions along the processed geographic map. Heights are relative metres.
-Run after editing profiles; writes identical native/WASM and browser datasets.
+"""Rebuild coordinate-anchored elevation OFFLINE from the checked-in GLO-30 DSM.
+Requires numpy + scipy. This is filtered surface data, not surveyed road heights.
+No fractional-lap elevation keyframes. Start-index rotation must not move hills.
 """
-import json
-import math
+import json,math
 from pathlib import Path
+import numpy as np
+from scipy.ndimage import median_filter,gaussian_filter,gaussian_filter1d
+ROOT=Path(__file__).resolve().parent.parent
 
-ROOT = Path(__file__).resolve().parent.parent
-PROFILES = {
-    'be-1925': [(0,35),(.025,39),(.075,0),(.095,12),(.13,48),(.275,104),(.34,89),(.42,62),(.51,35),(.61,20),(.69,7),(.77,14),(.86,34),(.94,37),(1,35)],
-    'mc-1929': [(0,8),(.08,14),(.18,43),(.26,36),(.36,15),(.45,5),(.59,0),(.76,1),(.90,4),(1,8)],
-    'it-1922': [(0,3),(.17,6),(.29,9),(.42,5),(.57,1),(.70,0),(.86,4),(1,3)],
-    'gb-1948': [(0,7),(.10,12),(.23,18),(.37,14),(.52,4),(.65,0),(.78,7),(.90,11),(1,7)],
-    'jp-1962': [(0,8),(.10,19),(.22,40),(.31,30),(.38,16),(.40,16),(.46,25),(.56,33),(.68,23),(.76,16),(.82,16),(.91,4),(.97,0),(1,8)],
-    'br-1940': [(0,39),(.06,31),(.14,5),(.24,0),(.37,9),(.48,20),(.57,14),(.67,7),(.77,12),(.89,32),(.96,43),(1,39)],
-    'it-1953': [(0,4),(.13,1),(.24,8),(.35,21),(.44,31),(.55,18),(.66,8),(.77,0),(.89,3),(1,4)],
-    'de-1927': [(0,46),(.12,51),(.25,39),(.42,16),(.54,0),(.66,12),(.80,31),(.92,44),(1,46)],
-    'ca-1978': [(0,2),(.16,4),(.32,1),(.47,0),(.66,3),(.81,5),(.93,3),(1,2)],
-    'de-1932': [(0,2),(.16,4),(.34,7),(.48,3),(.64,0),(.80,2),(.91,4),(1,2)],
-}
+def sample(grid,x,z):
+ u=np.clip((x-grid['x0'])/grid['dx'],0,grid['nx']-1.000001);v=np.clip((z-grid['z0'])/grid['dz'],0,grid['nz']-1.000001)
+ i=np.floor(u).astype(int);j=np.floor(v).astype(int);u=u-i;v=v-j;a=grid['array']
+ return (1-v)*((1-u)*a[j,i]+u*a[j,i+1])+v*((1-u)*a[j+1,i]+u*a[j+1,i+1])
+def project(t,lon,lat):
+ o=t['origin'];return np.array([(lon-o['longitude'])*111320*math.cos(math.radians(o['latitude'])),-(lat-o['latitude'])*111320])
+def nearest(t,point):return int(np.argmin(np.linalg.norm(np.array(t['points'])-point,axis=1)))
+def arc_distance(dist,center,length):return (dist-center+length/2)%length-length/2
 
-def profile(keys, u):
-    """Periodic, monotonic cubic Hermite interpolation: C1 and no overshoot."""
-    count = len(keys)-1
-    def sec(i):
-        a,b = keys[i],keys[i+1]
-        return (b[1]-a[1])/(b[0]-a[0])
-    def slope(i):
-        left,right=sec((i-1)%count),sec(i%count)
-        return 2*left*right/(left+right) if left*right>0 else 0.
-    i=next((i for i in range(count) if u < keys[i+1][0]),count-1)
-    a,b=keys[i],keys[i+1];w=b[0]-a[0];t=(u-a[0])/w
-    return (2*t**3-3*t*t+1)*a[1]+(t**3-2*t*t+t)*w*slope(i)+(-2*t**3+3*t*t)*b[1]+(t**3-t*t)*w*slope((i+1)%count)
+def build(track,source,structures):
+ grid={k:source[k]for k in ['x0','z0','dx','dz','nx','nz']}
+ # Suppress isolated building/tree pixels without inventing a lap-progress shape.
+ grid['array']=gaussian_filter(median_filter(np.array(source['altitudes']).reshape(source['nz'],source['nx']),size=3),.65)
+ p=np.array(track['points']);segment=np.linalg.norm(np.roll(p,-1,axis=0)-p,axis=1);dist=np.r_[0,np.cumsum(segment[:-1])];length=float(segment.sum());step=length/len(p)
+ h=sample(grid,p[:,0],p[:,1]);corrections=[]
+ if track['code']=='MC':
+  way=structures['monaco_tunnel'][0];ends=[way['geometry'][k]for k in [0,-1]];indices=[nearest(track,project(track,e['lon'],e['lat']))for e in ends]
+  start,end=indices
+  if (dist[end]-dist[start])%length>length/2:start,end=end,start
+  span=(dist[end]-dist[start])%length;mid=(dist[start]+span/2)%length;delta=np.abs(arc_distance(dist,mid,length))-span/2
+  blend=np.clip(1-np.maximum(0,delta)/130,0,1);blend=blend*blend*(3-2*blend)
+  # DSM sees the hotel/cliff ABOVE Boulevard Louis II. The mapped road's
+  # approximate 6 m sea-level height is explicit authored road correction.
+  h=h*(1-blend)+6.*blend
+  corrections.append({'type':'tunnel','osm_way':way['id'],'start_index':start,'end_index':end,'absolute_road_height':6,'height_source':'authored approximate portal/road level; not surveyed','portal_coordinates':ends})
+ sigma=45 if track['code']=='MC' else 55 if track['code']=='IT' and track['name']=='Monza' else 30
+ ground=gaussian_filter1d(h,sigma/step,mode='wrap');lift=np.zeros(len(p))
+ if track['code']=='JP':
+  ref=structures['suzuka_bridge'];center=project(track,ref['longitude'],ref['latitude']);candidate=sorted(range(len(p)),key=lambda i:np.linalg.norm(p[i]-center));legs=[]
+  for i in candidate:
+   if all(min((i-j)%len(p),(j-i)%len(p))>50 for j in legs):legs.append(i)
+   if len(legs)==2:break
+  heading=np.array([ref['upper_heading_east'],ref['upper_heading_south']]);upper=max(legs,key=lambda i:abs(np.dot((p[(i+1)%len(p)]-p[i])/segment[i],heading)))
+  common=float(sample(grid,*center))
+  for i in legs:
+   delta=arc_distance(dist,dist[i],length);ground+=(common-ground[i])*np.exp(-(delta/110)**4)
+  delta=arc_distance(dist,dist[upper],length);lift=ref['clearance_metres']*np.exp(-(delta/160)**4)
+  corrections.append({'type':'bridge','longitude':ref['longitude'],'latitude':ref['latitude'],'upper_index':upper,'lower_index':next(i for i in legs if i!=upper),'clearance':ref['clearance_metres'],'height_source':'authored clearance at geographic crossover; not surveyed'})
+ heights=ground+lift;datum=float(ground.min())
+ terrain={k:v for k,v in grid.items()if k!='array'};terrain['heights']=[round(float(v)-datum,3)for v in grid['array'].ravel()]
+ track.update(heights=[round(float(v)-datum,4)for v in heights],ground_heights=[round(float(v)-datum,4)for v in ground],terrain=terrain,elevation=round(float(heights.max()-heights.min()),1),elevation_datum=round(datum,4),sea_level=round(-datum,4),water_level=round((float(np.percentile(source['altitudes'],5)) if track['code']=='CA' else 0)-datum,4),elevation_source='Georeferenced Copernicus GLO-30 DSM; filtered/road-corrected approximation, not surveyed road heights',road_corrections=corrections)
+ for key in ['profile_offset','elevation_keys']:track.pop(key,None)
+ grade=float(np.max(np.abs(np.roll(heights,-1)-heights)/segment))
+ if grade>.25:raise ValueError(f'{track["name"]}: implausible grade {grade}')
+ return grade
 
-tracks=json.loads((ROOT/'data/tracks.json').read_text())
-for track in tracks:
-    n=len(track['points'])
-    ground=[round(profile(PROFILES[track['id']],(i/n+track.get('profile_offset',0))%1),4) for i in range(n)]
-    lift=[round(8*math.exp(-((((i/n+track.get('profile_offset',0))%1)-.7956)/.019)**4),4) if track['code']=='JP' else 0 for i in range(n)]
-    heights=[round(g+l,4) for g,l in zip(ground,lift)]
-    track['heights']=heights
-    track['ground_heights']=ground
-    track['elevation']=round(max(heights)-min(heights),1)
-    track['elevation_source']='Authored approximation; relative metres, not survey or DEM data'
-    track['elevation_keys']=PROFILES[track['id']]
-    grade=max(abs(heights[(i+1)%n]-heights[i])/math.dist(track['points'][i],track['points'][(i+1)%n]) for i in range(n))
-    print(f"{track['name']}: {track['elevation']:.1f} m range; maximum grade {grade*100:.1f}%")
-text=json.dumps(tracks,separators=(',',':'))
-for p in ['data/tracks.json','web/assets/tracks.json']:(ROOT/p).write_text(text)
+def main():
+ tracks=json.loads((ROOT/'data/tracks.json').read_text());sources=json.loads((ROOT/'data/elevation-dem.json').read_text());structures=json.loads((ROOT/'data/road-structures.json').read_text())
+ for track in tracks:
+  source=next(s for s in sources['tracks']if s['id']==track['id']);grade=build(track,source,structures)
+  print(f'{track["name"]}: {track["elevation"]} m; max grade {grade*100:.1f}%')
+ text=json.dumps(tracks,separators=(',',':'))
+ for file in ['data/tracks.json','web/assets/tracks.json']:(ROOT/file).write_text(text)
+if __name__=='__main__':main()

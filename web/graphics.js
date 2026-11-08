@@ -455,8 +455,7 @@ export class World {
       let x = pos.getX(i),
         z = pos.getZ(i),
         h = this.height(x, z) - 1.25;
-      if (this.track.biome === "coast" && (x > 450 || z > 600)) h = -4;
-      if (this.track.biome === "island" && Math.abs(x) > 500) h = -5;
+      // Coastlines and inland hills now come from the geographic height field.
       pos.setY(i, h);
     }
     terrain.computeVertexNormals();
@@ -762,7 +761,8 @@ export class World {
         material(biome === "coast" ? "#387b87" : "#426e70", 0.22, 0.35),
       );
       sea.rotation.x = -Math.PI / 2;
-      sea.position.y = -1.3;
+      sea.position.y =
+        (this.track.water_level ?? this.track.sea_level ?? -1.4) + 0.1;
       this.scene.add(sea);
       if (biome === "coast")
         for (let i = 0; i < 24; i++) {

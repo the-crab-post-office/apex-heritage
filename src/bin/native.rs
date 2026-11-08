@@ -311,8 +311,13 @@ async fn main() {
             z_far: 12000.,
             ..Default::default()
         });
+        let base_ground = circuits[ti]
+            .terrain
+            .as_ref()
+            .map(|g| g.heights.iter().copied().fold(f32::INFINITY, f32::min) - 5.)
+            .unwrap_or(-10.);
         draw_plane(
-            vec3(0., -10., 0.),
+            vec3(0., base_ground, 0.),
             vec2(10000., 10000.),
             None,
             Color::from_rgba(57, 78, 45, 255),

@@ -17,6 +17,8 @@ pub struct Track {
     pub points: Vec<[f32; 2]>,
     pub heights: Vec<f32>,
     pub ground_heights: Vec<f32>,
+    #[serde(default)]
+    pub terrain: Option<elevation::TerrainGrid>,
 }
 pub fn tracks() -> Vec<Track> {
     serde_json::from_str(include_str!("../data/tracks.json")).unwrap()
@@ -230,7 +232,7 @@ impl Simulation {
         let steer = steer.clamp(-1., 1.);
         let s = &mut self.state;
         let spec = self.spec;
-        let surface = self.track.surface_at(s.x, s.z, self.nearest, s.yaw);
+        let surface = self.track.driving_surface(s.x, s.z, self.nearest, s.yaw);
         let grade = surface.grade;
         let grade_gravity = 9.81 * grade / (1. + grade * grade).sqrt();
         s.elapsed += dt;
@@ -304,9 +306,10 @@ impl Simulation {
         }
         let road = self.track.surface_at(s.x, s.z, idx, s.yaw);
         s.progress = road.progress;
-        s.y = road.height + 0.1;
-        s.grade = road.grade;
-        s.pitch = -road.grade.atan();
+        let driving = self.track.driving_surface(s.x, s.z, idx, s.yaw);
+        s.y = driving.height + 0.1;
+        s.grade = driving.grade;
+        s.pitch = -driving.grade.atan();
         let delta = (idx as i32 - old as i32 + n as i32 / 2).rem_euclid(n as i32) - n as i32 / 2;
         if delta > 0 && !s.offtrack {
             self.lap_distance += delta as f32 / n as f32;
