@@ -23,7 +23,8 @@ SOFTWARE.
 Upstream circuit map data retains its own copyright and MIT notice in
  data/CIRCUITS-LICENSE.md. Third-party dependencies retain their own licenses.
 This MIT license applies to the original code, not to separately licensed assets.
-OSM databases: data/OSM-NOTICE.md (ODbL 1.0).
+OSM databases: data/OSM-NOTICE.md and data/PITS-NOTICE.md (ODbL 1.0).
+Base material textures: data/MATERIALS-NOTICE.md (CC0 1.0).
 Recording-derived PCM: web/assets/audio/NOTICE.md (CC BY-SA 3.0).
 GLO-30 terrain data: data/ELEVATION-NOTICE.md (Copernicus DEM terms).
 Satellite-photo crops: data/IMAGERY-NOTICE.md (Copernicus Sentinel legal notice).

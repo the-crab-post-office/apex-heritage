@@ -869,7 +869,12 @@ async fn main() {
                 let c = if i % 6 == 0 { RED } else { WHITE };
                 for curb in [av - r * 1.04, av + r * 1.04] {
                     if pit_lane.distance(curb.x, curb.z) > pit_lane.width / 2. + 1. {
-                        draw_cube(curb, vec3(0.5, 0.06, 2.), None, c);
+                        if !tunnel_ranges[ti]
+                            .map(|(a, b)| i >= a && i < b)
+                            .unwrap_or(false)
+                        {
+                            draw_cube(curb, vec3(0.5, 0.06, 2.), None, c);
+                        }
                     }
                 }
             }

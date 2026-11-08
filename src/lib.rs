@@ -560,64 +560,66 @@ mod tests {
     }
     #[test]
     fn pit_stops_enter_service_and_exit_in_all_eras() {
-        for era in 0..4 {
-            let mut sim = Simulation::new(0, era, 0, false, true);
-            let e = sim.pit.points[0];
-            let (_, yaw, _, _) = sim.pit.sample(0., sim.track.points.len());
-            sim.state.x = e[0];
-            sim.state.z = e[2];
-            sim.state.yaw = yaw;
-            sim.nearest = sim.pit.entry_index;
-            sim.state.fuel = 0.4;
-            sim.state.tyre_condition = 0.3;
-            sim.request_pit();
-            sim.toggle_limiter();
-            for _ in 0..12000 {
-                let remaining = sim.pit.box_distance - sim.state.pit_distance;
-                let target = (2. * 8. * (remaining - 0.3).max(0.)).sqrt().min(15.);
-                let speed = sim.state.speed;
-                sim.step(
-                    if speed < target - 0.1 { 1. } else { 0. },
-                    if speed > target + 0.1 { 1. } else { 0. },
-                    0.,
-                    1. / 120.,
+        for circuit in 0..10 {
+            for era in 0..4 {
+                let mut sim = Simulation::new(circuit, era, 0, false, true);
+                let e = sim.pit.points[0];
+                let (_, yaw, _, _) = sim.pit.sample(0., sim.track.points.len());
+                sim.state.x = e[0];
+                sim.state.z = e[2];
+                sim.state.yaw = yaw;
+                sim.nearest = sim.pit.entry_index;
+                sim.state.fuel = 0.4;
+                sim.state.tyre_condition = 0.3;
+                sim.request_pit();
+                sim.toggle_limiter();
+                for _ in 0..12000 {
+                    let remaining = sim.pit.box_distance - sim.state.pit_distance;
+                    let target = (2. * 8. * (remaining - 0.3).max(0.)).sqrt().min(15.);
+                    let speed = sim.state.speed;
+                    sim.step(
+                        if speed < target - 0.1 { 1. } else { 0. },
+                        if speed > target + 0.1 { 1. } else { 0. },
+                        0.,
+                        1. / 120.,
+                    );
+                    assert!(sim.state.speed <= sim.pit.limit + 0.1);
+                    if sim.state.pit_phase == 2 {
+                        break;
+                    }
+                }
+                assert_eq!(
+                    sim.state.pit_phase, 2,
+                    "era {era}, distance {} box {}",
+                    sim.state.pit_distance, sim.pit.box_distance
                 );
-                assert!(sim.state.speed <= sim.pit.limit + 0.1);
-                if sim.state.pit_phase == 2 {
-                    break;
+                let before = sim.state.pit_remaining;
+                sim.step(1., 0., 0., 0.);
+                assert_eq!(sim.state.pit_remaining, before);
+                for _ in 0..3000 {
+                    sim.step(1., 0., 0., 1. / 120.);
+                    if sim.state.pit_phase == 3 {
+                        break;
+                    }
                 }
-            }
-            assert_eq!(
-                sim.state.pit_phase, 2,
-                "era {era}, distance {} box {}",
-                sim.state.pit_distance, sim.pit.box_distance
-            );
-            let before = sim.state.pit_remaining;
-            sim.step(1., 0., 0., 0.);
-            assert_eq!(sim.state.pit_remaining, before);
-            for _ in 0..3000 {
-                sim.step(1., 0., 0., 1. / 120.);
-                if sim.state.pit_phase == 3 {
-                    break;
+                assert_eq!(sim.state.pit_stops, 1);
+                assert_eq!(sim.state.tyre_condition, 1.);
+                assert_eq!(sim.state.speed, 0.);
+                if pit::refuelling_allowed(era) {
+                    assert_eq!(sim.state.fuel, 1.);
+                } else {
+                    assert!(sim.state.fuel < 0.4);
                 }
-            }
-            assert_eq!(sim.state.pit_stops, 1);
-            assert_eq!(sim.state.tyre_condition, 1.);
-            assert_eq!(sim.state.speed, 0.);
-            if pit::refuelling_allowed(era) {
-                assert_eq!(sim.state.fuel, 1.);
-            } else {
-                assert!(sim.state.fuel < 0.4);
-            }
-            for _ in 0..12000 {
-                sim.step(1., 0., 0., 1. / 120.);
-                if !sim.state.pit_active {
-                    break;
+                for _ in 0..12000 {
+                    sim.step(1., 0., 0., 1. / 120.);
+                    if !sim.state.pit_active {
+                        break;
+                    }
                 }
+                assert!(!sim.state.pit_active && !sim.state.pit_requested);
+                assert!(sim.state.invalid);
+                assert_eq!(sim.state.pit_stops, 1);
             }
-            assert!(!sim.state.pit_active && !sim.state.pit_requested);
-            assert!(sim.state.invalid);
-            assert_eq!(sim.state.pit_stops, 1);
         }
     }
     #[test]

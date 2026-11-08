@@ -174,7 +174,7 @@ test("actual WASM pit entry, marked-box stop, timed service and exit", async ({
   expect(end.fuel).toBeGreaterThan(0.98);
   expect(end.invalid).toBe(true);
 });
-test("photographic terrain and mapped tunnel canopy load without external runtime requests", async ({
+test("high-detail materials, varied facades and enclosed tunnel load without external requests", async ({
   page,
 }) => {
   const external = [];
@@ -197,7 +197,24 @@ test("photographic terrain and mapped tunnel canopy load without external runtim
     const r = window.__apex.race;
     r.paused = true;
     return {
-      photo: r.world.photoArea.scene,
+      photo: r.world.terrainMesh.material.map.name,
+      resolution: r.world.terrainMesh.material.map.image.width,
+      facades: r.world.buildingMaterials.map((m) => m.name),
+      tunnel: r.world.tunnelAudit,
+      car: r.world.player.userData.detail,
+      eras: [0, 1, 2, 3].map((era) => {
+        const car = r.world.addAI(era, "#d02b29");
+        const result = {
+          era,
+          detail: car.userData.detail,
+          vertices: car.children.reduce(
+            (n, m) => n + (m.geometry?.attributes.position.count || 0),
+            0,
+          ),
+        };
+        r.world.scene.remove(car);
+        return result;
+      }),
       roof: !!r.world.tunnelRoof,
       forest: r.world.sceneryAudit.trees.every((t) =>
         r.world.pitClearance.circleClear(t.x, t.z, t.radius),
@@ -205,7 +222,20 @@ test("photographic terrain and mapped tunnel canopy load without external runtim
       pit: r.world.auditPitSurface(),
     };
   });
-  expect(result.photo).toContain("L2A");
+  expect(result.photo).toContain("Grass004");
+  expect(result.resolution).toBe(1024);
+  expect(new Set(result.facades).size).toBe(6);
+  expect(result.tunnel.wallSides).toBe(2);
+  expect(result.tunnel.racingCurbsInside).toBe(false);
+  expect(result.tunnel.fixtureCount).toBeGreaterThan(50);
+  expect(result.car.spokedWheels).toBe(4);
+  expect(result.car.paintedVertices).toBeGreaterThan(200);
+  expect(result.eras).toHaveLength(4);
+  for (const car of result.eras) {
+    expect(car.detail.profiledBody).toBe(true);
+    expect(car.detail.paintedVertices).toBeGreaterThan(200);
+    expect(car.vertices).toBeGreaterThan(1500);
+  }
   expect(result.roof).toBe(true);
   expect(external).toEqual([]);
   expect(result.forest).toBe(true);

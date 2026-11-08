@@ -4,21 +4,25 @@
 
 The driving model is written in **Rust** and shared by both clients. The web client compiles that core to **WebAssembly** and renders with Three.js; the native client uses **Macroquad**. Browser rendering/UI are JavaScript, not Rust. No physics JavaScript fallback is used.
 
-> This is the agreed playable-prototype scope, not a photorealistic production simulator. The menu uses clearly labeled AI-generated concept artwork. Actual gameplay uses simplified original car models and textures, with mapped building footprints. Real georeferenced Copernicus satellite-photo crops now texture the surrounding terrain; trackside photographs are references only. Road surfaces, cars and facade textures remain original simplified art.
+> This is the agreed playable-prototype scope, not a photorealistic production simulator. The menu uses labeled AI-generated concept artwork. Gameplay uses original era-specific car geometry, detailed local CC0 materials and mapped OSM buildings/pit routes. No official car meshes, logos or commercial simulator track files are included.
 
-## New in 0.4 — controllers, photo terrain, pit stops and classic handling
+## New in 0.5 — corrected scenery and real mapped pit routes
 
-- **Controllers, both clients:** analog RT/LT, rescaled 12% stick deadzone, progressive steering, D-pad steering, edge-triggered actions, controller-driven setup and automatic pause on disconnect. Browser uses the standard Gamepad API; native uses gilrs. Keyboard and touch remain available. Simulated input is tested; no physical controller hardware certification is claimed.
-- **Real photographic terrain on all ten circuits:** locally bundled, georeferenced **2025 Copernicus Sentinel-2 satellite crops**, about **10 m native resolution**, draped onto the existing terrain. Approximate dark-green photo masks guide tree placement instead of putting the same tree distribution everywhere. Mapped buildings now have original window detail. Monaco has an approximate canopy/wall/columns over its mapped tunnel segment, informed by a public reference photo.
-- **1967 / 1988 / 2004 rev/audio correction:** the old trackside loops contained their own source acceleration/Doppler pitch sweeps. They now supply stable recording-derived periodic timbres, phase-locked to the simulated engine. The two timbres share phase; rev pitch no longer resets or wanders at clip boundaries. Launch revs respond to throttle; shifts use one authoritative cut envelope rather than double-counting cuts. Sources/years remain explicit; these are not exact recordings of each roster car.
-- **Playable player pit stops in both clients:** request/cancel, marked entry and exit, 80 km/h power limiter, assisted lane steering, player throttle/brake control, a marked stopping box, timed service and simple animated crew poses. Tyres are renewed; fuel is replenished only for 1967/2004 presets. 1988/modern stops are tyres-only. Basic tyre wear and fuel use make the service meaningful. Missing the box does not award service.
-- **1967 handling:** gentler steering buildup and yaw response, shorter effective wheelbase/more low-speed lock, modest mechanical-grip increase, combined cornering/acceleration grip and less abrupt lateral breakaway. It retains low aero and weaker braking than later eras; this is gameplay tuning, not historic telemetry validation. New lap records use a new balance-version key.
+- **No giant blurred satellite pixels on the ground.** Grass, gravel, concrete, brick and asphalt now use locally bundled **1K (up to 1024 px) ambientCG CC0 colour/normal/roughness maps** where provided, repeated at metre scale with mipmaps/anisotropy. Satellite data only guides coarse vegetation placement; it is not drawn as the ground surface. These are detailed reusable material tiles, not higher-resolution aerial surveys of the circuits.
+- **Mapped current pit lanes on all ten circuits**, replacing the same start-relative offset route everywhere. Real OSM way/node IDs and geographic snapshots are retained. Silverstone uses the International lane, Suzuka the main lane, and Nürburgring the GP lane. Monaco includes the newer mapped exit and an explicitly estimated race-day strip through the intervening mapped public street. Pit asphalt and paint are **geometrically subtracted from the race-road footprint**, so they cannot paint a raised ribbon across it at entry/exit. Native batches are kept within renderer limits.
+- **Monaco tunnel rebuilt from references:** continuous textured walls and a lower ceiling, panel ribs, three-band metal guardrails, cable trays and alternating warm/cool luminaires. Generic red/white kerbs are omitted inside the tunnel and its asphalt is shaded separately. The browser uses nearby dynamic light pools; daylight openings are limited to the seaward exit section instead of making the whole tunnel an open column canopy. Native now has a simpler matching enclosure and fixtures. Dimensions/detail are authored approximations, not scanned hotel architecture.
+- **Six building facade families** in the browser: plaster/shutters, brick, glass curtain wall, stone, industrial and balcony hotel. Roofs have a separate material instead of windows wrapping onto them. Native has repeating brick/concrete surfaces. Footprints remain mapped; facade appearance is original and does not identify the exact real building.
+- **More detailed cars across all four eras:** profiled/tapered monocoques and sidepods instead of the former sausage/box body, radiator openings/grilles, cooling louvres, mirrors, suspension, wheel spokes/fasteners, exhausts, diffuser vanes and original number markings. 1967 retains its exposed engine/exhausts; later cars have distinct aero packages and the modern halo. Native also replaces its cube tyres/body with round tyres, spokes and profiled bodywork. Team references still use original graphics without official sponsor marks.
 
-**Important realism limits:** the imagery is actual satellite photography, **not laser scans, close-up photogrammetry, facade photography or surveyed road heights**. Ground heights remain the existing approximate GLO-30 estimates. Pit lanes are **authored parallel prototype routes near the start**, not the real mapped lane shapes or historic pit rules, and assisted pit laps are invalid for records. Refuelling permission is era-inspired; service times/crew and fuel/tyre models are simplified. AI does not make pit stops. No commercial simulator track files were copied. See `data/IMAGERY-NOTICE.md`, `SOURCES.md` and `TESTING.md`.
+**Still simplified:** lane widths (6 m), heights, exact box positions and pit-wall detail are estimated. Current mapped lanes are shared by all eras. Road heights still use the existing approximate GLO-30 field, not new road surveys. Pit steering is assisted and service/tyre/fuel rules are simplified; AI does not stop. Pit laps remain invalid for records. The shared limiter uses 60 km/h at Monaco and 80 elsewhere as gameplay presets, not a complete historic regulations model. See `data/PITS-NOTICE.md`, `data/MATERIALS-NOTICE.md` and `TESTING.md`.
+
+### Retained 0.4 features
+
+Standard gamepads in both clients: analog triggers/stick, progressive 12% deadzone, edge-triggered actions, menu navigation and disconnect pause. Physical controller hardware remains unverified. Recording-derived 1967/1988/2004 timbres stay phase-locked to RPM with corrected launch/shift behaviour. The 1967 handling retains gentler steering buildup/yaw response and combined traction, without modern aero/braking. Timed player tyre service works in all eras; fuel is replenished for 1967/2004 only.
 
 ### Try a pit stop quickly
 
-Select **Practice**, start driving, then click **PIT ENTRY PRACTICE · RESET LAP**. This explicitly stages the car before the pit approach and invalidates the lap. Drive to the marked entry; the requested lane engages assisted steering. Use RT/W to accelerate, LT/Space to brake, and stop with the car centred in the yellow box. Wait for service, then accelerate out. Native: **O** stages the same practice approach. In normal driving use **P / X** to request the next pit entry and **L / Y** to enable the limiter; brake before entering, as the power limiter is not an automatic braking system.
+Select **Practice**, start driving, then click **PIT ENTRY PRACTICE · RESET LAP**. This explicitly stages the car before the pit approach and invalidates the lap. Drive to the marked entry; the requested lane engages assisted steering. Use RT/W to accelerate, LT/Space to brake, and stop with the car centred in the yellow box. Wait for service, then accelerate out. Native: **O** stages the same practice approach. In normal driving use **P / X** to request the next pit entry and **L / Y** to enable the circuit limiter; brake before entering, as the power limiter is not an automatic braking system.
 
 ## Corrected in 0.3.2 — terrain/road mesh intersections
 
@@ -27,10 +31,10 @@ The 0.3.1 fix was incomplete: checking sampled height arrays did **not** check t
 - Terrain triangles are now **clipped out of the projected road footprint**, rather than merely lowering their vertices. Web and native both use spatially indexed polygon subtraction.
 - Asphalt and edge paint are disjoint bands with shared centerline cross-sections. Shoulder/apron bands no longer cover the asphalt. Their winding and road texture scale are tested as well.
 - Wet asphalt is less excessively dark. This is a readability/material correction, not a new weather or lighting simulation.
-- A visible version label (now **v0.4.0**) identifies the web build. Startup verifies HTML, CSS, JS and WASM versions plus the Rust/bundled track-data hash against `version.json`; mixed builds stop with an explicit error. Elevation/grade placeholders are now “—”, and actual telemetry initializes before the first animation frame.
+- A visible version label (now **v0.5.0**) identifies the web build. Startup verifies HTML, CSS, JS and WASM versions plus the Rust/bundled track-data hash against `version.json`; mixed builds stop with an explicit error. Elevation/grade placeholders are now “—”, and actual telemetry initializes before the first animation frame.
 - The previous elevation source/data have **not** been replaced in this patch. They remain filtered, approximately 30 m DSM estimates, **not surveyed road heights**. This fixes demonstrated mesh intersections; it does not certify every real-world crest, gradient or corner elevation.
 
-**Updating:** use the fresh preview labeled v0.4.0, or extract the complete new web ZIP into an **empty directory** and serve it over HTTP. Do not copy individual assets into an older release. See `TESTING.md` for the actual-triangle and camera-walkthrough coverage.
+**Updating:** use the fresh preview labeled v0.5.0, or extract the complete new web ZIP into an **empty directory** and serve it over HTTP. Do not copy individual assets into an older release. See `TESTING.md` for the actual-triangle and camera-walkthrough coverage.
 
 ## Earlier 0.3.1 — geographically anchored elevation
 
@@ -131,7 +135,7 @@ chmod +x apex-native-linux-x86_64
 | Pause / resume | Escape | Escape |
 | Camera | C: chase, cockpit, high chase | C: chase, cockpit, high chase |
 | Pit request / cancel | P or on-screen button | P |
-| 80 km/h limiter | L or on-screen button | L |
+| Circuit pit limiter | L or on-screen button | L |
 | Pit entry practice (resets lap) | Practice-mode PIT ENTRY PRACTICE button | O |
 | Audio | In-session AUDIO button; master volume in setup settings | V |
 | Exit to setup | Pause → Return to paddock | M |
@@ -145,7 +149,7 @@ Native setup: Left/Right selects the track; E changes era; T changes team; W tog
 | Steering / acceleration / brake | Left stick or D-pad / RT / LT |
 | Recover (not during a pit stop) | B |
 | Request / cancel pit stop | X |
-| Toggle 80 km/h limiter | Y |
+| Toggle circuit pit limiter | Y |
 | Camera | RB while driving |
 | Pause / resume | Start / Menu |
 | Return to setup | View / Back (web: while paused/finished) |
@@ -187,7 +191,7 @@ Power, grip and braking are independently modified for each team. The displayed 
 - Lap timing with ordered quarter-lap checkpoints, forward-distance requirement, track limits and invalidation on recovery.
 - Per-track/car/weather/assist local bests saved in browser storage after valid completed laps.
 - Chase, cockpit and high chase cameras; HUD, minimap, grade/elevation telemetry, hybrid recorded/synthesized engine audio and pause/restart controls.
-- Original geometry/materials, sun shadows in high quality, instanced vegetation, mapped building extrusions and circuit-themed landmarks.
+- Original car geometry, local CC0 base materials, sun shadows in high quality, instanced vegetation, varied mapped-building facades and circuit-themed landmarks.
 
 ## Known limitations
 
@@ -195,7 +199,7 @@ Power, grip and braking are independently modified for each team. The displayed 
 - No vehicle-to-vehicle or barrier collision response. AI cars are intentionally non-colliding, follow a mapped path and do not use the player's full dynamics model.
 - Basic fuel use/tyre wear and player pit service are present. No tyre-temperature model, detailed compound strategy, damage, DRS, ERS management, multiplayer, championship or official assets.
 - The 1967 and 1988 rosters include different real engine architectures; the era handling model is shared, with per-team modifiers rather than engine-by-engine simulation.
-- Historical cars use one circuit map version, not historical layouts. Scenery and landmarks are recognizable cues, not architectural reconstructions.
+- Historical cars use one circuit map version, not historical layouts. Scenery and landmarks are recognizable cues, not architectural reconstructions; textured facades do not reproduce the exact real buildings.
 - Native rendering is a lightweight, elevated, simplified free-drive client with its own engine audio. Browser UI, AI races/spatial opponent audio, weather particles, touch controls and persistent records are not present there. Use `APEX_NO_AUDIO=1` to disable native device initialization if needed.
 - No guarantee of a specific frame rate. Software WebGL and low-powered devices can be slow; use Performance mode.
 
@@ -288,7 +292,7 @@ git log --graph --oneline --all
 
 ## Rights and attribution
 
-Independent, unofficial motorsport tribute, not affiliated with Formula 1, the FIA, any team or any circuit. Names and marks belong to their owners. Team/circuit branding and commercial distribution may require additional permissions and legal review. Source code is MIT; circuit centreline maps retain their upstream MIT notice. Copernicus-derived surface heights retain their separate free/open user licence and attribution notice. OSM-derived data is ODbL 1.0, and adapted recording assets are CC BY-SA 3.0, not MIT. Asset notices, editable data and author/source links are supplied with releases and in runtime credits. Reference photography is **not** included in the source distribution or web release. Original menu artwork is AI-generated. Three.js, Lucide, Macroquad, CPAL and other dependencies retain their respective licenses. CPAL’s Apache-2.0 text is included in `data/CPAL-LICENSE` for native distribution.
+Independent, unofficial motorsport tribute, not affiliated with Formula 1, the FIA, any team or any circuit. Names and marks belong to their owners. Team/circuit branding and commercial distribution may require additional permissions and legal review. Source code is MIT; circuit centreline maps retain their upstream MIT notice. Copernicus-derived surface heights retain their separate free/open user licence and attribution notice. OSM-derived data is ODbL 1.0, and adapted recording assets are CC BY-SA 3.0, not MIT. Asset notices, editable data and author/source links are supplied with releases and in runtime credits. Trackside reference photography is **not** included as a texture. Redistributed Sentinel vegetation-reference crops retain their own notice. High-detail base materials from ambientCG are CC0, separately from the code licence. Original menu artwork is AI-generated. Three.js, Lucide, Macroquad, CPAL and other dependencies retain their respective licenses. CPAL’s Apache-2.0 text is included in `data/CPAL-LICENSE` for native distribution.
 
 ## Package a validated release
 

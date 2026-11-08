@@ -2,6 +2,8 @@
 
 **Contains modified Copernicus Sentinel data 2025.**
 
+**0.5 update:** these crops are retained as source/provenance for the vegetation guide only; they are no longer stretched onto the ground in either renderer. Detailed ground surfaces now use separately credited metre-scale CC0 material tiles (`MATERIALS-NOTICE.md`).
+
 The ten JPEG images in `web/assets/imagery/` are georeferenced, true-colour crops of Sentinel-2 Level-2A observations distributed as Cloud-Optimized GeoTIFFs by Element 84 Earth Search / AWS. Original scene IDs, acquisition dates, COG URLs, local-metre crop bounds, native resolution and approximate vegetation masks are retained in the editable `data/imagery.json` manifest (web download: `/licenses/imagery.json`).
 
 Official programme: https://dataspace.copernicus.eu/data-collections/copernicus-sentinel-missions/sentinel-2
