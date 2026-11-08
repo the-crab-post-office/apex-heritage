@@ -1,5 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
+export function build_version(): string;
+export function track_data_hash(): string;
 export class Simulation {
   free(): void;
   [Symbol.dispose](): void;
@@ -16,12 +18,14 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_simulation_free: (a: number, b: number) => void;
+  readonly build_version: () => [number, number];
   readonly simulation_new: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly simulation_recover: (a: number) => void;
   readonly simulation_reset: (a: number) => void;
   readonly simulation_spec_json: (a: number) => [number, number];
   readonly simulation_state_json: (a: number) => [number, number];
   readonly simulation_step: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly track_data_hash: () => [number, number];
   readonly __wbindgen_externrefs: WebAssembly.Table;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_start: () => void;

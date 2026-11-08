@@ -1,3 +1,4 @@
+import { RoadMask, ribbon } from "./road-surface.js";
 import mappedScenery from "./assets/buildings.json";
 import { CircuitClearance, inside, pointSegmentDistance } from "./scenery.js";
 import * as THREE from "three";
@@ -339,6 +340,7 @@ export class World {
     this.clearance = new CircuitClearance(track);
     this.sceneryAudit = { trees: [], buildings: [], omittedBuildings: 0 };
     this.buildMappedBuildings();
+    this.surfaceOverlays = [];
     this.buildTrack();
     this.buildScenery();
     this.buildLandmarks();
@@ -387,48 +389,25 @@ export class World {
       ),
     };
   }
-  strip(offset, width, mat, height = 0.03) {
-    const p = this.track.points,
-      n = p.length,
-      positions = [],
-      uvs = [],
-      indices = [];
-    let distance = 0;
-    for (let i = 0; i <= n; i++) {
-      let j = i % n,
-        a = p[j],
-        prev = p[(j + n - 1) % n],
-        next = p[(j + 1) % n];
-      let dx = next[0] - prev[0],
-        dz = next[1] - prev[1],
-        len = Math.hypot(dx, dz);
-      let rx = dz / len,
-        rz = -dx / len;
-      if (i > 0)
-        distance += Math.hypot(
-          a[0] - p[(i - 1) % n][0],
-          a[1] - p[(i - 1) % n][1],
-        );
-      for (let side of [-1, 1]) {
-        let x = a[0] + rx * (offset + (width / 2) * side),
-          z = a[1] + rz * (offset + (width / 2) * side);
-        positions.push(x, this.roadHeight(x, z, j / n) + height, z);
-        uvs.push(side === -1 ? 0 : 1, distance / 12);
+  surfaceMesh(triangles, mat, uvScale = 12) {
+    const positions = [],
+      uvs = [];
+    for (const tri of triangles)
+      for (const p of tri) {
+        positions.push(...p);
+        uvs.push(p[0] / uvScale, p[2] / uvScale);
       }
-      if (i < n) {
-        let a = i * 2;
-        indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
-      }
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    g.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-    g.setIndex(indices);
-    g.computeVertexNormals();
-    const m = new THREE.Mesh(g, mat);
-    m.receiveShadow = true;
-    this.scene.add(m);
-    return m;
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(positions, 3),
+    );
+    geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geometry.computeVertexNormals();
+    const mesh = new THREE.Mesh(geometry, mat);
+    mesh.receiveShadow = true;
+    this.scene.add(mesh);
+    return mesh;
   }
   buildTrack() {
     const roadTexture = texture("road");
@@ -458,25 +437,69 @@ export class World {
       // Coastlines and inland hills now come from the geographic height field.
       pos.setY(i, h);
     }
-    terrain.computeVertexNormals();
-    const ground = new THREE.Mesh(terrain, groundMat);
-    ground.receiveShadow = true;
-    this.scene.add(ground);
+    const roadMask = new RoadMask(this.track),
+      terrainMask = new RoadMask(this.track, 2);
+    const triangles = [],
+      index = terrain.index.array;
+    for (let i = 0; i < index.length; i += 3)
+      triangles.push(
+        [0, 1, 2].map((k) => {
+          const j = index[i + k];
+          return [pos.getX(j), pos.getY(j), pos.getZ(j)];
+        }),
+      );
+    const ground = this.surfaceMesh(
+      terrainMask.cutAll(triangles),
+      groundMat,
+      2200,
+    );
+    terrain.dispose();
+    this.terrainMesh = ground;
     const wet = this.config.weather === "wet";
+    // Multiplying a dark road texture by a dark metallic material made wet
+    // asphalt nearly black; keep it readable without pretending to be a mirror.
     const roadMat = material(
-      wet ? "#535b59" : "#7e827d",
-      wet ? 0.23 : 0.94,
-      wet ? 0.25 : 0.03,
+      wet ? "#b0bbb8" : "#c5cbc7",
+      wet ? 0.48 : 0.94,
+      0.02,
     );
     roadMat.map = roadTexture;
     roadMat.side = THREE.DoubleSide;
-    this.strip(0, this.track.width, roadMat, 0.05);
-    this.strip(0, this.track.width + 28, material("#758253", 1, 0), -0.18);
-    this.strip(0, this.track.width + 4, material("#8c9270", 1, 0), 0.01);
     const w = this.track.width / 2;
     const lineMat = material("#e6e6cd", 0.8, 0);
-    for (let side of [-1, 1])
-      this.strip(side * (w - 0.18), 0.14, lineMat, 0.065);
+    const bands = [-w, -w + 0.11, -w + 0.25, 0, w - 0.25, w - 0.11, w];
+    const roadFaces = [],
+      paintFaces = [];
+    for (let k = 0; k < bands.length - 1; k++)
+      (k === 1 || k === 4 ? paintFaces : roadFaces).push(
+        ...ribbon(this.track, bands[k], bands[k + 1], 0.05),
+      );
+    // A shared centreline and disjoint paint/asphalt bands eliminate warped,
+    // independently triangulated full-width layers and z-fighting.
+    this.roadMesh = this.surfaceMesh(
+      [...roadFaces, ...paintFaces],
+      [roadMat, lineMat],
+    );
+    this.roadMesh.geometry.clearGroups();
+    this.roadMesh.geometry.addGroup(0, roadFaces.length * 3, 0);
+    this.roadMesh.geometry.addGroup(
+      roadFaces.length * 3,
+      paintFaces.length * 3,
+      1,
+    );
+    for (const side of [-1, 1]) {
+      for (const [a, b, h, color] of [
+        [w, w + 2, 0.01, "#8c9270"],
+        [w + 2, w + 14, -0.18, "#758253"],
+      ]) {
+        const triangles = ribbon(this.track, side * a, side * b, h);
+        const layer = this.surfaceMesh(
+          roadMask.cutAll(triangles),
+          material(color, 1, 0),
+        );
+        this.surfaceOverlays.push(layer);
+      }
+    }
     // Alternating red and cream curbs, continuous guardrails and fence poles.
     const curbMat = [
       material("#d74836", 0.85, 0.05),
@@ -485,7 +508,6 @@ export class World {
     const railMat = material("#8d9991", 0.48, 0.7);
     const matrix = new THREE.Object3D();
     const n = this.track.points.length;
-    const counts = Math.ceil(n / 2) * 2;
     const rails = new THREE.InstancedMesh(boxGeo, railMat, n * 2),
       curbs = new THREE.InstancedMesh(boxGeo, curbMat[0], n * 2);
     const c = new THREE.Color();
@@ -922,6 +944,78 @@ export class World {
       a.needsUpdate = true;
     }
     this.renderer.render(this.scene, this.camera);
+  }
+  auditRoadSurface(stride = 10) {
+    this.scene.updateMatrixWorld(true);
+    const ray = new THREE.Raycaster(),
+      p = this.track.points,
+      n = p.length;
+    let terrainIntrusions = 0,
+      overlayIntrusions = 0,
+      centerErrors = 0,
+      missingRoad = 0,
+      samples = 0,
+      maxIntrusion = 0,
+      maxCenterError = 0;
+    const section = (i, lateral) => {
+      const a = p[i],
+        prev = p[(i + n - 1) % n],
+        next = p[(i + 1) % n],
+        dx = next[0] - prev[0],
+        dz = next[1] - prev[1],
+        len = Math.hypot(dx, dz);
+      return [a[0] + (dz / len) * lateral, a[1] - (dx / len) * lateral];
+    };
+    for (let i = 0; i < n; i += stride)
+      for (const f of [-0.85, -0.4, 0, 0.4, 0.85]) {
+        const j = (i + 1) % n,
+          a = section(i, (f * this.track.width) / 2),
+          b = section(j, (f * this.track.width) / 2),
+          x = (a[0] + b[0]) / 2,
+          z = (a[1] + b[1]) / 2;
+        const expected =
+          (this.track.heights[i] + this.track.heights[j]) / 2 + 0.05;
+        ray.set(
+          new THREE.Vector3(x, Math.max(...this.track.heights) + 100, z),
+          new THREE.Vector3(0, -1, 0),
+        );
+        const road = ray
+          .intersectObject(this.roadMesh)
+          .find((h) => Math.abs(h.point.y - expected) < 3);
+        if (!road) {
+          missingRoad++;
+          continue;
+        }
+        samples++;
+        if (f === 0) {
+          const delta = Math.abs(road.point.y - expected);
+          maxCenterError = Math.max(maxCenterError, delta);
+          if (delta > 0.015) centerErrors++;
+        }
+        const ground = ray
+          .intersectObject(this.terrainMesh)
+          .find((h) => h.point.y > road.point.y + 0.01);
+        const overlay = ray
+          .intersectObjects(this.surfaceOverlays)
+          .find((h) => h.point.y > road.point.y + 0.01);
+        if (ground) {
+          terrainIntrusions++;
+          maxIntrusion = Math.max(maxIntrusion, ground.point.y - road.point.y);
+        }
+        if (overlay) {
+          overlayIntrusions++;
+          maxIntrusion = Math.max(maxIntrusion, overlay.point.y - road.point.y);
+        }
+      }
+    return {
+      missingRoad,
+      terrainIntrusions,
+      overlayIntrusions,
+      centerErrors,
+      samples,
+      maxIntrusion,
+      maxCenterError,
+    };
   }
   dispose() {
     window.removeEventListener("resize", this.resize);

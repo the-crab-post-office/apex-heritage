@@ -6,7 +6,19 @@ The driving model is written in **Rust** and shared by both clients. The web cli
 
 > This is the agreed playable-prototype scope, not a photorealistic production simulator. The menu uses clearly labeled AI-generated concept artwork. Actual gameplay uses simplified original car models and textures, with mapped building footprints. Photographs are references only; no third-party photographs are game textures.
 
-## Fixed in 0.3.1 — geographically anchored elevation
+## Corrected in 0.3.2 — terrain/road mesh intersections
+
+The 0.3.1 fix was incomplete: checking sampled height arrays did **not** check the triangles actually drawn. Large terrain triangles could still cut through the road, especially in Monaco, and independently triangulated grass/shoulder strips could overlap it. Actual-mesh browser tests reproduced intrusions up to **2.83 m**, plus 2–7 cm centerline surface errors.
+
+- Terrain triangles are now **clipped out of the projected road footprint**, rather than merely lowering their vertices. Web and native both use spatially indexed polygon subtraction.
+- Asphalt and edge paint are disjoint bands with shared centerline cross-sections. Shoulder/apron bands no longer cover the asphalt. Their winding and road texture scale are tested as well.
+- Wet asphalt is less excessively dark. This is a readability/material correction, not a new weather or lighting simulation.
+- A visible **v0.3.2** web HUD label identifies this release. Startup verifies HTML, CSS, JS and WASM versions plus the Rust/bundled track-data hash against `version.json`; mixed builds stop with an explicit error. Elevation/grade placeholders are now “—”, and actual telemetry initializes before the first animation frame.
+- The previous elevation source/data have **not** been replaced in this patch. They remain filtered, approximately 30 m DSM estimates, **not surveyed road heights**. This fixes demonstrated mesh intersections; it does not certify every real-world crest, gradient or corner elevation.
+
+**Updating:** use the fresh preview labeled v0.3.2, or extract the complete new web ZIP into an **empty directory** and serve it over HTTP. Do not copy individual assets into an older release. See `TESTING.md` for the actual-triangle and camera-walkthrough coverage.
+
+## Earlier 0.3.1 — geographically anchored elevation
 
 The old hand-authored height keyframes were attached to lap fractions, so hills could be in the wrong physical locations even when the two clients agreed. They have been **removed**, not shifted or relabeled.
 
@@ -162,7 +174,7 @@ Power, grip and braking are independently modified for each team. The displayed 
 
 ```sh
 cargo test --lib
-cargo test --features native --lib
+cargo test --features native  # includes actual native terrain-mesh regression
 cargo check --features native --bin apex-native
 cargo build --release --features native --bin apex-native
 
@@ -171,6 +183,7 @@ npx playwright install --with-deps chromium
 npm run test:web
 npm run test:audio
 npm run test:scenery
+npm test  # all Node tests, including mesh geometry and build-coherence guards
 ```
 
 To test a separately served production build:

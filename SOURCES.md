@@ -20,7 +20,7 @@ Images were searched and visually inspected for surroundings and broad scenery c
 
 | Circuit | Reference page | Cues used in original procedural scenery |
 |---|---|---|
-| Spa-Francorchamps | [Circuits of the Past — Eau Rouge or Raidillon](https://www.circuitsofthepast.com/eau-rouge-or-raidillon/) | Forested setting, hills, pit structures, red/yellow curb palette. A hand-authored climb/dip suggests the elevation character; no surveyed Raidillon heights are claimed. |
+| Spa-Francorchamps | [Circuits of the Past — Eau Rouge or Raidillon](https://www.circuitsofthepast.com/eau-rouge-or-raidillon/) | Forested setting, hills, pit structures, red/yellow curb palette. Heights now use the coordinate-sampled GLO-30 estimates described below, not hand-authored climb/dip keys; no surveyed Raidillon heights are claimed. |
 | Monaco | [Monaco waterfront/circuit reference](https://thefuture3d.com/blog/monaco-grand-prix-3d-scanning-street-circuit) | Dense pale buildings, waterfront and moored yachts. No exact street furniture or tunnel reconstruction. |
 | Monza | [Monza track aerial photography collection](https://www.istockphoto.com/photos/monza-track) | Parkland, mature trees and long straight sections. |
 | Silverstone | [Silverstone aerial imagery collection](https://gettyimages.com/videos/silverstone-aerial) | Open airfield-like landscape and angular-roof pit architecture. |
@@ -83,3 +83,7 @@ The DSM is a surface model, including trees and buildings, at approximately 30 m
 OSM way [4230891](https://www.openstreetmap.org/way/4230891), Boulevard Louis II, identifies Monaco's main tunnel. Road geometry and portal references are retained in `data/road-structures.json`, ODbL. The tunnel's approximate 6 m above-sea-level road correction avoids sampling the hotel/cliff over the tunnel; it is explicitly authored, not measured. Suzuka's two crossing legs are identified geographically, with an authored 8 m clearance on the upper leg. No absolute-survey accuracy is claimed for those corrections.
 
 Full source, required Copernicus copyright/derived-product notice, licence links, parameters and limitations: `data/ELEVATION-NOTICE.md`. Editable source grids and derived track arrays are shipped and available under `/licenses/` in web builds. The browser credits reproduce the Copernicus notice. Data redistribution is separate from the MIT code licence.
+
+## Road-surface rendering correction (0.3.2)
+
+No new external geographic sources or terrain heights were introduced. The rendering correction uses original polygon-clipping code in `web/road-surface.js` and `src/surface_mesh.rs` to keep drawn terrain and grass out of the projected asphalt footprint, with centerline-split road bands. The data provenance/approximation limits above remain unchanged. Build hashes identify matching data, not geographic accuracy.

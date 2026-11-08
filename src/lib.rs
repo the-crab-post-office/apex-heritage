@@ -8,7 +8,21 @@ pub mod powertrain;
 #[cfg(feature = "native")]
 pub mod recorded_audio;
 pub mod scenery;
+pub mod surface_mesh;
 
+#[wasm_bindgen]
+pub fn build_version() -> String {
+    env!("CARGO_PKG_VERSION").to_owned()
+}
+#[wasm_bindgen]
+pub fn track_data_hash() -> String {
+    let hash = include_bytes!("../data/tracks.json")
+        .iter()
+        .fold(0x811c9dc5u32, |h, b| {
+            (h ^ *b as u32).wrapping_mul(0x01000193)
+        });
+    format!("{hash:08x}")
+}
 #[derive(Clone, Deserialize)]
 pub struct Track {
     pub name: String,

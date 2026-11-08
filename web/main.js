@@ -317,6 +317,7 @@ let starting = false;
 async function startRace() {
   if (starting) return;
   starting = true;
+  document.querySelector("#build-error").hidden = true;
   const button = $("#start-race");
   button.disabled = true;
   button.innerHTML = '<i class="loading-ring"></i> PREPARING YOUR GRID';
@@ -340,7 +341,14 @@ async function startRace() {
     console.error(e);
     $("#race-view").hidden = true;
     document.body.style.overflow = "";
-    toast("Could not start the 3D session. Check WebGL support and try again.");
+    if (e.code === "APEX_BUILD_MISMATCH") {
+      const error = document.querySelector("#build-error");
+      error.hidden = false;
+      error.textContent = e.message;
+    } else
+      toast(
+        "Could not start the 3D session. Check WebGL support and try again.",
+      );
     if (race) race.dispose();
     race = null;
   } finally {
