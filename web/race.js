@@ -1,5 +1,6 @@
 import * as Core from "./wasm/apex.js";
 import { assertCompatibleBuild } from "./build-check.js";
+import { Controller } from "./controller.js";
 import { World } from "./graphics.js";
 import { EngineAudio } from "./audio/engine-audio.js";
 import { eras, formatTime } from "./catalog.js";
@@ -76,8 +77,7 @@ export class Race {
     this.lastLap = 1;
     this.messageUntil = 0;
     this.ai = [];
-    this.gamepadPause = false;
-    this.gamepadRecover = false;
+    this.controller = new Controller();
     const t = eras[config.era].teams[config.team];
     $("#hud-car").textContent =
       `${t.name} ${t.car} / ${eras[config.era].year}`.toUpperCase();
@@ -191,20 +191,22 @@ export class Race {
       (this.keys.has("KeyD") || this.keys.has("ArrowRight") || this.touch.right
         ? 1
         : 0);
-    const gp = navigator.getGamepads?.();
-    const pad = gp && Array.from(gp).find(Boolean);
-    if (pad) {
-      const axis = pad.axes[0] || 0;
-      if (Math.abs(axis) > 0.1) steer = -axis;
-      throttle = Math.max(throttle, pad.buttons[7]?.value || 0);
-      brake = Math.max(brake, pad.buttons[6]?.value || 0);
-      const start = pad.buttons[9]?.pressed;
-      if (start && !this.gamepadPause) this.togglePause();
-      this.gamepadPause = start;
-      const a = pad.buttons[0]?.pressed;
-      if (a && !this.gamepadRecover && !this.paused) this.recover();
-      this.gamepadRecover = a;
-    }
+    const pad = this.controller.poll();
+    if (pad.steer !== 0) steer = pad.steer;
+    throttle = Math.max(throttle, pad.throttle);
+    brake = Math.max(brake, pad.brake);
+    if (pad.pressed.size || throttle > 0) this.audio.resume();
+    if (pad.pressed.has(9)) this.togglePause();
+    if (pad.pressed.has(5)) this.cycleCamera();
+    if (pad.pressed.has(1) && !this.paused && this.countdown <= 0)
+      this.recover();
+    if (this.controller.lost && !this.paused) this.togglePause(true);
+    if (this.controller.connected)
+      $("#controller-status").textContent =
+        "CONTROLLER · LS steer / RT drive / LT brake";
+    else
+      $("#controller-status").textContent =
+        "KEYBOARD / TOUCH · Connect a standard gamepad";
     return { throttle, brake, steer };
   }
   frame(time) {

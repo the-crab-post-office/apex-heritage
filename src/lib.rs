@@ -1,6 +1,8 @@
 //! Shared deterministic-ish, fixed-step single-seater driving model.
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+#[cfg(feature = "native")]
+pub mod controller;
 pub mod elevation;
 #[cfg(feature = "native")]
 pub mod native_audio;
