@@ -1,6 +1,7 @@
 //! Shared deterministic-ish, fixed-step single-seater driving model.
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+pub mod elevation;
 
 #[derive(Clone, Deserialize)]
 pub struct Track {
@@ -8,6 +9,8 @@ pub struct Track {
     pub length: f32,
     pub width: f32,
     pub points: Vec<[f32; 2]>,
+    pub heights: Vec<f32>,
+    pub ground_heights: Vec<f32>,
 }
 pub fn tracks() -> Vec<Track> {
     serde_json::from_str(include_str!("../data/tracks.json")).unwrap()
@@ -111,6 +114,9 @@ pub fn car_spec(era: usize, team: usize) -> CarSpec {
 pub struct State {
     pub x: f32,
     pub z: f32,
+    pub y: f32,
+    pub pitch: f32,
+    pub grade: f32,
     pub yaw: f32,
     pub speed: f32,
     pub lateral: f32,
@@ -168,6 +174,12 @@ impl Simulation {
         self.state = State {
             x: p[0],
             z: p[1],
+            y: self.track.heights[0] + 0.1,
+            pitch: -self
+                .track
+                .surface_at(p[0], p[1], 0, (q[0] - p[0]).atan2(q[1] - p[1]))
+                .grade
+                .atan(),
             yaw: (q[0] - p[0]).atan2(q[1] - p[1]),
             gear: 1,
             lap: 1,
@@ -187,6 +199,12 @@ impl Simulation {
         self.state.speed = 0.;
         self.state.lateral = 0.;
         self.state.invalid = true;
+        let road = self
+            .track
+            .surface_at(p[0], p[1], self.nearest, self.state.yaw);
+        self.state.y = road.height + 0.1;
+        self.state.grade = road.grade;
+        self.state.pitch = -road.grade.atan();
     }
     pub fn step(&mut self, throttle: f32, brake: f32, steer: f32, dt: f32) {
         if !dt.is_finite() || !throttle.is_finite() || !brake.is_finite() || !steer.is_finite() {
@@ -198,6 +216,9 @@ impl Simulation {
         let steer = steer.clamp(-1., 1.);
         let s = &mut self.state;
         let spec = self.spec;
+        let surface = self.track.surface_at(s.x, s.z, self.nearest, s.yaw);
+        let grade = surface.grade;
+        let grade_gravity = 9.81 * grade / (1. + grade * grade).sqrt();
         s.elapsed += dt;
         s.lap_time = s.elapsed - self.lap_start;
         s.throttle = throttle;
@@ -205,7 +226,7 @@ impl Simulation {
         s.steering += (steer - s.steering) * (dt * 8.).min(1.);
         let wet_factor = if self.wet { 0.70 } else { 1. };
         let terrain = if s.offtrack { 0.48 } else { 1. };
-        let grip = spec.grip * 9.81 * wet_factor * terrain
+        let grip = spec.grip * 9.81 / (1. + grade * grade).sqrt() * wet_factor * terrain
             + spec.aero * s.speed * s.speed / spec.mass * wet_factor;
         let target_boost = if throttle > 0.4 { 1. } else { 0. };
         s.boost += (target_boost - s.boost) * (dt / (spec.lag + 0.06)).min(1.);
@@ -221,7 +242,9 @@ impl Simulation {
         let resistance = spec.drag * s.speed * s.speed / spec.mass
             + 0.30
             + if s.offtrack { s.speed * 0.12 } else { 0. };
-        s.speed = (s.speed + (acceleration - brake * spec.brake.min(grip * 1.5) - resistance) * dt)
+        s.speed = (s.speed
+            + (acceleration - brake * spec.brake.min(grip * 1.5) - resistance - grade_gravity)
+                * dt)
             .max(0.);
         let max_angle = spec.steer / (1. + s.speed * 0.038);
         let desired_yaw = s.speed / 3.1 * (s.steering * max_angle).tan();
@@ -273,7 +296,11 @@ impl Simulation {
         if best.sqrt() > self.track.width * 0.5 + 5. {
             s.invalid = true;
         }
-        s.progress = idx as f32 / n as f32;
+        let road = self.track.surface_at(s.x, s.z, idx, s.yaw);
+        s.progress = road.progress;
+        s.y = road.height + 0.1;
+        s.grade = road.grade;
+        s.pitch = -road.grade.atan();
         let delta = (idx as i32 - old as i32 + n as i32 / 2).rem_euclid(n as i32) - n as i32 / 2;
         if delta > 0 && !s.offtrack {
             self.lap_distance += delta as f32 / n as f32;

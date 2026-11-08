@@ -1,5 +1,5 @@
 //! Lightweight native renderer using exactly the same Rust simulation as the browser.
-use apex_heritage::{tracks, Simulation};
+use apex_heritage::{tracks, Simulation, Track};
 use macroquad::prelude::*;
 fn conf() -> Conf {
     Conf {
@@ -31,12 +31,12 @@ const TEAM_NAMES: [[&str; 4]; 4] = [
         "Aston Martin AMR23",
     ],
 ];
-fn car(p: Vec3, yaw: f32, color: Color, era: usize) {
+fn car(p: Vec3, yaw: f32, pitch: f32, color: Color, era: usize) {
     // Transform the entire model so body, wings and wheels all follow heading.
     unsafe {
-        get_internal_gl()
-            .quad_gl
-            .push_model_matrix(Mat4::from_translation(p) * Mat4::from_rotation_y(yaw));
+        get_internal_gl().quad_gl.push_model_matrix(
+            Mat4::from_translation(p) * Mat4::from_rotation_y(yaw) * Mat4::from_rotation_x(pitch),
+        );
     }
     let classic = era == 0;
     draw_cube(
@@ -70,6 +70,63 @@ fn car(p: Vec3, yaw: f32, color: Color, era: usize) {
         get_internal_gl().quad_gl.pop_model_matrix();
     }
 }
+fn terrain_mesh(t: &Track) -> Vec<Mesh> {
+    let min_x = t.points.iter().map(|p| p[0]).fold(f32::INFINITY, f32::min) - 300.;
+    let max_x = t
+        .points
+        .iter()
+        .map(|p| p[0])
+        .fold(f32::NEG_INFINITY, f32::max)
+        + 300.;
+    let min_z = t.points.iter().map(|p| p[1]).fold(f32::INFINITY, f32::min) - 300.;
+    let max_z = t
+        .points
+        .iter()
+        .map(|p| p[1])
+        .fold(f32::NEG_INFINITY, f32::max)
+        + 300.;
+    let nx = (((max_x - min_x) / 28.).ceil() as usize).min(120);
+    let nz = (((max_z - min_z) / 28.).ceil() as usize).min(120);
+    let mut vertices = Vec::new();
+    for iz in 0..=nz {
+        for ix in 0..=nx {
+            let x = min_x + (max_x - min_x) * ix as f32 / nx as f32;
+            let z = min_z + (max_z - min_z) * iz as f32 / nz as f32;
+            let y = t.terrain_height(x, z) - 1.25;
+            vertices.push(Vertex::new2(
+                vec3(x, y, z),
+                vec2(ix as f32 / nx as f32, iz as f32 / nz as f32),
+                Color::from_rgba(76, 94, 52, 255),
+            ));
+        }
+    }
+    // Keep each draw under Macroquad's default 5,000-index capacity.
+    let mut chunks = Vec::new();
+    for z0 in (0..nz).step_by(20) {
+        for x0 in (0..nx).step_by(20) {
+            let w = (nx - x0).min(20);
+            let h = (nz - z0).min(20);
+            let mut vs = Vec::new();
+            let mut ids = Vec::new();
+            for z in 0..=h {
+                for x in 0..=w {
+                    vs.push(vertices[(z0 + z) * (nx + 1) + x0 + x].clone());
+                    if x < w && z < h {
+                        let a = (z * (w + 1) + x) as u16;
+                        let b = a + (w + 1) as u16;
+                        ids.extend_from_slice(&[a, b, a + 1, a + 1, b, b + 1]);
+                    }
+                }
+            }
+            chunks.push(Mesh {
+                vertices: vs,
+                indices: ids,
+                texture: None,
+            });
+        }
+    }
+    chunks
+}
 #[macroquad::main(conf)]
 async fn main() {
     let smoke = std::env::var("APEX_SMOKE").is_ok();
@@ -84,6 +141,8 @@ async fn main() {
     let mut paused = false;
     let mut sim = Simulation::new(ti, era, team, wet, assist);
     let mut accumulator = 0.;
+    let mut terrain_track = ti;
+    let mut landscape = terrain_mesh(&circuits[ti]);
     loop {
         if smoke {
             smoke_frames += 1;
@@ -170,9 +229,17 @@ async fn main() {
         } else {
             Color::from_rgba(162, 193, 208, 255)
         });
+        if terrain_track != ti {
+            landscape = terrain_mesh(&circuits[ti]);
+            terrain_track = ti;
+        }
         let s = sim.state();
-        let p = vec3(s.x, 0., s.z);
-        let f = vec3(s.yaw.sin(), 0., s.yaw.cos());
+        let p = vec3(s.x, s.y, s.z);
+        let f = vec3(
+            s.yaw.sin() * s.pitch.cos(),
+            -s.pitch.sin(),
+            s.yaw.cos() * s.pitch.cos(),
+        );
         set_camera(&Camera3D {
             position: p - f * 10. + vec3(0., 5., 0.),
             target: p + f * 12. + vec3(0., 0.7, 0.),
@@ -182,11 +249,14 @@ async fn main() {
             ..Default::default()
         });
         draw_plane(
-            vec3(0., -0.12, 0.),
+            vec3(0., -10., 0.),
             vec2(10000., 10000.),
             None,
             Color::from_rgba(57, 78, 45, 255),
         );
+        for patch in &landscape {
+            draw_mesh(patch);
+        }
         let t = &circuits[ti];
         let n = t.points.len();
         for i in 0..n {
@@ -199,8 +269,8 @@ async fn main() {
             let dz = b[1] - a[1];
             let len = dx.hypot(dz);
             let r = vec3(dz / len, 0., -dx / len) * t.width * 0.5;
-            let av = vec3(a[0], 0., a[1]);
-            let bv = vec3(b[0], 0., b[1]);
+            let av = vec3(a[0], t.heights[i] + 0.05, a[1]);
+            let bv = vec3(b[0], t.heights[(i + 1) % n] + 0.05, b[1]);
             let vertices = vec![
                 Vertex::new2(av - r, vec2(0., 0.), Color::from_rgba(48, 50, 52, 255)),
                 Vertex::new2(av + r, vec2(1., 0.), Color::from_rgba(48, 50, 52, 255)),
@@ -218,12 +288,13 @@ async fn main() {
                 draw_cube(av + r * 1.04, vec3(0.5, 0.06, 2.), None, c);
             }
             if i % 20 == 0 {
-                let tree = av + r * 4.;
+                let mut tree = av + r * 4.;
+                tree.y = t.terrain_height(tree.x, tree.z);
                 draw_cube(tree + vec3(0., 2., 0.), vec3(0.7, 4., 0.7), None, BROWN);
                 draw_sphere(tree + vec3(0., 5., 0.), 3., None, DARKGREEN);
             }
         }
-        car(p, s.yaw, [RED, ORANGE, BLUE, GREEN][team], era);
+        car(p, s.yaw, s.pitch, [RED, ORANGE, BLUE, GREEN][team], era);
         set_default_camera();
         if menu {
             draw_rectangle(
@@ -306,6 +377,17 @@ async fn main() {
                 "WASD / arrows  •  Space brake  •  R recover  •  Esc pause  •  M menu",
                 25.,
                 screen_height() - 25.,
+                20.,
+                WHITE,
+            );
+            draw_text(
+                &format!(
+                    "ELEVATION {:.0} m   GRADE {:+.1}%",
+                    s.y - 0.1,
+                    s.grade * 100.
+                ),
+                25.,
+                screen_height() - 53.,
                 20.,
                 WHITE,
             );

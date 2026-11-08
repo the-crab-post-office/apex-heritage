@@ -1,3 +1,4 @@
+import { elevationSVG } from "./elevation.js";
 import {
   createIcons,
   ArrowUpRight,
@@ -141,8 +142,7 @@ function updateTrack() {
   $("#hero-length").innerHTML =
     `${(t.length / 1000).toFixed(3)} <small>km</small>`;
   $("#hero-turns").textContent = t.turns;
-  $("#hero-type").textContent =
-    t.biome === "coast" ? "Street circuit" : "Grand Prix";
+  $("#hero-type").textContent = `${t.elevation} m`;
   $("#hero-map").innerHTML = mapSVG(t, "#afbf98", 2);
   renderTracks();
   save();
@@ -270,7 +270,7 @@ $("#car-detail").onclick = () => {
 $("#view-circuit").onclick = () => {
   const t = tracks[config.track];
   showDialog(
-    `<div class="dialog-kicker">${t.country} / ${cities[config.track]}</div><h2 class="dialog-heading">${t.name}</h2><p class="dialog-subtitle">${t.tagline}</p><div class="dialog-map">${mapSVG(t, "#cedcb9", 3)}</div><div class="spec-grid"><div class="spec-box"><span>LENGTH</span><b>${(t.length / 1000).toFixed(3)} km</b></div><div class="spec-box"><span>CORNERS</span><b>${t.turns}</b></div><div class="spec-box"><span>TRACK WIDTH · GAME</span><b>${t.width} m</b></div></div><p class="dialog-note">Layout derived from geographic track-map data. Simplified scenery and artistic elevation profiles; not laser-scanned or period-correct layouts. Historical cars drive the same map version.</p>`,
+    `<div class="dialog-kicker">${t.country} / ${cities[config.track]}</div><h2 class="dialog-heading">${t.name}</h2><p class="dialog-subtitle">${t.tagline}</p><div class="dialog-map">${mapSVG(t, "#cedcb9", 3)}</div><div class="elevation-chart">${elevationSVG(t)}</div><div class="spec-grid"><div class="spec-box"><span>LENGTH</span><b>${(t.length / 1000).toFixed(3)} km</b></div><div class="spec-box"><span>CORNERS</span><b>${t.turns}</b></div><div class="spec-box"><span>TRACK WIDTH · GAME</span><b>${t.width} m</b></div></div><p class="dialog-note">Layout derived from geographic track-map data. Simplified scenery and artistic elevation profiles; not laser-scanned or period-correct layouts. Historical cars drive the same map version.</p>`,
   );
 };
 function showRecords() {
