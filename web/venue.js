@@ -18,7 +18,7 @@ export function buildVenue(world) {
   const concrete = world.surfaces.pbr("Concrete023", "#c3c6bd", 0.25),
     steel = mat("#8a979a", 0.4, 0.65),
     dark = mat("#1a2022", 0.6, 0.25),
-    rubber = mat("#161b1c", 0.94),
+    rubber = mat("#ffffff", 0.94),
     seat = mat("#ffffff", 0.8),
     roof = mat("#b7bfc0", 0.55, 0.25),
     clothes = mat("#ffffff"),
@@ -75,14 +75,14 @@ export function buildVenue(world) {
             tyre,
             rubber,
             x,
-            yy + 0.18 + row * 0.34,
+            yy + 0.2 + row * 0.39,
             z,
             1,
             1,
-            1,
+            1.7,
             0,
             Math.PI / 2,
-            j % 9 === 0 ? "#ddd9d0" : j % 9 === 1 ? "#b6392d" : null,
+            j % 9 === 0 ? "#ddd9d0" : j % 9 === 1 ? "#b6392d" : "#161b1c",
           );
       }
     } else if (b.kind === "concrete") {

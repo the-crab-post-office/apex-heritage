@@ -115,8 +115,13 @@ impl Venue {
                 let normal = if distance > 0.0001 {
                     [(p[0] - q[0]) / distance, (p[1] - q[1]) / distance]
                 } else {
-                    let speed = velocity[0].hypot(velocity[1]).max(0.001);
-                    [-velocity[0] / speed, -velocity[1] / speed]
+                    let speed = velocity[0].hypot(velocity[1]);
+                    if speed > 0.001 {
+                        [-velocity[0] / speed, -velocity[1] / speed]
+                    } else {
+                        let length = dx.hypot(dz).max(0.001);
+                        [dz / length, -dx / length]
+                    }
                 };
                 let vn = velocity[0] * normal[0] + velocity[1] * normal[1];
                 let strength = (-vn).max(0.);
@@ -203,6 +208,9 @@ mod tests {
         assert!(hit.velocity[0] <= 0.);
         assert!(hit.velocity[0].abs() < 10.);
         assert_eq!(hit.strength, 100.);
+        let overlap = v.collide([0., 0.], [0., 0.], [0., 0.]).unwrap();
+        assert!(overlap.position[0].hypot(overlap.position[1]) > 1.25);
+        assert_eq!(overlap.strength, 0.);
     }
     #[test]
     fn no_phantom_barrier_across_the_pit_entry() {

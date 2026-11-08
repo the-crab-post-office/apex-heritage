@@ -286,6 +286,8 @@ impl Simulation {
         self.state.yaw = (q[0] - p[0]).atan2(q[1] - p[1]);
         self.state.travel_yaw = self.state.yaw;
         self.state.rear_slip = 0.;
+        self.state.slip = 0.;
+        self.state.steering = 0.;
         self.state.impact = 0.;
         self.rear_memory = dynamics::RearMemory::default();
         self.state.speed = 0.;
@@ -715,6 +717,31 @@ mod tests {
         s.reset();
         assert_eq!(s.state.lap, 1);
         assert!(!s.state.invalid);
+    }
+    #[test]
+    fn actual_simulation_hits_barriers_instead_of_crossing_them() {
+        for track in 0..10 {
+            let mut sim = Simulation::new(track, 2, 0, false, true);
+            let b = sim.venue.barriers[0].clone();
+            let dx = b.b[0] - b.a[0];
+            let dz = b.b[1] - b.a[1];
+            let length = dx.hypot(dz);
+            let normal = [dz / length, -dx / length];
+            let mid = [(b.a[0] + b.b[0]) / 2., (b.a[1] + b.b[1]) / 2.];
+            sim.state.x = mid[0] + normal[0] * 4.;
+            sim.state.z = mid[1] + normal[1] * 4.;
+            sim.state.yaw = (-normal[0]).atan2(-normal[1]);
+            sim.state.travel_yaw = sim.state.yaw;
+            sim.state.speed = 100.;
+            sim.step(0., 0., 0., 0.05);
+            assert!(sim.state.impact > 0.5, "track {track}");
+            assert!(sim.state.invalid);
+            assert!(sim.state.speed < 15.);
+            assert!(
+                (sim.state.x - mid[0]) * normal[0] + (sim.state.z - mid[1]) * normal[1]
+                    >= b.radius + 0.99
+            );
+        }
     }
     #[test]
     fn actual_simulation_transmits_slides_and_recover_resets_velocity_heading() {

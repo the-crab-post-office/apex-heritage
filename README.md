@@ -6,7 +6,17 @@ The driving model is written in **Rust** and shared by both clients. The web cli
 
 > This is the agreed playable-prototype scope, not a photorealistic production simulator. The menu uses labeled AI-generated concept artwork. Gameplay uses original era-specific car geometry, detailed local CC0 materials and mapped OSM buildings/pit routes. No official car meshes, logos or commercial simulator track files are included.
 
-## New in 0.5 — corrected scenery and real mapped pit routes
+## New in 0.6 — trackside safety, spectators and progressive oversteer
+
+- **Tyre stacks, concrete walls, Armco and catch fencing on all ten tracks**, using a shared editable venue database. The complete road, mapped pit lane and building footprints are excluded; existing tunnel walls remain. There are 180 tyre-barrier sections and 60 grandstands across the ten circuits.
+- **Six grandstands per circuit:** tiered bleachers, coloured seats, spectator figures, supports and optional roofs. Web geometry is instanced; native uses simpler bounded mesh batches. Trees are excluded from stand/roof footprints.
+- **Barriers have physical collision**, not just scenery. Swept collision prevents skipping thin walls at speed; impacts slow/deflect the car and invalidate the lap. Tyres use a different impact response from rigid barriers. This remains a simple car-centre collision model, without damage or deformable barriers. Grandstands themselves are scenery.
+- **Spins are now possible when pushed.** Sustained throttle/braking near the lateral grip limit progressively breaks rear traction; velocity heading is separate from chassis heading, so the car can actually rotate and slide rather than just make a tighter turn. Normal cornering has a margin; a momentary aggressive input is not enough by itself. Assists suppress breakaway but do not guarantee immunity to compound mistakes. Wet grip/classic handling retain their differences. Ease the throttle and countersteer to catch a developing slide; **R / B** still recovers the car. The HUD identifies rear-grip loss.
+- Records use a fresh **0.6 physics bucket** instead of mixing old, spin-proof laps with new handling.
+
+Furniture placement is **authored and approximate**, not surveyed real-world barrier/stand locations. It does not improve the underlying elevation survey or certify track safety. See `data/VENUE-NOTICE.md`.
+
+### Retained 0.5 — corrected scenery and real mapped pit routes
 
 - **No giant blurred satellite pixels on the ground.** Grass, gravel, concrete, brick and asphalt now use locally bundled **1K (up to 1024 px) ambientCG CC0 colour/normal/roughness maps** where provided, repeated at metre scale with mipmaps/anisotropy. Satellite data only guides coarse vegetation placement; it is not drawn as the ground surface. These are detailed reusable material tiles, not higher-resolution aerial surveys of the circuits.
 - **Mapped current pit lanes on all ten circuits**, replacing the same start-relative offset route everywhere. Real OSM way/node IDs and geographic snapshots are retained. Silverstone uses the International lane, Suzuka the main lane, and Nürburgring the GP lane. Monaco includes the newer mapped exit and an explicitly estimated race-day strip through the intervening mapped public street. Pit asphalt and paint are **geometrically subtracted from the race-road footprint**, so they cannot paint a raised ribbon across it at entry/exit. Native batches are kept within renderer limits.
@@ -31,10 +41,10 @@ The 0.3.1 fix was incomplete: checking sampled height arrays did **not** check t
 - Terrain triangles are now **clipped out of the projected road footprint**, rather than merely lowering their vertices. Web and native both use spatially indexed polygon subtraction.
 - Asphalt and edge paint are disjoint bands with shared centerline cross-sections. Shoulder/apron bands no longer cover the asphalt. Their winding and road texture scale are tested as well.
 - Wet asphalt is less excessively dark. This is a readability/material correction, not a new weather or lighting simulation.
-- A visible version label (now **v0.5.0**) identifies the web build. Startup verifies HTML, CSS, JS and WASM versions plus the Rust/bundled track-data hash against `version.json`; mixed builds stop with an explicit error. Elevation/grade placeholders are now “—”, and actual telemetry initializes before the first animation frame.
+- A visible version label (now **v0.6.0**) identifies the web build. Startup verifies HTML, CSS, JS and WASM versions plus the Rust/bundled track-data hash against `version.json`; mixed builds stop with an explicit error. Elevation/grade placeholders are now “—”, and actual telemetry initializes before the first animation frame.
 - The previous elevation source/data have **not** been replaced in this patch. They remain filtered, approximately 30 m DSM estimates, **not surveyed road heights**. This fixes demonstrated mesh intersections; it does not certify every real-world crest, gradient or corner elevation.
 
-**Updating:** use the fresh preview labeled v0.5.0, or extract the complete new web ZIP into an **empty directory** and serve it over HTTP. Do not copy individual assets into an older release. See `TESTING.md` for the actual-triangle and camera-walkthrough coverage.
+**Updating:** use the fresh preview labeled v0.6.0, or extract the complete new web ZIP into an **empty directory** and serve it over HTTP. Do not copy individual assets into an older release. See `TESTING.md` for the actual-triangle and camera-walkthrough coverage.
 
 ## Earlier 0.3.1 — geographically anchored elevation
 
