@@ -2367,3 +2367,5 @@ kbd {
 :root { --apex-build: "0.3.2"; }
 .hud-build { position: fixed; top: 65px; right: 28px; z-index: 10; font-size: 10px; color: #e2e8d5; letter-spacing: 1px; pointer-events: none; }
 #build-error { position: fixed; z-index: 1000; bottom: 24px; left: 5%; width: 90%; padding: 20px; background: #301d16; border: 1px solid #fa946f; color: #fff2d7; font: 15px/1.6 sans-serif; }
+
+.controller-status{position:fixed;right:28px;top:84px;z-index:10;color:#d6dfc3;font:9px/1.5 sans-serif;letter-spacing:1px;pointer-events:none;}

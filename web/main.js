@@ -1,3 +1,4 @@
+import { Controller } from "./controller.js";
 import { elevationSVG } from "./elevation.js";
 import {
   createIcons,
@@ -397,3 +398,23 @@ updateMachine();
 updateTrack();
 updateControls();
 refreshIcons();
+
+// Controller-only menu: D-pad chooses circuit; bumpers choose era; A starts.
+const menuController = new Controller();
+setInterval(() => {
+  if (race || document.hidden || starting) return;
+  const p = menuController.poll();
+  if (p.pressed.has(14) || p.pressed.has(15)) {
+    const delta = p.pressed.has(15) ? 1 : -1;
+    document
+      .querySelector(`[data-track="${(config.track + delta + 10) % 10}"]`)
+      ?.click();
+  }
+  if (p.pressed.has(4) || p.pressed.has(5))
+    document
+      .querySelector(
+        `[data-era="${(config.era + (p.pressed.has(5) ? 1 : 3)) % 4}"]`,
+      )
+      ?.click();
+  if (p.pressed.has(0)) document.querySelector("#start-race")?.click();
+}, 80);

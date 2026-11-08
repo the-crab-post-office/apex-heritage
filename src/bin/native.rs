@@ -193,6 +193,7 @@ fn mapped_buildings(
 async fn main() {
     let smoke = std::env::var("APEX_SMOKE").is_ok();
     let mut smoke_frames = 0;
+    let mut controller = apex_heritage::controller::Controller::new();
     let audio = NativeAudio::new();
     let mut sound_on = true;
     let circuits = tracks();
@@ -210,6 +211,10 @@ async fn main() {
     let mut landscape = terrain_mesh(&circuits[ti]);
     let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
     loop {
+        let pad = controller.poll();
+        if pad.lost && !menu {
+            paused = true;
+        }
         if smoke {
             smoke_frames += 1;
             if smoke_frames > 120 {
@@ -224,22 +229,22 @@ async fn main() {
         if is_key_pressed(KeyCode::V) {
             sound_on = !sound_on;
         }
-        if is_key_pressed(KeyCode::Escape) {
+        if is_key_pressed(KeyCode::Escape) || pad.pressed.contains(&gilrs::Button::Start) {
             if !menu {
                 paused = !paused;
             }
         }
         if menu {
-            if is_key_pressed(KeyCode::Right) {
+            if is_key_pressed(KeyCode::Right) || pad.pressed.contains(&gilrs::Button::DPadRight) {
                 ti = (ti + 1) % 10;
             }
-            if is_key_pressed(KeyCode::Left) {
+            if is_key_pressed(KeyCode::Left) || pad.pressed.contains(&gilrs::Button::DPadLeft) {
                 ti = (ti + 9) % 10;
             }
-            if is_key_pressed(KeyCode::E) {
+            if is_key_pressed(KeyCode::E) || pad.pressed.contains(&gilrs::Button::LeftTrigger) {
                 era = (era + 1) % 4;
             }
-            if is_key_pressed(KeyCode::T) {
+            if is_key_pressed(KeyCode::T) || pad.pressed.contains(&gilrs::Button::RightTrigger) {
                 team = (team + 1) % 4;
             }
             if is_key_pressed(KeyCode::W) {
@@ -248,33 +253,35 @@ async fn main() {
             if is_key_pressed(KeyCode::A) {
                 assist = !assist;
             }
-            if is_key_pressed(KeyCode::Enter) {
+            if is_key_pressed(KeyCode::Enter) || pad.pressed.contains(&gilrs::Button::South) {
                 sim = Simulation::new(ti, era, team, wet, assist);
                 menu = false;
                 paused = false;
             }
         }
         if !menu && !paused {
-            if is_key_pressed(KeyCode::R) {
+            if is_key_pressed(KeyCode::R) || pad.pressed.contains(&gilrs::Button::East) {
                 sim.recover();
             }
             if is_key_pressed(KeyCode::M) {
                 menu = true;
             }
-            let throttle = if smoke || is_key_down(KeyCode::W) || is_key_down(KeyCode::Up) {
+            let throttle = (if smoke || is_key_down(KeyCode::W) || is_key_down(KeyCode::Up) {
                 1.
             } else {
                 0.
-            };
-            let brake = if is_key_down(KeyCode::S)
+            } as f32)
+                .max(pad.throttle);
+            let brake = (if is_key_down(KeyCode::S)
                 || is_key_down(KeyCode::Down)
                 || is_key_down(KeyCode::Space)
             {
                 1.
             } else {
                 0.
-            };
-            let steer = (if is_key_down(KeyCode::A) || is_key_down(KeyCode::Left) {
+            } as f32)
+                .max(pad.brake);
+            let mut steer = (if is_key_down(KeyCode::A) || is_key_down(KeyCode::Left) {
                 1.
             } else {
                 0.
@@ -283,6 +290,9 @@ async fn main() {
             } else {
                 0.
             });
+            if pad.steer.abs() > 0. {
+                steer = pad.steer;
+            }
             accumulator += if smoke {
                 1. / 60.
             } else {
