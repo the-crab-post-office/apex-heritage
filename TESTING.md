@@ -1,64 +1,54 @@
-# Validation record — 0.2
+# Validation record — 0.3
 
 Validated in this workspace on **8 November 2026**.
 
-## Results
-
 | Check | Result |
 |---|---|
-| `cargo test --lib` | **17 passed**, 0 failed |
-| `cargo test --features native --lib` | **19 passed**, 0 failed (the same 17 plus two native audio tests) |
-| Rust → `wasm32-unknown-unknown` release / bindings | **Passed** |
-| Linux x86-64 native release build | **Passed**, including CPAL audio output |
-| `APEX_SMOKE=1 xvfb-run -a ./target/release/apex-native` | **Passed**: 120 rendered frames and acceleration assertion; reported 119.4 km/h on the elevated circuit |
-| `npm run test:audio` | **9 passed**, 0 failed |
-| `npm run build` | **Passed**, static `site/` output includes the bundled AudioWorklet |
-| Browser tests against Vite development server | **5 passed**, 0 failed |
-| Same browser tests against independently served production build | **5 passed**, 0 failed |
+| `cargo test --lib` | **20 passed** |
+| `cargo test --features native --lib` | **24 passed** (includes the same 20) |
+| `npm run test:audio` | **13 passed** |
+| `npm run test:scenery` | **12 passed** |
+| Browser development tests | **8 passed** in one run |
+| Browser production tests, plain HTTP static server | **8 passed** in one run |
+| Rust → WASM release / bindings | Passed |
+| Linux x86-64 native release build | Passed |
+| Native Xvfb smoke | 120 rendered frames, acceleration assertion, **119.4 km/h** |
+| Editable databases and notices | HTTP 200 in both dev and static production |
+| Elevation regeneration | Byte-identical before/after `build-elevation.py`, including rotated tracks |
 
-Browser suite: headless Chromium / Playwright with software WebGL; desktop 800×600 and mobile 390×844. Production validation uses a plain Python HTTP server, without Vite transforms. The browser tests inspect a real running AudioWorklet through an AnalyserNode, not just mocked audio calls.
+## New map and start coverage
 
-## Rust coverage
+- All **2,878 exported building polygons** on all ten circuits clear the entire closed road corridor in independent Rust and JavaScript geometry checks. The importer excludes the road plus 3.5 m; runtime checks retain 3 m.
+- Synthetic cases cover objects halfway between widely spaced vertices, closing-segment clearance, canopy overhang, polygon edges crossing the road, a large polygon enclosing the road, and a safe interior footprint. Grid acceleration is used only in the browser; native tests check all segments directly.
+- A concave L-shaped roof triangulates to four triangles with the correct total area. Native renders the actual mapped polygons, not covering boxes.
+- Monaco's source index is rotated to the mapped start node, with northwest heading toward Sainte Dévote and low Albert Ier elevation. The browser verifies actual Rust WASM spawn and height against the same point zero and checks every generated tree canopy and rendered building footprint for road clearance.
+- Five corrected markers have less than 2 m snap distance to uniformly sampled points. Both copies of building and track data must be byte-identical. Five other starts are explicitly marked unverified, not silently certified.
+- Elevation profiles and their relative ground/bridge alignment remain covered by the previous tests, including Suzuka's crossover and signed grade gravity.
 
-Existing tests cover the ten closed circuits, distinct team power, acceleration/braking, reset/recovery, invalid-input rejection, stationary lap prevention, ordered lap checkpoints, reverse-lap prevention, wet grip and turbo buildup.
+## New recording coverage
 
-New elevation/drivetrain tests cover:
+- Real shipped PCM loops are decoded and rendered, not mocked. The three sampled era tests compare real-PCM rendering with zeroed-PCM rendering and require an audible-level numeric difference, finite output, headroom with six voices and RPM-dependent fractional playback.
+- Samples arriving after telemetry must attach to existing player/AI voices. Switching to the modern unsampled era removes the recorded layer.
+- Native tests verify sample count, nonzero RMS, boundary continuity, finite/bounded playback, RPM response and the explicit modern fallback.
+- Browser tests require an acknowledgment from the actual AudioWorklet after it receives the recording bank. They verify the recorded car metadata and absence of asset-load errors. Deliberately blocking `.pcm` requests must leave working procedural audio rather than preventing the race.
+- Prior signal tests still cover synthesized fallback timbres, throttle response, firing frequency, spatial panning, shift/lift transients, six-voice mixing and smooth muting. Actual worklet output is inspected through an AnalyserNode.
 
-- Native/WASM and browser height datasets are identical; every point has a finite profile sample, a continuous loop seam and bounded grade.
-- Reversing heading reverses the signed road grade.
-- Gravity changes coasting speed differently uphill and downhill on an isolated synthetic slope.
-- Suzuka's upper branch is more than 7 m above its crossing branch, while underlying ground remains aligned.
-- RPM remains continuous when crossing the old artificial 47 km/h boundary.
-- Upshifting drops RPM and briefly cuts torque; idle remains stable.
-- Native synthesis produces finite, audible, bounded output for all four eras; muting decays to silence.
+These are engineering signal/asset checks, **not acoustic certification**. The recordings are trackside pullaways with ambient sound and changing RPM, not isolated measured in-car banks. No exact car match, measured playback RPM anchor or verified modern recording is claimed.
 
-The full-lap test injects successive centerline positions to test lap logic; it is **not an autonomous full-dynamics lap**. Native audio samples are tested numerically; physical speakers and the host audio driver are not certified by those tests. The native headless smoke deliberately disables device initialization.
+## Eight browser tests
 
-## Browser coverage
-
-1. Circuit selection/filtering, four eras with four teams, team comparison, weather/assists, persisted setup, garage and records UI.
-2. Actual Rust WASM acceleration, steering, braking, camera switching, recovery, pause/resume/exit. Checks that the car's rendered height equals Rust telemetry, that the worklet is running and generates non-zero PCM, and that no page exception occurred.
-3. Wet 1988 Suzuka race: five AI cars, rain, raised bridge, three-lap mode and six engine voices with valid stereo data.
-4. Mobile paddock: all ten circuits and no horizontal overflow.
+1. Ten circuits, filters, four eras/four teams, comparison, weather/assists, persistence, garage and records.
+2. Actual WASM acceleration/braking/steering, recovery, camera, pause/resume/exit, matching render height and nonzero worklet output.
+3. Wet Suzuka race: five AI, rain, separated bridge, six audio voices.
+4. Mobile menu at 390×844 with no horizontal overflow.
 5. Elevation chart and persisted master-volume slider.
+6. Monaco marker/spawn/height, real recording acknowledgment, complete generated scenery exclusion.
+7. Explicit modern V6 procedural fallback.
+8. Missing recording assets preserve synthesized audio and playable race startup.
 
-## Audio DSP coverage
+## Limits
 
-The nine offline JavaScript tests render original synthesis into sample buffers and check:
-
-- All four era voices produce finite, audible, bounded output.
-- Throttle increases sound energy.
-- V10 firing frequency tracks 6,000 versus 12,000 RPM at the expected 500/1,000 Hz fundamental.
-- Stereo panning measurably separates left/right energy.
-- Voice gain fades to silence.
-- Six mixed engines, gear shifts and lift-off remain finite and within tested headroom.
-
-These are signal-level checks, **not claims of acoustic fidelity to real recordings**.
-
-## Limits and build notes
-
-- Heights are authored approximations, not surveyed track elevations. The road-following model remains grounded and does not simulate airborne cars or wheel suspension.
-- No cross-browser, physical gamepad, real mobile device, audio-hardware or Windows/macOS native certification.
-- No claimed frame-rate target or GPU benchmark. Native and browser renderers intentionally have different feature sets.
-- Browser driving assertions skip the visual countdown to avoid measuring software-renderer startup speed.
-- Vite's lazy 3D chunk is slightly above its 500 kB advisory threshold (about 137 kB gzip); the build succeeds. Total static release is approximately **1.6 MB uncompressed**, including Rust WASM, artwork and the engine processor.
+- Headless Chromium/software WebGL and Linux Xvfb only; no physical speakers, host audio-driver certification, gamepad/mobile hardware, other browser engines or Windows/macOS binary certification.
+- Full-lap logic tests inject centerline positions, not an autonomous physics-driven lap. The driving model is grounded 2.5D with authored elevations, not measured terrain or wheel suspension.
+- Native remains a simpler free-drive client without browser AI/weather/records features. Audio device initialization is intentionally disabled in headless native smoke; DSP is tested separately.
+- Vite's lazy race/3D/database chunk exceeds its 500 kB advisory threshold. Build succeeds. Production output is approximately **3.52 MB uncompressed**, including editable ODbL database downloads; this is not a frame-rate benchmark.

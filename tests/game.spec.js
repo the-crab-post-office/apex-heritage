@@ -218,3 +218,90 @@ test("elevation preview and master volume setting", async ({ page }) => {
   await page.locator("#settings-button").click();
   await expect(page.locator("#volume-slider")).toHaveValue("35");
 });
+
+test("Monaco start, real recording loading and generated scenery all clear the road", async ({
+  page,
+}) => {
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Select Monaco", exact: true })
+    .click();
+  await page.locator('[data-era="2"]').click();
+  await page.locator("#start-race").click();
+  await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
+  await page.waitForFunction(
+    () => window.__apex.race.audio.recordingAcknowledged,
+    { timeout: 15000 },
+  );
+  const result = await page.evaluate(() => {
+    const r = window.__apex.race,
+      w = r.world,
+      t = r.track,
+      s = r.state;
+    return {
+      spawnError: Math.hypot(s.x - t.points[0][0], s.z - t.points[0][1]),
+      heightError: Math.abs(s.y - t.heights[0] - 0.1),
+      marker: t.start_reference.osm_node,
+      treeCount: w.sceneryAudit.trees.length,
+      buildingCount: w.sceneryAudit.buildings.length,
+      treesClear: w.sceneryAudit.trees.every((a) =>
+        w.clearance.circleClear(a.x, a.z, a.radius),
+      ),
+      buildingsClear: w.sceneryAudit.buildings.every((a) =>
+        w.clearance.polygonClear(a.footprint),
+      ),
+      audioStatus: r.audio.recordingStatus,
+      recordedCar: r.audio.recordedCar,
+      audioError: r.audio.recordingError,
+      omitted: w.sceneryAudit.omittedBuildings,
+    };
+  });
+  expect(result.spawnError).toBeLessThan(0.1);
+  expect(result.heightError).toBeLessThan(0.001);
+  expect(result.marker).toBe(4937755860);
+  expect(result.treeCount).toBeGreaterThan(30);
+  expect(result.buildingCount).toBeGreaterThan(300);
+  expect(result.treesClear && result.buildingsClear).toBe(true);
+  expect(result.omitted).toBe(0);
+  expect(result.audioStatus).toBe("recorded hybrid");
+  expect(result.recordedCar).toContain("1996");
+  expect(result.audioError).toBeUndefined();
+  await page.screenshot({ path: "artifacts/monaco-mapped-start.png" });
+  await page.keyboard.press("Escape");
+  await page.locator("#exit-race").click();
+  expect(errors).toEqual([]);
+});
+
+test("modern V6 explicitly retains procedural fallback", async ({ page }) => {
+  await page.goto("/");
+  await page.locator('[data-era="3"]').click();
+  await page.locator("#start-race").click();
+  await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
+  expect(
+    await page.evaluate(() => window.__apex.race.audio.recordingStatus),
+  ).toContain("no verified recording");
+  await page.keyboard.press("Escape");
+  await page.locator("#exit-race").click();
+});
+
+test("missing recorded assets retain working procedural audio", async ({
+  page,
+}) => {
+  await page.route("**/*.pcm", (route) => route.abort());
+  await page.goto("/");
+  await page.locator('[data-era="2"]').click();
+  await page.locator("#start-race").click();
+  await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
+  const status = await page.evaluate(() => ({
+    status: window.__apex.race.audio.recordingStatus,
+    error: window.__apex.race.audio.recordingError,
+    available: window.__apex.race.audio.available,
+  }));
+  expect(status.status).toBe("procedural fallback");
+  expect(status.available).toBe(true);
+  expect(status.error).toBeTruthy();
+  await page.keyboard.press("Escape");
+  await page.locator("#exit-race").click();
+});

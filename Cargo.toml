@@ -1,6 +1,6 @@
 [package]
 name = "apex-heritage"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "Cross-platform historical single-seater racing prototype"
 license = "MIT"
