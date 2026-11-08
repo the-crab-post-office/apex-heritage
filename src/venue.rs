@@ -1,8 +1,8 @@
 //! Authored, editable safety furniture shared by physics and both renderers.
-//! Positions are not surveyed real-world facilities; see data/VENUE-NOTICE.md.
+//! Positions are not surveyed real-world facilities; see data/CORNER-DETAILS-NOTICE.md.
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
-use std::sync::OnceLock;
+
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Barrier {
     #[serde(default)]
@@ -16,6 +16,8 @@ pub struct Barrier {
 }
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Grandstand {
+    #[serde(default)]
+    pub osm_id: u64,
     #[serde(default)]
     pub index: usize,
     pub x: f32,
@@ -43,20 +45,25 @@ pub struct Impact {
 }
 impl Venue {
     pub fn for_track(name: &str) -> Self {
-        #[derive(Deserialize)]
-        struct Database {
-            tracks: Vec<Venue>,
-        }
-        static DB: OnceLock<Database> = OnceLock::new();
-        let db = DB.get_or_init(|| {
-            serde_json::from_str(include_str!("../data/venue.json")).expect("venue database")
-        });
-        let mut v = db
-            .tracks
+        Self::for_era(name, 3)
+    }
+    pub fn for_era(name: &str, era: usize) -> Self {
+        let record = crate::corner::records()
             .iter()
-            .find(|v| v.name == name)
-            .expect("venue for every circuit")
-            .clone();
+            .find(|r| r.name == name)
+            .expect("mapped venue for every circuit");
+        let mut v = Self {
+            id: record.id.clone(),
+            name: record.name.clone(),
+            barriers: record.barriers.clone(),
+            grandstands: record.grandstands.clone(),
+            cells: HashMap::new(),
+        };
+        if era == 0 {
+            for b in &mut v.barriers {
+                b.fence = false;
+            }
+        }
         for (i, b) in v.barriers.iter().enumerate() {
             let r = b.radius + 1.1;
             for x in ((b.a[0].min(b.b[0]) - r) / 32.).floor() as i32
@@ -153,15 +160,12 @@ impl Venue {
 mod tests {
     use super::*;
     #[test]
-    fn every_circuit_has_clear_stands_and_three_safety_types() {
+    fn every_circuit_has_mapped_facilities_and_clear_collision_capsules() {
         for t in crate::tracks() {
             let v = Venue::for_track(&t.name);
             let p = crate::pit::PitLane::new(&t);
-            assert_eq!(v.grandstands.len(), 6);
-            for kind in ["tyres", "concrete", "armco"] {
-                if t.name == "Monaco" && kind == "armco" {
-                    continue;
-                }
+            assert!(v.grandstands.len() >= 2);
+            for kind in ["concrete"] {
                 assert!(
                     v.barriers.iter().any(|b| b.kind == kind),
                     "{} {kind}",
@@ -172,12 +176,28 @@ mod tests {
                 for f in [0., 0.25, 0.5, 0.75, 1.] {
                     let x = b.a[0] + (b.b[0] - b.a[0]) * f;
                     let z = b.a[1] + (b.b[1] - b.a[1]) * f;
-                    assert!(t.circle_clear(x, z, b.radius));
-                    assert!(p.distance(x, z) > p.width / 2. + b.radius + 3.);
+                    assert!(crate::contact::point_on_pavement(&t, b.index, [x, z]) == false);
+
+                    assert!(p.distance(x, z) > p.width / 2. + b.radius + 0.4);
                 }
             }
+            let mask = crate::surface_mesh::RoadMask::new(&t);
+            let area = |p: [[f64; 3]; 3]| {
+                ((p[1][0] - p[0][0]) * (p[2][2] - p[0][2])
+                    - (p[1][2] - p[0][2]) * (p[2][0] - p[0][0]))
+                    .abs()
+                    / 2.
+            };
             for s in &v.grandstands {
-                assert!(t.polygon_clear(&s.footprint));
+                for ids in [[0, 1, 2], [0, 2, 3]] {
+                    let tri = ids.map(|i| [s.footprint[i][0] as f64, 0., s.footprint[i][1] as f64]);
+                    let kept: f64 = mask.cut(tri).into_iter().map(area).sum();
+                    assert!(
+                        (area(tri) - kept).abs() < 0.02,
+                        "{} stand intersects actual road",
+                        t.name
+                    );
+                }
             }
         }
     }

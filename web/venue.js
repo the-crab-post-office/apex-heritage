@@ -23,7 +23,8 @@ export function buildVenue(world) {
     roof = mat("#b7bfc0", 0.55, 0.25),
     clothes = mat("#ffffff"),
     skin = mat("#d0b591");
-  const wires = [];
+  const wires = [],
+    counts = new Map();
   function put(
     key,
     geo,
@@ -42,8 +43,13 @@ export function buildVenue(world) {
     matrix.scale.set(sx, sy, sz);
     matrix.rotation.set(pitch, yaw, 0, "YXZ");
     matrix.updateMatrix();
-    if (!batches.has(key)) batches.set(key, { geo, material, instances: [] });
-    batches.get(key).instances.push({ matrix: matrix.matrix.clone(), color });
+    counts.set(key, (counts.get(key) || 0) + 1);
+    const bucket = `${key}:${Math.floor(x / 160)},${Math.floor(z / 160)}`;
+    if (!batches.has(bucket))
+      batches.set(bucket, { geo, material, instances: [] });
+    batches
+      .get(bucket)
+      .instances.push({ matrix: matrix.matrix.clone(), color });
   }
   const n = world.track.points.length;
   const ground = (x, z, index) =>
@@ -170,8 +176,10 @@ export function buildVenue(world) {
     const cube = (key, m, x, y, z, w, h, d, color = null) =>
       put(key, box, m, ...local(x, y, z), w, h, d, s.yaw, 0, color);
     cube("stand-platforms", concrete, 0, 0.1, 0, s.width, 0.3, s.depth);
+    const cols = Math.max(4, Math.min(160, Math.floor((s.width - 1.4) / 0.82))),
+      rowDepth = Math.max(0.6, (s.depth - 1) / s.rows);
     for (let row = 0; row < s.rows; row++) {
-      const z = s.depth / 2 - 1 - row * 1.7,
+      const z = s.depth / 2 - 0.5 - (row + 0.5) * rowDepth,
         rise = 0.48 * row;
       cube(
         "tiers",
@@ -181,11 +189,11 @@ export function buildVenue(world) {
         z,
         s.width,
         rise + 0.65,
-        1.7,
+        rowDepth,
       );
-      for (let j = 0; j < 36; j++) {
-        if (j === 11 || j === 24) continue;
-        const x = -s.width / 2 + 0.7 + (j * (s.width - 1.4)) / 35;
+      for (let j = 0; j < cols; j++) {
+        if (j % 16 === 15) continue;
+        const x = -s.width / 2 + 0.7 + (j * (s.width - 1.4)) / (cols - 1);
         const color = ["#375f89", "#d8d8cf", "#a6352a", "#ddb33b"][
           (id + Math.floor(j / 9)) % 4
         ];
@@ -234,7 +242,7 @@ export function buildVenue(world) {
           steel,
           x,
           0.21 + row * 0.24,
-          s.depth / 2 - 0.55 - row * 0.85,
+          s.depth / 2 - 0.5 - (row * rowDepth) / 2,
           0.7,
           0.14,
           0.8,
@@ -319,9 +327,10 @@ export function buildVenue(world) {
   world.venueAudit = {
     barriers: data.barriers,
     grandstands: data.grandstands,
-    tyres: batches.get("tyres")?.instances.length || 0,
-    seats: batches.get("seats")?.instances.length || 0,
-    spectators: batches.get("heads")?.instances.length || 0,
-    source: "authored, not surveyed facilities",
+    tyres: counts.get("tyres") || 0,
+    seats: counts.get("seats") || 0,
+    spectators: counts.get("heads") || 0,
+    source:
+      "mapped/photo-referenced facilities; extents and historical substitutes labelled",
   };
 }

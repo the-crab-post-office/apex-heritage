@@ -63,7 +63,13 @@ export class Race {
       ...this.config,
       pit: this.pit,
       venue: JSON.parse(this.sim.venue_geometry_json()),
+      details: JSON.parse(this.sim.corner_geometry_json()),
     });
+    const note = document.getElementById("hud-layout");
+    if (note) {
+      note.textContent = this.world.config.details.label;
+      note.title = this.world.config.details.notes;
+    }
     this.keys = new Set();
     this.touch = {};
     this.audio = new EngineAudio(
@@ -389,11 +395,14 @@ export class Race {
       );
     if (this.countdown <= 0 && !this.finished) {
       const m = $("#race-message");
-      if (s.impact > 0.08) {
+      if (s.bottoming > 0.08) {
+        m.textContent = "FLOOR STRIKE · RAISED KERB";
+        m.classList.remove("countdown");
+      } else if (s.impact > 0.08) {
         m.textContent = "BARRIER IMPACT · LAP INVALID";
         m.classList.remove("countdown");
       } else if (s.offtrack) {
-        m.textContent = "OFF TRACK · EASE BACK ON";
+        m.textContent = "ALL FOUR WHEELS OFF TRACK · LAP INVALID";
         m.classList.remove("countdown");
       } else if (
         s.rear_slip > 0.3 ||

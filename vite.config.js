@@ -31,8 +31,9 @@ function buildIdentity() {
 // Keep redistributed databases editable and asset-specific licenses accessible,
 // without maintaining another checked-in copy of the same data.
 const notices = {
-  "venue.json": "data/venue.json",
-  "venue.md": "data/VENUE-NOTICE.md",
+  "corner-details.json": "data/corner-details.json",
+  "venue-osm.json": "data/venue-osm.json",
+  "corner-details.md": "data/CORNER-DETAILS-NOTICE.md",
   "pit-lanes.json": "data/pit-lanes.json",
   "pit-lanes-osm.json": "data/pit-lanes-osm.json",
   "pits.md": "data/PITS-NOTICE.md",
@@ -82,6 +83,7 @@ function licenseAssets() {
   };
 }
 export default defineConfig({
+  preview: { host: "0.0.0.0", allowedHosts: true },
   root: "web",
   plugins: [licenseAssets(), buildIdentity()],
   define: {

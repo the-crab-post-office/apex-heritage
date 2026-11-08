@@ -72,7 +72,7 @@ let config = {
 config.track = Math.min(9, Math.max(0, Number(config.track) || 0));
 config.era = Math.min(3, Math.max(0, Number(config.era) || 0));
 config.team = Math.min(3, Math.max(0, Number(config.team) || 0));
-let records = readStorage("apex-records-v6-rear-grip", []),
+let records = readStorage("apex-records-v7-wheel-limits", []),
   race = null,
   filter = "all",
   toastTimer;
@@ -125,13 +125,23 @@ function updateMachine() {
     (b) =>
       (b.onclick = () => {
         config.era = +b.dataset.era;
+        updateLayoutNote();
         config.team = 0;
         updateMachine();
         save();
       }),
   );
 }
+function updateLayoutNote() {
+  const note = document.getElementById("layout-note");
+  if (note) {
+    note.textContent = `${eras[config.era].year} SURFACE PRESET · ${config.era < 3 ? "RECENT LAYOUT SUBSTITUTE" : "RECENT MAPPED ALIGNMENT"}`;
+    note.title =
+      "Era-specific kerbs/runoff on the supported recent road. Full historic road geometry and facility extents are not reconstructed.";
+  }
+}
 function updateTrack() {
+  updateLayoutNote();
   const t = tracks[config.track];
   $("#hero-country").innerHTML =
     `<span class="flag flag-${t.code.toLowerCase()}"></span> ${cities[config.track]}, ${t.country}`;
@@ -253,6 +263,7 @@ function showGarage() {
     (b) =>
       (b.onclick = () => {
         config.era = +b.dataset.pickEra;
+        updateLayoutNote();
         config.team = 0;
         updateMachine();
         save();
@@ -283,14 +294,14 @@ function showRecords() {
     $("#clear-records").onclick = () => {
       if (confirm("Delete all locally saved lap records?")) {
         records = [];
-        store("apex-records-v6-rear-grip", records);
+        store("apex-records-v7-wheel-limits", records);
         showRecords();
       }
     };
 }
 $("#settings-button").onclick = () => {
   showDialog(
-    `<div class="dialog-kicker">THE PADDOCK / PREFERENCES</div><h2 class="dialog-heading">Set for your machine.</h2><div class="settings-row"><span>Graphics quality</span><select id="quality-select"><option value="high">High · shadows + dense scenery</option><option value="low">Performance · light scenery</option></select></div><div class="settings-row"><span>Recorded + synthesized audio</span><select id="sound-select"><option value="on">On</option><option value="off">Off</option></select></div><div class="settings-row"><span>Master volume</span><label class="volume-setting"><input id="volume-slider" type="range" min="0" max="100" step="5" aria-label="Master volume"><output id="volume-value"></output></label></div><h3 style="font-weight:400;margin:25px 0 10px">Know your controls.</h3><div class="key-grid"><div><kbd>W / ↑</kbd> Accelerate</div><div><kbd>S / ↓ / SPACE</kbd> Brake</div><div><kbd>A / D / ← / →</kbd> Steer</div><div><kbd>C</kbd> Cycle camera</div><div><kbd>R</kbd> Recover to track</div><div><kbd>ESC</kbd> Pause / resume</div></div><p class="dialog-note">Gamepad: left stick to steer, right trigger to accelerate, left trigger to brake, A to recover, Start to pause. Touch controls appear on small screens. Gear changes are automatic. Assists reduce wheelspin and lateral slip; they do not auto-steer.</p>`,
+    `<div class="dialog-kicker">THE PADDOCK / PREFERENCES</div><h2 class="dialog-heading">Set for your machine.</h2><div class="settings-row"><span>Graphics quality</span><select id="quality-select"><option value="high">High · shadows + dense scenery</option><option value="low">Performance · light scenery</option></select></div><div class="settings-row"><span>Recorded + synthesized audio</span><select id="sound-select"><option value="on">On</option><option value="off">Off</option></select></div><div class="settings-row"><span>Master volume</span><label class="volume-setting"><input id="volume-slider" type="range" min="0" max="100" step="5" aria-label="Master volume"><output id="volume-value"></output></label></div><h3 style="font-weight:400;margin:25px 0 10px">Know your controls.</h3><div class="key-grid"><div><kbd>W / ↑</kbd> Accelerate</div><div><kbd>S / ↓ / SPACE</kbd> Brake</div><div><kbd>A / D / ← / →</kbd> Steer</div><div><kbd>C</kbd> Cycle camera</div><div><kbd>R</kbd> Recover to track</div><div><kbd>ESC</kbd> Pause / resume</div></div><p class="dialog-note">Gamepad: left stick to steer, right trigger to accelerate, left trigger to brake, B to recover, Start to pause. Touch controls appear on small screens. Gear changes are automatic. Assists reduce wheelspin and lateral slip; they do not auto-steer.</p>`,
   );
   $("#volume-slider").value = Math.round((config.volume ?? 0.65) * 100);
   $("#volume-value").textContent = `${$("#volume-slider").value}%`;
@@ -312,7 +323,7 @@ $("#settings-button").onclick = () => {
 };
 $("#credits-button").onclick = () =>
   showDialog(
-    `<div class="dialog-kicker">INDEPENDENT / BUILT WITH RUST</div><h2 class="dialog-heading">Under the bodywork.</h2><div class="credits-text"><p>APEX / HERITAGE is a playable prototype, not a finished photorealistic simulator. Physics runs in Rust, compiled to WebAssembly. The browser uses Three.js for rendering; the native client uses Macroquad with the same Rust driving model.</p><ul><li>10 geographic circuit layouts from <a href="https://github.com/bacinger/f1-circuits" target="_blank" rel="noopener">Tomislav Bacinger’s F1 circuits</a> (MIT). Original coordinate data smoothed and resampled.</li><li>Building footprints © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>, <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>. Height values are mapped or explicitly estimated. <a href="/licenses/buildings.json" target="_blank" rel="noopener">Download editable footprint data</a> and <a href="/licenses/OSM.md" target="_blank" rel="noopener">database notices</a>. No random buildings. Five circuit start locations corrected from mapped markers, including Monaco.</li><li>Terrain estimates are produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved. <a href="/licenses/elevation.md" target="_blank" rel="noopener">Source, processing and licence notice</a>. Approximately 30 m surface data; tunnel/bridge corrections are estimates, not surveys.</li><li>Vegetation guide: Contains modified Copernicus Sentinel data 2025. Coarse land-cover only, not stretched onto the ground. High-detail surface maps from ambientCG (CC0), with original facade composites; <a href="/licenses/materials.md" target="_blank" rel="noopener">material source/licence</a>. Mapped current pit lanes: <a href="/licenses/pits.md" target="_blank" rel="noopener">OSM source/processing</a>. <a href="/licenses/imagery.md" target="_blank" rel="noopener">Imagery source/licence</a> and <a href="/licenses/imagery.json" target="_blank" rel="noopener">editable scene manifest</a>. Photo references: <a href="https://www.circuitsofthepast.com/eau-rouge-or-raidillon/" target="_blank" rel="noopener">Spa Eau Rouge / Raidillon</a> and circuit photography linked in SOURCES.md. Trackside references inform approximate scenery; only the separately credited Sentinel-2 satellite crops are redistributed.</li><li>Menu artwork is AI-generated concept art, not an in-game screenshot. Cars and facade patterns are original procedural assets; detailed base materials are ambientCG CC0; buildings and pit routes use mapped OSM data.</li><li>Recorded engine layers: <a href="https://commons.wikimedia.org/wiki/File:Lotus-BRM_24_(1962).ogg" target="_blank" rel="noopener">Lotus-BRM 24 (1962)</a>, <a href="https://commons.wikimedia.org/wiki/File:Toleman-Hart_TG183B_(1983).ogg" target="_blank" rel="noopener">Toleman-Hart TG183B (1983)</a> and <a href="https://commons.wikimedia.org/wiki/File:Williams-Renault_FW18_(1996).ogg" target="_blank" rel="noopener">Williams-Renault FW18 (1996)</a> by Edvvc (Ed Pond), <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>. Harmonic timbres extracted from short real-recording windows, phase-locked to RPM; blended with original synthesis. Trackside references, not exact roster cars; 2023 remains procedural.</li><li>Team names identify historically inspired cars. No official logos or licensed car meshes. All team performance values are illustrative gameplay tuning.</li></ul><p>Prototype limitations: filtered surface-model elevation (not road surveys), simplified tyre wear/fuel and assisted mapped current pit lanes with estimated widths/heights/service boxes, no damage, DRS, ERS management or multiplayer. AI follows the circuit and is non-colliding. Native graphics are simpler than the web renderer.</p><p>Git feature branches: <code>feature/circuit-library</code>, <code>feature/rust-dynamics</code>, <code>feature/web-experience</code>. See README.md for build commands and controls.</p></div>`,
+    `<div class="dialog-kicker">INDEPENDENT / BUILT WITH RUST</div><h2 class="dialog-heading">Under the bodywork.</h2><div class="credits-text"><p>APEX / HERITAGE is a playable prototype, not a finished photorealistic simulator. Physics runs in Rust, compiled to WebAssembly. The browser uses Three.js for rendering; the native client uses Macroquad with the same Rust driving model.</p><ul><li>10 geographic circuit layouts from <a href="https://github.com/bacinger/f1-circuits" target="_blank" rel="noopener">Tomislav Bacinger’s F1 circuits</a> (MIT). Original coordinate data smoothed and resampled.</li><li>Building footprints © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>, <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>. Height values are mapped or explicitly estimated. <a href="/licenses/buildings.json" target="_blank" rel="noopener">Download editable footprint data</a> and <a href="/licenses/OSM.md" target="_blank" rel="noopener">database notices</a>. No random buildings. Five circuit start locations corrected from mapped markers, including Monaco.</li><li>Terrain estimates are produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved. <a href="/licenses/elevation.md" target="_blank" rel="noopener">Source, processing and licence notice</a>. Approximately 30 m surface data; tunnel/bridge corrections are estimates, not surveys.</li><li>Vegetation guide: Contains modified Copernicus Sentinel data 2025. Coarse land-cover only, not stretched onto the ground. High-detail surface maps from ambientCG (CC0), with original facade composites; <a href="/licenses/materials.md" target="_blank" rel="noopener">material source/licence</a>. Mapped current pit lanes: <a href="/licenses/pits.md" target="_blank" rel="noopener">OSM source/processing</a>. <a href="/licenses/imagery.md" target="_blank" rel="noopener">Imagery source/licence</a> and <a href="/licenses/imagery.json" target="_blank" rel="noopener">editable scene manifest</a>. Photo references: <a href="https://www.circuitsofthepast.com/eau-rouge-or-raidillon/" target="_blank" rel="noopener">Spa Eau Rouge / Raidillon</a> and circuit photography linked in SOURCES.md. Trackside references inform approximate scenery; only the separately credited Sentinel-2 satellite crops are redistributed.</li><li>Corner surfaces and trackside facilities: © OpenStreetMap contributors, ODbL 1.0; <a href="/licenses/venue-osm.json" target="_blank" rel="noopener">retained feature snapshot</a>, <a href="/licenses/corner-details.json" target="_blank" rel="noopener">editable corner database</a> and <a href="/licenses/corner-details.md" target="_blank" rel="noopener">photo references and limitations</a>. Stand extents, kerb dimensions and runoff boundaries are approximate. Historical road reconstructions remain unfinished: the older selections use labelled recent-layout substitutes, not authentic historic roads.</li><li>Menu artwork is AI-generated concept art, not an in-game screenshot. Cars and facade patterns are original procedural assets; detailed base materials are ambientCG CC0; buildings and pit routes use mapped OSM data.</li><li>Recorded engine layers: <a href="https://commons.wikimedia.org/wiki/File:Lotus-BRM_24_(1962).ogg" target="_blank" rel="noopener">Lotus-BRM 24 (1962)</a>, <a href="https://commons.wikimedia.org/wiki/File:Toleman-Hart_TG183B_(1983).ogg" target="_blank" rel="noopener">Toleman-Hart TG183B (1983)</a> and <a href="https://commons.wikimedia.org/wiki/File:Williams-Renault_FW18_(1996).ogg" target="_blank" rel="noopener">Williams-Renault FW18 (1996)</a> by Edvvc (Ed Pond), <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>. Harmonic timbres extracted from short real-recording windows, phase-locked to RPM; blended with original synthesis. Trackside references, not exact roster cars; 2023 remains procedural.</li><li>Team names identify historically inspired cars. No official logos or licensed car meshes. All team performance values are illustrative gameplay tuning.</li></ul><p>Prototype limitations: filtered surface-model elevation (not road surveys), simplified tyre wear/fuel and assisted mapped current pit lanes with estimated widths/heights/service boxes, no damage, DRS, ERS management or multiplayer. AI follows the circuit and is non-colliding. Native graphics are simpler than the web renderer.</p><p>Git feature branches: <code>feature/circuit-library</code>, <code>feature/rust-dynamics</code>, <code>feature/web-experience</code>. See README.md for build commands and controls.</p></div>`,
   );
 let starting = false;
 async function startRace() {
@@ -371,7 +382,7 @@ function saveRecord(best) {
   if (!old || best < old.best) {
     if (old) old.best = best;
     else records.push({ ...config, best });
-    store("apex-records-v6-rear-grip", records);
+    store("apex-records-v7-wheel-limits", records);
   }
 }
 function exitRace() {

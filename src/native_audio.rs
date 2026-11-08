@@ -29,6 +29,7 @@ struct Params {
     boost: AtomicU32,
     speed: AtomicU32,
     slip: AtomicU32,
+    bottoming: AtomicU32,
     era: AtomicU32,
     gain: AtomicU32,
     gear: AtomicU32,
@@ -49,6 +50,7 @@ struct EngineTone {
     target_gain: f32,
     boost: f32,
     slip: f32,
+    bottoming: f32,
     speed: f32,
     filter: f32,
     seed: u32,
@@ -94,6 +96,7 @@ impl EngineTone {
             target_gain: 0.,
             boost: 0.,
             slip: 0.,
+            bottoming: 0.,
             speed: 0.,
             filter: 0.,
             seed: 71831,
@@ -139,6 +142,7 @@ impl EngineTone {
         let turbo = (TAU * self.whine).sin() * [0., 0.043, 0., 0.024][self.era] * self.boost * load;
         let texture = (noise - self.filter) * (0.007 + 0.017 * load)
             + self.filter * self.slip * self.slip * 0.11
+            + (noise - self.filter) * self.bottoming * (self.speed / 12.).min(1.) * 0.16
             + self.filter * (self.speed / 100.).min(1.).powi(2) * 0.035;
         let recorded = self
             .recording
@@ -195,6 +199,7 @@ impl NativeAudio {
         p.boost.store(s.boost.to_bits(), Relaxed);
         p.speed.store(s.speed.to_bits(), Relaxed);
         p.slip.store(s.slip.to_bits(), Relaxed);
+        p.bottoming.store(s.bottoming.to_bits(), Relaxed);
         p.era.store(era as u32, Relaxed);
         p.gear.store(s.gear, Relaxed);
         p.cut.store(s.shift_cut.to_bits(), Relaxed);
@@ -222,6 +227,7 @@ fn build<T: cpal::SizedSample + cpal::FromSample<f32>>(
             tone.target_gain = f32::from_bits(params.gain.load(Relaxed));
             tone.boost = f32::from_bits(params.boost.load(Relaxed));
             tone.slip = f32::from_bits(params.slip.load(Relaxed));
+            tone.bottoming = f32::from_bits(params.bottoming.load(Relaxed)).clamp(0., 1.);
             tone.speed = f32::from_bits(params.speed.load(Relaxed));
             tone.target_cut = f32::from_bits(params.cut.load(Relaxed)).clamp(0., 1.);
             let gear = params.gear.load(Relaxed);

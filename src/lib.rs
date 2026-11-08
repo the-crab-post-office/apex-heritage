@@ -1,8 +1,10 @@
 //! Shared deterministic-ish, fixed-step single-seater driving model.
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+pub mod contact;
 #[cfg(feature = "native")]
 pub mod controller;
+pub mod corner;
 mod dynamics;
 pub mod elevation;
 #[cfg(feature = "native")]
@@ -179,6 +181,18 @@ pub struct State {
     pub impact: f32,
     pub rear_slip: f32,
     pub travel_yaw: f32,
+    pub wheels_on_track: u8,
+    pub wheel_heights: [f32; 4],
+    pub surface_grip: f32,
+    pub surface_kind: u8,
+    pub heave: f32,
+    pub heave_velocity: f32,
+    pub body_roll: f32,
+    pub kerb_pitch: f32,
+    pub ride_height: f32,
+    pub kerb_hit: f32,
+    pub bottoming: f32,
+    pub floor_strike: bool,
 }
 #[wasm_bindgen]
 pub struct Simulation {
@@ -196,6 +210,7 @@ pub struct Simulation {
     pit: pit::PitLane,
     venue: venue::Venue,
     rear_memory: dynamics::RearMemory,
+    details: corner::Details,
 }
 #[wasm_bindgen]
 impl Simulation {
@@ -204,9 +219,11 @@ impl Simulation {
         let ts = tracks();
         let track = ts[track_index.min(ts.len() - 1)].clone();
         let pit = pit::PitLane::new(&track);
-        let venue = venue::Venue::for_track(&track.name);
+        let venue = venue::Venue::for_era(&track.name, era);
+        let details = corner::Details::new(&track, era);
         let mut s = Self {
             venue,
+            details,
             rear_memory: dynamics::RearMemory::default(),
             pit,
             track,
@@ -242,6 +259,10 @@ impl Simulation {
             lap: 1,
             fuel: 1.,
             tyre_condition: 1.,
+            surface_grip: 1.,
+            wheels_on_track: 4,
+            ride_height: corner::ride_height(self.era),
+            wheel_heights: [road.height + 0.05; 4],
             ..State::default()
         };
         self.nearest = 0;
@@ -268,6 +289,9 @@ impl Simulation {
         self.state.pit_limiter = !self.state.pit_limiter;
         self.state.pit_limiter
     }
+    pub fn corner_geometry_json(&self) -> String {
+        serde_json::to_string(&self.details).unwrap()
+    }
     pub fn venue_geometry_json(&self) -> String {
         serde_json::to_string(&self.venue).unwrap()
     }
@@ -289,6 +313,15 @@ impl Simulation {
         self.state.slip = 0.;
         self.state.steering = 0.;
         self.state.impact = 0.;
+        self.state.heave = 0.;
+        self.state.heave_velocity = 0.;
+        self.state.body_roll = 0.;
+        self.state.kerb_pitch = 0.;
+        self.state.bottoming = 0.;
+        self.state.floor_strike = false;
+        self.state.kerb_hit = 0.;
+        self.state.surface_grip = 1.;
+        self.state.wheels_on_track = 4;
         self.rear_memory = dynamics::RearMemory::default();
         self.state.speed = 0.;
         self.state.lateral = 0.;
@@ -331,6 +364,20 @@ impl Simulation {
             self.step_pit(throttle, brake, dt);
             return;
         }
+        corner::update_contact(
+            &self.track,
+            &self.details,
+            &mut self.state,
+            self.nearest,
+            self.era,
+            0.,
+        );
+        if self.state.pit_phase > 0
+            && self.pit.distance(self.state.x, self.state.z) < self.pit.width / 2. + 1.
+        {
+            self.state.surface_grip = 1.;
+            self.state.surface_kind = 0;
+        }
         let s = &mut self.state;
         let old_position = [s.x, s.z];
         s.impact = (s.impact - dt * 1.5).max(0.);
@@ -348,11 +395,11 @@ impl Simulation {
         let response = if classic { 5.5 } else { 8. };
         s.steering += (steer - s.steering) * (1. - (-dt * response).exp());
         let wet_factor = if self.wet { 0.70 } else { 1. };
-        let terrain = if s.offtrack { 0.48 } else { 1. };
+        let terrain = s.surface_grip;
         let grip = spec.grip * (0.8 + 0.2 * s.tyre_condition) * 9.81 / (1. + grade * grade).sqrt()
             * wet_factor
             * terrain
-            + spec.aero * s.speed * s.speed / spec.mass * wet_factor;
+            + spec.aero * s.speed * s.speed / spec.mass * wet_factor * (1. - s.bottoming * 0.25);
         let target_boost = if throttle > 0.4 { 1. } else { 0. };
         s.boost += (target_boost - s.boost) * (dt / (spec.lag + 0.06)).min(1.);
         let power = spec.power
@@ -377,7 +424,13 @@ impl Simulation {
         };
         let resistance = spec.drag * s.speed * s.speed / spec.mass
             + 0.30
-            + if s.offtrack { s.speed * 0.12 } else { 0. };
+            + if s.surface_kind == 2 {
+                s.speed * 0.22
+            } else if s.offtrack {
+                s.speed * 0.08
+            } else {
+                0.
+            };
         s.speed = (s.speed
             + (acceleration
                 - brake * spec.brake.min(grip * 1.5) * combined
@@ -440,16 +493,15 @@ impl Simulation {
             }
         }
         self.nearest = idx;
-        s.offtrack = best.sqrt() > self.track.width * 0.5;
-        if best.sqrt() > self.track.width * 0.5 + 5. {
+        corner::update_contact(&self.track, &self.details, s, idx, self.era, dt);
+        if s.offtrack {
             s.invalid = true;
         }
         let road = self.track.surface_at(s.x, s.z, idx, s.yaw);
         s.progress = road.progress;
         let driving = self.track.driving_surface(s.x, s.z, idx, s.yaw);
-        s.y = driving.height + 0.1;
         s.grade = driving.grade;
-        s.pitch = -driving.grade.atan();
+        s.pitch = -driving.grade.atan() + s.kerb_pitch;
         s.fuel = (s.fuel - dt * (0.00015 + throttle * 0.0004)).max(0.);
         s.tyre_condition = (s.tyre_condition - dt * (0.00022 + s.slip * 0.0008)).max(0.);
         self.advance_lap(idx, old);
@@ -503,6 +555,16 @@ impl Simulation {
         s.lap_time = s.elapsed - self.lap_start;
         s.invalid = true;
         s.offtrack = false;
+        s.wheels_on_track = 4;
+        s.surface_grip = 1.;
+        s.surface_kind = 0;
+        s.heave = 0.;
+        s.heave_velocity = 0.;
+        s.body_roll = 0.;
+        s.kerb_pitch = 0.;
+        s.bottoming = 0.;
+        s.floor_strike = false;
+        s.kerb_hit = 0.;
         s.slip = 0.;
         s.rear_slip = 0.;
         s.impact = 0.;
@@ -553,6 +615,7 @@ impl Simulation {
         let (p, yaw, grade, idx) = self.pit.sample(s.pit_distance, self.track.points.len());
         s.x = p[0];
         s.y = p[1] + 0.1;
+        s.wheel_heights = [p[1] + 0.05; 4];
         s.z = p[2];
         s.yaw = yaw;
         s.travel_yaw = yaw;
@@ -833,5 +896,43 @@ mod tests {
         }
         assert!(early < 0.1);
         assert!(s.state.boost > 0.8);
+    }
+    #[test]
+    fn simulation_only_invalidates_when_all_four_patches_leave_the_track() {
+        let mut sim = Simulation::new(0, 2, 0, false, true);
+        sim.track = Track {
+            name: "straight test".into(),
+            ground_heights: vec![0.; 7],
+            length: 600.,
+            width: 10.,
+            points: vec![
+                [100000., 99900.],
+                [100000., 99950.],
+                [100000., 100000.],
+                [100000., 100050.],
+                [100000., 100100.],
+                [100100., 100100.],
+                [100100., 99900.],
+            ],
+            heights: vec![0.; 7],
+            terrain: None,
+        };
+        sim.nearest = 2;
+        sim.state.x = 100005.;
+        sim.state.z = 100000.;
+        sim.state.yaw = 0.;
+        sim.state.travel_yaw = 0.;
+        sim.state.speed = 0.;
+        sim.state.invalid = false;
+        sim.step(1. / 120., 0., 0., 0.);
+        assert_eq!(sim.state.wheels_on_track, 2);
+        assert!(!sim.state.offtrack);
+        assert!(!sim.state.invalid);
+        assert!(sim.state.surface_grip < 0.95);
+        sim.state.x = 100007.;
+        sim.step(1. / 120., 0., 0., 0.);
+        assert_eq!(sim.state.wheels_on_track, 0);
+        assert!(sim.state.offtrack);
+        assert!(sim.state.invalid);
     }
 }

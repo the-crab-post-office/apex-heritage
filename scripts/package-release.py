@@ -56,6 +56,7 @@ info = (f'APEX / HERITAGE {version}\nCommit: {run("git", "rev-parse", "HEAD")}\n
 common = {name: Path(name).read_bytes() for name in ['README.md', 'SOURCES.md', 'TESTING.md', 'LICENSE']}
 common.update(licenses)
 common['BUILD-INFO.txt'] = info
+common['PREVIEW-SCOPE.txt'] = (Path('data/CORNER-DETAILS-NOTICE.md').read_bytes())
 source = {p: Path(p).read_bytes() for p in run('git', 'ls-files').splitlines() if Path(p).is_file()}
 source.update(common)
 source['GIT-REFS.txt'] = (run('git', 'for-each-ref', '--format=%(refname:short) %(objectname)', 'refs/heads', 'refs/tags') + '\n').encode()
@@ -85,12 +86,13 @@ native['START-HERE.txt'] = (f'APEX / HERITAGE {version} — Linux x86_64\n'
     'Driving: WASD/arrows or LS+RT/LT. R/B recover; P/X request pits; L/Y limiter; C/RB camera.\n'
     'O stages pit-entry practice; Escape/Start pauses; M/View returns to setup; V toggles sound.\n'
     'Native is simpler free-drive; web has additional scenery detail, races and setup UI.\n').encode()
-Path('releases').mkdir(exist_ok=True)
+release_dir=Path('releases') / version
+release_dir.mkdir(parents=True,exist_ok=True)
 outputs = [('source', 'apex-heritage-source', source), ('web', 'apex-heritage-web', web),
            ('native-linux', 'apex-heritage-linux', native)]
 sums = []
 for suffix, folder, files in outputs:
-    target = Path('releases') / f'APEX-Heritage-{suffix}.zip'
+    target = release_dir / f'APEX-Heritage-{suffix}.zip'
     temporary = target.with_suffix('.zip.tmp')
     with zipfile.ZipFile(temporary, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for name, content in sorted(files.items()):
@@ -103,4 +105,4 @@ for suffix, folder, files in outputs:
         assert archive.testzip() is None
     sums.append(hashlib.sha256(target.read_bytes()).hexdigest() + '  ' + target.name)
     print(f'{target}: {target.stat().st_size / 1024 / 1024:.2f} MiB, {len(files)} files')
-Path('releases/SHA256SUMS.txt').write_text('\n'.join(sums) + '\n')
+(release_dir / 'SHA256SUMS.txt').write_text('\n'.join(sums) + '\n')

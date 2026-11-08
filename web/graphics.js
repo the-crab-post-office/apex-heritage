@@ -1,5 +1,10 @@
 import imageryManifest from "../data/imagery.json";
 import { imageryFor, forestAt } from "./imagery.js";
+import {
+  CornerIndex,
+  buildCornerSurfaces,
+  updateFloorSparks,
+} from "./corners.js";
 import { buildVenue } from "./venue.js";
 import { SurfaceLibrary } from "./materials.js";
 import { RoadMask, ribbon, roadPoint } from "./road-surface.js";
@@ -432,6 +437,9 @@ export function makeCar(era = 2, color = "#e53c2f") {
     diffuser: !classic,
   };
 
+  const floorOffset = [0.105, 0.065, 0.045, 0.04][era] - 0.195;
+  for (const child of car.children)
+    if (!wheels.some((w) => w.mesh === child)) child.position.y += floorOffset;
   mergeBody(car);
   car.userData.detail.paintedVertices = car.children
     .filter((m) => m.material === paint)
@@ -552,7 +560,9 @@ export class World {
     this.sceneryAudit = { trees: [], buildings: [], omittedBuildings: 0 };
     this.buildMappedBuildings();
     this.surfaceOverlays = [];
+    this.cornerIndex = new CornerIndex(config.details?.facets || []);
     this.buildTrack();
+    buildCornerSurfaces(this);
     this.buildPits();
     this.buildScenery();
     this.buildLandmarks();
@@ -741,11 +751,7 @@ export class World {
             ? this.pitMask.cutAll(roadMask.cutAll(triangles))
             : roadMask.cutAll(triangles),
           this.surfaces.pbr(
-            this.track.code === "MC"
-              ? "Concrete023"
-              : a === w
-                ? "Gravel001"
-                : "Grass004",
+            this.track.code === "MC" ? "Concrete023" : "Grass004",
             "#e0e0ce",
             0.3,
           ),
@@ -754,78 +760,7 @@ export class World {
         this.surfaceOverlays.push(layer);
       }
     }
-    // Alternating red and cream curbs, continuous guardrails and fence poles.
-    const curbMat = [
-      material("#ffffff", 0.85, 0.05),
-      material("#e2d7b3", 0.9, 0.02),
-    ];
-    const railMat = material("#8d9991", 0.48, 0.7);
-    const matrix = new THREE.Object3D();
-    const n = this.track.points.length;
-    const rails = new THREE.InstancedMesh(boxGeo, railMat, n * 2),
-      curbs = new THREE.InstancedMesh(boxGeo, curbMat[0], n * 2);
-    const c = new THREE.Color();
-    let ri = 0,
-      ci = 0;
-    for (let i = 0; i < n; i++) {
-      const enclosed =
-        covered && i >= covered.start_index && i < covered.end_index;
-      let a = this.track.points[i],
-        b = this.track.points[(i + 1) % n];
-      let dx = b[0] - a[0],
-        dz = b[1] - a[1],
-        len = Math.hypot(dx, dz),
-        rx = dz / len,
-        rz = -dx / len;
-      for (let side of [-1, 1]) {
-        let cx = (a[0] + b[0]) / 2 + rx * side * (w + 0.42),
-          cz = (a[1] + b[1]) / 2 + rz * side * (w + 0.42);
-        matrix.position.set(
-          cx,
-          this.roadHeight(cx, cz, (i + 0.5) / n) + 0.08,
-          cz,
-        );
-        matrix.rotation.set(
-          -Math.atan(
-            (this.track.heights[(i + 1) % n] - this.track.heights[i]) / len,
-          ),
-          Math.atan2(dx, dz),
-          0,
-          "YXZ",
-        );
-        matrix.scale.set(0.8, 0.1, len + 0.1);
-        matrix.updateMatrix();
-        if (
-          !enclosed &&
-          (!this.pitClearance || this.pitClearance.circleClear(cx, cz, 0))
-        ) {
-          curbs.setMatrixAt(ci, matrix.matrix);
-          c.set(
-            i % 2
-              ? this.track.code === "BE"
-                ? "#e5c143"
-                : "#ded8bd"
-              : "#b94330",
-          );
-          curbs.setColorAt(ci++, c);
-        }
-        let x = cx + rx * side * 5,
-          z = cz + rz * side * 5;
-        matrix.position.set(x, this.roadHeight(x, z, (i + 0.5) / n) + 0.8, z);
-        matrix.scale.set(0.12, 0.64, len + 0.05);
-        matrix.updateMatrix();
-        if (
-          !enclosed &&
-          (!this.pitClearance || this.pitClearance.circleClear(x, z, 0))
-        )
-          rails.setMatrixAt(ri++, matrix.matrix);
-      }
-    }
-    rails.count = this.config.venue ? 0 : ri;
-    curbs.count = ci;
-    rails.castShadow = true;
-    curbs.receiveShadow = true;
-    this.scene.add(rails, curbs);
+    // Kerb/race-safety placement comes exclusively from shared corner/venue data.
     // Start line and a pit wall near the map's starting point.
     const start = this.sample(0);
     const lineGroup = new THREE.Group();
@@ -970,7 +905,11 @@ export class World {
   buildMappedBuildings() {
     const layer = mappedScenery.tracks.find((t) => t.id === this.track.id);
     this.mappedBuildings = (layer?.buildings || []).filter((b) => {
+      const replaced = this.config.venue?.grandstands.some(
+        (s) => s.osm_id && s.osm_id === b.osm_id,
+      );
       const safe =
+        !replaced &&
         this.clearance.polygonClear(b.footprint) &&
         (!this.pitClearance || this.pitClearance.polygonClear(b.footprint));
       if (!safe) this.sceneryAudit.omittedBuildings++;
@@ -1011,6 +950,7 @@ export class World {
     this.scene.add(group);
   }
   nearBuilding(x, z, radius) {
+    if (this.cornerIndex?.at(x, z)) return true;
     if (
       this.config.venue?.grandstands.some(
         (s) =>
@@ -1437,7 +1377,8 @@ export class World {
     p.rotation.set(
       pitch,
       state.yaw,
-      -state.steering * Math.min(state.speed / 50, 0.8) * 0.035,
+      (state.body_roll || 0) -
+        state.steering * Math.min(state.speed / 50, 0.8) * 0.035,
       "YXZ",
     );
     const f = new THREE.Vector3(
@@ -1445,7 +1386,20 @@ export class World {
       -Math.sin(pitch),
       Math.cos(state.yaw) * Math.cos(pitch),
     );
-    for (const w of p.userData.wheels) {
+    p.updateMatrix();
+    const pose = p.matrix.elements;
+    updateFloorSparks(this, state, performance.now() / 1000);
+    for (const [wi, w] of p.userData.wheels.entries()) {
+      if (state.wheel_heights) {
+        const radius = [0.34, 0.35, 0.35, 0.38][this.config.era];
+        w.mesh.position.y =
+          (state.wheel_heights[wi] +
+            radius -
+            state.y -
+            pose[1] * w.mesh.position.x -
+            pose[9] * w.mesh.position.z) /
+          pose[5];
+      }
       w.mesh.rotation.x += (state.speed * dt) / 0.35;
       if (w.front) w.mesh.rotation.y = state.steering * 0.22;
     }

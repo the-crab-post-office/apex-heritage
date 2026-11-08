@@ -11,6 +11,7 @@ export class Simulation {
   pit_geometry_json(): string;
   start_pit_practice(): void;
   venue_geometry_json(): string;
+  corner_geometry_json(): string;
   constructor(track_index: number, era: number, team: number, wet: boolean, assists: boolean);
   step(throttle: number, brake: number, steer: number, dt: number): void;
   reset(): void;
@@ -24,6 +25,7 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_simulation_free: (a: number, b: number) => void;
   readonly build_version: () => [number, number];
+  readonly simulation_corner_geometry_json: (a: number) => [number, number];
   readonly simulation_new: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly simulation_pit_geometry_json: (a: number) => [number, number];
   readonly simulation_recover: (a: number) => void;

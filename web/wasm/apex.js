@@ -141,6 +141,21 @@ export class Simulation {
         }
     }
     /**
+     * @returns {string}
+     */
+    corner_geometry_json() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.simulation_corner_geometry_json(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
      * @param {number} track_index
      * @param {number} era
      * @param {number} team

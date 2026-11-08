@@ -173,6 +173,8 @@ pub fn build(t: &Track, v: &Venue) -> Vec<Mesh> {
         }
     }
     for (id, s) in v.grandstands.iter().enumerate() {
+        let cols = (((s.width - 1.4) / 0.82) as usize).clamp(4, 160);
+        let row_depth = ((s.depth - 1.) / s.rows as f32).max(0.6);
         let floor = s
             .footprint
             .iter()
@@ -183,17 +185,17 @@ pub fn build(t: &Track, v: &Venue) -> Vec<Mesh> {
         b.cube(frame, vec3(s.width, 0.3, s.depth), cement);
         for row in 0..s.rows {
             let rise = row as f32 * 0.48;
-            let z = s.depth / 2. - 1. - row as f32 * 1.7;
+            let z = s.depth / 2. - 0.5 - (row as f32 + 0.5) * row_depth;
             b.cube(
                 frame * Mat4::from_translation(vec3(0., (rise + 0.65) / 2., z)),
-                vec3(s.width, rise + 0.65, 1.7),
+                vec3(s.width, rise + 0.65, row_depth),
                 cement,
             );
-            for j in 0..36 {
-                if j == 11 || j == 24 {
+            for j in 0..cols {
+                if j % 16 == 15 {
                     continue;
                 }
-                let x = -s.width / 2. + 0.7 + j as f32 * (s.width - 1.4) / 35.;
+                let x = -s.width / 2. + 0.7 + j as f32 * (s.width - 1.4) / (cols - 1) as f32;
                 let color = [BLUE, LIGHTGRAY, MAROON, YELLOW][(id + j / 9) % 4];
                 let m = frame * Mat4::from_translation(vec3(x, rise + 0.8, z));
                 b.cube(m, vec3(0.65, 0.12, 0.56), color);
@@ -254,6 +256,27 @@ pub fn draw(meshes: &[Mesh]) {
 mod tests {
     use super::*;
     #[test]
+    fn native_corner_batches_use_every_exact_shared_contact_triangle() {
+        let t = &apex_heritage::tracks()[2];
+        for era in [0, 3] {
+            let d = apex_heritage::corner::Details::new(t, era);
+            let m = corners(&d);
+            assert_eq!(
+                m.iter().map(|m| m.vertices.len()).sum::<usize>(),
+                d.facets.len() * 3
+            );
+            let p: Vec<_> = m
+                .iter()
+                .flat_map(|m| m.vertices.iter().map(|v| v.position))
+                .collect();
+            for (i, f) in d.facets.iter().enumerate() {
+                for j in 0..3 {
+                    assert_eq!(p[i * 3 + j], vec3(f.p[j][0], f.p[j][1], f.p[j][2]));
+                }
+            }
+        }
+    }
+    #[test]
     fn all_native_venue_batches_fit_and_are_finite() {
         for t in apex_heritage::tracks() {
             let v = Venue::for_track(&t.name);
@@ -266,4 +289,21 @@ mod tests {
             }
         }
     }
+}
+
+/// The exact same raised, clipped triangles used by tyre/floor contact and WebGL.
+pub fn corners(details: &apex_heritage::corner::Details) -> Vec<Mesh> {
+    let mut b = Builder::default();
+    for f in &details.facets {
+        let c = f.color;
+        let color = Color::new(
+            ((c >> 16) & 255) as f32 / 255.,
+            ((c >> 8) & 255) as f32 / 255.,
+            (c & 255) as f32 / 255.,
+            1.,
+        );
+        b.triangle(f.p.map(|p| vec3(p[0], p[1], p[2])), color);
+    }
+    b.flush();
+    b.meshes
 }

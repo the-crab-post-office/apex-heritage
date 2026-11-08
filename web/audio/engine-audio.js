@@ -131,6 +131,7 @@ export class EngineAudio {
         boost: state.boost,
         speed: state.speed,
         slip: state.slip,
+        bottoming: state.bottoming || 0,
         gain: 1,
         pan: 0,
         camera: cameraMode,

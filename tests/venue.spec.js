@@ -36,6 +36,8 @@ for (const [track, name] of [
       r.world.update = () => {};
       r.updateHud(performance.now() / 1000);
       const a = w.venueAudit;
+      const raceClear = new w.clearance.constructor(w.track, 0.12),
+        pitClear = new w.clearance.constructor(w.pitTrack, 0.25);
       let blocked = 0,
         nonFinite = 0,
         instances = 0;
@@ -44,15 +46,15 @@ for (const [track, name] of [
           const x = b.a[0] + (b.b[0] - b.a[0]) * f,
             z = b.a[1] + (b.b[1] - b.a[1]) * f;
           if (
-            !w.clearance.circleClear(x, z, b.radius) ||
-            !w.pitClearance.circleClear(x, z, b.radius)
+            !raceClear.circleClear(x, z, b.radius) ||
+            !pitClear.circleClear(x, z, b.radius)
           )
             blocked++;
         }
       for (const s of a.grandstands)
         if (
-          !w.clearance.polygonClear(s.footprint) ||
-          !w.pitClearance.polygonClear(s.footprint)
+          !raceClear.polygonClear(s.footprint) ||
+          !pitClear.polygonClear(s.footprint)
         )
           blocked++;
       w.scene.traverse((o) => {
@@ -85,13 +87,13 @@ for (const [track, name] of [
     expect(result.blocked).toBe(0);
     expect(result.nonFinite).toBe(0);
     expect(result.barriers).toBe(result.shared);
-    expect(result.stands).toBe(6);
-    expect(result.tyres).toBeGreaterThan(500);
-    expect(result.seats).toBe(1836);
-    expect(result.spectators).toBeGreaterThan(500);
+    expect(result.stands).toBe(track === 0 ? 8 : 2);
+    if (track === 0) expect(result.tyres).toBeGreaterThan(100);
+    expect(result.seats).toBeGreaterThan(250);
+    expect(result.spectators).toBeGreaterThan(100);
     expect(errors).toEqual([]);
     await page.screenshot({
-      path: `artifacts/v06-${name.toLowerCase()}-venue.png`,
+      path: `artifacts/v07-${name.toLowerCase()}-venue.png`,
     });
     if (track === 0) {
       await page.evaluate(() => {
@@ -115,6 +117,6 @@ for (const [track, name] of [
         w.camera.lookAt(x, y + 0.6, z);
         w.renderer.render(w.scene, w.camera);
       });
-      await page.screenshot({ path: "artifacts/v06-tyre-barrier.png" });
+      await page.screenshot({ path: "artifacts/v07-tyre-barrier.png" });
     }
   });

@@ -194,3 +194,12 @@ for (let era = 0; era < 3; era++)
       );
     }
   });
+
+test("floor-strike scrape is audible only when the car is moving", () => {
+  const dry = render(2, 12000, 1, { bottoming: 0 }),
+    scrape = render(2, 12000, 1, { bottoming: 1 });
+  assert.ok(rms(scrape.left.map((v, i) => v - dry.left[i])) > 0.005);
+  const stationary = render(2, 12000, 1, { speed: 0, bottoming: 0 }),
+    still = render(2, 12000, 1, { speed: 0, bottoming: 1 });
+  assert.deepEqual(stationary.left, still.left);
+});

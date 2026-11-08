@@ -115,6 +115,7 @@ class Voice {
     this.lift = 0;
     this.speed = 0;
     this.slip = 0;
+    this.bottoming = 0;
     this.targetSlip = 0;
     this.camera = 0;
     this.smoothing = 1 - Math.exp(-1 / (sr * 0.032));
@@ -141,6 +142,7 @@ class Voice {
     this.targetBoost = clamp(Number(t.boost) || 0, 0, 1);
     this.speed = Math.max(0, Number(t.speed) || 0);
     this.targetSlip = clamp(Number(t.slip) || 0, 0, 1);
+    this.bottoming = clamp(Number(t.bottoming) || 0, 0, 1);
     this.camera = t.camera || 0;
   }
   sample() {
@@ -216,6 +218,10 @@ class Voice {
     if (this.id === 0) {
       sample +=
         this.noiseLP * this.slip * this.slip * 0.11 +
+        (noise - this.noiseLP) *
+          this.bottoming *
+          Math.min(1, this.speed / 12) *
+          0.16 +
         this.windLP * Math.min(1, this.speed / 100) ** 2 * 0.14;
     }
     // Cockpit softens high frequency exhaust, while the chase view stays brighter.

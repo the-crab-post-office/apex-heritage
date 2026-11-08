@@ -60,11 +60,30 @@ fn loft(sections: &[[f32; 5]], color: Color) {
         texture: None,
     });
 }
-fn car(p: Vec3, yaw: f32, pitch: f32, color: Color, era: usize) {
+fn car(
+    p: Vec3,
+    yaw: f32,
+    pitch: f32,
+    roll: f32,
+    wheel_heights: [f32; 4],
+    color: Color,
+    era: usize,
+) {
+    let rotation =
+        Mat4::from_rotation_y(yaw) * Mat4::from_rotation_x(pitch) * Mat4::from_rotation_z(roll);
     unsafe {
-        get_internal_gl().quad_gl.push_model_matrix(
-            Mat4::from_translation(p) * Mat4::from_rotation_y(yaw) * Mat4::from_rotation_x(pitch),
-        );
+        get_internal_gl()
+            .quad_gl
+            .push_model_matrix(Mat4::from_translation(p) * rotation);
+    }
+    unsafe {
+        get_internal_gl()
+            .quad_gl
+            .push_model_matrix(Mat4::from_translation(vec3(
+                0.,
+                apex_heritage::corner::ride_height(era) - 0.195,
+                0.,
+            )));
     }
     let classic = era == 0;
     let dark = Color::from_rgba(22, 25, 27, 255);
@@ -229,58 +248,59 @@ fn car(p: Vec3, yaw: f32, pitch: f32, color: Color, era: usize) {
         }
         draw_line_3d(vec3(0., 0.7, 0.65), vec3(0., 1.13, 0.5), dark);
     }
-    for side in [-1., 1.] {
-        for z in [-1.4, 1.4] {
-            let x = side * if classic { 0.82 } else { 1.02 };
-            let radius = if classic { 0.34 } else { 0.37 };
-            let width = if classic {
-                0.24
-            } else if z < 0. {
-                0.44
-            } else {
-                0.34
-            };
-            unsafe {
-                get_internal_gl().quad_gl.push_model_matrix(
-                    Mat4::from_translation(vec3(x + width / 2., 0.36, z))
-                        * Mat4::from_rotation_z(std::f32::consts::FRAC_PI_2),
-                );
-            }
-            draw_cylinder(vec3(0., 0., 0.), radius, radius, width, None, dark);
-            draw_cylinder(
-                vec3(0., -0.01, 0.),
-                radius * 0.53,
-                radius * 0.53,
-                width + 0.02,
-                None,
-                GRAY,
+    unsafe {
+        get_internal_gl().quad_gl.pop_model_matrix();
+    }
+    let wheel_geometry = apex_heritage::contact::wheels(era);
+    for (wi, w) in wheel_geometry.iter().enumerate() {
+        let x = w.lateral;
+        let z = w.longitudinal;
+        let side = x.signum();
+        let width = w.width;
+        let radius = w.radius;
+        let wy = (wheel_heights[wi] + radius - p.y - rotation.x_axis.y * x - rotation.z_axis.y * z)
+            / rotation.y_axis.y;
+        unsafe {
+            get_internal_gl().quad_gl.push_model_matrix(
+                Mat4::from_translation(vec3(x + width / 2., wy, z))
+                    * Mat4::from_rotation_z(std::f32::consts::FRAC_PI_2),
             );
-            unsafe {
-                get_internal_gl().quad_gl.pop_model_matrix();
-            }
-            let outer = x + side * width * 0.52;
-            for i in 0..10 {
-                let a = i as f32 / 10. * std::f32::consts::TAU;
-                draw_line_3d(
-                    vec3(outer, 0.36, z),
-                    vec3(
-                        outer,
-                        0.36 + a.sin() * radius * 0.5,
-                        z + a.cos() * radius * 0.5,
-                    ),
-                    LIGHTGRAY,
-                );
-            }
-            for h in [0.27, 0.54] {
-                draw_line_3d(vec3(side * 0.26, h, z - 0.3), vec3(x, 0.36, z), dark);
-                draw_line_3d(vec3(side * 0.26, h, z + 0.3), vec3(x, 0.36, z), dark);
-            }
+        }
+        draw_cylinder(vec3(0., 0., 0.), radius, radius, width, None, dark);
+        draw_cylinder(
+            vec3(0., -0.01, 0.),
+            radius * 0.53,
+            radius * 0.53,
+            width + 0.02,
+            None,
+            GRAY,
+        );
+        unsafe {
+            get_internal_gl().quad_gl.pop_model_matrix();
+        }
+        let outer = x + side * width * 0.52;
+        for i in 0..10 {
+            let a = i as f32 / 10. * std::f32::consts::TAU;
+            draw_line_3d(
+                vec3(outer, wy, z),
+                vec3(
+                    outer,
+                    wy + a.sin() * radius * 0.5,
+                    z + a.cos() * radius * 0.5,
+                ),
+                LIGHTGRAY,
+            );
+        }
+        for h in [0.27, 0.54] {
+            draw_line_3d(vec3(side * 0.26, h, z - 0.3), vec3(x, wy, z), dark);
+            draw_line_3d(vec3(side * 0.26, h, z + 0.3), vec3(x, wy, z), dark);
         }
     }
     unsafe {
         get_internal_gl().quad_gl.pop_model_matrix();
     }
 }
+
 fn tunnel(t: &Track, range: Option<(usize, usize)>, player: Vec3, texture: &Texture2D) {
     let Some((start, end)) = range else {
         return;
@@ -599,14 +619,17 @@ async fn main() {
     let mut sim = Simulation::new(ti, era, team, wet, assist);
     let mut accumulator = 0.;
     let mut terrain_track = ti;
+    let mut terrain_era = era;
     let mut landscape = terrain_mesh(&circuits[ti]);
     for mesh in &mut landscape {
         mesh.texture = Some(grass.clone());
     }
     let mut pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
     let mut pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
-    let mut safety = apex_heritage::venue::Venue::for_track(&circuits[ti].name);
+    let mut safety = apex_heritage::venue::Venue::for_era(&circuits[ti].name, era);
     let mut safety_mesh = venue::build(&circuits[ti], &safety);
+    let mut details = apex_heritage::corner::Details::new(&circuits[ti], era);
+    let mut corner_mesh = venue::corners(&details);
     let mut camera_mode = 0;
     let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
     for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
@@ -728,9 +751,11 @@ async fn main() {
                 camera_mode = (camera_mode + 1) % 3;
             }
         }
-        if terrain_track != ti {
-            safety = apex_heritage::venue::Venue::for_track(&circuits[ti].name);
+        if terrain_track != ti || terrain_era != era {
+            safety = apex_heritage::venue::Venue::for_era(&circuits[ti].name, era);
             safety_mesh = venue::build(&circuits[ti], &safety);
+            details = apex_heritage::corner::Details::new(&circuits[ti], era);
+            corner_mesh = venue::corners(&details);
             pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
             pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
             landscape = terrain_mesh(&circuits[ti]);
@@ -742,6 +767,7 @@ async fn main() {
                 mesh.texture = Some(walls[i % walls.len()].clone());
             }
             terrain_track = ti;
+            terrain_era = era;
         }
         let s = sim.state();
         if let Some(audio) = &audio {
@@ -784,6 +810,7 @@ async fn main() {
             &walls[1],
         );
         venue::draw(&safety_mesh);
+        venue::draw(&corner_mesh);
         for mesh in &pit_mesh {
             draw_mesh(mesh);
         }
@@ -871,21 +898,12 @@ async fn main() {
                 indices: vec![0, 3, 1, 1, 3, 4, 1, 4, 2, 2, 4, 5],
                 texture: None,
             });
-            if i % 3 == 0 {
-                let c = if i % 6 == 0 { RED } else { WHITE };
-                for curb in [av - r * 1.04, av + r * 1.04] {
-                    if pit_lane.distance(curb.x, curb.z) > pit_lane.width / 2. + 1. {
-                        if !tunnel_ranges[ti]
-                            .map(|(a, b)| i >= a && i < b)
-                            .unwrap_or(false)
-                        {
-                            draw_cube(curb, vec3(0.5, 0.06, 2.), None, c);
-                        }
-                    }
-                }
-            }
             if i % 20 == 0 {
                 let mut tree = av + r * 4.;
+                let ground = t.driving_surface(tree.x, tree.z, i, 0.).height;
+                if details.at(tree.x, tree.z, ground).is_some() {
+                    continue;
+                }
                 if !apex_heritage::imagery::forest_at(&photo_areas[ti], tree.x, tree.z)
                     || !t.circle_clear(tree.x, tree.z, 3.)
                     || pit_lane.distance(tree.x, tree.z) < pit_lane.width / 2. + 4.
@@ -916,7 +934,33 @@ async fn main() {
                 draw_sphere(tree + vec3(0., 5., 0.), 3., None, DARKGREEN);
             }
         }
-        car(p, s.yaw, s.pitch, [RED, ORANGE, BLUE, GREEN][team], era);
+        car(
+            p,
+            s.yaw,
+            s.pitch,
+            s.body_roll,
+            s.wheel_heights,
+            [RED, ORANGE, BLUE, GREEN][team],
+            era,
+        );
+        if s.bottoming > 0.05 && s.speed > 4. {
+            for i in 0..7 {
+                let q = i as f32 * 0.71 + get_time() as f32 * 16.;
+                let origin = p + vec3(
+                    s.yaw.cos() * q.sin() * 0.4,
+                    -0.05 + s.ride_height,
+                    -s.yaw.sin() * q.sin() * 0.4,
+                );
+                draw_line_3d(
+                    origin,
+                    origin
+                        - vec3(s.travel_yaw.sin(), -0.07, s.travel_yaw.cos())
+                            * s.bottoming
+                            * (0.4 + (i % 3) as f32 * 0.2),
+                    ORANGE,
+                );
+            }
+        }
         set_default_camera();
         if menu {
             draw_rectangle(
@@ -935,6 +979,7 @@ async fn main() {
                 ORANGE,
             );
             draw_text(&format!("<  {}  >", t.name), 72., 245., 42., WHITE);
+            draw_text(&details.label, 72., 278., 16., ORANGE);
             draw_text(
                 &format!(
                     "[E] ERA: {}     [T] TEAM: {}",
@@ -1013,7 +1058,15 @@ async fn main() {
                 20.,
                 WHITE,
             );
-            if s.impact > 0.08 {
+            if s.bottoming > 0.08 {
+                draw_text(
+                    "FLOOR STRIKE / RAISED KERB",
+                    screen_width() / 2. - 190.,
+                    120.,
+                    26.,
+                    ORANGE,
+                );
+            } else if s.impact > 0.08 {
                 draw_text(
                     "BARRIER IMPACT — LAP INVALID",
                     screen_width() / 2. - 220.,

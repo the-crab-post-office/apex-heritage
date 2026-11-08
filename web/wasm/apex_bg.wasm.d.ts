@@ -3,6 +3,7 @@
 export const memory: WebAssembly.Memory;
 export const __wbg_simulation_free: (a: number, b: number) => void;
 export const build_version: () => [number, number];
+export const simulation_corner_geometry_json: (a: number) => [number, number];
 export const simulation_new: (a: number, b: number, c: number, d: number, e: number) => number;
 export const simulation_pit_geometry_json: (a: number) => [number, number];
 export const simulation_recover: (a: number) => void;
