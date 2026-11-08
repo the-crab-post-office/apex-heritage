@@ -31,7 +31,7 @@ Images were searched and visually inspected for surroundings and broad scenery c
 | Montréal | [Circuit Gilles-Villeneuve aerial reference](https://www.reddit.com/r/formula1/comments/ap8996/aerial_view_of_circuit_gilles_villeneuve/) | Island setting, flanking water and tree belts. Photo credit/licensing was not established, so no image is redistributed. |
 | Hockenheim | [Hockenheim aerial reference](https://www.pinterest.com/pin/571746115169312209/) | Forest edge and stadium-like grandstand arrangement. Pin is a visual reference, not a licensing source. |
 
-Landmarks are approximate architectural cues and are not positioned from a detailed survey. Native scenery is more limited than web scenery. Vegetation, road materials, fences, buildings, grandstands, water, yachts, wheel and car models are generated from original code.
+Landmarks are approximate architectural cues and are not positioned from a detailed survey. Native scenery is more limited than web scenery. Vegetation, road materials, fences, water, yachts, wheel and car models use original code. Buildings now use OSM footprints; arbitrary pit blocks, stands and city-building placement were removed.
 
 ## Car and performance references
 
@@ -43,7 +43,7 @@ The central gameplay distinctions are low-aero classic cars, turbo boost buildup
 
 - `web/assets/heritage-hero.jpg`: AI-generated original motorsport concept artwork. Shown as concept art in the menu; **not an actual screenshot or third-party track photograph**. The image is generic promotional artwork and does not change to a photographic representation of each selected circuit.
 - WebGL car meshes, textures and world geometry: original procedural code in `web/graphics.js`.
-- Engine audio: original four-stroke-inspired wavetable synthesis, with custom harmonic spectra and noise/transient layers. Browser AudioWorklet and native CPAL stream render from Rust RPM/load/gear telemetry. No authentic sampled recordings or licensed sound bank. The era presets are illustrative, not acoustically measured replicas.
+- Engine audio: licensed real recording layers for the first three eras, blended with original four-stroke-inspired synthesis/transients. The modern V6 is procedural. See the 0.3 recording section and asset-specific CC BY-SA notice; presets remain illustrative rather than measured replicas.
 - Three.js: MIT, https://github.com/mrdoob/three.js/blob/dev/LICENSE
 - Lucide: ISC/MIT attribution as shipped by the dependency, https://github.com/lucide-icons/lucide/blob/main/LICENSE
 - Macroquad: MIT/Apache-2.0 as shipped by the dependency, https://github.com/not-fl3/macroquad
@@ -64,3 +64,9 @@ CPAL (Apache-2.0) is used only for native device output: https://github.com/Rust
 Present-day OpenStreetMap building ways were downloaded on 8 November 2026 through Overpass. `data/buildings.json` and its browser copy contain the editable derived database, per-circuit timestamps, original OSM way IDs, polygon footprints and height-estimation provenance. See `data/OSM-NOTICE.md` for the ODbL notice, inverse projection, exclusions and limitations. There are no randomly positioned replacement buildings. All footprints are checked against the full closed road corridor, and tree canopies use continuous segment distances, including adjacent circuit branches and the closing segment.
 
 Monaco's source point zero was near Casino rather than Boulevard Albert Ier. OSM node [4937755860](https://www.openstreetmap.org/node/4937755860) provides a mapped start/finish reference, snapped 0.32 m to the processed centreline. The polygon order, road heights and ground heights were rotated together; `profile_offset` preserves elevation-generation reproducibility. Browser/native spawn, gantry, AI and lap progress now share that corrected origin. Silverstone, Imola, Nürburgring GP and Hockenheim also use mapped markers. Five others retain unverified source-order starts; see the notice rather than assuming every marker is a modern F1 start line.
+
+## Real engine recordings (0.3)
+
+The first three era presets now use low/high PCM loops derived from Edvvc (Ed Pond)'s real Goodwood 2010 recordings: Lotus-BRM 24 (1962), Toleman-Hart TG183B (1983) and Williams-Renault FW18 (1996). Explicit Commons file-page grants are CC BY-SA 3.0. Full credits, source pages, license basis (including the older embedded NC metadata discrepancy), adaptations and limitations are in `web/assets/audio/NOTICE.md`; machine-readable windows and playback anchors are in `recordings.json`. `scripts/build-recordings.py` reproduces all six loops.
+
+Both native CPAL and browser AudioWorklet interpolate the same embedded/shipped 24 kHz PCM and blend it with original synthesized drivetrain/transient/noise layers. Browser AI also uses recorded layers, with spatial gain/pan and Doppler. Missing browser samples retain a synthesized fallback. The modern 2023 V6 remains synthesized: no matching verified recording was obtained. Real trackside samples do not establish exact engine-model or RPM calibration; the Hart sample is four-cylinder rather than the 1988 V6 roster's engine architecture.

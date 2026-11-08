@@ -1,3 +1,10 @@
+import recordingManifest from "../assets/audio/recordings.json";
+import { decodePCM } from "./recorded-layer.js";
+const recordingURLs = import.meta.glob("../assets/audio/*.pcm", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
 import processorURL from "./engine-worklet.js?worker&url";
 import { ENGINE_PROFILES } from "./engine-dsp.js";
 export class EngineAudio {
@@ -35,6 +42,10 @@ export class EngineAudio {
         numberOfOutputs: 1,
         outputChannelCount: [2],
       });
+      this.node.port.onmessage = (e) => {
+        if (e.data.type === "recordings-loaded")
+          this.recordingAcknowledged = true;
+      };
       this.node.onprocessorerror = () => {
         this.error = "Engine processor failed";
         this.available = false;
@@ -42,11 +53,50 @@ export class EngineAudio {
       this.node.connect(this.gain);
       this.available = true;
       this.resume();
+      // A missing recording must not silence the procedural fallback or block racing.
+      this.recordingReady = this.loadRecordings();
+      await this.recordingReady;
       return true;
     } catch (e) {
       this.error = String(e);
       this.available = false;
       console.warn("Engine audio could not initialize", e);
+      return false;
+    }
+  }
+  async loadRecordings() {
+    const bank = recordingManifest.banks.find((b) => b.era === this.era);
+    this.recordingStatus = bank
+      ? "loading"
+      : "procedural modern V6 (no verified recording)";
+    if (!bank) return false;
+    try {
+      const layers = await Promise.all(
+        bank.layers.map(async (layer) => {
+          const url = recordingURLs[`../assets/audio/${layer.file}`];
+          const response = await fetch(url);
+          if (!response.ok)
+            throw new Error(`Recording HTTP ${response.status}`);
+          const data = decodePCM(await response.arrayBuffer());
+          if (data.length !== layer.frames)
+            throw new Error("Recording length mismatch");
+          return { ...layer, data };
+        }),
+      );
+      if (this.disposed) return false;
+      this.node.port.postMessage({
+        type: "recordings",
+        banks: {
+          [this.era]: { sample_rate: recordingManifest.sample_rate, layers },
+        },
+      });
+      this.recordingStatus = "recorded hybrid";
+      this.recordedCar = bank.recorded_car;
+      return true;
+    } catch (error) {
+      this.recordingError = String(error);
+      this.recordingStatus = "procedural fallback";
+      console.warn("Recording unavailable; synthesized engine retained", error);
       return false;
     }
   }
