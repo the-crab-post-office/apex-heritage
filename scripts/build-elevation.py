@@ -37,8 +37,8 @@ def profile(keys, u):
 tracks=json.loads((ROOT/'data/tracks.json').read_text())
 for track in tracks:
     n=len(track['points'])
-    ground=[round(profile(PROFILES[track['id']],i/n),4) for i in range(n)]
-    lift=[round(8*math.exp(-((i/n-.7956)/.019)**4),4) if track['code']=='JP' else 0 for i in range(n)]
+    ground=[round(profile(PROFILES[track['id']],(i/n+track.get('profile_offset',0))%1),4) for i in range(n)]
+    lift=[round(8*math.exp(-((((i/n+track.get('profile_offset',0))%1)-.7956)/.019)**4),4) if track['code']=='JP' else 0 for i in range(n)]
     heights=[round(g+l,4) for g,l in zip(ground,lift)]
     track['heights']=heights
     track['ground_heights']=ground

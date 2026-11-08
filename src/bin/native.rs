@@ -128,6 +128,57 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
     }
     chunks
 }
+fn mapped_buildings(
+    t: &Track,
+    buildings: &[apex_heritage::scenery::Building],
+) -> Vec<(Vec3, Mesh)> {
+    buildings
+        .iter()
+        .filter(|b| t.polygon_clear(&b.footprint))
+        .map(|b| {
+            let n = b.footprint.len();
+            let center = vec3(
+                b.footprint.iter().map(|p| p[0]).sum::<f32>() / n as f32,
+                0.,
+                b.footprint.iter().map(|p| p[1]).sum::<f32>() / n as f32,
+            );
+            let base = b
+                .footprint
+                .iter()
+                .map(|p| t.terrain_height(p[0], p[1]))
+                .fold(f32::INFINITY, f32::min)
+                - 0.2;
+            let mut vs = Vec::new();
+            let mut ids = Vec::new();
+            let color = [
+                Color::from_rgba(181, 176, 156, 255),
+                Color::from_rgba(208, 198, 178, 255),
+                Color::from_rgba(155, 159, 148, 255),
+            ][b.osm_id as usize % 3];
+            for p in &b.footprint {
+                for h in [base, base + b.height] {
+                    vs.push(Vertex::new2(vec3(p[0], h, p[1]), vec2(0., 0.), color));
+                }
+            }
+            for i in 0..n {
+                let a = (i * 2) as u16;
+                let c = (((i + 1) % n) * 2) as u16;
+                ids.extend_from_slice(&[a, c, a + 1, a + 1, c, c + 1]);
+            }
+            for tri in apex_heritage::scenery::triangulate(&b.footprint) {
+                ids.extend(tri.iter().map(|i| (i * 2 + 1) as u16));
+            }
+            (
+                center,
+                Mesh {
+                    vertices: vs,
+                    indices: ids,
+                    texture: None,
+                },
+            )
+        })
+        .collect()
+}
 #[macroquad::main(conf)]
 async fn main() {
     let smoke = std::env::var("APEX_SMOKE").is_ok();
@@ -135,6 +186,7 @@ async fn main() {
     let audio = NativeAudio::new();
     let mut sound_on = true;
     let circuits = tracks();
+    let mapped = apex_heritage::scenery::buildings();
     let mut ti = 0usize;
     let mut era = 2usize;
     let mut team = 0usize;
@@ -146,6 +198,7 @@ async fn main() {
     let mut accumulator = 0.;
     let mut terrain_track = ti;
     let mut landscape = terrain_mesh(&circuits[ti]);
+    let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
     loop {
         if smoke {
             smoke_frames += 1;
@@ -237,6 +290,7 @@ async fn main() {
         });
         if terrain_track != ti {
             landscape = terrain_mesh(&circuits[ti]);
+            buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
             terrain_track = ti;
         }
         let s = sim.state();
@@ -267,6 +321,31 @@ async fn main() {
             draw_mesh(patch);
         }
         let t = &circuits[ti];
+        for (center, building) in &buildings {
+            if (center.x - s.x).hypot(center.z - s.z) < 850. {
+                draw_mesh(building);
+            }
+        }
+        let start = t.points[0];
+        let next = t.points[1];
+        let yaw = (next[0] - start[0]).atan2(next[1] - start[1]);
+        for j in 0..(t.width * 2.) as usize {
+            let x = j as f32 * 0.5 - t.width * 0.5;
+            for z in [-0.25, 0.25] {
+                let px = start[0] + x * yaw.cos() + z * yaw.sin();
+                let pz = start[1] - x * yaw.sin() + z * yaw.cos();
+                draw_cube(
+                    vec3(px, t.heights[0] + 0.065, pz),
+                    vec3(0.48, 0.025, 0.48),
+                    None,
+                    if (j + (z > 0.) as usize) % 2 == 0 {
+                        WHITE
+                    } else {
+                        BLACK
+                    },
+                );
+            }
+        }
         let n = t.points.len();
         for i in 0..n {
             let a = t.points[i];
@@ -298,6 +377,16 @@ async fn main() {
             }
             if i % 20 == 0 {
                 let mut tree = av + r * 4.;
+                if !t.circle_clear(tree.x, tree.z, 3.) {
+                    continue;
+                }
+                if mapped[ti]
+                    .buildings
+                    .iter()
+                    .any(|b| apex_heritage::scenery::inside([tree.x, tree.z], &b.footprint))
+                {
+                    continue;
+                }
                 tree.y = t.terrain_height(tree.x, tree.z);
                 draw_cube(tree + vec3(0., 2., 0.), vec3(0.7, 4., 0.7), None, BROWN);
                 draw_sphere(tree + vec3(0., 5., 0.), 3., None, DARKGREEN);
@@ -360,7 +449,7 @@ async fn main() {
                 GRAY,
             );
             draw_text(
-                "V: MUTE/AUDIO  /  original assets / approximate elevation / unofficial",
+                "OSM contributors (ODbL) / Edvvc recordings (CC BY-SA 3.0) / V: audio / unofficial",
                 72.,
                 screen_height() - 50.,
                 18.,
@@ -391,7 +480,7 @@ async fn main() {
             );
             draw_text(
                 &format!(
-                    "ELEVATION {:.0} m   GRADE {:+.1}%",
+                    "ELEVATION {:0.0} m   GRADE {:+0.1}%",
                     s.y - 0.1,
                     s.grade * 100.
                 ),

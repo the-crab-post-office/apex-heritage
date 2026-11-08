@@ -5,6 +5,7 @@ pub mod elevation;
 #[cfg(feature = "native")]
 pub mod native_audio;
 pub mod powertrain;
+pub mod scenery;
 
 #[derive(Clone, Deserialize)]
 pub struct Track {
