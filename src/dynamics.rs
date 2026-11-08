@@ -224,6 +224,39 @@ mod tests {
         );
     }
     #[test]
+    fn breakaway_is_consistent_at_public_api_frame_rates() {
+        let mut angles = Vec::new();
+        for hz in [20, 30, 60, 120, 240] {
+            let mut s = State {
+                speed: 32.,
+                ..State::default()
+            };
+            let mut m = RearMemory::default();
+            for _ in 0..hz * 2 {
+                s.speed = 32.;
+                advance(
+                    &mut s,
+                    &mut m,
+                    RearInput {
+                        grip: 16.,
+                        desired_yaw: 0.8,
+                        raw_accel: 24.,
+                        throttle: 1.,
+                        brake: 0.8,
+                        previous_throttle: 1.,
+                        classic: true,
+                        assists: false,
+                    },
+                    1. / hz as f32,
+                );
+            }
+            angles.push(angle(s.yaw - s.travel_yaw).abs());
+        }
+        let min = angles.iter().copied().fold(f32::INFINITY, f32::min);
+        let max = angles.iter().copied().fold(0.0_f32, f32::max);
+        assert!(max - min < 0.12, "{angles:?}");
+    }
+    #[test]
     fn wet_grip_builds_more_rear_loss_for_the_same_inputs() {
         let mut dry = State {
             speed: 25.,

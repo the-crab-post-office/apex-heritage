@@ -64,15 +64,15 @@ impl Builder {
             let b = (i + 1) as f32 / sides as f32 * std::f32::consts::TAU;
             let point = |a: f32, r: f32, y: f32| p + vec3(a.sin() * r, y, a.cos() * r);
             let [oa, ob, ia, ib] = [
-                point(a, 0.405, 0.14),
-                point(b, 0.405, 0.14),
-                point(a, 0.175, 0.14),
-                point(b, 0.175, 0.14),
+                point(a, 0.405, 0.195),
+                point(b, 0.405, 0.195),
+                point(a, 0.175, 0.195),
+                point(b, 0.175, 0.195),
             ];
             self.quad([oa, ob, ib, ia], color);
             let dark = Color::new(color.r * 0.68, color.g * 0.68, color.b * 0.68, 1.);
-            self.quad([oa, oa - Vec3::Y * 0.28, ob - Vec3::Y * 0.28, ob], dark);
-            self.quad([ia, ib, ib - Vec3::Y * 0.28, ia - Vec3::Y * 0.28], dark);
+            self.quad([oa, oa - Vec3::Y * 0.39, ob - Vec3::Y * 0.39, ob], dark);
+            self.quad([ia, ib, ib - Vec3::Y * 0.39, ia - Vec3::Y * 0.39], dark);
         }
     }
 }
@@ -106,7 +106,7 @@ pub fn build(t: &Track, v: &Venue) -> Vec<Mesh> {
                 let z = wall.a[1] + dz * f;
                 for row in 0..3 {
                     b.ring(
-                        vec3(x, ground(x, z) + 0.18 + row as f32 * 0.34, z),
+                        vec3(x, ground(x, z) + 0.2 + row as f32 * 0.39, z),
                         if i % 9 == 0 {
                             LIGHTGRAY
                         } else if i % 9 == 1 {
