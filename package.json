@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "test:web": "playwright test"
+    "test:web": "playwright test",
+    "test:audio": "node --test tests/audio.test.mjs"
   },
   "dependencies": {
     "lucide": "^0.468.0",

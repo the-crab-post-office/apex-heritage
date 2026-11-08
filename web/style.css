@@ -2347,3 +2347,18 @@ kbd {
     padding: 12px;
   }
 }
+.volume-setting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.volume-setting input {
+  accent-color: var(--orange);
+  width: 140px;
+}
+.volume-setting output {
+  color: #b3c69f;
+  font-size: 11px;
+  min-width: 32px;
+  font-variant-numeric: tabular-nums;
+}

@@ -2,6 +2,9 @@
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 pub mod elevation;
+#[cfg(feature = "native")]
+pub mod native_audio;
+pub mod powertrain;
 
 #[derive(Clone, Deserialize)]
 pub struct Track {
@@ -122,6 +125,7 @@ pub struct State {
     pub lateral: f32,
     pub steering: f32,
     pub rpm: f32,
+    pub shift_cut: f32,
     pub gear: u32,
     pub lap: u32,
     pub elapsed: f32,
@@ -147,6 +151,7 @@ pub struct Simulation {
     assists: bool,
     lap_start: f32,
     lap_distance: f32,
+    shift_timer: f32,
 }
 #[wasm_bindgen]
 impl Simulation {
@@ -164,6 +169,7 @@ impl Simulation {
             assists,
             lap_start: 0.,
             lap_distance: 0.,
+            shift_timer: 0.,
         };
         s.reset();
         s
@@ -182,6 +188,7 @@ impl Simulation {
                 .atan(),
             yaw: (q[0] - p[0]).atan2(q[1] - p[1]),
             gear: 1,
+            rpm: powertrain::idle_rpm(self.spec.gears),
             lap: 1,
             ..State::default()
         };
@@ -189,6 +196,7 @@ impl Simulation {
         self.checkpoints = 0;
         self.lap_start = 0.;
         self.lap_distance = 0.;
+        self.shift_timer = 0.;
     }
     pub fn recover(&mut self) {
         let p = self.track.points[self.nearest];
@@ -237,7 +245,8 @@ impl Simulation {
                 1.
             });
         let traction = grip * (if self.assists { 0.97 } else { 1.15 });
-        let raw_accel = throttle * power / (spec.mass * (s.speed + 20.));
+        let raw_accel = throttle * power * (if self.shift_timer > 0. { 0.16 } else { 1. })
+            / (spec.mass * (s.speed + 20.));
         let acceleration = raw_accel.min(traction);
         let resistance = spec.drag * s.speed * s.speed / spec.mass
             + 0.30
@@ -266,16 +275,7 @@ impl Simulation {
         s.lateral += (lateral_target - s.lateral) * (dt * 4.).min(1.);
         s.x += (s.yaw.sin() * s.speed + s.yaw.cos() * s.lateral) * dt;
         s.z += (s.yaw.cos() * s.speed - s.yaw.sin() * s.lateral) * dt;
-        s.gear = ((s.speed * 3.6 / (if spec.gears == 5 { 53. } else { 47. })) as u32 + 1)
-            .min(spec.gears);
-        let peak = if spec.gears == 7 {
-            19000.
-        } else if spec.gears == 5 {
-            10000.
-        } else {
-            12500.
-        };
-        s.rpm = (0.45 + (s.speed * 3.6 % 47.) / 47. * 0.55) * peak;
+        powertrain::update_engine(s, spec.gears, &mut self.shift_timer, dt);
         let n = self.track.points.len();
         let old = self.nearest;
         // Local nearest-point search preserves the correct branch at Suzuka's crossover.
