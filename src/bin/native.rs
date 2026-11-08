@@ -1,4 +1,5 @@
 //! Lightweight native renderer using exactly the same Rust simulation as the browser.
+use apex_heritage::native_audio::NativeAudio;
 use apex_heritage::{tracks, Simulation, Track};
 use macroquad::prelude::*;
 fn conf() -> Conf {
@@ -131,6 +132,8 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
 async fn main() {
     let smoke = std::env::var("APEX_SMOKE").is_ok();
     let mut smoke_frames = 0;
+    let audio = NativeAudio::new();
+    let mut sound_on = true;
     let circuits = tracks();
     let mut ti = 0usize;
     let mut era = 2usize;
@@ -154,6 +157,9 @@ async fn main() {
                 );
                 break;
             }
+        }
+        if is_key_pressed(KeyCode::V) {
+            sound_on = !sound_on;
         }
         if is_key_pressed(KeyCode::Escape) {
             if !menu {
@@ -234,6 +240,9 @@ async fn main() {
             terrain_track = ti;
         }
         let s = sim.state();
+        if let Some(audio) = &audio {
+            audio.update(s, era, menu || paused || !sound_on);
+        }
         let p = vec3(s.x, s.y, s.z);
         let f = vec3(
             s.yaw.sin() * s.pitch.cos(),
@@ -351,7 +360,7 @@ async fn main() {
                 GRAY,
             );
             draw_text(
-                "Native prototype / original assets / map-derived layouts / unofficial",
+                "V: MUTE/AUDIO  /  original assets / approximate elevation / unofficial",
                 72.,
                 screen_height() - 50.,
                 18.,
@@ -374,7 +383,7 @@ async fn main() {
                 ORANGE,
             );
             draw_text(
-                "WASD / arrows  •  Space brake  •  R recover  •  Esc pause  •  M menu",
+                "WASD / arrows  •  Space brake  •  R recover  •  V audio  •  Esc pause  •  M menu",
                 25.,
                 screen_height() - 25.,
                 20.,

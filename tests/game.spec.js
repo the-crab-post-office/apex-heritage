@@ -72,6 +72,48 @@ test("Rust WASM drives, brakes, steers, pauses, recovers and exits", async ({
     timeout: 60000,
   });
   await page.keyboard.up("KeyW");
+  await page.waitForFunction(
+    () =>
+      window.__apex.race.audio.available &&
+      window.__apex.race.audio.context.state === "running",
+    null,
+    { timeout: 15000 },
+  );
+  await page.evaluate(() => {
+    const a = window.__apex.race.audio;
+    const analyser = a.context.createAnalyser();
+    analyser.fftSize = 2048;
+    a.node.connect(analyser);
+    window.__testAnalyser = analyser;
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const a = window.__testAnalyser,
+          s = new Float32Array(a.fftSize);
+        a.getFloatTimeDomainData(s);
+        return Math.max(...s.map(Math.abs));
+      }),
+    )
+    .toBeGreaterThan(0.001);
+  const roadState = await page.evaluate(() => {
+    const r = window.__apex.race;
+    return {
+      y: r.state.y,
+      grade: r.state.grade,
+      pitch: r.state.pitch,
+      visual: r.world.player.position.y,
+      audioError: r.audio.error,
+    };
+  });
+  expect(Number.isFinite(roadState.grade)).toBe(true);
+  expect(roadState.y).toBeGreaterThan(30);
+  expect(Math.abs(roadState.y - roadState.visual)).toBeLessThan(0.01);
+  expect(roadState.audioError).toBeUndefined();
+  await page.evaluate(() => {
+    window.__testAnalyser.disconnect();
+    delete window.__testAnalyser;
+  });
   const yaw = await page.evaluate(() => window.__apex.getState().yaw);
   await page.keyboard.down("KeyA");
   await page.waitForFunction(
@@ -122,6 +164,16 @@ test("wet turbo quick race creates five AI cars and rain", async ({ page }) => {
     await page.evaluate(() => Boolean(window.__apex.race.world.rain)),
   ).toBe(true);
   await expect(page.locator("#hud-mode")).toContainText("3 LAPS");
+  await page.waitForFunction(
+    () => window.__apex.race.audio.telemetry?.voices.length === 6,
+  );
+  expect(
+    await page.evaluate(() =>
+      window.__apex.race.audio.telemetry.voices.every(
+        (v) => Number.isFinite(v.rpm) && Math.abs(v.pan) <= 1,
+      ),
+    ),
+  ).toBe(true);
   expect(
     await page.evaluate(() => {
       const w = window.__apex.race.world,
@@ -147,4 +199,22 @@ test("mobile layout has touch controls and no horizontal overflow", async ({
     path: "artifacts/mobile-paddock.png",
     fullPage: true,
   });
+});
+
+test("elevation preview and master volume setting", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#view-circuit").click();
+  await expect(page.locator(".elevation-chart")).toContainText("104 m");
+  await expect(page.locator(".elevation-chart svg")).toHaveAttribute(
+    "aria-label",
+    /elevation profile/,
+  );
+  await page.locator(".dialog-close").click();
+  await page.locator("#settings-button").click();
+  await page.locator("#volume-slider").fill("35");
+  await expect(page.locator("#volume-value")).toHaveText("35%");
+  await page.locator(".dialog-close").click();
+  await page.reload();
+  await page.locator("#settings-button").click();
+  await expect(page.locator("#volume-slider")).toHaveValue("35");
 });

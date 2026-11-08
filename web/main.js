@@ -65,12 +65,13 @@ let config = {
   mode: "time",
   quality: "high",
   sound: true,
+  volume: 0.65,
   ...saved,
 };
 config.track = Math.min(9, Math.max(0, Number(config.track) || 0));
 config.era = Math.min(3, Math.max(0, Number(config.era) || 0));
 config.team = Math.min(3, Math.max(0, Number(config.team) || 0));
-let records = readStorage("apex-records", []),
+let records = readStorage("apex-records-v2-elevation", []),
   race = null,
   filter = "all",
   toastTimer;
@@ -281,15 +282,22 @@ function showRecords() {
     $("#clear-records").onclick = () => {
       if (confirm("Delete all locally saved lap records?")) {
         records = [];
-        store("apex-records", records);
+        store("apex-records-v2-elevation", records);
         showRecords();
       }
     };
 }
 $("#settings-button").onclick = () => {
   showDialog(
-    `<div class="dialog-kicker">THE PADDOCK / PREFERENCES</div><h2 class="dialog-heading">Set for your machine.</h2><div class="settings-row"><span>Graphics quality</span><select id="quality-select"><option value="high">High · shadows + dense scenery</option><option value="low">Performance · light scenery</option></select></div><div class="settings-row"><span>Synthesized engine audio</span><select id="sound-select"><option value="on">On</option><option value="off">Off</option></select></div><h3 style="font-weight:400;margin:25px 0 10px">Know your controls.</h3><div class="key-grid"><div><kbd>W / ↑</kbd> Accelerate</div><div><kbd>S / ↓ / SPACE</kbd> Brake</div><div><kbd>A / D / ← / →</kbd> Steer</div><div><kbd>C</kbd> Cycle camera</div><div><kbd>R</kbd> Recover to track</div><div><kbd>ESC</kbd> Pause / resume</div></div><p class="dialog-note">Gamepad: left stick to steer, right trigger to accelerate, left trigger to brake, A to recover, Start to pause. Touch controls appear on small screens. Gear changes are automatic. Assists reduce wheelspin and lateral slip; they do not auto-steer.</p>`,
+    `<div class="dialog-kicker">THE PADDOCK / PREFERENCES</div><h2 class="dialog-heading">Set for your machine.</h2><div class="settings-row"><span>Graphics quality</span><select id="quality-select"><option value="high">High · shadows + dense scenery</option><option value="low">Performance · light scenery</option></select></div><div class="settings-row"><span>Layered engine audio</span><select id="sound-select"><option value="on">On</option><option value="off">Off</option></select></div><div class="settings-row"><span>Master volume</span><label class="volume-setting"><input id="volume-slider" type="range" min="0" max="100" step="5" aria-label="Master volume"><output id="volume-value"></output></label></div><h3 style="font-weight:400;margin:25px 0 10px">Know your controls.</h3><div class="key-grid"><div><kbd>W / ↑</kbd> Accelerate</div><div><kbd>S / ↓ / SPACE</kbd> Brake</div><div><kbd>A / D / ← / →</kbd> Steer</div><div><kbd>C</kbd> Cycle camera</div><div><kbd>R</kbd> Recover to track</div><div><kbd>ESC</kbd> Pause / resume</div></div><p class="dialog-note">Gamepad: left stick to steer, right trigger to accelerate, left trigger to brake, A to recover, Start to pause. Touch controls appear on small screens. Gear changes are automatic. Assists reduce wheelspin and lateral slip; they do not auto-steer.</p>`,
   );
+  $("#volume-slider").value = Math.round((config.volume ?? 0.65) * 100);
+  $("#volume-value").textContent = `${$("#volume-slider").value}%`;
+  $("#volume-slider").oninput = (e) => {
+    config.volume = Number(e.target.value) / 100;
+    $("#volume-value").textContent = `${e.target.value}%`;
+    save();
+  };
   $("#quality-select").value = config.quality;
   $("#sound-select").value = config.sound ? "on" : "off";
   $("#quality-select").onchange = (e) => {
@@ -354,7 +362,7 @@ function saveRecord(best) {
   if (!old || best < old.best) {
     if (old) old.best = best;
     else records.push({ ...config, best });
-    store("apex-records", records);
+    store("apex-records-v2-elevation", records);
   }
 }
 function exitRace() {

@@ -1,62 +1,15 @@
 import init, { Simulation } from "./wasm/apex.js";
 import { World } from "./graphics.js";
+import { EngineAudio } from "./audio/engine-audio.js";
 import { eras, formatTime } from "./catalog.js";
 const $ = (s) => document.querySelector(s);
 let wasmReady;
-class EngineAudio {
-  constructor(era, on) {
-    this.era = era;
-    this.enabled = on;
-    this.context = null;
-    this.osc = [];
-    try {
-      const ctx = (this.context = new (
-        window.AudioContext || window.webkitAudioContext
-      )());
-      this.gain = ctx.createGain();
-      this.gain.gain.value = 0;
-      const filter = ctx.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = 2100;
-      this.gain.connect(filter);
-      filter.connect(ctx.destination);
-      for (let i = 0; i < 3; i++) {
-        const osc = ctx.createOscillator(),
-          g = ctx.createGain();
-        osc.type = i === 0 ? "sawtooth" : "triangle";
-        g.gain.value = [0.24, 0.12, 0.07][i];
-        osc.connect(g);
-        g.connect(this.gain);
-        osc.start();
-        this.osc.push(osc);
-      }
-    } catch (e) {
-      console.warn("Audio unavailable", e);
-    }
-  }
-  update(s, paused) {
-    if (!this.context) return;
-    const now = this.context.currentTime;
-    const base = (s.rpm || 4000) / [85, 105, 72, 110][this.era];
-    this.osc.forEach((o, i) =>
-      o.frequency.setTargetAtTime(Math.max(30, base * (i + 1)), now, 0.05),
-    );
-    this.gain.gain.setTargetAtTime(
-      !this.enabled || paused ? 0 : 0.07 + s.throttle * 0.18,
-      now,
-      0.08,
-    );
-  }
-  dispose() {
-    this.osc.forEach((o) => o.stop());
-    this.context?.close();
-  }
-}
 export class Race {
   static async create(track, config, callbacks) {
     wasmReady ??= init();
     await wasmReady;
     const r = new Race(track, config, callbacks);
+    await r.audio.ready;
     return r;
   }
   constructor(track, config, callbacks) {
@@ -75,7 +28,11 @@ export class Race {
     this.world = new World($("#race-canvas"), track, this.config);
     this.keys = new Set();
     this.touch = {};
-    this.audio = new EngineAudio(config.era, config.sound);
+    this.audio = new EngineAudio(
+      config.era,
+      config.sound,
+      config.volume ?? 0.65,
+    );
     this.running = true;
     this.paused = false;
     this.finished = false;
@@ -138,6 +95,7 @@ export class Race {
       )
         e.preventDefault();
       this.keys.add(e.code);
+      this.audio.resume();
       if (!e.repeat) {
         if (e.code === "Escape") this.togglePause();
         if (e.code === "KeyC") this.cycleCamera();
@@ -252,6 +210,8 @@ export class Race {
     this.audio.update(
       this.state,
       this.paused || this.countdown > 0 || this.finished,
+      this.ai,
+      this.world.cameraMode,
     );
     this.animation = requestAnimationFrame(this.frame);
   }
@@ -428,11 +388,11 @@ export class Race {
     this.keys.clear();
     this.touch = {};
     $("#pause-overlay").hidden = !this.paused;
-    this.audio.context?.resume();
+    this.audio.resume();
   }
   toggleAudio() {
     this.audio.enabled = !this.audio.enabled;
-    this.audio.context?.resume();
+    this.audio.resume();
     this.updateAudioButton();
   }
   updateAudioButton() {
