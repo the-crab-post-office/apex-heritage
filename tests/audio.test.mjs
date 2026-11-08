@@ -79,3 +79,96 @@ test("six engines, shifts and lift-off remain finite and do not clip", () => {
   assert(Math.max(...a.map(Math.abs)) < 0.95);
   assert(rms(a) > 0.005);
 });
+
+// Real PCM is exercised separately; the earlier tests retain procedural fallback coverage.
+import fs from "node:fs";
+import { decodePCM, RecordedLayer } from "../web/audio/recorded-layer.js";
+const manifest = JSON.parse(
+  fs.readFileSync(
+    new URL("../web/assets/audio/recordings.json", import.meta.url),
+  ),
+);
+const realBanks = Object.fromEntries(
+  manifest.banks.map((bank) => [
+    bank.era,
+    {
+      sample_rate: manifest.sample_rate,
+      layers: bank.layers.map((layer) => {
+        const bytes = fs.readFileSync(
+          new URL(`../web/assets/audio/${layer.file}`, import.meta.url),
+        );
+        const data = decodePCM(
+          bytes.buffer.slice(
+            bytes.byteOffset,
+            bytes.byteOffset + bytes.byteLength,
+          ),
+        );
+        assert.equal(data.length, layer.frames);
+        return { ...layer, data };
+      }),
+    },
+  ]),
+);
+for (let era = 0; era < 3; era++)
+  test(`era ${era}: shipped real PCM makes an audible difference with bounded six-voice output`, () => {
+    const actual = new EngineDSP(SR),
+      silent = new EngineDSP(SR);
+    actual.setRecordings(realBanks);
+    silent.setRecordings(
+      Object.fromEntries(
+        Object.entries(realBanks).map(([k, b]) => [
+          k,
+          {
+            ...b,
+            layers: b.layers.map((l) => ({
+              ...l,
+              data: new Float32Array(l.data.length),
+            })),
+          },
+        ]),
+      ),
+    );
+    const packet = {
+      voices: Array.from({ length: 6 }, (_, i) => ({
+        era,
+        rpm: 6500 + i * 800,
+        load: 0.8,
+        gain: i ? 0.2 : 1,
+        pan: i % 2 ? 0.7 : -0.7,
+        gear: 3,
+        boost: 0.7,
+        doppler: i % 2 ? 1.1 : 0.9,
+      })),
+    };
+    actual.setTelemetry(packet);
+    silent.setTelemetry(packet);
+    const l = new Float32Array(SR),
+      r = new Float32Array(SR),
+      s = new Float32Array(SR),
+      q = new Float32Array(SR);
+    actual.render(l, r);
+    silent.render(s, q);
+    assert.ok(rms(l.map((x, i) => x - s[i])) > 0.02);
+    assert.ok(l.every((x) => Number.isFinite(x) && Math.abs(x) < 1));
+    assert.ok(rms(l) > 0.02);
+    // Changing RPM advances the fractional recording head differently.
+    const a = new RecordedLayer(realBanks[era], SR),
+      b = new RecordedLayer(realBanks[era], SR);
+    let delta = 0;
+    for (let i = 0; i < SR; i++)
+      delta += Math.abs(a.sample(4500) - b.sample(10000));
+    assert.ok(delta > 100);
+  });
+test("recording bank arriving after telemetry is applied to existing player and AI voices", () => {
+  const dsp = new EngineDSP(SR);
+  dsp.setTelemetry({
+    voices: [
+      { era: 2, rpm: 10000, gain: 1 },
+      { era: 2, rpm: 8000, gain: 0.2 },
+    ],
+  });
+  dsp.setRecordings(realBanks);
+  assert.ok(dsp.voices.every((v) => v.recording));
+  dsp.setTelemetry({ voices: [{ era: 3, rpm: 9000, gain: 1 }] });
+  assert.equal(dsp.voices[0].recording, undefined);
+});

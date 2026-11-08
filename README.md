@@ -4,7 +4,17 @@
 
 The driving model is written in **Rust** and shared by both clients. The web client compiles that core to **WebAssembly** and renders with Three.js; the native client uses **Macroquad**. Browser rendering/UI are JavaScript, not Rust. No physics JavaScript fallback is used.
 
-> This is the agreed playable-prototype scope, not a photorealistic production simulator. The menu uses clearly labeled AI-generated concept artwork. Actual gameplay uses original procedural 3D models, textures and scenery. Photographs and maps were researched as references, not copied into game textures.
+> This is the agreed playable-prototype scope, not a photorealistic production simulator. The menu uses clearly labeled AI-generated concept artwork. Actual gameplay uses simplified original car models and textures, with mapped building footprints. Photographs are references only; no third-party photographs are game textures.
+
+## New in 0.3 — real recordings + mapped scenery
+
+- **Real engine recordings** for the first three eras: Edvvc (Ed Pond)'s Lotus-BRM 24 (1962), Toleman-Hart TG183B (1983) and Williams-Renault FW18 (1996), CC BY-SA 3.0. Six seamless low/high PCM loops blend with synthesis, follow RPM/load/gear cuts, and work in both browser and native. Browser AI retains spatial panning and Doppler. Modern 2023 V6 remains synthesized; missing browser samples also fall back safely.
+- **2,878 mapped OpenStreetMap building footprints across all ten circuits**, with original way IDs and height provenance. Positions follow projected polygons rather than random city blocks or arbitrary start-relative pit/stand offsets. Heights use mapped heights, estimated floor counts, or an explicit 8 m default. Present-day maps, not historical architecture.
+- **No trees or buildings on the rendered circuit:** continuous checks against every closed-loop segment, complete building polygons and tree-canopy radii. Unsafe candidates are rejected, never shoved somewhere else without a recheck. Forty-six mapped footprint overlaps with the road/margin were omitted rather than relocated.
+- **Monaco starts on Boulevard Albert Ier**, snapped to OSM start/finish node 4937755860, not the Casino-area source point zero. Silverstone, Imola, Nürburgring GP and Hockenheim also use mapped start markers. Points, road heights and ground heights rotate together, preserving profile reproducibility and spawn/AI/lap alignment.
+- Separate v3 lap-record storage avoids mixing older start-origin records. Runtime credits and downloadable editable OSM data/notices are available at `/licenses/` in development and static builds.
+
+**Important limits:** trackside recordings are not exact in-car or roster-car reproductions. The Hart source is a turbo four-cylinder rather than a V6; 1962/1983/1996 sources approximate later eras. Five circuits (Spa, Monza, Suzuka, Interlagos, Montréal) retain **unverified source-order starts**; no unsupported claim of ten surveyed grid positions is made. Imola uses its distinct race-start marker as the prototype's unified start/lap line. See [OSM notice](data/OSM-NOTICE.md), [audio attribution](web/assets/audio/NOTICE.md) and [SOURCES.md](SOURCES.md).
 
 ## New in 0.2 — elevation + engine audio
 
@@ -15,7 +25,7 @@ The driving model is written in **Rust** and shared by both clients. The web cli
 - Native now has its own streaming, era-specific CPAL engine synthesis; V toggles audio. It does not restart audio clips per frame. If there is no usable output device, driving still works without audio.
 - Browser master-volume slider and click-free mute/pause fading. New lap records use a separate storage key so old flat-physics times are not mixed with elevated-track times.
 
-**Profiles are authored gameplay approximations, not surveyed heights or downloaded DEM terrain.** The driving model follows road height but remains grounded: no wheel-level suspension or airborne/jump physics. Sound is original procedural synthesis, not authentic car recordings.
+**Profiles are authored gameplay approximations, not surveyed heights or downloaded DEM terrain.** The driving model follows road height but remains grounded: no wheel-level suspension or airborne/jump physics. The 0.2 procedural engine system is now augmented by the licensed real recording layers described above.
 
 ## Play the web version
 
@@ -91,7 +101,7 @@ Web also supports standard gamepads: left stick steering, RT accelerate, LT brak
 9. Circuit Gilles-Villeneuve / Montréal
 10. Hockenheim
 
-Circuit outlines are derived from MIT-licensed GeoJSON maps by Tomislav Bacinger, projected into metres, lightly smoothed and uniformly resampled. All eras share the same sourced map version. These are not period-specific, laser-scanned or survey-accurate reproductions. See [SOURCES.md](SOURCES.md) for photo references, implementation notes and map provenance. Elevations, widths, scenery and landmark positions are artistic approximations. The same per-point heights are read by Rust and the renderers. Grade gravity, relative height and pitch are computed in the core. Suzuka has a separated overpass with lower underlying terrain. Surrounding terrain is interpolated from the approximate road profiles, not a survey.
+Circuit outlines are derived from MIT-licensed GeoJSON maps by Tomislav Bacinger, projected into metres, lightly smoothed and uniformly resampled. All eras share the same sourced map version. These are not period-specific, laser-scanned or survey-accurate reproductions. See [SOURCES.md](SOURCES.md) for photo references, implementation notes and map provenance. Elevations, widths, vegetation and non-building landmarks are artistic approximations; building footprints now use OSM data, with simplified roofs and sometimes estimated heights. The same per-point heights are read by Rust and the renderers. Grade gravity, relative height and pitch are computed in the core. Suzuka has a separated overpass with lower underlying terrain. Surrounding terrain is interpolated from the approximate road profiles, not a survey.
 
 ## Four eras, sixteen historically referenced machines
 
@@ -112,8 +122,8 @@ Power, grip and braking are independently modified for each team. The displayed 
 - Optional traction/slip assistance; **not auto-steering or auto-braking**.
 - Lap timing with ordered quarter-lap checkpoints, forward-distance requirement, track limits and invalidation on recovery.
 - Per-track/car/weather/assist local bests saved in browser storage after valid completed laps.
-- Chase, cockpit and high chase cameras; HUD, minimap, grade/elevation telemetry, layered synthesized engine audio and pause/restart controls.
-- Original geometry/materials, sun shadows in high quality, instanced vegetation, pit buildings and circuit-themed landmarks.
+- Chase, cockpit and high chase cameras; HUD, minimap, grade/elevation telemetry, hybrid recorded/synthesized engine audio and pause/restart controls.
+- Original geometry/materials, sun shadows in high quality, instanced vegetation, mapped building extrusions and circuit-themed landmarks.
 
 ## Known limitations
 
@@ -137,6 +147,7 @@ npm ci
 npx playwright install --with-deps chromium
 npm run test:web
 npm run test:audio
+npm run test:scenery
 ```
 
 To test a separately served production build:
@@ -159,7 +170,9 @@ It renders 120 frames, advances the same Rust driving model, checks acceleration
 src/lib.rs              Shared Rust dynamics + unit tests + WASM API
 src/elevation.rs        Height projection / terrain interpolation / grade tests
 src/powertrain.rs       Automatic gears, continuous RPM and shift cuts
-src/native_audio.rs     CPAL streaming synthesis for native
+src/native_audio.rs     CPAL streaming hybrid audio for native
+src/recorded_audio.rs    Embedded PCM loops / continuous RPM transposition
+src/scenery.rs           Full-circuit footprint clearance and concave roof triangulation
 src/bin/native.rs       Macroquad native renderer and setup
 web/main.js             Paddock UI, settings, records and session lifecycle
 web/race.js             Inputs, race flow, AI and HUD
@@ -168,11 +181,14 @@ web/audio/              AudioWorklet, engine DSP and browser audio controller
 web/graphics.js         Original procedural cars, track meshes and scenery
 web/catalog.js          Historical reference roster and map rendering
 web/wasm/               Generated bindings + compiled Rust WASM
-web/assets/             Original concept art and processed track maps
+web/assets/             Concept art, maps, OSM buildings and licensed PCM loops
 data/tracks.json        Rust's embedded version of the same track data
+data/buildings.json     Editable derived OSM footprint database (ODbL)
 data/CIRCUITS-LICENSE.md  Upstream map-data MIT license
 scripts/build-web.sh    Reproducible Rust → WASM → static web build
 scripts/build-elevation.py  Rebuild authored per-point height profiles
+scripts/import-osm.py    Offline map import / footprint filtering (requires shapely)
+scripts/build-recordings.py  Download licensed sources / derive PCM (ffmpeg + numpy)
 tests/                  Browser end-to-end tests
 ```
 
@@ -190,6 +206,9 @@ Work is committed locally with real feature branches and `--no-ff` merges:
 - `feature/track-elevation`
 - `feature/engine-audio`
 - `feature/elevation-audio-release`
+- `feature/georeferenced-scenery`
+- `feature/recorded-engines`
+- `feature/recordings-scenery-release`
 
 `main` contains the integrated release. No remote repository has been created or pushed. The source download includes a Git bundle preserving every branch and commit; restore it with:
 
@@ -202,4 +221,4 @@ git log --graph --oneline --all
 
 ## Rights and attribution
 
-Independent, unofficial motorsport tribute, not affiliated with Formula 1, the FIA, any team or any circuit. Names and marks belong to their owners. Team/circuit branding and commercial distribution may require additional permissions and legal review. Source code is MIT; circuit-map data retains its upstream MIT notice. Reference photography is **not** included in the source distribution or web release. Original menu artwork is AI-generated. Three.js, Lucide, Macroquad, CPAL and other dependencies retain their respective licenses. CPAL’s Apache-2.0 text is included in `data/CPAL-LICENSE` for native distribution.
+Independent, unofficial motorsport tribute, not affiliated with Formula 1, the FIA, any team or any circuit. Names and marks belong to their owners. Team/circuit branding and commercial distribution may require additional permissions and legal review. Source code is MIT; circuit centreline maps retain their upstream MIT notice. OSM-derived data is ODbL 1.0, and adapted recording assets are CC BY-SA 3.0, not MIT. Asset notices, editable data and author/source links are supplied with releases and in runtime credits. Reference photography is **not** included in the source distribution or web release. Original menu artwork is AI-generated. Three.js, Lucide, Macroquad, CPAL and other dependencies retain their respective licenses. CPAL’s Apache-2.0 text is included in `data/CPAL-LICENSE` for native distribution.

@@ -1,13 +1,14 @@
 {
   "name": "apex-heritage",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "test:web": "playwright test",
-    "test:audio": "node --test tests/audio.test.mjs"
+    "test:audio": "node --test tests/audio.test.mjs",
+    "test:scenery": "node --test tests/scenery.test.mjs"
   },
   "dependencies": {
     "lucide": "^0.468.0",
