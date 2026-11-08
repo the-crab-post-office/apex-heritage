@@ -87,7 +87,12 @@ export class EngineAudio {
       this.node.port.postMessage({
         type: "recordings",
         banks: {
-          [this.era]: { sample_rate: recordingManifest.sample_rate, layers },
+          [this.era]: {
+            sample_rate: recordingManifest.sample_rate,
+            cylinders: recordingManifest.cylinders[this.era],
+            wave_cycles: recordingManifest.wave_cycles,
+            layers,
+          },
         },
       });
       this.recordingStatus = "recorded hybrid";
@@ -120,7 +125,8 @@ export class EngineAudio {
       {
         era: this.era,
         rpm: state.rpm,
-        load: state.throttle * (1 - (state.shift_cut || 0) * 0.8),
+        load: state.throttle,
+        cut: state.shift_cut || 0,
         gear: state.gear,
         boost: state.boost,
         speed: state.speed,

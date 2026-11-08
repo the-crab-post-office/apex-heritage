@@ -22,13 +22,23 @@ with tempfile.TemporaryDirectory()as temp:
   with wave.open(str(wav))as w:data=np.frombuffer(w.readframes(w.getnframes()),dtype='<i2').astype(np.float64)/32768
   layers=[]
   for label,(start,length,rpm)in zip(['low','high'],clips):
-   x=data[int(start*SR):int((start+length)*SR)].copy();x-=x.mean();fade=int(.08*SR);theta=np.linspace(0,np.pi/2,fade,endpoint=False)
-   # Sequential middle followed by a tail/head overlap: no hard loop boundary.
-   x=np.concatenate([x[fade:-fade],x[-fade:]*np.cos(theta)**2+x[:fade]*np.sin(theta)**2]);x-=x.mean()
-   gain=min(.22/np.sqrt(np.mean(x*x)),.85/np.max(np.abs(x)));x*=gain
+   # Isolate a short, nearly stationary source passage; fit harmonic timbre,
+   # not its Doppler/acceleration sweep. Phase-locked playback supplies RPM.
+   raw=data[int((start+.16)*SR):int((start+.32)*SR)].copy();raw-=raw.mean()
+   spectrum=np.abs(np.fft.rfft(raw*np.hanning(len(raw)),65536));freq=np.fft.rfftfreq(65536,1/SR)
+   lo,hi=(150,650) if label=='low' else (200,400)
+   band=(freq>=lo)&(freq<=hi);fund=float(freq[np.flatnonzero(band)[np.argmax(spectrum[band])]])
+   time=np.arange(len(raw))/SR;weights=np.hanning(len(raw));harm=[]
+   for h in range(1,13):
+    coeff=np.sum(raw*weights*np.exp(-2j*np.pi*fund*h*time))/weights.sum()
+    harm.append(abs(coeff))
+   # Canonical phases keep the two load layers coherent during crossfades.
+   phase=np.arange(1024)/1024;cycle=sum(amp*np.cos(2*np.pi*(h+1)*phase+(.0 if h==0 else np.sin((h+1)*1.73)*.55))for h,amp in enumerate(harm))
+   cycle-=cycle.mean();cycle*=min(.22/np.sqrt(np.mean(cycle*cycle)),.75/max(abs(cycle)))
+   x=np.tile(cycle,16)
    file=f'{name}-{label}.pcm';pcm=(x*32767).astype('<i2');(out/file).write_bytes(pcm.tobytes())
-   layers.append({'file':file,'reference_rpm':rpm,'source_start_seconds':start,'source_duration_seconds':length,'frames':len(pcm)})
+   layers.append({'file':file,'reference_rpm':rpm,'source_start_seconds':start,'source_duration_seconds':length,'frames':len(pcm),'source_fundamental_hz':round(fund,3)})
   banks.append({'era':len(banks),'name':name,'recorded_car':title,'author':'Edvvc (Ed Pond)','source':url,'page':'https://commons.wikimedia.org/wiki/File:'+path.split('/')[-1],'license':'https://creativecommons.org/licenses/by-sa/3.0/','layers':layers})
-manifest={'sample_rate':SR,'format':'signed 16-bit little-endian mono PCM','changes':'Trimmed, 85 Hz high-pass, mono/downsampled, DC removed, normalized and 80 ms tail/head crossfade. Two RPM-transposed loops per era; reference RPM is an authored playback anchor, NOT measured recording telemetry.','limitations':'Trackside Goodwood 2010 recordings, not isolated in-car recordings or exact roster cars. Turbo sample is a Hart four-cylinder, not the 1988 V6. 1962/1983/1996 sources approximate 1967/1988/2004 eras. The 2023 preset retains procedural synthesis; no verified modern V6 recording was bundled.','banks':banks}
+manifest={'wave_cycles':16,'cylinders':[8,6,10],'sample_rate':SR,'format':'signed 16-bit little-endian mono PCM','changes':'Short source-window harmonic analysis; stable single-cycle timbres, DC removed and normalized, repeated 16 times per PCM table. Phase-locked playback follows simulated firing frequency, not source Doppler. Reference RPM anchors are authored timbre-blend points, not measured recording RPM.','limitations':'Trackside Goodwood 2010 recordings, not isolated in-car recordings or exact roster cars. Turbo sample is a Hart four-cylinder, not the 1988 V6. 1962/1983/1996 sources approximate 1967/1988/2004 eras. The 2023 preset retains procedural synthesis; no verified modern V6 recording was bundled.','banks':banks}
 (out/'recordings.json').write_text(json.dumps(manifest,indent=2)+'\n')
-print('Six real-recording loops written:',sum(p.stat().st_size for p in out.glob('*.pcm')),'bytes')
+print('Six phase-locked recording-derived tables written:',sum(p.stat().st_size for p in out.glob('*.pcm')),'bytes')

@@ -109,6 +109,9 @@ class Voice {
     this.seed = 0x71c291 + id * 131;
     this.lastGear = 1;
     this.shift = 0;
+    this.targetCut = 0;
+    this.cut = 0;
+    this.authoritativeCut = false;
     this.lift = 0;
     this.speed = 0;
     this.slip = 0;
@@ -119,9 +122,11 @@ class Voice {
   }
   set(t) {
     const load = clamp(Number(t.load) || 0, 0, 1);
+    this.authoritativeCut = Number.isFinite(t.cut);
+    this.targetCut = clamp(Number(t.cut) || 0, 0, 1);
     if (this.targetLoad > 0.45 && load < 0.15) this.lift = 0.18;
     if (t.gear && t.gear !== this.lastGear) {
-      this.shift = 0.075;
+      this.shift = this.authoritativeCut ? 0 : 0.075;
       this.lastGear = t.gear;
     }
     this.targetRPM = clamp(
@@ -154,7 +159,12 @@ class Voice {
     const bank = BANK[this.era];
     const maxH = (0.44 * sr) / hz;
     const table = maxH >= 12 ? bank[2] : maxH >= 10 ? bank[1] : bank[0];
-    const cut = this.shift > 0 ? 1 - (this.shift / 0.075) * 0.75 : 1;
+    this.cut = lerp(this.cut, this.targetCut, a * 2);
+    const cut = this.authoritativeCut
+      ? 1 - this.cut * 0.82
+      : this.shift > 0
+        ? 1 - (this.shift / 0.075) * 0.75
+        : 1;
     this.shift = Math.max(0, this.shift - 1 / sr);
     this.lift = Math.max(0, this.lift - 1 / sr);
     const load = this.load * cut;
@@ -225,7 +235,11 @@ export class EngineDSP {
     this.recordings = banks;
     for (const v of this.voices)
       v.recording = banks[v.era]
-        ? new RecordedLayer(banks[v.era], this.sampleRate, (v.id * 0.137) % 1)
+        ? new RecordedLayer(
+            { ...banks[v.era], cylinders: ENGINE_PROFILES[v.era].cylinders },
+            this.sampleRate,
+            (v.id * 0.137) % 1,
+          )
         : null;
   }
   setTelemetry(packet) {
@@ -236,7 +250,10 @@ export class EngineDSP {
         this.voices[i] = new Voice(t.era, this.sampleRate, i);
         if (this.recordings[t.era])
           this.voices[i].recording = new RecordedLayer(
-            this.recordings[t.era],
+            {
+              ...this.recordings[t.era],
+              cylinders: ENGINE_PROFILES[t.era].cylinders,
+            },
             this.sampleRate,
             (i * 0.137) % 1,
           );
