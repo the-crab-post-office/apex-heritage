@@ -93,6 +93,8 @@ const realBanks = Object.fromEntries(
     bank.era,
     {
       sample_rate: manifest.sample_rate,
+      cylinders: manifest.cylinders[bank.era],
+      wave_cycles: manifest.wave_cycles,
       layers: bank.layers.map((layer) => {
         const bytes = fs.readFileSync(
           new URL(`../web/assets/audio/${layer.file}`, import.meta.url),
@@ -172,3 +174,23 @@ test("recording bank arriving after telemetry is applied to existing player and 
   dsp.setTelemetry({ voices: [{ era: 3, rpm: 9000, gain: 1 }] });
   assert.equal(dsp.voices[0].recording, undefined);
 });
+
+for (let era = 0; era < 3; era++)
+  test(`era ${era}: recorded tables hold exact firing pitch without source sweeps`, () => {
+    for (const rpm of [4800, 9600]) {
+      const layer = new RecordedLayer(realBanks[era], SR),
+        hz = (rpm * [8, 6, 10][era]) / 120,
+        period = Math.round(SR / hz);
+      const out = Float32Array.from({ length: SR }, () => layer.sample(rpm));
+      let error = 0,
+        energy = 0;
+      for (let i = 0; i < SR - period; i++) {
+        error += (out[i] - out[i + period]) ** 2;
+        energy += out[i] ** 2;
+      }
+      assert.ok(
+        error / energy < 0.03,
+        `stable periodic pitch ${error / energy}`,
+      );
+    }
+  });

@@ -58,10 +58,10 @@ pub fn car_spec(era: usize, team: usize) -> CarSpec {
         0 => CarSpec {
             mass: 540.,
             power: 300000.,
-            grip: 1.05,
+            grip: 1.16,
             aero: 0.05,
             brake: 13.,
-            steer: 0.42,
+            steer: 0.50,
             drag: 0.68,
             lag: 0.,
             gears: 5,
@@ -144,6 +144,7 @@ pub struct State {
     pub yaw: f32,
     pub speed: f32,
     pub lateral: f32,
+    pub yaw_rate: f32,
     pub steering: f32,
     pub rpm: f32,
     pub shift_cut: f32,
@@ -173,6 +174,7 @@ pub struct Simulation {
     lap_start: f32,
     lap_distance: f32,
     shift_timer: f32,
+    era: usize,
 }
 #[wasm_bindgen]
 impl Simulation {
@@ -191,6 +193,7 @@ impl Simulation {
             lap_start: 0.,
             lap_distance: 0.,
             shift_timer: 0.,
+            era: era.min(3),
         };
         s.reset();
         s
@@ -226,6 +229,7 @@ impl Simulation {
         self.state.yaw = (q[0] - p[0]).atan2(q[1] - p[1]);
         self.state.speed = 0.;
         self.state.lateral = 0.;
+        self.state.yaw_rate = 0.;
         self.state.gear = 1;
         self.state.rpm = powertrain::idle_rpm(self.spec.gears);
         self.state.shift_cut = 0.;
@@ -255,7 +259,9 @@ impl Simulation {
         s.lap_time = s.elapsed - self.lap_start;
         s.throttle = throttle;
         s.brake = brake;
-        s.steering += (steer - s.steering) * (dt * 8.).min(1.);
+        let classic = self.era == 0;
+        let response = if classic { 5.5 } else { 8. };
+        s.steering += (steer - s.steering) * (1. - (-dt * response).exp());
         let wet_factor = if self.wet { 0.70 } else { 1. };
         let terrain = if s.offtrack { 0.48 } else { 1. };
         let grip = spec.grip * 9.81 / (1. + grade * grade).sqrt() * wet_factor * terrain
@@ -271,18 +277,34 @@ impl Simulation {
         let traction = grip * (if self.assists { 0.97 } else { 1.15 });
         let raw_accel = throttle * power * (if self.shift_timer > 0. { 0.16 } else { 1. })
             / (spec.mass * (s.speed + 20.));
-        let acceleration = raw_accel.min(traction);
+        let lateral_use = (s.yaw_rate.abs() * s.speed / grip.max(0.1)).min(0.98);
+        let combined = if classic {
+            (1. - lateral_use * lateral_use).sqrt()
+        } else {
+            1.
+        };
+        let acceleration = raw_accel.min(traction * combined);
         let resistance = spec.drag * s.speed * s.speed / spec.mass
             + 0.30
             + if s.offtrack { s.speed * 0.12 } else { 0. };
         s.speed = (s.speed
-            + (acceleration - brake * spec.brake.min(grip * 1.5) - resistance - grade_gravity)
+            + (acceleration
+                - brake * spec.brake.min(grip * 1.5) * combined
+                - resistance
+                - grade_gravity)
                 * dt)
             .max(0.);
-        let max_angle = spec.steer / (1. + s.speed * 0.038);
-        let desired_yaw = s.speed / 3.1 * (s.steering * max_angle).tan();
+        let max_angle = spec.steer / (1. + s.speed * if classic { 0.045 } else { 0.038 });
+        let desired_yaw =
+            s.speed / if classic { 2.45 } else { 3.1 } * (s.steering * max_angle).tan();
         let max_yaw = grip / s.speed.max(1.);
-        let yaw_rate = desired_yaw.clamp(-max_yaw, max_yaw);
+        let target_yaw = desired_yaw.clamp(-max_yaw, max_yaw);
+        s.yaw_rate = if classic {
+            s.yaw_rate + (target_yaw - s.yaw_rate) * (1. - (-dt / 0.12).exp())
+        } else {
+            target_yaw
+        };
+        let yaw_rate = s.yaw_rate.clamp(-max_yaw, max_yaw);
         s.slip = ((desired_yaw.abs() - max_yaw).max(0.) * 1.5
             + if self.assists {
                 0.
@@ -294,7 +316,7 @@ impl Simulation {
         let lateral_target = if self.assists {
             0.
         } else {
-            -(desired_yaw - yaw_rate) * s.speed * 0.12
+            -(desired_yaw - yaw_rate) * s.speed * if classic { 0.065 } else { 0.12 }
         };
         s.lateral += (lateral_target - s.lateral) * (dt * 4.).min(1.);
         s.x += (s.yaw.sin() * s.speed + s.yaw.cos() * s.lateral) * dt;
@@ -372,6 +394,23 @@ impl Simulation {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn classic_is_progressive_has_hairpin_lock_and_keeps_era_identity() {
+        let mut sim = Simulation::new(1, 0, 0, false, false);
+        sim.state.speed = 8.;
+        sim.step(0., 0., 1., 1. / 120.);
+        assert!(sim.state.steering > 0. && sim.state.steering < 0.06);
+        assert!(sim.state.yaw_rate.abs() < 0.1);
+        for _ in 0..60 {
+            sim.step(0.2, 0., 1., 1. / 120.);
+        }
+        assert!(sim.state.yaw_rate > 0.2);
+        assert!(sim.state.slip.is_finite());
+        assert!(car_spec(0, 0).grip < car_spec(2, 0).grip);
+        assert!(car_spec(0, 0).aero < 0.1);
+        sim.recover();
+        assert_eq!(sim.state.yaw_rate, 0.);
+    }
     #[test]
     fn ten_tracks_are_closed_and_sensible() {
         let t = tracks();

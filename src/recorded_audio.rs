@@ -17,7 +17,8 @@ const PCM: [[&[u8]; 2]; 3] = [
 const REFERENCES: [[f32; 2]; 3] = [[4000., 8000.], [5000., 10000.], [6500., 12500.]];
 pub struct RecordedLayer {
     data: [Vec<f32>; 2],
-    heads: [f64; 2],
+    phase: f64,
+    cylinders: f32,
     references: [f32; 2],
     sr: f32,
 }
@@ -33,7 +34,8 @@ impl RecordedLayer {
                     .map(|b| i16::from_le_bytes([b[0], b[1]]) as f32 / 32768.)
                     .collect()
             }),
-            heads: [0.; 2],
+            phase: 0.,
+            cylinders: [8., 6., 10.][era],
             references: REFERENCES[era],
             sr,
         })
@@ -42,17 +44,16 @@ impl RecordedLayer {
         let u =
             ((rpm - self.references[0]) / (self.references[1] - self.references[0])).clamp(0., 1.);
         let blend = u * u * (3. - 2. * u);
+        self.phase =
+            (self.phase + rpm as f64 * self.cylinders as f64 / (120. * self.sr as f64)).fract();
         let mut value = 0.;
         for k in 0..2 {
             let data = &self.data[k];
-            let rate = (rpm / self.references[k]).clamp(0.3, 2.4);
-            self.heads[k] = (self.heads[k]
-                + rate as f64 * 24000. / (self.sr as f64 * data.len() as f64))
-                .fract();
-            let p = self.heads[k] * data.len() as f64;
+            let n = data.len() / 16;
+            let p = self.phase * n as f64;
             let i = p as usize;
-            let t = (p - i as f64) as f32;
-            let x = data[i] + (data[(i + 1) % data.len()] - data[i]) * t;
+            let f = (p - i as f64) as f32;
+            let x = data[i] + (data[(i + 1) % n] - data[i]) * f;
             value += x * if k == 0 { 1. - blend } else { blend };
         }
         value

@@ -32,6 +32,7 @@ struct Params {
     era: AtomicU32,
     gain: AtomicU32,
     gear: AtomicU32,
+    cut: AtomicU32,
 }
 struct EngineTone {
     on: Vec<f32>,
@@ -54,6 +55,7 @@ struct EngineTone {
     sr: f32,
     gear: u32,
     cut: f32,
+    target_cut: f32,
     recording: Option<crate::recorded_audio::RecordedLayer>,
 }
 impl EngineTone {
@@ -98,6 +100,7 @@ impl EngineTone {
             sr,
             gear: 1,
             cut: 0.,
+            target_cut: 0.,
             recording: crate::recorded_audio::RecordedLayer::new(era, sr),
         }
     }
@@ -121,12 +124,8 @@ impl EngineTone {
         self.seed ^= self.seed << 5;
         let noise = self.seed as f32 / 2147483648. - 1.;
         self.filter += 0.16 * (noise - self.filter);
-        let cut = if self.cut > 0. {
-            1. - self.cut / 0.075 * 0.75
-        } else {
-            1.
-        };
-        self.cut = (self.cut - 1. / self.sr).max(0.);
+        self.cut += (self.target_cut - self.cut) * a * 2.;
+        let cut = 1. - self.cut * 0.82;
         let load = self.load * cut;
         let rough = [0.17, 0.09, 0.035, 0.065][self.era];
         let irregular = 1. + rough * (TAU * self.crank).sin() * (TAU * self.crank * 2.).sin();
@@ -192,13 +191,13 @@ impl NativeAudio {
     pub fn update(&self, s: &State, era: usize, muted: bool) {
         let p = &self.params;
         p.rpm.store(s.rpm.to_bits(), Relaxed);
-        p.load
-            .store((s.throttle * (1. - s.shift_cut * 0.8)).to_bits(), Relaxed);
+        p.load.store(s.throttle.to_bits(), Relaxed);
         p.boost.store(s.boost.to_bits(), Relaxed);
         p.speed.store(s.speed.to_bits(), Relaxed);
         p.slip.store(s.slip.to_bits(), Relaxed);
         p.era.store(era as u32, Relaxed);
         p.gear.store(s.gear, Relaxed);
+        p.cut.store(s.shift_cut.to_bits(), Relaxed);
         p.gain
             .store((if muted { 0_f32 } else { 0.55_f32 }).to_bits(), Relaxed);
     }
@@ -224,10 +223,10 @@ fn build<T: cpal::SizedSample + cpal::FromSample<f32>>(
             tone.boost = f32::from_bits(params.boost.load(Relaxed));
             tone.slip = f32::from_bits(params.slip.load(Relaxed));
             tone.speed = f32::from_bits(params.speed.load(Relaxed));
+            tone.target_cut = f32::from_bits(params.cut.load(Relaxed)).clamp(0., 1.);
             let gear = params.gear.load(Relaxed);
             if gear != tone.gear {
                 tone.gear = gear;
-                tone.cut = 0.075;
             }
             for frame in data.chunks_mut(channels) {
                 let value = tone.sample();

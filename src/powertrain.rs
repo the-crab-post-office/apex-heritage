@@ -42,11 +42,25 @@ pub fn update_engine(s: &mut State, gears: u32, shift_timer: &mut f32, dt: f32) 
     }
     let wheel_rpm = kmh / tops[s.gear as usize - 1] * peak;
     // A little unloaded clutch rev at launch; continuous within each physical gear.
-    let launch = (1. - s.speed / 13.).max(0.) * s.throttle * peak * 0.18;
-    let target = (wheel_rpm + launch).max(idle).min(peak);
+    let clutch_slip = (1. - s.speed / 10.).clamp(0., 1.);
+    let free_rev = idle + s.throttle * peak * 0.30;
+    let target = wheel_rpm
+        .max(idle + (free_rev - idle) * clutch_slip)
+        .min(peak);
     let rpm = if s.rpm > 0. { s.rpm } else { idle };
-    s.rpm = rpm + (target - rpm) * (1. - (-dt / 0.045).exp());
-    s.shift_cut = if *shift_timer > 0. { 1. } else { 0. };
+    s.rpm = rpm
+        + (target - rpm)
+            * (1.
+                - (-dt
+                    / if gears == 5 {
+                        0.075
+                    } else if gears == 7 {
+                        0.028
+                    } else {
+                        0.045
+                    })
+                .exp());
+    s.shift_cut = (*shift_timer / 0.04).clamp(0., 1.);
 }
 #[cfg(test)]
 mod tests {
@@ -100,5 +114,29 @@ mod tests {
             update_engine(&mut s, 5, &mut timer, 0.008333);
         }
         assert!((s.rpm - idle_rpm(5)).abs() < 1.);
+    }
+    #[test]
+    fn launch_revs_respond_to_throttle_and_shifts_do_not_hunt() {
+        for gears in [5, 6, 7] {
+            let mut s = State {
+                gear: 1,
+                throttle: 1.,
+                ..State::default()
+            };
+            let mut timer = 0.;
+            for _ in 0..120 {
+                update_engine(&mut s, gears, &mut timer, 1. / 120.);
+            }
+            assert!(s.rpm > idle_rpm(gears) + 1500.);
+            s.speed = gear_tops(gears)[0] / 3.6;
+            for _ in 0..30 {
+                update_engine(&mut s, gears, &mut timer, 1. / 120.);
+            }
+            assert_eq!(s.gear, 2);
+            for _ in 0..120 {
+                update_engine(&mut s, gears, &mut timer, 1. / 120.);
+                assert_eq!(s.gear, 2);
+            }
+        }
     }
 }
