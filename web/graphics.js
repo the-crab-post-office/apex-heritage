@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { ElevationField, profileAt } from "./elevation.js";
 import { Sky } from "three/addons/objects/Sky.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 function mergeBody(group) {
@@ -332,6 +333,7 @@ export class World {
       u.sunPosition.value.set(0.55, 0.3, 0.4);
       this.scene.add(sky);
     }
+    this.elevationField = new ElevationField(track);
     this.buildTrack();
     this.buildScenery();
     this.buildLandmarks();
@@ -350,16 +352,10 @@ export class World {
     window.addEventListener("resize", this.resize);
   }
   height(x, z) {
-    let a = this.track.elevation;
-    return Math.sin(x * 0.0018) * a + Math.cos(z * 0.0021) * a * 0.6;
+    return this.elevationField.height(x, z);
   }
   roadHeight(x, z, u) {
-    return (
-      this.height(x, z) +
-      (this.track.code === "JP"
-        ? 6 * Math.exp(-Math.pow((u - 0.7956) / 0.019, 4))
-        : 0)
-    );
+    return profileAt(this.track, u);
   }
   sample(u) {
     const p = this.track.points,
@@ -377,6 +373,13 @@ export class World {
       z,
       y: this.roadHeight(x, z, u) + 0.07,
       yaw: Math.atan2(b[0] - a[0], b[1] - a[1]),
+      grade:
+        (this.track.heights[(i + 1) % n] - this.track.heights[i]) /
+        Math.hypot(b[0] - a[0], b[1] - a[1]),
+      pitch: -Math.atan(
+        (this.track.heights[(i + 1) % n] - this.track.heights[i]) /
+          Math.hypot(b[0] - a[0], b[1] - a[1]),
+      ),
     };
   }
   strip(offset, width, mat, height = 0.03) {
@@ -428,13 +431,25 @@ export class World {
     grassTexture.repeat.set(280, 280);
     const groundMat = material("#869061", 1, 0);
     groundMat.map = grassTexture;
-    const terrain = new THREE.PlaneGeometry(14000, 14000, 140, 140);
+    const xs = this.track.points.map((p) => p[0]),
+      zs = this.track.points.map((p) => p[1]);
+    const minX = Math.min(...xs) - 420,
+      maxX = Math.max(...xs) + 420,
+      minZ = Math.min(...zs) - 420,
+      maxZ = Math.max(...zs) + 420;
+    const terrain = new THREE.PlaneGeometry(
+      maxX - minX,
+      maxZ - minZ,
+      Math.ceil((maxX - minX) / 24),
+      Math.ceil((maxZ - minZ) / 24),
+    );
     terrain.rotateX(-Math.PI / 2);
+    terrain.translate((maxX + minX) / 2, 0, (maxZ + minZ) / 2);
     const pos = terrain.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       let x = pos.getX(i),
         z = pos.getZ(i),
-        h = this.height(x, z) - 0.25;
+        h = this.height(x, z) - 1.25;
       if (this.track.biome === "coast" && (x > 450 || z > 600)) h = -4;
       if (this.track.biome === "island" && Math.abs(x) > 500) h = -5;
       pos.setY(i, h);
@@ -452,6 +467,7 @@ export class World {
     roadMat.map = roadTexture;
     roadMat.side = THREE.DoubleSide;
     this.strip(0, this.track.width, roadMat, 0.05);
+    this.strip(0, this.track.width + 28, material("#758253", 1, 0), -0.18);
     this.strip(0, this.track.width + 4, material("#8c9270", 1, 0), 0.01);
     const w = this.track.width / 2;
     const lineMat = material("#e6e6cd", 0.8, 0);
@@ -482,8 +498,19 @@ export class World {
       for (let side of [-1, 1]) {
         let cx = (a[0] + b[0]) / 2 + rx * side * (w + 0.42),
           cz = (a[1] + b[1]) / 2 + rz * side * (w + 0.42);
-        matrix.position.set(cx, this.roadHeight(cx, cz, i / n) + 0.08, cz);
-        matrix.rotation.set(0, Math.atan2(dx, dz), 0);
+        matrix.position.set(
+          cx,
+          this.roadHeight(cx, cz, (i + 0.5) / n) + 0.08,
+          cz,
+        );
+        matrix.rotation.set(
+          -Math.atan(
+            (this.track.heights[(i + 1) % n] - this.track.heights[i]) / len,
+          ),
+          Math.atan2(dx, dz),
+          0,
+          "YXZ",
+        );
         matrix.scale.set(0.8, 0.1, len + 0.1);
         matrix.updateMatrix();
         curbs.setMatrixAt(ci, matrix.matrix);
@@ -497,7 +524,7 @@ export class World {
         curbs.setColorAt(ci++, c);
         let x = cx + rx * side * 5,
           z = cz + rz * side * 5;
-        matrix.position.set(x, this.roadHeight(x, z, i / n) + 0.8, z);
+        matrix.position.set(x, this.roadHeight(x, z, (i + 0.5) / n) + 0.8, z);
         matrix.scale.set(0.12, 0.64, len + 0.05);
         matrix.updateMatrix();
         rails.setMatrixAt(ri++, matrix.matrix);
@@ -510,7 +537,7 @@ export class World {
     const start = this.sample(0);
     const lineGroup = new THREE.Group();
     lineGroup.position.set(start.x, start.y + 0.05, start.z);
-    lineGroup.rotation.y = start.yaw;
+    lineGroup.rotation.set(start.pitch, start.yaw, 0, "YXZ");
     for (let x = -w; x < w; x += 0.5)
       for (let z = -0.5; z < 0.5; z += 0.5) {
         let q = new THREE.Mesh(
@@ -863,17 +890,20 @@ export class World {
   }
   update(state, dt) {
     const p = this.player;
-    const y = this.roadHeight(state.x, state.z, state.progress) + 0.1;
+    const y = state.y;
     p.position.set(state.x, y, state.z);
-    p.rotation.y = state.yaw;
-    const f = new THREE.Vector3(Math.sin(state.yaw), 0, Math.cos(state.yaw));
-    const nextY = this.roadHeight(
-      state.x + f.x * 3,
-      state.z + f.z * 3,
-      (state.progress + 3 / this.track.length) % 1,
+    const pitch = state.pitch || 0;
+    p.rotation.set(
+      pitch,
+      state.yaw,
+      -state.steering * Math.min(state.speed / 50, 0.8) * 0.035,
+      "YXZ",
     );
-    p.rotation.x = (y - 0.1 - nextY) / 3;
-    p.rotation.z = -state.steering * Math.min(state.speed / 50, 0.8) * 0.035;
+    const f = new THREE.Vector3(
+      Math.sin(state.yaw) * Math.cos(pitch),
+      -Math.sin(pitch),
+      Math.cos(state.yaw) * Math.cos(pitch),
+    );
     for (const w of p.userData.wheels) {
       w.mesh.rotation.x += (state.speed * dt) / 0.35;
       if (w.front) w.mesh.rotation.y = state.steering * 0.22;

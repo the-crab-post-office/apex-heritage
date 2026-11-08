@@ -278,7 +278,13 @@ export class Race {
           [74, 84, 91, 94][this.config.era],
           Math.sqrt(grip / Math.max(curve, 0.0001)),
         ) * a.skill;
-      a.speed += Math.max(-28, Math.min(12, (target - a.speed) * 2)) * dt;
+      a.speed = Math.max(
+        0,
+        a.speed +
+          (Math.max(-28, Math.min(12, (target - a.speed) * 2)) -
+            (9.81 * p.grade) / Math.sqrt(1 + p.grade * p.grade)) *
+            dt,
+      );
       a.u += (a.speed * dt) / this.track.length;
       const q = this.world.sample(a.u);
       a.mesh.position.set(
@@ -286,9 +292,7 @@ export class Race {
         q.y + 0.03,
         q.z - Math.sin(q.yaw) * (a.skill - 0.92) * 18,
       );
-      a.mesh.rotation.y = q.yaw;
-      const aheadY = this.world.sample(a.u + 3 / this.track.length);
-      a.mesh.rotation.x = (q.y - aheadY.y) / 3;
+      a.mesh.rotation.set(q.pitch, q.yaw, 0, "YXZ");
       for (const w of a.mesh.userData.wheels)
         w.mesh.rotation.x += (a.speed * dt) / 0.35;
     }
@@ -315,6 +319,10 @@ export class Race {
   }
   updateHud(time) {
     const s = this.state;
+    $("#hud-elevation").textContent = `${Math.round(s.y - 0.1)} m`;
+    $("#hud-grade").textContent =
+      `${s.grade >= 0 ? "+" : ""}${(s.grade * 100).toFixed(1)}%`;
+    $("#hud-grade").classList.toggle("climbing", s.grade > 0.005);
     $("#hud-speed").textContent = Math.round(s.speed * 3.6)
       .toString()
       .padStart(3, "0");

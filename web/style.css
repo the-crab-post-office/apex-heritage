@@ -2258,3 +2258,92 @@ kbd {
     transition: none !important;
   }
 }
+/* Shared height profiles: metre and grade telemetry. */
+.elevation-chart {
+  margin-top: 16px;
+  background: #222d1d;
+  border: 1px solid #3c4b33;
+  border-radius: 4px;
+  padding: 14px 18px 6px;
+}
+.profile-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #9eaf8c;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.profile-heading b {
+  font-size: 14px;
+  letter-spacing: 0;
+  color: #e4d5b9;
+  font-weight: 500;
+}
+.profile-heading small {
+  font-size: 8px;
+  color: #819772;
+  font-weight: 400;
+}
+.elevation-chart svg {
+  display: block;
+  width: 100%;
+  height: 105px;
+  margin-top: 8px;
+}
+.elevation-chart text {
+  font: 7px Arial;
+  letter-spacing: 1px;
+  fill: #859a74;
+}
+.elevation-telemetry {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #c9e2ae22;
+  margin-top: 12px;
+  padding-top: 10px;
+  gap: 20px;
+}
+.elevation-telemetry > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.elevation-telemetry span {
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: #8da878;
+}
+.elevation-telemetry b {
+  font-size: 14px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: #d4dfcb;
+}
+.elevation-telemetry b.climbing {
+  color: #f3b386;
+}
+@media (max-width: 650px) {
+  .elevation-telemetry {
+    padding-top: 7px;
+    margin-top: 8px;
+  }
+  .elevation-telemetry span {
+    font-size: 5px;
+  }
+  .elevation-telemetry b {
+    font-size: 11px;
+  }
+  .profile-heading small {
+    display: block;
+    font-size: 7px;
+    margin-top: 3px;
+  }
+  .profile-heading b {
+    font-size: 12px;
+  }
+  .elevation-chart {
+    padding: 12px;
+  }
+}
