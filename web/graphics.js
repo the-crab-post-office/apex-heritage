@@ -88,11 +88,13 @@ export function makeCar(era = 2, color = "#e53c2f") {
   const loft = (sections, mat) => {
     const pos = [],
       idx = [],
+      uvs = [],
       steps = 20;
     sections.forEach(([z, w, y, h, cx = 0], i) => {
       for (let j = 0; j < steps; j++) {
         const a = (j / steps) * Math.PI * 2;
         pos.push(cx + Math.sin(a) * w, y + Math.cos(a) * h, z);
+        uvs.push(j / steps, i / (sections.length - 1));
         if (i < sections.length - 1) {
           let k = i * steps + j,
             l = i * steps + ((j + 1) % steps);
@@ -102,6 +104,7 @@ export function makeCar(era = 2, color = "#e53c2f") {
     });
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     g.setIndex(idx);
     g.computeVertexNormals();
     const m = new THREE.Mesh(g, mat);
@@ -429,6 +432,9 @@ export function makeCar(era = 2, color = "#e53c2f") {
   };
 
   mergeBody(car);
+  car.userData.detail.paintedVertices = car.children
+    .filter((m) => m.material === paint)
+    .reduce((n, m) => n + m.geometry.attributes.position.count, 0);
   for (const w of wheels) mergeBody(w.mesh);
   car.userData.wheels = wheels;
   car.userData.materials = [paint, black, carbon, silver, white, gold, helmet];
@@ -694,6 +700,34 @@ export class World {
       paintFaces.length * 3,
       1,
     );
+    const covered = this.track.road_corrections?.find(
+      (c) => c.type === "tunnel",
+    );
+    if (covered) {
+      const position = this.roadMesh.geometry.attributes.position,
+        colors = [];
+      const tunnelPoints = this.track.points.slice(
+        covered.start_index,
+        covered.end_index + 1,
+      );
+      for (let i = 0; i < position.count; i++) {
+        const x = position.getX(i),
+          y = position.getY(i),
+          z = position.getZ(i);
+        const inside = tunnelPoints.some(
+          (p, k) =>
+            Math.hypot(p[0] - x, p[1] - z) < this.track.width / 2 + 1 &&
+            Math.abs(this.track.heights[covered.start_index + k] + 0.05 - y) <
+              1.5,
+        );
+        colors.push(inside ? 0.42 : 1, inside ? 0.45 : 1, inside ? 0.49 : 1);
+      }
+      this.roadMesh.geometry.setAttribute(
+        "color",
+        new THREE.Float32BufferAttribute(colors, 3),
+      );
+      roadMat.vertexColors = true;
+    }
     for (const side of [-1, 1]) {
       for (const [a, b, h, color] of [
         [w, w + 2, 0.01, "#8c9270"],
@@ -732,6 +766,8 @@ export class World {
     let ri = 0,
       ci = 0;
     for (let i = 0; i < n; i++) {
+      const enclosed =
+        covered && i >= covered.start_index && i < covered.end_index;
       let a = this.track.points[i],
         b = this.track.points[(i + 1) % n];
       let dx = b[0] - a[0],
@@ -757,7 +793,10 @@ export class World {
         );
         matrix.scale.set(0.8, 0.1, len + 0.1);
         matrix.updateMatrix();
-        if (!this.pitClearance || this.pitClearance.circleClear(cx, cz, 0)) {
+        if (
+          !enclosed &&
+          (!this.pitClearance || this.pitClearance.circleClear(cx, cz, 0))
+        ) {
           curbs.setMatrixAt(ci, matrix.matrix);
           c.set(
             i % 2
@@ -773,7 +812,10 @@ export class World {
         matrix.position.set(x, this.roadHeight(x, z, (i + 0.5) / n) + 0.8, z);
         matrix.scale.set(0.12, 0.64, len + 0.05);
         matrix.updateMatrix();
-        if (!this.pitClearance || this.pitClearance.circleClear(x, z, 0))
+        if (
+          !enclosed &&
+          (!this.pitClearance || this.pitClearance.circleClear(x, z, 0))
+        )
           rails.setMatrixAt(ri++, matrix.matrix);
       }
     }
@@ -845,12 +887,15 @@ export class World {
       new RoadMask(this.track).cutAll(ribbon(t, -w, w, 0.035)),
       this.surfaces.pbr("Asphalt012", "#d3d5ce", 0.22),
     );
+    this.pitPaintMeshes = [];
     for (const side of [-1, 1])
-      this.surfaceMesh(
-        new RoadMask(this.track).cutAll(
-          ribbon(t, side * w, side * (w - 0.12), 0.045),
+      this.pitPaintMeshes.push(
+        this.surfaceMesh(
+          new RoadMask(this.track).cutAll(
+            ribbon(t, side * w, side * (w - 0.12), 0.045),
+          ),
+          material("#eee7bb"),
         ),
-        material("#eee7bb"),
       );
     const lane = this.config.pit;
     let k = lane.distances.findIndex((d) => d >= lane.box_distance);
@@ -1314,6 +1359,7 @@ export class World {
     });
     this.tunnelAudit = {
       ceilingHeight: 4.65,
+      racingCurbsInside: false,
       wallSides: 2,
       fixtureCount: this.tunnelFixtures.length,
       guardrailBands: 3,
@@ -1481,7 +1527,8 @@ export class World {
       missingRoad = 0,
       samples = 0,
       maxIntrusion = 0,
-      maxCenterError = 0;
+      maxCenterError = 0,
+      pitOverlayHits = 0;
     const section = (i, lateral) => {
       const a = p[i],
         prev = p[(i + n - 1) % n],
@@ -1517,6 +1564,12 @@ export class World {
           maxCenterError = Math.max(maxCenterError, delta);
           if (delta > 0.015) centerErrors++;
         }
+        if (
+          this.pitMesh &&
+          ray.intersectObjects([this.pitMesh, ...(this.pitPaintMeshes || [])])
+            .length
+        )
+          pitOverlayHits++;
         const ground = ray
           .intersectObject(this.terrainMesh)
           .find((h) => h.point.y > road.point.y + 0.01);
@@ -1537,6 +1590,7 @@ export class World {
       }
     return {
       missingRoad,
+      pitOverlayHits,
       terrainIntrusions,
       overlayIntrusions,
       centerErrors,
