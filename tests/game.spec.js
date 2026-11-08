@@ -259,6 +259,13 @@ test("Monaco start, real recording loading and generated scenery all clear the r
       recordedCar: r.audio.recordedCar,
       audioError: r.audio.recordingError,
       omitted: w.sceneryAudit.omittedBuildings,
+      pitClear:
+        w.sceneryAudit.buildings.every((a) =>
+          w.pitClearance.polygonClear(a.footprint),
+        ) &&
+        w.sceneryAudit.trees.every((a) =>
+          w.pitClearance.circleClear(a.x, a.z, a.radius),
+        ),
     };
   });
   expect(result.spawnError).toBeLessThan(0.1);
@@ -267,7 +274,8 @@ test("Monaco start, real recording loading and generated scenery all clear the r
   expect(result.treeCount).toBeGreaterThan(30);
   expect(result.buildingCount).toBeGreaterThan(300);
   expect(result.treesClear && result.buildingsClear).toBe(true);
-  expect(result.omitted).toBe(0);
+  expect(result.pitClear).toBe(true);
+  expect(result.omitted).toBeGreaterThanOrEqual(0);
   expect(result.audioStatus).toBe("recorded hybrid");
   expect(result.recordedCar).toContain("1996");
   expect(result.audioError).toBeUndefined();

@@ -4,11 +4,25 @@ use crate::Track;
 use std::collections::{HashMap, HashSet};
 pub type Point = [f64; 3];
 pub type Triangle = [Point; 3];
+pub fn road_point_open(t: &Track, i: usize, offset: f64, height: f64) -> Point {
+    section_point(t, i, offset, height, false)
+}
 pub fn road_point(t: &Track, i: usize, offset: f64, height: f64) -> Point {
+    section_point(t, i, offset, height, true)
+}
+fn section_point(t: &Track, i: usize, offset: f64, height: f64, closed: bool) -> Point {
     let n = t.points.len();
     let a = t.points[i];
-    let p = t.points[(i + n - 1) % n];
-    let q = t.points[(i + 1) % n];
+    let p = t.points[if closed {
+        (i + n - 1) % n
+    } else {
+        i.saturating_sub(1)
+    }];
+    let q = t.points[if closed {
+        (i + 1) % n
+    } else {
+        (i + 1).min(n - 1)
+    }];
     let dx = (q[0] - p[0]) as f64;
     let dz = (q[1] - p[1]) as f64;
     let len = dx.hypot(dz).max(0.000001);
@@ -94,14 +108,24 @@ fn cells(poly: &[Point]) -> Vec<(i32, i32)> {
 }
 impl RoadMask {
     pub fn new(t: &Track) -> Self {
+        Self::build(t, true)
+    }
+    pub fn new_open(t: &Track) -> Self {
+        Self::build(t, false)
+    }
+    fn build(t: &Track, closed: bool) -> Self {
         let mut triangles = Vec::new();
         let w = t.width as f64 / 2.;
-        for i in 0..t.points.len() {
+        for i in 0..if closed {
+            t.points.len()
+        } else {
+            t.points.len() - 1
+        } {
             let j = (i + 1) % t.points.len();
-            let a = road_point(t, i, -w, 0.);
-            let b = road_point(t, j, -w, 0.);
-            let c = road_point(t, i, w, 0.);
-            let d = road_point(t, j, w, 0.);
+            let a = section_point(t, i, -w, 0., closed);
+            let b = section_point(t, j, -w, 0., closed);
+            let c = section_point(t, i, w, 0., closed);
+            let d = section_point(t, j, w, 0., closed);
             triangles.extend([[a, b, c], [c, b, d]]);
         }
         let mut index: HashMap<(i32, i32), Vec<usize>> = HashMap::new();

@@ -2369,3 +2369,5 @@ kbd {
 #build-error { position: fixed; z-index: 1000; bottom: 24px; left: 5%; width: 90%; padding: 20px; background: #301d16; border: 1px solid #fa946f; color: #fff2d7; font: 15px/1.6 sans-serif; }
 
 .controller-status{position:fixed;right:28px;top:84px;z-index:10;color:#d6dfc3;font:9px/1.5 sans-serif;letter-spacing:1px;pointer-events:none;}
+
+.pit-panel{position:fixed;right:28px;top:116px;width:255px;padding:14px;background:#182b24e8;border-left:2px solid #edb279;color:#e6ebd7;font:11px/1.6 sans-serif;z-index:12}.pit-panel small{display:block;color:#aebda5;margin-top:6px;font-size:9px}.pit-actions{display:flex;flex-direction:column;gap:5px;margin-top:10px}.pit-actions button{background:#263e32;color:#efe9cd;border:1px solid #829a70;padding:8px;font:10px sans-serif;cursor:pointer}.pit-actions button[aria-pressed=true]{background:#62723e}@media(max-width:700px){.pit-panel{right:12px;top:105px;width:185px;padding:8px;font-size:9px}.pit-panel small{font-size:8px}.controller-status{top:78px;right:12px;font-size:8px}.pit-actions button{font-size:8px;padding:6px}}

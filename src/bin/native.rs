@@ -97,6 +97,8 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
         }
     }
     let mask = apex_heritage::surface_mesh::RoadMask::new(t);
+    let pit_track = apex_heritage::pit::PitLane::new(t).as_track();
+    let pit_mask = apex_heritage::surface_mesh::RoadMask::new_open(&pit_track);
     let mut meshes = Vec::new();
     let mut vertices = Vec::new();
     let mut indices = Vec::new();
@@ -108,7 +110,7 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
                 [points[a], points[b], points[a + 1]],
                 [points[a + 1], points[b], points[b + 1]],
             ] {
-                for piece in mask.cut(tri) {
+                for piece in mask.cut(tri).into_iter().flat_map(|p| pit_mask.cut(p)) {
                     if vertices.len() + 3 > 3996 {
                         meshes.push(Mesh {
                             vertices: std::mem::take(&mut vertices),
@@ -138,13 +140,38 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
     meshes
 }
 
+fn pit_mesh_build(pit: &apex_heritage::pit::PitLane) -> Mesh {
+    let t = pit.as_track();
+    let mut vertices = Vec::new();
+    let mut indices = Vec::new();
+    for i in 0..t.points.len() {
+        for offset in [-t.width as f64 / 2., t.width as f64 / 2.] {
+            let p = apex_heritage::surface_mesh::road_point_open(&t, i, offset, 0.07);
+            vertices.push(Vertex::new2(
+                vec3(p[0] as f32, p[1] as f32, p[2] as f32),
+                vec2(0., 0.),
+                Color::from_rgba(80, 82, 75, 255),
+            ));
+        }
+        if i < t.points.len() - 1 {
+            let a = (i * 2) as u16;
+            indices.extend([a, a + 2, a + 1, a + 1, a + 2, a + 3]);
+        }
+    }
+    Mesh {
+        vertices,
+        indices,
+        texture: None,
+    }
+}
 fn mapped_buildings(
     t: &Track,
     buildings: &[apex_heritage::scenery::Building],
 ) -> Vec<(Vec3, Mesh)> {
+    let pit = apex_heritage::pit::PitLane::new(t).as_track();
     buildings
         .iter()
-        .filter(|b| t.polygon_clear(&b.footprint))
+        .filter(|b| t.polygon_clear(&b.footprint) && pit.polygon_clear(&b.footprint))
         .map(|b| {
             let n = b.footprint.len();
             let center = vec3(
@@ -209,6 +236,9 @@ async fn main() {
     let mut accumulator = 0.;
     let mut terrain_track = ti;
     let mut landscape = terrain_mesh(&circuits[ti]);
+    let mut pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
+    let mut pit_mesh = pit_mesh_build(&pit_lane);
+    let mut camera_mode = 0;
     let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
     loop {
         let pad = controller.poll();
@@ -308,7 +338,23 @@ async fn main() {
         } else {
             Color::from_rgba(162, 193, 208, 255)
         });
+        if !menu && !paused {
+            if is_key_pressed(KeyCode::P) || pad.pressed.contains(&gilrs::Button::West) {
+                sim.request_pit();
+            }
+            if is_key_pressed(KeyCode::L) || pad.pressed.contains(&gilrs::Button::North) {
+                sim.toggle_limiter();
+            }
+            if is_key_pressed(KeyCode::O) {
+                sim.start_pit_practice();
+            }
+            if is_key_pressed(KeyCode::C) || pad.pressed.contains(&gilrs::Button::RightTrigger) {
+                camera_mode = (camera_mode + 1) % 3;
+            }
+        }
         if terrain_track != ti {
+            pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
+            pit_mesh = pit_mesh_build(&pit_lane);
             landscape = terrain_mesh(&circuits[ti]);
             buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
             terrain_track = ti;
@@ -324,7 +370,12 @@ async fn main() {
             s.yaw.cos() * s.pitch.cos(),
         );
         set_camera(&Camera3D {
-            position: p - f * 10. + vec3(0., 5., 0.),
+            position: if camera_mode == 1 {
+                p + f * 0.3 + vec3(0., 1.4, 0.)
+            } else {
+                p - f * if camera_mode == 2 { 16. } else { 10. }
+                    + vec3(0., if camera_mode == 2 { 9. } else { 5. }, 0.)
+            },
             target: p + f * 12. + vec3(0., 0.7, 0.),
             up: vec3(0., 1., 0.),
             fovy: 58.,
@@ -342,6 +393,34 @@ async fn main() {
             None,
             Color::from_rgba(57, 78, 45, 255),
         );
+        draw_mesh(&pit_mesh);
+        let (box_p, box_yaw, _, _) =
+            pit_lane.sample(pit_lane.box_distance, circuits[ti].points.len());
+        let box_center = vec3(box_p[0], box_p[1] + 0.14, box_p[2]);
+        let right = vec3(box_yaw.cos(), 0., -box_yaw.sin());
+        let forward = vec3(box_yaw.sin(), 0., box_yaw.cos());
+        for x in [-2.2, 2.2] {
+            draw_line_3d(
+                box_center + right * x - forward * 4.5,
+                box_center + right * x + forward * 4.5,
+                YELLOW,
+            );
+        }
+        for z in [-4.5, 4.5] {
+            draw_line_3d(
+                box_center + forward * z - right * 2.2,
+                box_center + forward * z + right * 2.2,
+                YELLOW,
+            );
+        }
+        for x in [-1., 1.] {
+            for z in [-1.5, 1.5] {
+                let crew =
+                    box_center + right * x * if s.pit_phase == 2 { 1.5 } else { 4.2 } + forward * z;
+                draw_cube(crew + vec3(0., 0.7, 0.), vec3(0.4, 1., 0.4), None, ORANGE);
+                draw_sphere(crew + vec3(0., 1.4, 0.), 0.2, None, BEIGE);
+            }
+        }
         for patch in &landscape {
             draw_mesh(patch);
         }
@@ -401,12 +480,17 @@ async fn main() {
             });
             if i % 3 == 0 {
                 let c = if i % 6 == 0 { RED } else { WHITE };
-                draw_cube(av - r * 1.04, vec3(0.5, 0.06, 2.), None, c);
-                draw_cube(av + r * 1.04, vec3(0.5, 0.06, 2.), None, c);
+                for curb in [av - r * 1.04, av + r * 1.04] {
+                    if pit_lane.distance(curb.x, curb.z) > pit_lane.width / 2. + 1. {
+                        draw_cube(curb, vec3(0.5, 0.06, 2.), None, c);
+                    }
+                }
             }
             if i % 20 == 0 {
                 let mut tree = av + r * 4.;
-                if !t.circle_clear(tree.x, tree.z, 3.) {
+                if !t.circle_clear(tree.x, tree.z, 3.)
+                    || pit_lane.distance(tree.x, tree.z) < pit_lane.width / 2. + 4.
+                {
                     continue;
                 }
                 if mapped[ti]
@@ -542,6 +626,45 @@ async fn main() {
                 }
             }
         }
+        if !menu {
+            draw_rectangle(20., 125., 650., 65., Color::new(0., 0., 0., 0.7));
+            draw_text(
+                &format!(
+                    "P/X pit: {}  L/Y limiter: {}  Tyres {:0.0}% Fuel {:0.0}%",
+                    s.pit_requested,
+                    s.pit_limiter,
+                    s.tyre_condition * 100.,
+                    s.fuel * 100.
+                ),
+                30.,
+                150.,
+                19.,
+                WHITE,
+            );
+            draw_text(
+                &if s.pit_phase == 2 {
+                    format!("SERVICING {:0.1}s", s.pit_remaining)
+                } else if s.pit_active {
+                    format!(
+                        "PIT ASSIST · BOX {:0.0}m · BRAKE TO STOP",
+                        (pit_lane.box_distance - s.pit_distance).max(0.)
+                    )
+                } else {
+                    "O: pit practice (resets lap); C/RB: camera".into()
+                },
+                30.,
+                177.,
+                19.,
+                YELLOW,
+            );
+        }
+        draw_text(
+            &format!("v{}", env!("CARGO_PKG_VERSION")),
+            screen_width() - 100.,
+            25.,
+            18.,
+            WHITE,
+        );
         next_frame().await
     }
 }

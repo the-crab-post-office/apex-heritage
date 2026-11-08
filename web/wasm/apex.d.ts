@@ -6,6 +6,10 @@ export class Simulation {
   free(): void;
   [Symbol.dispose](): void;
   state_json(): string;
+  request_pit(): boolean;
+  toggle_limiter(): boolean;
+  pit_geometry_json(): string;
+  start_pit_practice(): void;
   constructor(track_index: number, era: number, team: number, wet: boolean, assists: boolean);
   step(throttle: number, brake: number, steer: number, dt: number): void;
   reset(): void;
@@ -20,11 +24,15 @@ export interface InitOutput {
   readonly __wbg_simulation_free: (a: number, b: number) => void;
   readonly build_version: () => [number, number];
   readonly simulation_new: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly simulation_pit_geometry_json: (a: number) => [number, number];
   readonly simulation_recover: (a: number) => void;
+  readonly simulation_request_pit: (a: number) => number;
   readonly simulation_reset: (a: number) => void;
   readonly simulation_spec_json: (a: number) => [number, number];
+  readonly simulation_start_pit_practice: (a: number) => void;
   readonly simulation_state_json: (a: number) => [number, number];
   readonly simulation_step: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly simulation_toggle_limiter: (a: number) => number;
   readonly track_data_hash: () => [number, number];
   readonly __wbindgen_externrefs: WebAssembly.Table;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;

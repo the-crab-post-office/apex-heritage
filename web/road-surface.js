@@ -3,8 +3,14 @@
 export function roadPoint(track, i, offset = 0, height = 0.05) {
   const n = track.points.length,
     a = track.points[i],
-    p = track.points[(i + n - 1) % n],
-    q = track.points[(i + 1) % n];
+    p =
+      track.points[
+        track.closed === false ? Math.max(0, i - 1) : (i + n - 1) % n
+      ],
+    q =
+      track.points[
+        track.closed === false ? Math.min(n - 1, i + 1) : (i + 1) % n
+      ];
   const dx = q[0] - p[0],
     dz = q[1] - p[1],
     len = Math.hypot(dx, dz) || 1;
@@ -17,7 +23,11 @@ export function roadPoint(track, i, offset = 0, height = 0.05) {
 export function ribbon(track, from, to, height = 0.05) {
   if (from > to) [from, to] = [to, from];
   const out = [];
-  for (let i = 0; i < track.points.length; i++) {
+  for (
+    let i = 0;
+    i < track.points.length - (track.closed === false ? 1 : 0);
+    i++
+  ) {
     const j = (i + 1) % track.points.length,
       a = roadPoint(track, i, from, height),
       b = roadPoint(track, j, from, height),
