@@ -36,7 +36,7 @@ export class Race {
     this.running = true;
     this.paused = false;
     this.finished = false;
-    this.countdown = 3.1;
+    this.countdown = 3;
     this.accumulator = 0;
     this.lastTime = 0;
     this.lastHud = 0;
