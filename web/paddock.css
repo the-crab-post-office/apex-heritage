@@ -1,0 +1,748 @@
+/* Collection/showroom UI. Driving HUD remains isolated in style.css. */
+#app {
+  --orange: #d2e0ad;
+  --panel: #191e22;
+  --line: #343b3f;
+  --text: #f0f0e8;
+  --muted: #939c9e;
+  background:
+    radial-gradient(ellipse at 35% 18%, #252d31 0, transparent 55%), #111619;
+  color: var(--text);
+  min-height: 100vh;
+}
+#app .topbar {
+  max-width: none;
+  height: 78px;
+  padding: 0 max(30px, calc((100vw - 1480px) / 2));
+  border-bottom: 1px solid #ffffff12;
+  background: #12171bea;
+}
+#app .brand svg {
+  fill: #d2e0ad;
+}
+#app .brand {
+  gap: 11px;
+}
+#app .brand > div {
+  font-size: 19px;
+  letter-spacing: -0.8px;
+}
+#app .brand span {
+  color: #9da5a4;
+}
+#app .topbar nav {
+  gap: 30px;
+}
+#app .nav {
+  font-size: 10px;
+  letter-spacing: 1.4px;
+}
+#app .nav.active {
+  color: #d2e0ad;
+}
+#app .nav.active:after {
+  background: #d2e0ad;
+}
+#app .avatar {
+  border-radius: 50%;
+  background: #29332c;
+  color: #d2e0ad;
+}
+#app main {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
+#app .intro {
+  margin: 32px 0 25px;
+  align-items: end;
+}
+#app .intro h1 {
+  font-size: 42px;
+  letter-spacing: -1.7px;
+  line-height: 1.05;
+  margin-top: 13px;
+}
+#app .intro h1 em {
+  color: #d2e0ad;
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+#app .intro p {
+  font-size: 12px;
+  color: #a0aaa9;
+  margin-top: 10px;
+}
+#app .eyebrow {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #a7b49a;
+}
+#app .eyebrow > span {
+  background: #cbdba4;
+}
+#app .platform-note {
+  opacity: 0.65;
+  font-size: 8px;
+}
+#app .race-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: stretch;
+}
+#app .showroom {
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  border: 1px solid #3a4245;
+  background: radial-gradient(
+    ellipse at 50% 20%,
+    #323c42,
+    #20272c 55%,
+    #191f23 85%
+  );
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px #0002;
+  display: flex;
+  flex-direction: column;
+}
+.showroom-heading {
+  height: 46px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #ffffff0d;
+  z-index: 2;
+  font: 8px/1.4 monospace;
+  letter-spacing: 1.3px;
+  color: #a5aeaf;
+}
+.collection-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d1dbc9;
+}
+.collection-kicker i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c7dc9e;
+  box-shadow: 0 0 12px #c7dc9e50;
+}
+.showroom-nameplate {
+  position: absolute;
+  left: 28px;
+  top: 68px;
+  z-index: 2;
+  pointer-events: none;
+}
+.showroom-nameplate > div {
+  color: #d5ddca;
+  font-size: 9px;
+  letter-spacing: 3.4px;
+}
+.showroom-nameplate h2 {
+  font-size: clamp(36px, 4.1vw, 65px);
+  line-height: 1;
+  letter-spacing: -2px;
+  margin: 7px 0 9px;
+  font-weight: 650;
+  color: #f4f2e6;
+  text-shadow: 0 5px 22px #0004;
+}
+.showroom-nameplate p {
+  font: 9px monospace;
+  color: #aab8b7;
+  letter-spacing: 0.4px;
+}
+.showroom-stage {
+  height: 326px;
+  width: 100%;
+  position: relative;
+  isolation: isolate;
+  cursor: grab;
+}
+.showroom-stage:active {
+  cursor: grabbing;
+}
+.showroom-stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.showroom-loading {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+  font: 9px monospace;
+  letter-spacing: 2px;
+  color: #d1d8c6;
+  pointer-events: none;
+}
+.showroom-stage[data-ready="true"] .showroom-loading {
+  display: none;
+}
+.showroom-stage[data-ready="fallback"] .showroom-loading {
+  display: none;
+}
+.showroom-tools {
+  min-height: 34px;
+  padding: 0 22px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #91a39c;
+  font: 7px monospace;
+  letter-spacing: 0.8px;
+}
+.showroom-tools > div {
+  display: flex;
+  gap: 4px;
+}
+.showroom-tools button {
+  padding: 6px 9px;
+  background: #ffffff04;
+  border: 1px solid #a9b7aa28;
+  color: #b6c2be;
+  font: 7px monospace;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.showroom-tools button:hover,
+.showroom-tools button[aria-pressed="true"] {
+  border-color: #cbdba477;
+  color: #e3ebce;
+  background: #cbdba412;
+}
+.showroom-specs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #ffffff12;
+  border-bottom: 1px solid #ffffff12;
+  padding: 14px 24px;
+  gap: 16px;
+  background: #13191d55;
+}
+.showroom-specs > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.showroom-specs > div > span {
+  font: 7px monospace;
+  letter-spacing: 1.1px;
+  color: #8f9b9b;
+}
+.showroom-specs strong {
+  font-size: 23px;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  font-weight: 500;
+}
+.showroom-specs strong small {
+  font-size: 10px;
+  color: #a3afad;
+  font-weight: 400;
+}
+.showroom-specs .spec-caption {
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+.spec-caption small {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px !important;
+}
+.showroom-specs button {
+  font-size: 7px;
+  letter-spacing: 0.7px;
+  color: #c8d5bb;
+}
+.team-collection {
+  padding: 14px 20px 12px;
+  background: #12181b80;
+}
+.collection-label {
+  font: 7px monospace;
+  letter-spacing: 1.3px;
+  color: #9faaab;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.collection-label span {
+  color: #c7d7ac;
+}
+#team-collection {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-color: #5a6759 transparent;
+  scrollbar-width: thin;
+}
+.team-chip {
+  position: relative;
+  flex: 0 0 88px;
+  padding: 12px 9px 9px;
+  background: #1a2226;
+  border: 1px solid #3a4245;
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: left;
+  color: #e6e9df;
+  overflow: hidden;
+}
+.team-chip:before {
+  content: "";
+  height: 3px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  background: linear-gradient(
+    105deg,
+    var(--paint) 0 55%,
+    var(--secondary) 55% 82%,
+    var(--accent) 82%
+  );
+}
+.team-chip span {
+  display: block;
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.team-chip small {
+  display: block;
+  font: 7px monospace;
+  color: #91a09e;
+  margin-top: 6px;
+}
+.team-chip.selected {
+  background: #303a33;
+  border-color: #c5d49e;
+}
+.team-chip:hover {
+  border-color: #bdcba2;
+}
+#app .destination {
+  margin-top: auto;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #13191de8;
+  border-top: 1px solid #ffffff10;
+  min-width: 0;
+}
+.destination .hero-map {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 48px;
+  margin: 0;
+  opacity: 0.9;
+}
+.destination-name {
+  min-width: 0;
+  flex: 1;
+}
+#hero-country {
+  font: 7px monospace;
+  letter-spacing: 1.3px;
+  color: #9aa9a3;
+}
+.destination-name #hero-title {
+  font-size: 17px;
+  letter-spacing: -0.3px;
+  margin: 5px 0;
+  color: #e5e8de;
+  font-weight: 500;
+}
+.destination-name #hero-title span {
+  display: none;
+}
+.destination .layout-note {
+  font: 7px/1.4 monospace;
+  margin: 4px 0 0;
+  color: #baa67f;
+  letter-spacing: 0.2px;
+  max-width: none;
+}
+.destination-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: right;
+  white-space: nowrap;
+}
+.destination-stats strong {
+  font-size: 14px;
+  font-weight: 400;
+}
+.destination-stats strong small {
+  font-size: 9px;
+  color: #8d9b9a;
+}
+.destination-stats > span:not([hidden]) {
+  font: 7px monospace;
+  color: #9ba9a2;
+}
+#app .setup {
+  border: 1px solid #374044;
+  background: #1b2327;
+  border-radius: 5px;
+  padding: 23px;
+  box-shadow: 0 18px 50px #0002;
+  display: flex;
+  flex-direction: column;
+}
+#app .setup-title {
+  margin-bottom: 24px;
+}
+#app .setup-title h2 {
+  font-size: 21px;
+  letter-spacing: -0.6px;
+}
+#app .section-num {
+  color: #b9c99a;
+}
+#app .mode-switch {
+  background: #12181c;
+  border: 1px solid #3b4548;
+  padding: 3px;
+  border-radius: 3px;
+}
+#app .mode-switch button {
+  font-size: 9px;
+  white-space: nowrap;
+}
+#app .mode-switch button.selected {
+  background: #d3dfb2;
+  color: #172014;
+  box-shadow: none;
+}
+#app .field-label {
+  font-size: 8px;
+  letter-spacing: 0.8px;
+}
+#app #team-engine {
+  font: 7px/1.4 monospace;
+  max-width: 180px;
+  text-align: right;
+  color: #9eadaa;
+  letter-spacing: 0;
+}
+#app .era-choice {
+  background: #151c20;
+  border-color: #3b4649;
+  border-radius: 2px;
+}
+#app .era-choice.selected {
+  background: #2e392c;
+  border-color: #b3c592;
+  color: #e7ebde;
+}
+#app .era-choice strong {
+  font-size: 17px;
+}
+#app .era-choice span {
+  font-size: 6px;
+  letter-spacing: 0.6px;
+}
+#app .team-select-wrap {
+  background: #11181c;
+  border-color: #435051;
+  border-radius: 2px;
+}
+#app #team-select {
+  color: #e6eade;
+  font-size: 11px;
+}
+#app #team-select option {
+  background: #1b2327;
+  color: #f1f2e9;
+}
+#app .car-traits {
+  font-size: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#app .weather-choices button.selected {
+  background: #2c382b;
+  border-color: #b4c893;
+  color: #dae4c8;
+}
+#app .toggle.on {
+  background: #303f2c;
+  border-color: #acbd90;
+}
+#app #start-race {
+  margin-top: auto;
+  background: #d2e0ac;
+  color: #152010;
+  min-height: 55px;
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 20px #0002;
+}
+#app #start-race:hover {
+  background: #e1edc2;
+  transform: translateY(-1px);
+}
+#app .build-error {
+  color: #f3b78c;
+}
+#app .circuit-library {
+  margin-top: 44px;
+}
+#app .track-grid {
+  gap: 12px;
+}
+#app .track-card {
+  background: #1b2327;
+  border: 1px solid #3a4347;
+  border-radius: 4px;
+}
+#app .track-card.selected {
+  border-color: #b7c99a;
+  box-shadow: none;
+}
+#app .track-art {
+  background: radial-gradient(ellipse, #3b4941, #1a2528) !important;
+}
+#app .track-art svg {
+  filter: none;
+}
+#app .track-card .selected-check {
+  background: #c9dba9;
+  color: #172111;
+}
+#app .track-meta {
+  font-size: 8px;
+}
+#app footer {
+  border-top-color: #ffffff13;
+  color: #98a5a0;
+}
+#app .era-banner {
+  background: #202b28;
+  border: 1px solid #3b4841;
+  border-radius: 4px;
+}
+@media (min-width: 1600px) {
+  .showroom-stage {
+    height: 380px;
+  }
+}
+@media (max-width: 1100px) {
+  #app .race-layout {
+    grid-template-columns: minmax(0, 1fr) 305px;
+  }
+  #app .setup {
+    padding: 18px;
+  }
+  .showroom-specs .spec-caption {
+    display: none;
+  }
+  .showroom-specs {
+    padding: 14px 20px;
+  }
+  .showroom-nameplate h2 {
+    font-size: 44px;
+  }
+  .showroom-stage {
+    height: 320px;
+  }
+  .showroom-heading {
+    font-size: 7px;
+    padding: 0 18px;
+  }
+  .showroom-tools {
+    font-size: 6px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .showroom-tools button {
+    padding: 6px;
+  }
+}
+@media (max-width: 850px) {
+  #app .topbar {
+    padding: 0 20px;
+  }
+  #app .topbar nav {
+    gap: 15px;
+  }
+  #app .race-layout {
+    grid-template-columns: 1fr;
+  }
+  #app .setup {
+    display: block;
+    padding: 23px;
+  }
+  #app #start-race {
+    margin-top: 24px;
+  }
+  .showroom-stage {
+    height: 360px;
+  }
+  .showroom-nameplate h2 {
+    font-size: 54px;
+  }
+  .showroom-specs .spec-caption {
+    display: block;
+  }
+  #app .intro {
+    margin: 27px 0 22px;
+  }
+  #app .intro h1 {
+    font-size: 36px;
+  }
+  #app .platform-note {
+    display: none;
+  }
+  .showroom-specs {
+    justify-content: space-between;
+  }
+  .showroom-heading {
+    font-size: 8px;
+  }
+  #app .circuit-library {
+    margin-top: 32px;
+  }
+}
+@media (max-width: 540px) {
+  #app main {
+    padding: 0 16px;
+  }
+  #app .topbar {
+    height: 65px;
+    padding: 0 16px;
+  }
+  #app .brand > div {
+    font-size: 16px;
+  }
+  #app .brand svg {
+    width: 26px;
+  }
+  #app .topbar nav {
+    gap: 11px;
+  }
+  #app .nav {
+    font-size: 8px;
+    letter-spacing: 0.4px;
+  }
+  #app .topbar nav [data-nav="garage"],
+  #app .topbar nav [data-nav="records"] {
+    display: none;
+  }
+  #app .header-right .engine-status,
+  #app .avatar {
+    display: none;
+  }
+  #app .intro {
+    margin: 24px 0 20px;
+  }
+  #app .intro h1 {
+    font-size: 33px;
+  }
+  #app .intro p {
+    font-size: 10px;
+  }
+  #app .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.3px;
+  }
+  .showroom-stage {
+    height: 300px;
+  }
+  .showroom-nameplate {
+    left: 20px;
+    top: 66px;
+  }
+  .showroom-nameplate h2 {
+    font-size: 43px;
+  }
+  .showroom-nameplate > div {
+    font-size: 8px;
+    letter-spacing: 2px;
+  }
+  .showroom-nameplate p {
+    font-size: 7px;
+  }
+  .showroom-heading {
+    padding: 0 16px;
+    font-size: 6px;
+    letter-spacing: 0.8px;
+  }
+  .collection-kicker {
+    gap: 5px;
+  }
+  .showroom-tools {
+    padding: 0 15px 9px;
+    font-size: 6px;
+    letter-spacing: 0.2px;
+  }
+  .showroom-tools button {
+    font-size: 6px;
+    padding: 6px;
+  }
+  .showroom-specs {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+  .showroom-specs strong {
+    font-size: 21px;
+  }
+  .showroom-specs .spec-caption {
+    display: none;
+  }
+  .showroom-specs > div > span {
+    font-size: 6px;
+  }
+  .showroom-specs button {
+    font-size: 6px;
+  }
+  .team-collection {
+    padding: 13px 15px 9px;
+  }
+  .team-chip {
+    flex-basis: 84px;
+  }
+  #app .destination {
+    padding: 14px 15px;
+    gap: 10px;
+  }
+  .destination .hero-map {
+    width: 45px;
+    flex-basis: 45px;
+  }
+  .destination-name #hero-title {
+    font-size: 15px;
+  }
+  .destination .layout-note {
+    font-size: 6px;
+  }
+  .destination-stats strong {
+    font-size: 12px;
+  }
+  .destination-stats > span:not([hidden]) {
+    font-size: 6px;
+  }
+}

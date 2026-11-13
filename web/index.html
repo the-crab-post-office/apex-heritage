@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="apex-build" content="0.7.0-preview.1" />
+    <meta name="apex-build" content="0.8.0-preview.1" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#111413" />
     <title>APEX / HERITAGE — The history of speed</title>
@@ -11,6 +11,7 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23f35c35' d='M2 32 18 6h8L12 32zm17 0 10-17 9 17z'/%3E%3C/svg%3E"
     />
     <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/paddock.css" />
   </head>
   <body>
     <div id="app">
@@ -22,7 +23,7 @@
           <div>APEX<span>/ HERITAGE</span></div></a
         >
         <nav aria-label="Main navigation">
-          <button class="nav active" data-nav="drive">DRIVE</button
+          <button class="nav active" data-nav="drive">COLLECTION</button
           ><button class="nav" data-nav="circuits">
             CIRCUITS <sup>10</sup></button
           ><button class="nav" data-nav="garage">GARAGE</button
@@ -38,11 +39,11 @@
       <main>
         <div class="intro">
           <div>
-            <div class="eyebrow"><span></span> A LOVE LETTER TO MOTORSPORT</div>
-            <h1>Great circuits. <em>Timeless machines.</em></h1>
-            <p>
-              Four eras of racing. Ten iconic circuits. Your place on the grid.
-            </p>
+            <div class="eyebrow">
+              <span></span> CHOOSE YOUR ERA. FIND YOUR LIMIT.
+            </div>
+            <h1>History, <em>in your hands.</em></h1>
+            <p>47 constructors. Four generations. One place on the grid.</p>
           </div>
           <div class="platform-note">
             <i data-lucide="monitor"></i>
@@ -52,51 +53,83 @@
           </div>
         </div>
         <section class="race-layout" aria-label="Race setup">
-          <article class="hero" id="hero">
-            <div class="hero-img"></div>
-            <div class="hero-shade"></div>
-            <div class="hero-top">
-              <span class="live-pill"><i></i> CIRCUIT SPOTLIGHT</span
-              ><button id="view-circuit" class="ghost-small">
-                EXPLORE CIRCUIT <i data-lucide="arrow-up-right"></i>
+          <article class="hero showroom" id="hero">
+            <div class="showroom-heading">
+              <span class="collection-kicker"
+                ><i></i> THE HERITAGE COLLECTION</span
+              ><span id="roster-count">47 CONSTRUCTORS / 4 ERAS</span>
+            </div>
+            <div class="showroom-nameplate">
+              <div id="showroom-team">SCUDERIA FERRARI</div>
+              <h2 id="showroom-model">F2004</h2>
+              <p id="showroom-engine">3.0L V10</p>
+            </div>
+            <div id="showroom-stage" class="showroom-stage">
+              <span class="showroom-loading">PREPARING THE SHOWROOM</span>
+            </div>
+            <div class="showroom-tools">
+              <span id="showroom-status">REFERENCE LIVERY / LIVE 3D</span>
+              <div role="group" aria-label="Showroom camera">
+                <button data-camera="front">FRONT</button
+                ><button data-camera="side">SIDE</button
+                ><button data-camera="rear">REAR</button
+                ><button
+                  id="showroom-rotate"
+                  aria-pressed="true"
+                  aria-label="Toggle showroom rotation"
+                >
+                  ↻
+                </button>
+              </div>
+            </div>
+            <div class="showroom-specs">
+              <div>
+                <span>POWER / APPROX.</span
+                ><strong id="showroom-power">900 <small>hp</small></strong>
+              </div>
+              <div>
+                <span>RACE NUMBER</span><strong id="showroom-number">01</strong>
+              </div>
+              <div>
+                <span>CHASSIS / PAINT</span
+                ><strong class="spec-caption"
+                  >Original mesh <small>Reference markings</small></strong
+                >
+              </div>
+              <button id="view-circuit" class="ghost-small">
+                CIRCUIT DETAILS <i data-lucide="arrow-up-right"></i>
               </button>
             </div>
-            <div class="hero-content">
-              <div class="country-label" id="hero-country">
-                <span class="flag flag-be"></span> STAVELOT, BELGIUM
+            <div class="team-collection">
+              <div class="collection-label">
+                CHOOSE YOUR CONSTRUCTOR <span id="team-counter"></span>
               </div>
-              <h2 id="hero-title">
-                Spa-Francorchamps<span>THE ARDENNES. THE ULTIMATE TEST.</span>
-              </h2>
-              <p id="hero-tagline">
-                Seven kilometres of racing legend, carved into the Belgian
-                hills.
-              </p>
-              <p id="layout-note" class="layout-note"></p>
+              <div
+                id="team-collection"
+                role="group"
+                aria-label="Season constructors"
+              ></div>
             </div>
-            <div class="hero-bottom">
-              <div class="hero-stat">
-                <span>CIRCUIT LENGTH</span
-                ><strong id="hero-length">7.004 <small>km</small></strong>
+            <div class="destination">
+              <div id="hero-map" class="hero-map"></div>
+              <div class="destination-name">
+                <div id="hero-country"></div>
+                <h3 id="hero-title"></h3>
+                <p id="hero-tagline" hidden></p>
+                <p id="layout-note" class="layout-note"></p>
               </div>
-              <div class="hero-stat">
-                <span>CORNERS</span><strong id="hero-turns">19</strong>
+              <div class="destination-stats">
+                <strong id="hero-length"></strong
+                ><span><b id="hero-turns"></b> CORNERS</span
+                ><span id="hero-type" hidden></span>
               </div>
-              <div class="hero-stat">
-                <span>CIRCUIT TYPE</span
-                ><strong id="hero-type">Grand Prix</strong>
-              </div>
-              <div class="hero-map" id="hero-map"></div>
-            </div>
-            <div class="hero-label">
-              ORIGINAL CONCEPT ART <span>•</span> PLAYABLE 3D CIRCUIT IN SESSION
             </div>
           </article>
           <aside class="setup">
             <div class="setup-title">
               <div>
                 <span class="section-num">01 /</span>
-                <h2>Make it your race.</h2>
+                <h2>Build your session.</h2>
               </div>
               <i data-lucide="flag"></i>
             </div>
@@ -113,7 +146,7 @@
             </div>
             <div class="era-choices" id="era-choices"></div>
             <label class="field-label" for="team-select"
-              ><span>YOUR MACHINE</span
+              ><span>YOUR CONSTRUCTOR</span
               ><span id="team-engine">3.0L V10</span></label
             >
             <div class="team-select-wrap">
@@ -194,7 +227,7 @@
           </button>
         </div>
         <footer>
-          <span>APEX / HERITAGE <b>PREVIEW 0.7.0-preview.1</b></span>
+          <span>APEX / HERITAGE <b>PREVIEW 0.8.0-preview.1</b></span>
           <p>
             An independent tribute to racing. Not affiliated with Formula 1 or
             its teams.
@@ -227,7 +260,7 @@
       </div>
       <div id="hud-layout" class="hud-layout"></div>
       <div id="hud-build" class="hud-build">
-        v0.7.0-preview.1 · checking build
+        v0.8.0-preview.1 · checking build
       </div>
       <canvas id="race-canvas" aria-label="3D racing game"></canvas>
       <div class="race-vignette"></div>

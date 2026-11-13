@@ -1,14 +1,24 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.7.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.8.0-preview.1.**
 
-Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and liveries, real team/era references, no official logos. Menu concept artwork is AI-generated.
+Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## 0.8 collection update
+
+- Full season constructor selection shared by Rust, web/native menus, handling and web rival liveries. 1967 counts constructor representatives, excluding F2 guests and duplicate privateer/engine entries; one representative car per constructor, not every driver/race variant. Quick races still use the existing smaller AI field, not 47 simultaneous cars.
+- 47 original 2048×1024 offline-generated atlases: characteristic colour blocking, race numbers, period sponsor lettering, wing/endplate panels and web tyre/rim details. These remain **stylised reconstructions**, not exact corporate fonts or race-by-race replicas. Chassis are shared per-era models; native has simpler decal/tyre coverage.
+- Dark/sage browser menu, orbitable selected-car showroom, camera presets, constructor strip, engine/power/number data and clearer session setup. Native setup has a simpler 3D car studio; native camera field-of-view units are corrected. Reduced-motion, mobile sizing, failed-texture fallback and resource disposal are covered by browser tests.
+- Removed redundant checked-in map/building databases and obsolete concept hero; runtime and offline generators use authoritative `data/` inputs. Existing licenses and releases are retained.
+- 1988 naturally aspirated constructors no longer inherit turbo lag/boost.
+
+See [data/LIVERY-NOTICE.md](data/LIVERY-NOTICE.md) for visual references, roster scope and trademark limitations. This update does **not** finish historical road reconstruction or survey-correct elevation.
 
 ## Preview status — read first
 
 This feature preview implements the corner/contact changes below, but **the requested full historical road reconstructions are unfinished**. All ten tracks still use recent mapped roads. The 1967/1988/2004 selections have era-inspired surface presets and visible **RECENT-LAYOUT SUBSTITUTE** labels, not authentic historic layouts. Stands, buildings, pit routes, elevation, AI paths and minimaps also remain recent-layout approximations. Montréal 1967 and Nürburgring GP 1967 are separately identified as nonexistent-era combinations; that exception does **not** justify the other missing historic alignments.
 
-The work remains on `feature/photo-referenced-corner-surfaces`; stable `main`/`v0.6.0` are not replaced. No remote repository has been created or pushed.
+The work remains on `feature/full-grid-liveries-showroom`; stable `main`/`v0.6.0` are not replaced. No remote repository has been created or pushed.
 
 ## New playable corner/contact features
 
@@ -24,7 +34,7 @@ Full source evidence, photo links, database attribution and limitations: [corner
 ## Retained prototype features
 
 - Ten circuits: Spa, Monaco, Monza, Silverstone, Suzuka, Interlagos, Imola, Nürburgring GP, Montréal and Hockenheim.
-- Four car eras (1967, 1988, 2004, modern), four reference teams per era, distinct power/grip/braking and era handling, turbo boost, wet-weather grip and progressive rear breakaway. Handling is inspired by the eras, not calibrated real vehicle telemetry.
+- Four car eras (1967, 1988, 2004, 2023), **47 constructor representatives** (9 / 18 / 10 / 10), distinct power/grip/braking and era handling, turbo boost, wet-weather grip and progressive rear breakaway. Handling is inspired by the eras, not calibrated real vehicle telemetry.
 - Practice, time trial and browser quick races with five AI cars; keyboard, touch and standard controller inputs.
 - Real mapped recent pit routes, lane following/limiter, marked-box stop and timed tyre/fuel service. **Pit entry practice** avoids needing a full lap. Not full race strategy.
 - Phase-locked timbre derived from licensed real recordings for the first three eras; modern V6 synthesis and safe missing-recording fallback. The source cars/dates are approximate era stand-ins, not exact roster-car recordings.
@@ -42,7 +52,7 @@ python3 -m http.server 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.7.0-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.8.0-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|
@@ -55,7 +65,7 @@ Native setup: arrows select track, E selects era, T selects team, Enter starts; 
 
 ## Build and test
 
-Requires Rust, Node/npm, `wasm32-unknown-unknown`, and `wasm-bindgen-cli` **0.2.105**. Native Linux additionally needs OpenGL/X11, ALSA and libudev development/runtime libraries. Python geometric regeneration/tests use Shapely; elevation tooling also uses NumPy/SciPy/rasterio.
+Requires Rust, Node/npm, `wasm32-unknown-unknown`, and `wasm-bindgen-cli` **0.2.105**. Native Linux additionally needs OpenGL/X11, ALSA and libudev development/runtime libraries. Python geometric regeneration/tests use Shapely; elevation tooling also uses NumPy/SciPy/rasterio. Offline livery regeneration uses Pillow and the bundled licensed font (`python3 scripts/build-liveries.py`).
 
 ```sh
 . "$HOME/.cargo/env"

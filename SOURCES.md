@@ -35,14 +35,15 @@ Landmarks are approximate architectural cues and are not positioned from a detai
 
 ## Car and performance references
 
-Car names and years identify historically inspired machines. Geometry is original and generic within each era. No logos, sponsor decals, scanned meshes or official manufacturer blueprints were used.
+Car names and years identify historically inspired machines. Geometry is original and generic within each era. 0.8 adds original reference-guided sponsor/team lettering and stylised marks on shared era geometry. No scanned meshes, official manufacturer blueprints, copied photo pixels or corporate vector files are redistributed. See `data/LIVERY-NOTICE.md` and the per-team references in `data/roster.json`.
 
 The central gameplay distinctions are low-aero classic cars, turbo boost buildup, a high-revving V10 era and heavier high-downforce modern cars. Mass, power, grip, aero, braking and steering parameters are approximations. Team modifiers are authored game balance, **not source-backed historical measurements or rankings**. In particular, era-wide handling does not simulate every real engine architecture represented in the roster.
 
 ## Original artwork and dependencies
 
-- `web/assets/heritage-hero.jpg`: AI-generated original motorsport concept artwork. Shown as concept art in the menu; **not an actual screenshot or third-party track photograph**. The image is generic promotional artwork and does not change to a photographic representation of each selected circuit.
-- WebGL car meshes, textures and world geometry: original procedural code in `web/graphics.js`.
+- The obsolete concept hero was removed in 0.8. The menu uses the actual selected in-game mesh and atlas.
+- `web/assets/liveries/`: original generated paint atlases; `scripts/build-liveries.py` and `data/roster.json` are the editable sources. Lettering uses bundled DejaVu Sans Bold under the retained `scripts/fonts/LICENSE-DejaVu.txt`.
+- WebGL car meshes, textures and world geometry: original procedural code in `web/car.js`, `web/graphics.js` and the native renderer.
 - Engine audio: licensed real recording layers for the first three eras, blended with original four-stroke-inspired synthesis/transients. The modern V6 is procedural. See the 0.3 recording section and asset-specific CC BY-SA notice; presets remain illustrative rather than measured replicas.
 - Three.js: MIT, https://github.com/mrdoob/three.js/blob/dev/LICENSE
 - Lucide: ISC/MIT attribution as shipped by the dependency, https://github.com/lucide-icons/lucide/blob/main/LICENSE

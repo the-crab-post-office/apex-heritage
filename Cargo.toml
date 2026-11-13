@@ -1,6 +1,6 @@
 [package]
 name = "apex-heritage"
-version = "0.7.0-preview.1"
+version = "0.8.0-preview.1"
 edition = "2021"
 description = "Cross-platform historical single-seater racing prototype"
 license = "MIT"
@@ -19,7 +19,7 @@ wasm-bindgen = "=0.2.105"
 macroquad = { version = "0.4", optional = true }
 cpal = {version="0.15",optional=true}
 gilrs = { version = "0.11", optional = true }
-image = { version = "0.24", default-features = false, features = ["jpeg"], optional = true }
+image = { version = "0.24", default-features = false, features = ["jpeg", "png"], optional = true }
 
 [[bin]]
 name = "apex-native"

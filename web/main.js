@@ -43,7 +43,7 @@ const icons = {
 export const refreshIcons = () => createIcons({ icons });
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
-import tracks from "./assets/tracks.json";
+import tracks from "../data/tracks.json";
 const readStorage = (key, fallback) => {
   try {
     return JSON.parse(localStorage.getItem(key)) ?? fallback;
@@ -71,8 +71,11 @@ let config = {
 };
 config.track = Math.min(9, Math.max(0, Number(config.track) || 0));
 config.era = Math.min(3, Math.max(0, Number(config.era) || 0));
-config.team = Math.min(3, Math.max(0, Number(config.team) || 0));
-let records = readStorage("apex-records-v7-wheel-limits", []),
+config.team = Math.min(
+  eras[config.era].teams.length - 1,
+  Math.max(0, Number(config.team) || 0),
+);
+let records = readStorage("apex-records-v8-full-grid", []),
   race = null,
   filter = "all",
   toastTimer;
@@ -103,6 +106,42 @@ $("#info-dialog").addEventListener("click", (e) => {
       e.target.close();
   }
 });
+let showroom = null;
+function updateShowroom() {
+  const era = eras[config.era],
+    t = era.teams[config.team];
+  document.documentElement.style.setProperty("--team-accent", t.color);
+  document.documentElement.style.setProperty("--team-highlight", t.secondary);
+  $("#showroom-team").textContent = t.name.toUpperCase();
+  $("#showroom-model").textContent = t.car;
+  $("#showroom-engine").textContent = t.engine;
+  $("#showroom-power").innerHTML = `${t.power} <small>hp</small>`;
+  $("#showroom-number").textContent = String(t.number).padStart(2, "0");
+  $("#roster-count").textContent =
+    `${era.year} / ${era.teams.length} CONSTRUCTORS`;
+  $("#team-counter").textContent = `${config.team + 1} / ${era.teams.length}`;
+  $("#team-collection").innerHTML = era.teams
+    .map(
+      (t, i) =>
+        `<button class="team-chip ${i === config.team ? "selected" : ""}" data-team="${i}" aria-label="Select ${t.name} ${t.car}" aria-pressed="${i === config.team}" style="--paint:${t.color};--secondary:${t.secondary};--accent:${t.accent}"><span>${t.name}</span><small>${t.car}</small></button>`,
+    )
+    .join("");
+  $$("[data-team]").forEach(
+    (b) =>
+      (b.onclick = () => {
+        $("#team-select").value = b.dataset.team;
+        $("#team-select").dispatchEvent(new Event("change"));
+      }),
+  );
+  const strip = $("#team-collection"),
+    chip = strip.querySelector(".selected");
+  if (chip)
+    strip.scrollLeft = Math.max(
+      0,
+      chip.offsetLeft - strip.clientWidth / 2 + chip.clientWidth / 2,
+    );
+  if (showroom) showroom.select(config.era, config.team);
+}
 function updateMachine() {
   const era = eras[config.era];
   $("#team-select").innerHTML = era.teams
@@ -112,8 +151,12 @@ function updateMachine() {
     )
     .join("");
   $("#team-color").style.background = era.teams[config.team].color;
-  $("#team-engine").textContent = era.engine;
-  $("#car-trait").textContent = era.trait;
+  $("#team-engine").textContent = era.teams[config.team].engine;
+  updateShowroom();
+  $("#car-trait").textContent =
+    config.era === 1 && !era.teams[config.team].turbo
+      ? "Naturally aspirated"
+      : era.trait;
   $("#car-power").textContent = era.teams[config.team].power + " hp";
   $("#era-choices").innerHTML = eras
     .map(
@@ -257,7 +300,7 @@ $(".brand").onclick = (e) => {
 $("#info-dialog").addEventListener("close", () => setNav("drive"));
 function showGarage() {
   showDialog(
-    `<div class="dialog-kicker">FOUR GENERATIONS. FOUR PERSONALITIES.</div><h2 class="dialog-heading">The evolution of speed.</h2><p class="dialog-subtitle">Not skins. Four independently tuned driving models, with four teams in each era.</p><div class="era-grid">${eras.map((e, i) => `<article class="era-info ${config.era === i ? "chosen" : ""}"><h3>${e.year}</h3><h4>${e.name}</h4><p>${e.description}</p><button data-pick-era="${i}">${config.era === i ? "SELECTED" : "DRIVE THIS ERA"}</button></article>`).join("")}</div><p class="dialog-note">Handling is inspired by each generation, not a validated reproduction of real vehicle telemetry. Car silhouettes and liveries are original, without official logos.</p>`,
+    `<div class="dialog-kicker">FOUR GENERATIONS. FOUR PERSONALITIES.</div><h2 class="dialog-heading">The evolution of speed.</h2><p class="dialog-subtitle">Not skins. Four independently tuned driving models, with 47 constructor representatives across the four seasons.</p><div class="era-grid">${eras.map((e, i) => `<article class="era-info ${config.era === i ? "chosen" : ""}"><h3>${e.year}</h3><h4>${e.name}</h4><p>${e.description}</p><button data-pick-era="${i}">${config.era === i ? "SELECTED" : "DRIVE THIS ERA"}</button></article>`).join("")}</div><p class="dialog-note">Handling is inspired by each generation, not a validated reproduction of real vehicle telemetry. Original car silhouettes with reference-guided colours, period sponsor lettering and stylised markings; not licensed scans or exact race-specific replicas.</p>`,
   );
   $$("[data-pick-era]").forEach(
     (b) =>
@@ -294,7 +337,7 @@ function showRecords() {
     $("#clear-records").onclick = () => {
       if (confirm("Delete all locally saved lap records?")) {
         records = [];
-        store("apex-records-v7-wheel-limits", records);
+        store("apex-records-v8-full-grid", records);
         showRecords();
       }
     };
@@ -323,7 +366,7 @@ $("#settings-button").onclick = () => {
 };
 $("#credits-button").onclick = () =>
   showDialog(
-    `<div class="dialog-kicker">INDEPENDENT / BUILT WITH RUST</div><h2 class="dialog-heading">Under the bodywork.</h2><div class="credits-text"><p>APEX / HERITAGE is a playable prototype, not a finished photorealistic simulator. Physics runs in Rust, compiled to WebAssembly. The browser uses Three.js for rendering; the native client uses Macroquad with the same Rust driving model.</p><ul><li>10 geographic circuit layouts from <a href="https://github.com/bacinger/f1-circuits" target="_blank" rel="noopener">Tomislav Bacinger’s F1 circuits</a> (MIT). Original coordinate data smoothed and resampled.</li><li>Building footprints © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>, <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>. Height values are mapped or explicitly estimated. <a href="/licenses/buildings.json" target="_blank" rel="noopener">Download editable footprint data</a> and <a href="/licenses/OSM.md" target="_blank" rel="noopener">database notices</a>. No random buildings. Five circuit start locations corrected from mapped markers, including Monaco.</li><li>Terrain estimates are produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved. <a href="/licenses/elevation.md" target="_blank" rel="noopener">Source, processing and licence notice</a>. Approximately 30 m surface data; tunnel/bridge corrections are estimates, not surveys.</li><li>Vegetation guide: Contains modified Copernicus Sentinel data 2025. Coarse land-cover only, not stretched onto the ground. High-detail surface maps from ambientCG (CC0), with original facade composites; <a href="/licenses/materials.md" target="_blank" rel="noopener">material source/licence</a>. Mapped current pit lanes: <a href="/licenses/pits.md" target="_blank" rel="noopener">OSM source/processing</a>. <a href="/licenses/imagery.md" target="_blank" rel="noopener">Imagery source/licence</a> and <a href="/licenses/imagery.json" target="_blank" rel="noopener">editable scene manifest</a>. Photo references: <a href="https://www.circuitsofthepast.com/eau-rouge-or-raidillon/" target="_blank" rel="noopener">Spa Eau Rouge / Raidillon</a> and circuit photography linked in SOURCES.md. Trackside references inform approximate scenery; only the separately credited Sentinel-2 satellite crops are redistributed.</li><li>Corner surfaces and trackside facilities: © OpenStreetMap contributors, ODbL 1.0; <a href="/licenses/venue-osm.json" target="_blank" rel="noopener">retained feature snapshot</a>, <a href="/licenses/corner-details.json" target="_blank" rel="noopener">editable corner database</a> and <a href="/licenses/corner-details.md" target="_blank" rel="noopener">photo references and limitations</a>. Stand extents, kerb dimensions and runoff boundaries are approximate. Historical road reconstructions remain unfinished: the older selections use labelled recent-layout substitutes, not authentic historic roads.</li><li>Menu artwork is AI-generated concept art, not an in-game screenshot. Cars and facade patterns are original procedural assets; detailed base materials are ambientCG CC0; buildings and pit routes use mapped OSM data.</li><li>Recorded engine layers: <a href="https://commons.wikimedia.org/wiki/File:Lotus-BRM_24_(1962).ogg" target="_blank" rel="noopener">Lotus-BRM 24 (1962)</a>, <a href="https://commons.wikimedia.org/wiki/File:Toleman-Hart_TG183B_(1983).ogg" target="_blank" rel="noopener">Toleman-Hart TG183B (1983)</a> and <a href="https://commons.wikimedia.org/wiki/File:Williams-Renault_FW18_(1996).ogg" target="_blank" rel="noopener">Williams-Renault FW18 (1996)</a> by Edvvc (Ed Pond), <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>. Harmonic timbres extracted from short real-recording windows, phase-locked to RPM; blended with original synthesis. Trackside references, not exact roster cars; 2023 remains procedural.</li><li>Team names identify historically inspired cars. No official logos or licensed car meshes. All team performance values are illustrative gameplay tuning.</li></ul><p>Prototype limitations: filtered surface-model elevation (not road surveys), simplified tyre wear/fuel and assisted mapped current pit lanes with estimated widths/heights/service boxes, no damage, DRS, ERS management or multiplayer. AI follows the circuit and is non-colliding. Native graphics are simpler than the web renderer.</p><p>Git feature branches: <code>feature/circuit-library</code>, <code>feature/rust-dynamics</code>, <code>feature/web-experience</code>. See README.md for build commands and controls.</p></div>`,
+    `<div class="dialog-kicker">INDEPENDENT / BUILT WITH RUST</div><h2 class="dialog-heading">Under the bodywork.</h2><div class="credits-text"><p>APEX / HERITAGE is a playable prototype, not a finished photorealistic simulator. Physics runs in Rust, compiled to WebAssembly. The browser uses Three.js for rendering; the native client uses Macroquad with the same Rust driving model.</p><ul><li>10 geographic circuit layouts from <a href="https://github.com/bacinger/f1-circuits" target="_blank" rel="noopener">Tomislav Bacinger’s F1 circuits</a> (MIT). Original coordinate data smoothed and resampled.</li><li>Building footprints © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>, <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>. Height values are mapped or explicitly estimated. <a href="/licenses/buildings.json" target="_blank" rel="noopener">Download editable footprint data</a> and <a href="/licenses/OSM.md" target="_blank" rel="noopener">database notices</a>. No random buildings. Five circuit start locations corrected from mapped markers, including Monaco.</li><li>Terrain estimates are produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved. <a href="/licenses/elevation.md" target="_blank" rel="noopener">Source, processing and licence notice</a>. Approximately 30 m surface data; tunnel/bridge corrections are estimates, not surveys.</li><li>Vegetation guide: Contains modified Copernicus Sentinel data 2025. Coarse land-cover only, not stretched onto the ground. High-detail surface maps from ambientCG (CC0), with original facade composites; <a href="/licenses/materials.md" target="_blank" rel="noopener">material source/licence</a>. Mapped current pit lanes: <a href="/licenses/pits.md" target="_blank" rel="noopener">OSM source/processing</a>. <a href="/licenses/imagery.md" target="_blank" rel="noopener">Imagery source/licence</a> and <a href="/licenses/imagery.json" target="_blank" rel="noopener">editable scene manifest</a>. Photo references: <a href="https://www.circuitsofthepast.com/eau-rouge-or-raidillon/" target="_blank" rel="noopener">Spa Eau Rouge / Raidillon</a> and circuit photography linked in SOURCES.md. Trackside references inform approximate scenery; only the separately credited Sentinel-2 satellite crops are redistributed.</li><li>Corner surfaces and trackside facilities: © OpenStreetMap contributors, ODbL 1.0; <a href="/licenses/venue-osm.json" target="_blank" rel="noopener">retained feature snapshot</a>, <a href="/licenses/corner-details.json" target="_blank" rel="noopener">editable corner database</a> and <a href="/licenses/corner-details.md" target="_blank" rel="noopener">photo references and limitations</a>. Stand extents, kerb dimensions and runoff boundaries are approximate. Historical road reconstructions remain unfinished: the older selections use labelled recent-layout substitutes, not authentic historic roads.</li><li>The menu showroom renders the actual original in-game car geometry, not concept art. Period sponsor lettering and stylised marks are reference reconstructions, not official licensed assets or endorsements. Public/commercial use may require permissions. Cars and facade patterns are original procedural assets; detailed base materials are ambientCG CC0; buildings and pit routes use mapped OSM data.</li><li>Recorded engine layers: <a href="https://commons.wikimedia.org/wiki/File:Lotus-BRM_24_(1962).ogg" target="_blank" rel="noopener">Lotus-BRM 24 (1962)</a>, <a href="https://commons.wikimedia.org/wiki/File:Toleman-Hart_TG183B_(1983).ogg" target="_blank" rel="noopener">Toleman-Hart TG183B (1983)</a> and <a href="https://commons.wikimedia.org/wiki/File:Williams-Renault_FW18_(1996).ogg" target="_blank" rel="noopener">Williams-Renault FW18 (1996)</a> by Edvvc (Ed Pond), <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>. Harmonic timbres extracted from short real-recording windows, phase-locked to RPM; blended with original synthesis. Trackside references, not exact roster cars; 2023 remains procedural.</li><li>Team names identify historically inspired cars. Period sponsor/team markings are original stylised reconstructions, not licensed corporate artwork or car meshes. All team performance values are illustrative gameplay tuning.</li></ul><p>Prototype limitations: filtered surface-model elevation (not road surveys), simplified tyre wear/fuel and assisted mapped current pit lanes with estimated widths/heights/service boxes, no damage, DRS, ERS management or multiplayer. AI follows the circuit and is non-colliding. Native graphics are simpler than the web renderer.</p><p>Git feature branches: <code>feature/circuit-library</code>, <code>feature/rust-dynamics</code>, <code>feature/web-experience</code>. See README.md for build commands and controls.</p></div>`,
   );
 let starting = false;
 async function startRace() {
@@ -382,7 +425,7 @@ function saveRecord(best) {
   if (!old || best < old.best) {
     if (old) old.best = best;
     else records.push({ ...config, best });
-    store("apex-records-v7-wheel-limits", records);
+    store("apex-records-v8-full-grid", records);
   }
 }
 function exitRace() {
@@ -429,8 +472,37 @@ setInterval(() => {
       ?.click();
   if (p.pressed.has(12) || p.pressed.has(13)) {
     const el = document.querySelector("#team-select");
-    el.value = String((config.team + (p.pressed.has(13) ? 1 : 3)) % 4);
+    const n = eras[config.era].teams.length;
+    el.value = String((config.team + (p.pressed.has(13) ? 1 : n - 1)) % n);
     el.dispatchEvent(new Event("change"));
   }
   if (p.pressed.has(0)) document.querySelector("#start-race")?.click();
 }, 80);
+
+import("./showroom.js")
+  .then(({ Showroom }) => {
+    showroom = new Showroom($("#showroom-stage"));
+    window.__showroom = showroom;
+    updateShowroom();
+  })
+  .catch((error) => {
+    console.warn("Showroom unavailable", error);
+    $("#showroom-status").textContent = "3D PREVIEW UNAVAILABLE";
+    $("#showroom-stage").dataset.ready = "fallback";
+  });
+$$("[data-camera]").forEach(
+  (b) =>
+    (b.onclick = () => {
+      showroom?.view(b.dataset.camera);
+      $("#showroom-rotate").setAttribute("aria-pressed", "false");
+    }),
+);
+$("#showroom-rotate").onclick = () => {
+  if (!showroom) return;
+  showroom.controls.autoRotate = !showroom.controls.autoRotate;
+  $("#showroom-rotate").setAttribute(
+    "aria-pressed",
+    String(showroom.controls.autoRotate),
+  );
+  showroom.dirty = true;
+};

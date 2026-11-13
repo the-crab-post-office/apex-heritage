@@ -1,0 +1,429 @@
+{
+  "original_artwork": true,
+  "photo_pixels": false,
+  "teams": [
+    {
+      "id": "1967-lotus",
+      "file": "1967-lotus.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 5,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/Lotus_49"
+    },
+    {
+      "id": "1967-ferrari",
+      "file": "1967-ferrari.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 8,
+      "style": "roundel",
+      "source": "https://en.wikipedia.org/wiki/Ferrari_312"
+    },
+    {
+      "id": "1967-brabham",
+      "file": "1967-brabham.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 1,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/Brabham_BT24"
+    },
+    {
+      "id": "1967-cooper",
+      "file": "1967-cooper.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 15,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/Cooper_T81"
+    },
+    {
+      "id": "1967-brm",
+      "file": "1967-brm.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 3,
+      "style": "noseband",
+      "source": "https://en.wikipedia.org/wiki/BRM_P83"
+    },
+    {
+      "id": "1967-honda",
+      "file": "1967-honda.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 14,
+      "style": "sun",
+      "source": "https://en.wikipedia.org/wiki/Honda_RA300"
+    },
+    {
+      "id": "1967-eagle",
+      "file": "1967-eagle.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 9,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/Eagle_T1G"
+    },
+    {
+      "id": "1967-mclaren",
+      "file": "1967-mclaren.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 19,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/McLaren_M5A"
+    },
+    {
+      "id": "1967-lds",
+      "file": "1967-lds.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 18,
+      "style": "noseband",
+      "source": "https://en.wikipedia.org/wiki/LDS_(automobile)"
+    },
+    {
+      "id": "1988-mclaren",
+      "file": "1988-mclaren.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 12,
+      "style": "chevron",
+      "source": "https://en.wikipedia.org/wiki/McLaren_MP4_4"
+    },
+    {
+      "id": "1988-ferrari",
+      "file": "1988-ferrari.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 28,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/Ferrari_F1/87/88C"
+    },
+    {
+      "id": "1988-williams",
+      "file": "1988-williams.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 5,
+      "style": "williams",
+      "source": "https://en.wikipedia.org/wiki/Williams_FW12"
+    },
+    {
+      "id": "1988-benetton",
+      "file": "1988-benetton.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 20,
+      "style": "benetton",
+      "source": "https://en.wikipedia.org/wiki/Benetton_B188"
+    },
+    {
+      "id": "1988-lotus",
+      "file": "1988-lotus.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 1,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/Lotus_100T"
+    },
+    {
+      "id": "1988-arrows",
+      "file": "1988-arrows.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 17,
+      "style": "arrows",
+      "source": "https://en.wikipedia.org/wiki/Arrows_A10B"
+    },
+    {
+      "id": "1988-march",
+      "file": "1988-march.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 16,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/March_881"
+    },
+    {
+      "id": "1988-tyrrell",
+      "file": "1988-tyrrell.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 3,
+      "style": "williams",
+      "source": "https://en.wikipedia.org/wiki/Tyrrell_017"
+    },
+    {
+      "id": "1988-ligier",
+      "file": "1988-ligier.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 25,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/Ligier_JS31"
+    },
+    {
+      "id": "1988-larrousse",
+      "file": "1988-larrousse.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 30,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/Larrousse_LC88"
+    },
+    {
+      "id": "1988-rial",
+      "file": "1988-rial.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 22,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/Rial_ARC1"
+    },
+    {
+      "id": "1988-minardi",
+      "file": "1988-minardi.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 23,
+      "style": "minardi",
+      "source": "https://en.wikipedia.org/wiki/Minardi_M188"
+    },
+    {
+      "id": "1988-dallara",
+      "file": "1988-dallara.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 36,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/Dallara_F188"
+    },
+    {
+      "id": "1988-ags",
+      "file": "1988-ags.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 14,
+      "style": "stripe",
+      "source": "https://en.wikipedia.org/wiki/AGS_JH23"
+    },
+    {
+      "id": "1988-zakspeed",
+      "file": "1988-zakspeed.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 10,
+      "style": "chevron",
+      "source": "https://en.wikipedia.org/wiki/Zakspeed_881"
+    },
+    {
+      "id": "1988-osella",
+      "file": "1988-osella.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 21,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/Osella_FA1L"
+    },
+    {
+      "id": "1988-eurobrun",
+      "file": "1988-eurobrun.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 33,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/EuroBrun_ER188"
+    },
+    {
+      "id": "1988-coloni",
+      "file": "1988-coloni.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 31,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/Coloni_FC188"
+    },
+    {
+      "id": "2004-ferrari",
+      "file": "2004-ferrari.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 1,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/Ferrari_F2004"
+    },
+    {
+      "id": "2004-williams",
+      "file": "2004-williams.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 3,
+      "style": "williams",
+      "source": "https://en.wikipedia.org/wiki/Williams_FW26"
+    },
+    {
+      "id": "2004-renault",
+      "file": "2004-renault.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 8,
+      "style": "renault",
+      "source": "https://en.wikipedia.org/wiki/Renault_R24"
+    },
+    {
+      "id": "2004-mclaren",
+      "file": "2004-mclaren.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 6,
+      "style": "silver",
+      "source": "https://en.wikipedia.org/wiki/McLaren_MP4-19"
+    },
+    {
+      "id": "2004-bar",
+      "file": "2004-bar.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 9,
+      "style": "circle",
+      "source": "https://en.wikipedia.org/wiki/BAR_006"
+    },
+    {
+      "id": "2004-sauber",
+      "file": "2004-sauber.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 11,
+      "style": "sauber",
+      "source": "https://en.wikipedia.org/wiki/Sauber_C23"
+    },
+    {
+      "id": "2004-jaguar",
+      "file": "2004-jaguar.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 14,
+      "style": "jaguar",
+      "source": "https://en.wikipedia.org/wiki/Jaguar_R5"
+    },
+    {
+      "id": "2004-toyota",
+      "file": "2004-toyota.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 16,
+      "style": "toyota",
+      "source": "https://en.wikipedia.org/wiki/Toyota_TF104"
+    },
+    {
+      "id": "2004-jordan",
+      "file": "2004-jordan.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 18,
+      "style": "blocks",
+      "source": "https://en.wikipedia.org/wiki/Jordan_EJ14"
+    },
+    {
+      "id": "2004-minardi",
+      "file": "2004-minardi.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 20,
+      "style": "minardi",
+      "source": "https://en.wikipedia.org/wiki/Minardi_PS04B"
+    },
+    {
+      "id": "2023-red-bull",
+      "file": "2023-red-bull.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 1,
+      "style": "bull",
+      "source": "https://en.wikipedia.org/wiki/Red_Bull_RB19"
+    },
+    {
+      "id": "2023-mercedes",
+      "file": "2023-mercedes.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 44,
+      "style": "mercedes",
+      "source": "https://en.wikipedia.org/wiki/Mercedes_W14"
+    },
+    {
+      "id": "2023-ferrari",
+      "file": "2023-ferrari.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 16,
+      "style": "ferrari",
+      "source": "https://en.wikipedia.org/wiki/Ferrari_SF-23"
+    },
+    {
+      "id": "2023-aston-martin",
+      "file": "2023-aston-martin.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 14,
+      "style": "aston",
+      "source": "https://en.wikipedia.org/wiki/Aston_Martin_AMR23"
+    },
+    {
+      "id": "2023-mclaren",
+      "file": "2023-mclaren.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 4,
+      "style": "mclaren",
+      "source": "https://en.wikipedia.org/wiki/McLaren_MCL60"
+    },
+    {
+      "id": "2023-alpine",
+      "file": "2023-alpine.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 10,
+      "style": "alpine",
+      "source": "https://en.wikipedia.org/wiki/Alpine_A523"
+    },
+    {
+      "id": "2023-williams",
+      "file": "2023-williams.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 23,
+      "style": "williams",
+      "source": "https://en.wikipedia.org/wiki/Williams_FW45"
+    },
+    {
+      "id": "2023-alphatauri",
+      "file": "2023-alphatauri.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 22,
+      "style": "alphatauri",
+      "source": "https://en.wikipedia.org/wiki/AlphaTauri_AT04"
+    },
+    {
+      "id": "2023-alfa-romeo",
+      "file": "2023-alfa-romeo.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 77,
+      "style": "alfa",
+      "source": "https://en.wikipedia.org/wiki/Alfa_Romeo_C43"
+    },
+    {
+      "id": "2023-haas",
+      "file": "2023-haas.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 20,
+      "style": "haas",
+      "source": "https://en.wikipedia.org/wiki/Haas_VF-23"
+    }
+  ]
+}

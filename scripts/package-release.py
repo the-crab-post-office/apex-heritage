@@ -55,6 +55,8 @@ info = (f'APEX / HERITAGE {version}\nCommit: {run("git", "rev-parse", "HEAD")}\n
         'Physical controller hardware and subjective listening review unverified.\n').encode()
 common = {name: Path(name).read_bytes() for name in ['README.md', 'SOURCES.md', 'TESTING.md', 'LICENSE']}
 common.update(licenses)
+common['licenses/LIVERY-NOTICE.md'] = Path('data/LIVERY-NOTICE.md').read_bytes()
+common['licenses/DejaVu.txt'] = Path('scripts/fonts/LICENSE-DejaVu.txt').read_bytes()
 common['BUILD-INFO.txt'] = info
 common['PREVIEW-SCOPE.txt'] = (Path('data/CORNER-DETAILS-NOTICE.md').read_bytes())
 source = {p: Path(p).read_bytes() for p in run('git', 'ls-files').splitlines() if Path(p).is_file()}

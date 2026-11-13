@@ -31,6 +31,9 @@ function buildIdentity() {
 // Keep redistributed databases editable and asset-specific licenses accessible,
 // without maintaining another checked-in copy of the same data.
 const notices = {
+  "roster.json": "data/roster.json",
+  "liveries.md": "data/LIVERY-NOTICE.md",
+  "DejaVu.txt": "scripts/fonts/LICENSE-DejaVu.txt",
   "corner-details.json": "data/corner-details.json",
   "venue-osm.json": "data/venue-osm.json",
   "corner-details.md": "data/CORNER-DETAILS-NOTICE.md",

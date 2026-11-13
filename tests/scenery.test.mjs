@@ -63,19 +63,13 @@ for (const t of tracks)
     }
   });
 test("corrected markers retain height alignment, direction and shared browser/native data", () => {
-  assert.equal(
-    fs.readFileSync(new URL("../data/tracks.json", import.meta.url), "utf8"),
-    fs.readFileSync(
-      new URL("../web/assets/tracks.json", import.meta.url),
-      "utf8",
-    ),
+  assert.match(
+    fs.readFileSync(new URL("../web/main.js", import.meta.url), "utf8"),
+    /\.\.\/data\/tracks.json/,
   );
-  assert.equal(
-    fs.readFileSync(new URL("../data/buildings.json", import.meta.url), "utf8"),
-    fs.readFileSync(
-      new URL("../web/assets/buildings.json", import.meta.url),
-      "utf8",
-    ),
+  assert.match(
+    fs.readFileSync(new URL("../web/graphics.js", import.meta.url), "utf8"),
+    /\.\.\/data\/buildings.json/,
   );
   const corrected = tracks.filter(
     (t) => t.start_reference.status === "snapped to mapped marker",

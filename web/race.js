@@ -49,7 +49,8 @@ export class Race {
     this.track = track;
     this.config = config;
     this.callbacks = callbacks;
-    this.config.color = eras[config.era].teams[config.team].color;
+    this.config.teamData = eras[config.era].teams[config.team];
+    this.config.color = this.config.teamData.color;
     this.sim = new Core.Simulation(
       config.track,
       config.era,
@@ -116,7 +117,12 @@ export class Race {
           speed: 0,
           mesh: this.world.addAI(
             config.era,
-            eras[config.era].teams[(i + 1) % 4].color,
+            eras[config.era].teams[
+              (config.team + i + 1) % eras[config.era].teams.length
+            ].color,
+            eras[config.era].teams[
+              (config.team + i + 1) % eras[config.era].teams.length
+            ],
           ),
           skill: 0.89 + i * 0.015,
         };

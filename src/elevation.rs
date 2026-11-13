@@ -137,10 +137,6 @@ mod tests {
     use crate::{tracks, Simulation};
     #[test]
     fn profiles_are_aligned_periodic_and_bounded() {
-        assert_eq!(
-            include_str!("../data/tracks.json"),
-            include_str!("../web/assets/tracks.json")
-        );
         for t in tracks() {
             let n = t.points.len();
             assert_eq!(t.heights.len(), n);

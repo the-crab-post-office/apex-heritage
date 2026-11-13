@@ -12,44 +12,26 @@ fn conf() -> Conf {
         ..Default::default()
     }
 }
-const TEAM_NAMES: [[&str; 4]; 4] = [
-    ["Lotus 49", "Ferrari 312", "Brabham BT24", "Cooper T81"],
-    [
-        "McLaren MP4/4",
-        "Ferrari F1/87/88C",
-        "Williams FW12",
-        "Benetton B188",
-    ],
-    [
-        "Ferrari F2004",
-        "Williams FW26",
-        "Renault R24",
-        "McLaren MP4-19",
-    ],
-    [
-        "Red Bull RB19",
-        "Mercedes W14",
-        "Ferrari SF-23",
-        "Aston Martin AMR23",
-    ],
-];
-fn loft(sections: &[[f32; 5]], color: Color) {
+fn loft(sections: &[[f32; 5]], _color: Color, texture: &Texture2D) {
     let mut vertices = Vec::new();
     let mut indices = Vec::new();
-    let ring = 20;
+    let ring = 32;
     for (i, s) in sections.iter().enumerate() {
-        for j in 0..ring {
+        for j in 0..=ring {
             let a = j as f32 / ring as f32 * std::f32::consts::TAU;
             let shade = 0.72 + 0.28 * a.cos().max(0.);
             vertices.push(Vertex::new2(
                 vec3(s[4] + a.sin() * s[1], s[2] + a.cos() * s[3], s[0]),
-                vec2(0., 0.),
-                Color::new(color.r * shade, color.g * shade, color.b * shade, 1.),
+                vec2(
+                    if s[4] != 0. { 0.5 } else { 0. } + j as f32 / ring as f32 * 0.5,
+                    (2.6 - s[0]) / 10.4,
+                ),
+                Color::new(shade, shade, shade, 1.),
             ));
-            if i + 1 < sections.len() {
-                let k = (i * ring + j) as u16;
-                let l = (i * ring + (j + 1) % ring) as u16;
-                let r = ring as u16;
+            if i + 1 < sections.len() && j < ring {
+                let k = (i * (ring + 1) + j) as u16;
+                let l = k + 1;
+                let r = (ring + 1) as u16;
                 indices.extend([k, k + r, l, l, k + r, l + r]);
             }
         }
@@ -57,7 +39,7 @@ fn loft(sections: &[[f32; 5]], color: Color) {
     draw_mesh(&Mesh {
         vertices,
         indices,
-        texture: None,
+        texture: Some(texture.clone()),
     });
 }
 fn car(
@@ -66,6 +48,7 @@ fn car(
     pitch: f32,
     roll: f32,
     wheel_heights: [f32; 4],
+    texture: &Texture2D,
     color: Color,
     era: usize,
 ) {
@@ -104,6 +87,7 @@ fn car(
             [2., 0.06, 0.28, 0.06, 0.],
         ],
         color,
+        texture,
     );
     draw_cube(
         vec3(0., 0.18, -0.1),
@@ -129,6 +113,7 @@ fn car(
                     [0.57, 0.25, 0.47, 0.12, side * 0.57],
                 ],
                 color,
+                texture,
             );
             draw_cube(
                 vec3(side * 0.59, 0.52, 0.6),
@@ -209,6 +194,7 @@ fn car(
                 [-0.42, 0.18, 0.86, 0.32, 0.],
             ],
             color,
+            texture,
         );
         draw_cube(vec3(0., 1.3, -0.65), vec3(0.18, 0.14, 0.2), None, dark);
         draw_cube(vec3(0., 0.52, -2.13), vec3(0.1, 0.07, 0.04), None, RED);
@@ -235,6 +221,25 @@ fn car(
                 LIGHTGRAY,
             );
         }
+    }
+    if !classic {
+        let z = -length * 0.43;
+        let positions = [
+            [-0.84, 1.19, z - 0.275],
+            [0.84, 1.19, z - 0.275],
+            [0.84, 1.19, z + 0.275],
+            [-0.84, 1.19, z + 0.275],
+        ];
+        let uv = [[0., 0.5], [0.5, 0.5], [0.5, 0.75], [0., 0.75]];
+        draw_mesh(&Mesh {
+            vertices: positions
+                .into_iter()
+                .zip(uv)
+                .map(|(p, u)| Vertex::new2(vec3(p[0], p[1], p[2]), vec2(u[0], u[1]), WHITE))
+                .collect(),
+            indices: vec![0, 1, 2, 0, 2, 3],
+            texture: Some(texture.clone()),
+        });
     }
     if era == 3 {
         for i in 0..16 {
@@ -631,6 +636,11 @@ async fn main() {
     let mut details = apex_heritage::corner::Details::new(&circuits[ti], era);
     let mut corner_mesh = venue::corners(&details);
     let mut camera_mode = 0;
+    let mut livery_key = (era, team);
+    let mut livery_texture = Texture2D::from_file_with_format(
+        apex_heritage::livery_assets::png(&apex_heritage::roster::team(era, team).id),
+        None,
+    );
     let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
     for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
         mesh.texture = Some(walls[i % walls.len()].clone());
@@ -672,9 +682,10 @@ async fn main() {
             }
             if is_key_pressed(KeyCode::E) || pad.pressed.contains(&gilrs::Button::LeftTrigger) {
                 era = (era + 1) % 4;
+                team = team.min(apex_heritage::roster::teams(era).len() - 1);
             }
             if is_key_pressed(KeyCode::T) || pad.pressed.contains(&gilrs::Button::RightTrigger) {
-                team = (team + 1) % 4;
+                team = (team + 1) % apex_heritage::roster::teams(era).len();
             }
             if is_key_pressed(KeyCode::W) {
                 wet = !wet;
@@ -769,210 +780,264 @@ async fn main() {
             terrain_track = ti;
             terrain_era = era;
         }
+        if livery_key != (era, team) {
+            livery_texture = Texture2D::from_file_with_format(
+                apex_heritage::livery_assets::png(&apex_heritage::roster::team(era, team).id),
+                None,
+            );
+            livery_key = (era, team);
+        }
+        let paint = u32::from_str_radix(
+            apex_heritage::roster::team(era, team)
+                .color
+                .trim_start_matches('#'),
+            16,
+        )
+        .unwrap();
+        let team_color =
+            Color::from_rgba((paint >> 16) as u8, (paint >> 8) as u8, paint as u8, 255);
         let s = sim.state();
         if let Some(audio) = &audio {
             audio.update(s, era, menu || paused || !sound_on);
         }
-        let p = vec3(s.x, s.y, s.z);
-        let f = vec3(
-            s.yaw.sin() * s.pitch.cos(),
-            -s.pitch.sin(),
-            s.yaw.cos() * s.pitch.cos(),
-        );
-        set_camera(&Camera3D {
-            position: if camera_mode == 1 {
-                p + f * 0.3 + vec3(0., 1.4, 0.)
-            } else {
-                p - f * if camera_mode == 2 { 16. } else { 10. }
-                    + vec3(0., if camera_mode == 2 { 9. } else { 5. }, 0.)
-            },
-            target: p + f * 12. + vec3(0., 0.7, 0.),
-            up: vec3(0., 1., 0.),
-            fovy: 58.,
-            z_far: 12000.,
-            ..Default::default()
-        });
-        let base_ground = circuits[ti]
-            .terrain
-            .as_ref()
-            .map(|g| g.heights.iter().copied().fold(f32::INFINITY, f32::min) - 5.)
-            .unwrap_or(-10.);
-        draw_plane(
-            vec3(0., base_ground, 0.),
-            vec2(10000., 10000.),
-            None,
-            Color::from_rgba(57, 78, 45, 255),
-        );
-        tunnel(
-            &circuits[ti],
-            tunnel_ranges[ti],
-            vec3(s.x, s.y, s.z),
-            &walls[1],
-        );
-        venue::draw(&safety_mesh);
-        venue::draw(&corner_mesh);
-        for mesh in &pit_mesh {
-            draw_mesh(mesh);
-        }
-        let (box_p, box_yaw, _, _) =
-            pit_lane.sample(pit_lane.box_distance, circuits[ti].points.len());
-        let box_center = vec3(box_p[0], box_p[1] + 0.14, box_p[2]);
-        let right = vec3(box_yaw.cos(), 0., -box_yaw.sin());
-        let forward = vec3(box_yaw.sin(), 0., box_yaw.cos());
-        for x in [-2.2, 2.2] {
-            draw_line_3d(
-                box_center + right * x - forward * 4.5,
-                box_center + right * x + forward * 4.5,
-                YELLOW,
-            );
-        }
-        for z in [-4.5, 4.5] {
-            draw_line_3d(
-                box_center + forward * z - right * 2.2,
-                box_center + forward * z + right * 2.2,
-                YELLOW,
-            );
-        }
-        for x in [-1., 1.] {
-            for z in [-1.5, 1.5] {
-                let crew =
-                    box_center + right * x * if s.pit_phase == 2 { 1.5 } else { 4.2 } + forward * z;
-                draw_cube(crew + vec3(0., 0.7, 0.), vec3(0.4, 1., 0.4), None, ORANGE);
-                draw_sphere(crew + vec3(0., 1.4, 0.), 0.2, None, BEIGE);
-            }
-        }
-        for patch in &landscape {
-            draw_mesh(patch);
-        }
         let t = &circuits[ti];
-        for (center, building) in &buildings {
-            if (center.x - s.x).hypot(center.z - s.z) < 850. {
-                draw_mesh(building);
-            }
-        }
-        let start = t.points[0];
-        let next = t.points[1];
-        let yaw = (next[0] - start[0]).atan2(next[1] - start[1]);
-        for j in 0..(t.width * 2.) as usize {
-            let x = j as f32 * 0.5 - t.width * 0.5;
-            for z in [-0.25, 0.25] {
-                let px = start[0] + x * yaw.cos() + z * yaw.sin();
-                let pz = start[1] - x * yaw.sin() + z * yaw.cos();
-                draw_cube(
-                    vec3(px, t.heights[0] + 0.065, pz),
-                    vec3(0.48, 0.025, 0.48),
-                    None,
-                    if (j + (z > 0.) as usize) % 2 == 0 {
-                        WHITE
-                    } else {
-                        BLACK
-                    },
-                );
-            }
-        }
-        let n = t.points.len();
-        for i in 0..n {
-            let a = t.points[i];
-            let b = t.points[(i + 1) % n];
-            if (a[0] - s.x).hypot(a[1] - s.z) > 700. {
-                continue;
-            }
-            let dx = b[0] - a[0];
-            let dz = b[1] - a[1];
-            let len = dx.hypot(dz);
-            let r = vec3(dz / len, 0., -dx / len) * t.width * 0.5;
-            let av = vec3(a[0], t.heights[i] + 0.05, a[1]);
-            let mut vertices = Vec::new();
-            for row in [i, (i + 1) % n] {
-                for offset in [-t.width as f64 / 2., 0., t.width as f64 / 2.] {
-                    let p = apex_heritage::surface_mesh::road_point(t, row, offset, 0.05);
-                    vertices.push(Vertex::new2(
-                        vec3(p[0] as f32, p[1] as f32, p[2] as f32),
-                        vec2(0., 0.),
-                        Color::from_rgba(48, 50, 52, 255),
-                    ));
-                }
-            }
-            draw_mesh(&Mesh {
-                vertices,
-                indices: vec![0, 3, 1, 1, 3, 4, 1, 4, 2, 2, 4, 5],
-                texture: None,
+        if !menu {
+            let p = vec3(s.x, s.y, s.z);
+            let f = vec3(
+                s.yaw.sin() * s.pitch.cos(),
+                -s.pitch.sin(),
+                s.yaw.cos() * s.pitch.cos(),
+            );
+            set_camera(&Camera3D {
+                position: if camera_mode == 1 {
+                    p + f * 0.3 + vec3(0., 1.4, 0.)
+                } else {
+                    p - f * if camera_mode == 2 { 16. } else { 10. }
+                        + vec3(0., if camera_mode == 2 { 9. } else { 5. }, 0.)
+                },
+                target: p + f * 12. + vec3(0., 0.7, 0.),
+                up: vec3(0., 1., 0.),
+                fovy: 58.0_f32.to_radians(),
+                z_far: 12000.,
+                ..Default::default()
             });
-            if i % 20 == 0 {
-                let mut tree = av + r * 4.;
-                let ground = t.driving_surface(tree.x, tree.z, i, 0.).height;
-                if details.at(tree.x, tree.z, ground).is_some() {
-                    continue;
-                }
-                if !apex_heritage::imagery::forest_at(&photo_areas[ti], tree.x, tree.z)
-                    || !t.circle_clear(tree.x, tree.z, 3.)
-                    || pit_lane.distance(tree.x, tree.z) < pit_lane.width / 2. + 4.
-                {
-                    continue;
-                }
-                if safety.grandstands.iter().any(|s| {
-                    apex_heritage::scenery::inside([tree.x, tree.z], &s.footprint)
-                        || s.footprint.iter().enumerate().any(|(i, a)| {
-                            apex_heritage::scenery::point_segment(
-                                [tree.x, tree.z],
-                                *a,
-                                s.footprint[(i + 1) % s.footprint.len()],
-                            ) < 4.
-                        })
-                }) {
-                    continue;
-                }
-                if mapped[ti]
-                    .buildings
-                    .iter()
-                    .any(|b| apex_heritage::scenery::inside([tree.x, tree.z], &b.footprint))
-                {
-                    continue;
-                }
-                tree.y = t.terrain_height(tree.x, tree.z);
-                draw_cube(tree + vec3(0., 2., 0.), vec3(0.7, 4., 0.7), None, BROWN);
-                draw_sphere(tree + vec3(0., 5., 0.), 3., None, DARKGREEN);
+            let base_ground = circuits[ti]
+                .terrain
+                .as_ref()
+                .map(|g| g.heights.iter().copied().fold(f32::INFINITY, f32::min) - 5.)
+                .unwrap_or(-10.);
+            draw_plane(
+                vec3(0., base_ground, 0.),
+                vec2(10000., 10000.),
+                None,
+                Color::from_rgba(57, 78, 45, 255),
+            );
+            tunnel(
+                &circuits[ti],
+                tunnel_ranges[ti],
+                vec3(s.x, s.y, s.z),
+                &walls[1],
+            );
+            venue::draw(&safety_mesh);
+            venue::draw(&corner_mesh);
+            for mesh in &pit_mesh {
+                draw_mesh(mesh);
             }
-        }
-        car(
-            p,
-            s.yaw,
-            s.pitch,
-            s.body_roll,
-            s.wheel_heights,
-            [RED, ORANGE, BLUE, GREEN][team],
-            era,
-        );
-        if s.bottoming > 0.05 && s.speed > 4. {
-            for i in 0..7 {
-                let q = i as f32 * 0.71 + get_time() as f32 * 16.;
-                let origin = p + vec3(
-                    s.yaw.cos() * q.sin() * 0.4,
-                    -0.05 + s.ride_height,
-                    -s.yaw.sin() * q.sin() * 0.4,
-                );
+            let (box_p, box_yaw, _, _) =
+                pit_lane.sample(pit_lane.box_distance, circuits[ti].points.len());
+            let box_center = vec3(box_p[0], box_p[1] + 0.14, box_p[2]);
+            let right = vec3(box_yaw.cos(), 0., -box_yaw.sin());
+            let forward = vec3(box_yaw.sin(), 0., box_yaw.cos());
+            for x in [-2.2, 2.2] {
                 draw_line_3d(
-                    origin,
-                    origin
-                        - vec3(s.travel_yaw.sin(), -0.07, s.travel_yaw.cos())
-                            * s.bottoming
-                            * (0.4 + (i % 3) as f32 * 0.2),
-                    ORANGE,
+                    box_center + right * x - forward * 4.5,
+                    box_center + right * x + forward * 4.5,
+                    YELLOW,
                 );
             }
+            for z in [-4.5, 4.5] {
+                draw_line_3d(
+                    box_center + forward * z - right * 2.2,
+                    box_center + forward * z + right * 2.2,
+                    YELLOW,
+                );
+            }
+            for x in [-1., 1.] {
+                for z in [-1.5, 1.5] {
+                    let crew = box_center
+                        + right * x * if s.pit_phase == 2 { 1.5 } else { 4.2 }
+                        + forward * z;
+                    draw_cube(crew + vec3(0., 0.7, 0.), vec3(0.4, 1., 0.4), None, ORANGE);
+                    draw_sphere(crew + vec3(0., 1.4, 0.), 0.2, None, BEIGE);
+                }
+            }
+            for patch in &landscape {
+                draw_mesh(patch);
+            }
+            for (center, building) in &buildings {
+                if (center.x - s.x).hypot(center.z - s.z) < 850. {
+                    draw_mesh(building);
+                }
+            }
+            let start = t.points[0];
+            let next = t.points[1];
+            let yaw = (next[0] - start[0]).atan2(next[1] - start[1]);
+            for j in 0..(t.width * 2.) as usize {
+                let x = j as f32 * 0.5 - t.width * 0.5;
+                for z in [-0.25, 0.25] {
+                    let px = start[0] + x * yaw.cos() + z * yaw.sin();
+                    let pz = start[1] - x * yaw.sin() + z * yaw.cos();
+                    draw_cube(
+                        vec3(px, t.heights[0] + 0.065, pz),
+                        vec3(0.48, 0.025, 0.48),
+                        None,
+                        if (j + (z > 0.) as usize) % 2 == 0 {
+                            WHITE
+                        } else {
+                            BLACK
+                        },
+                    );
+                }
+            }
+            let n = t.points.len();
+            for i in 0..n {
+                let a = t.points[i];
+                let b = t.points[(i + 1) % n];
+                if (a[0] - s.x).hypot(a[1] - s.z) > 700. {
+                    continue;
+                }
+                let dx = b[0] - a[0];
+                let dz = b[1] - a[1];
+                let len = dx.hypot(dz);
+                let r = vec3(dz / len, 0., -dx / len) * t.width * 0.5;
+                let av = vec3(a[0], t.heights[i] + 0.05, a[1]);
+                let mut vertices = Vec::new();
+                for row in [i, (i + 1) % n] {
+                    for offset in [-t.width as f64 / 2., 0., t.width as f64 / 2.] {
+                        let p = apex_heritage::surface_mesh::road_point(t, row, offset, 0.05);
+                        vertices.push(Vertex::new2(
+                            vec3(p[0] as f32, p[1] as f32, p[2] as f32),
+                            vec2(0., 0.),
+                            Color::from_rgba(48, 50, 52, 255),
+                        ));
+                    }
+                }
+                draw_mesh(&Mesh {
+                    vertices,
+                    indices: vec![0, 3, 1, 1, 3, 4, 1, 4, 2, 2, 4, 5],
+                    texture: None,
+                });
+                if i % 20 == 0 {
+                    let mut tree = av + r * 4.;
+                    let ground = t.driving_surface(tree.x, tree.z, i, 0.).height;
+                    if details.at(tree.x, tree.z, ground).is_some() {
+                        continue;
+                    }
+                    if !apex_heritage::imagery::forest_at(&photo_areas[ti], tree.x, tree.z)
+                        || !t.circle_clear(tree.x, tree.z, 3.)
+                        || pit_lane.distance(tree.x, tree.z) < pit_lane.width / 2. + 4.
+                    {
+                        continue;
+                    }
+                    if safety.grandstands.iter().any(|s| {
+                        apex_heritage::scenery::inside([tree.x, tree.z], &s.footprint)
+                            || s.footprint.iter().enumerate().any(|(i, a)| {
+                                apex_heritage::scenery::point_segment(
+                                    [tree.x, tree.z],
+                                    *a,
+                                    s.footprint[(i + 1) % s.footprint.len()],
+                                ) < 4.
+                            })
+                    }) {
+                        continue;
+                    }
+                    if mapped[ti]
+                        .buildings
+                        .iter()
+                        .any(|b| apex_heritage::scenery::inside([tree.x, tree.z], &b.footprint))
+                    {
+                        continue;
+                    }
+                    tree.y = t.terrain_height(tree.x, tree.z);
+                    draw_cube(tree + vec3(0., 2., 0.), vec3(0.7, 4., 0.7), None, BROWN);
+                    draw_sphere(tree + vec3(0., 5., 0.), 3., None, DARKGREEN);
+                }
+            }
+            car(
+                p,
+                s.yaw,
+                s.pitch,
+                s.body_roll,
+                s.wheel_heights,
+                &livery_texture,
+                team_color,
+                era,
+            );
+            if s.bottoming > 0.05 && s.speed > 4. {
+                for i in 0..7 {
+                    let q = i as f32 * 0.71 + get_time() as f32 * 16.;
+                    let origin = p + vec3(
+                        s.yaw.cos() * q.sin() * 0.4,
+                        -0.05 + s.ride_height,
+                        -s.yaw.sin() * q.sin() * 0.4,
+                    );
+                    draw_line_3d(
+                        origin,
+                        origin
+                            - vec3(s.travel_yaw.sin(), -0.07, s.travel_yaw.cos())
+                                * s.bottoming
+                                * (0.4 + (i % 3) as f32 * 0.2),
+                        ORANGE,
+                    );
+                }
+            }
+        } else {
+            clear_background(Color::from_rgba(24, 31, 36, 255));
+            set_camera(&Camera3D {
+                position: vec3(7.3, 3.4, 9.4),
+                target: vec3(0., 0.4, 0.),
+                up: vec3(0., 1., 0.),
+                fovy: 34.0_f32.to_radians(),
+                viewport: Some((
+                    (screen_width() * 0.47).min(680.) as i32,
+                    0,
+                    (screen_width() - (screen_width() * 0.47).min(680.)) as i32,
+                    screen_height() as i32,
+                )),
+                aspect: Some(
+                    (screen_width() - (screen_width() * 0.47).min(680.)) / screen_height(),
+                ),
+                ..Default::default()
+            });
+            draw_plane(
+                vec3(0., -0.02, 0.),
+                vec2(200., 200.),
+                None,
+                Color::from_rgba(33, 40, 44, 255),
+            );
+            car(
+                vec3(0., 0.1, 0.),
+                0.55 + get_time() as f32 * 0.12,
+                0.,
+                0.,
+                [0.; 4],
+                &livery_texture,
+                team_color,
+                era,
+            );
         }
         set_default_camera();
         if menu {
             draw_rectangle(
                 0.,
                 0.,
-                screen_width(),
+                (screen_width() * 0.47).min(680.),
                 screen_height(),
                 Color::new(0.025, 0.03, 0.035, 0.94),
             );
             draw_text("APEX / HERITAGE", 70., 100., 56., WHITE);
             draw_text(
-                "THE HISTORY OF SPEED. IN YOUR HANDS.",
+                "THE COLLECTION / 47 CONSTRUCTORS / 4 ERAS",
                 72.,
                 145.,
                 22.,
@@ -989,11 +1054,15 @@ async fn main() {
                         "2004 / V10",
                         "2023 / HYBRID"
                     ][era],
-                    TEAM_NAMES[era][team]
+                    format!(
+                        "{} {}",
+                        apex_heritage::roster::team(era, team).name,
+                        apex_heritage::roster::team(era, team).car
+                    )
                 ),
                 72.,
                 315.,
-                26.,
+                18.,
                 WHITE,
             );
             draw_text(

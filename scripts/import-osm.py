@@ -42,4 +42,4 @@ for t in tracks:
  print(t['name'],len(buildings),'mapped footprints;',rejected,'road overlaps omitted')
 db={'attribution':'© OpenStreetMap contributors','license':'https://opendatacommons.org/licenses/odbl/1-0/','source':'https://www.openstreetmap.org/copyright','processing':'Local metre projection; within 300 m of circuit; entire footprint outside road + 3.5 m. Heights estimated when not mapped. Building ways only, not multipolygon relations.','tracks':out}
 s=json.dumps(db,separators=(',',':'),ensure_ascii=False)
-for file in ['data/buildings.json','web/assets/buildings.json']:(ROOT/file).write_text(s)
+for file in ['data/buildings.json']:(ROOT/file).write_text(s)

@@ -23,13 +23,15 @@ test("ten circuits, geographic filters, car selection and persistent setup", asy
   await expect(page.locator(".track-card")).toHaveCount(7);
   for (let era = 0; era < 4; era++) {
     await page.locator(`[data-era="${era}"]`).click();
-    await expect(page.locator("#team-select option")).toHaveCount(4);
+    await expect(page.locator("#team-select option")).toHaveCount(
+      [9, 18, 10, 10][era],
+    );
   }
   await page.locator("#team-select").selectOption("2");
   await expect(page.locator("#team-select")).toHaveValue("2");
   await page.locator("#car-detail").click();
   await expect(page.locator("#info-dialog")).toBeVisible();
-  await expect(page.locator(".team-comparison tbody tr")).toHaveCount(4);
+  await expect(page.locator(".team-comparison tbody tr")).toHaveCount(10);
   await page.locator(".dialog-close").click();
   await page.locator('[data-weather="wet"]').click();
   await page.locator("#assist-toggle").click();

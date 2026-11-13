@@ -61,5 +61,5 @@ def main():
   source=next(s for s in sources['tracks']if s['id']==track['id']);grade=build(track,source,structures)
   print(f'{track["name"]}: {track["elevation"]} m; max grade {grade*100:.1f}%')
  text=json.dumps(tracks,separators=(',',':'))
- for file in ['data/tracks.json','web/assets/tracks.json']:(ROOT/file).write_text(text)
+ for file in ['data/tracks.json']:(ROOT/file).write_text(text)
 if __name__=='__main__':main()

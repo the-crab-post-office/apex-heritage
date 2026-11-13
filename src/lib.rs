@@ -10,11 +10,14 @@ pub mod elevation;
 #[cfg(feature = "native")]
 pub mod imagery;
 #[cfg(feature = "native")]
+pub mod livery_assets;
+#[cfg(feature = "native")]
 pub mod native_audio;
 pub mod pit;
 pub mod powertrain;
 #[cfg(feature = "native")]
 pub mod recorded_audio;
+pub mod roster;
 pub mod scenery;
 pub mod surface_mesh;
 pub mod venue;
@@ -107,37 +110,13 @@ pub fn car_spec(era: usize, team: usize) -> CarSpec {
             gears: 8,
         },
     };
-    // Each era has an independently tuned field; teams indexed in UI order.
-    let modifiers = match era.min(3) {
-        0 => [
-            (1.0, 1.0, 1.0),
-            (0.94, 0.96, 1.03),
-            (0.9, 0.94, 0.98),
-            (0.97, 0.90, 0.94),
-        ],
-        1 => [
-            (1.0, 1.0, 1.0),
-            (0.94, 0.95, 1.04),
-            (0.84, 0.96, 0.98),
-            (0.88, 0.90, 0.96),
-        ],
-        2 => [
-            (1.0, 1.0, 1.0),
-            (0.98, 0.96, 1.02),
-            (0.94, 0.98, 0.97),
-            (0.96, 0.93, 0.95),
-        ],
-        _ => [
-            (1.0, 1.0, 1.0),
-            (0.97, 0.96, 1.01),
-            (0.98, 0.94, 1.03),
-            (0.95, 0.95, 0.98),
-        ],
-    };
-    let (p, g, b) = modifiers[team.min(3)];
-    s.power *= p;
-    s.grip *= g;
-    s.brake *= b;
+    let t = roster::team(era, team);
+    s.power *= t.power / [410., 680., 900., 1000.][era.min(3)];
+    s.grip *= t.grip / 100.;
+    s.brake *= t.brake / 100.;
+    if era.min(3) == 1 && !t.turbo {
+        s.lag = 0.;
+    }
     s
 }
 
@@ -400,7 +379,11 @@ impl Simulation {
             * wet_factor
             * terrain
             + spec.aero * s.speed * s.speed / spec.mass * wet_factor * (1. - s.bottoming * 0.25);
-        let target_boost = if throttle > 0.4 { 1. } else { 0. };
+        let target_boost = if throttle > 0.4 && spec.lag > 0. {
+            1.
+        } else {
+            0.
+        };
         s.boost += (target_boost - s.boost) * (dt / (spec.lag + 0.06)).min(1.);
         let power = spec.power
             * (if spec.lag > 0.5 {
