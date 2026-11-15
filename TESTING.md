@@ -1,96 +1,65 @@
-# Validation — 0.9.1-preview.1
+# Validation — 0.10.0-preview.1
 
-Branch: `fix/grounded-barriers`; based on preserved tag `v0.9.0-preview.1`.
+Branch: `feature/monaco-reference-visuals`, based on preserved tag `v0.9.1-preview.1`. This is an initial scenery/graphics/cleanup stage. **Zero of 47 constructor-specific scans are integrated.** Scan acquisition and retopology are not complete; see `data/CAR-SCAN-STATUS.md`.
 
-## Grounding patch
+## Scope
 
-- Web barriers query a spatial index of the **actual rendered terrain, road, pit and corner/shoulder triangles**, rather than taking the maximum of analytic terrain and a nearby road sample.
-- Native uses its actual terrain, pit and corner triangles. Both renderers subdivide long spans to at most 1.5 m and adapt around terrain creases; sloped members use their full three-dimensional length.
-- Concrete bases have ground-conforming lower corners with a 6 cm minimum embed; foundations extend further below ground at sampled apron/grass steps. Fence and guardrail posts embed 10 cm. The prior fence post began a metre above its nominal base; it now reaches the ground. Posts retain original mapped segment spacing, independent of adaptive rail subdivision.
-- Horizontal mapped barrier/collision footprints, road/pit clearance, car shapes and the explicitly all-era photo-guided Spa profile are unchanged.
+- Modern Monaco buildings and barrier positions for **all eras**, explicitly requested by the user. Historical-road substitution notices remain.
+- Three recovered OSM landmarks (Casino, Hôtel de Paris, Fairmont), represented by 13 simple footprint parts preserving courtyards and protected road/pit corridors. The database has 490 Monaco building parts, not 490 newly surveyed structures.
+- Photo-estimated heights/architectural rhythm, modular balcony/cornice details and simplified Casino towers. Landmarks use common road-level roof anchors above embedded foundations; taking only the lowest downhill footprint height had buried the Casino below the hillside.
+- 1,208 additional photo-estimated temporary barrier pieces, for 1,326 total Monaco pieces. Approximate offsets (roughly ±1 m), not a calibrated photographic survey. Gaps remain wherever protected routes/buildings/existing barriers override estimates.
+- Corrected multi-material mesh batching restores actual wall/roof draw ranges across all ten circuits; raw data counts alone did not prove visibility. New mesh tests check triangle preservation and ray hits. Browser checks independently raycast recovered building walls and still audit road triangles.
+- Web filtered sky reflections, matching sky/sun direction, paint clear coat and rough rubber. Native receives the same recovered footprint/roof-height/barrier data but retains simpler shading and no web-only balcony/cornice batches.
+- Avoided an unused extra livery allocation for each 1967/2023 car creation. Repeated 47-constructor showroom switching retains GPU-resource bounds.
 
-### Patch validation
+## Validation record
 
-- Rust: **69 passed** (62 library + 7 native tests), including synthetic sloped and stepped concrete foundations, actual-triangle/top-layer sampling, adaptive spans and bounded finite venue meshes for all ten circuits.
-- Node: **93 passed**, including three new ground-support/interpolation/span tests.
-- Release WASM/static and native Linux builds: passed. The existing large Vite-chunk warning remains.
-- Native Spa/2023 driving smoke: **119.3 km/h**, no mesh-capacity warnings.
-- Production browser grounding and route-clearance checks: **5 passed (2.9 minutes)**. Across the three grounding cases, **5,305 independent raycast samples** found zero missing ground hits and zero floating sampled foundations/post bottoms (maximum signed gap −5.2 cm; posts approximately 10 cm embedded). The grounding audit independently raycasts rendered post bottoms and concrete lower corners/edge midpoints against the rendered ground, not just against cached placement heights. Cases cover Spa 2023 low, Spa 1967 high and Monaco 2023 low.
-
-An initial development check exposed too few sampled posts at Monaco (449 total footings, only seven with the original stride); the final check samples more densely. During the version bump, stale HTML/CSS identity constants correctly triggered the build-coherence guard. All displayed/runtime identities were then updated together before final production validation. A stronger edge-midpoint audit then exposed additional apron/grass steps, fixed by extending foundations below those transitions. These intermediate failures are not counted as passes. One native smoke attempt was killed while competing with software-rendered browser tests for the 2 GB sandbox; the final serial native smoke passed.
-
-Reproduce this patch's focused browser checks after `./scripts/build-web.sh`:
-
-```sh
-APEX_URL=http://127.0.0.1:8080 npx playwright test tests/barrier-grounding.spec.js tests/venue.spec.js
-```
-
-The complete older full browser suite and Python regeneration suite were **not rerun for this rendering-only patch**. Their preceding-release results and caveats are retained below, not represented as new patch results.
-
----
-
-## Preceding release validation — 0.9.0-preview.1
-
-Branch: `feature/photo-cars-eau-rouge`. The previous 0.8 release and stable main are preserved. This update responds to the supplied 2023 car, 1967 car and Eau Rouge/Raidillon photographs. User-confirmed scene choice: **modern photo-guided Eau Rouge for every era**.
-
-## Results
+Final release validation:
 
 | Check | Result |
 |---|---|
-| Rust with native feature | **65 passed**: 62 library + 3 native-mesh regressions |
-| Node | **90 passed** |
-| Python geometry/offline regeneration | **13 passed** |
-| Initial full production browser suite | **32 passed / 1 stale assertion failed** (14.6 minutes) |
-| Final production car/scene/showroom/venue suite | **7 passed** after updating stand-count validation and the last visual refinements |
-| Rust release WASM/bindings/static build | Passed; large Vite-chunk warning remains |
-| Native Linux release build | Passed |
-| Xvfb native driving smoke, Spa/2023 | **119.3 km/h**, no mesh-capacity warnings |
-| Xvfb native driving smoke, Spa/1967 | **75.7 km/h**, no mesh-capacity warnings |
-| Native menu reference review | Both 1967 and 2023 menu captures inspected |
-| Shared chassis offline regeneration | Byte-for-byte deterministic |
+| Rust native-feature suite | **70 passed** (63 library + 7 native) |
+| Node, including source metadata and material-group batching | **98 passed** |
+| Python offline regeneration/courtyard/corridor checks | **15 passed** |
+| Production grounding, architecture, showroom and venue suite before last roof/lighting refinement | **10 passed** (5.8 minutes) |
+| Final production roof/architecture/low-high quality rerun | **2 passed** (1.3 minutes) after the last refinement |
+| Final local-material/tunnel/no-external-request browser check | **1 passed** (24 seconds) |
+| 47 showroom constructor selections, repeated | Included in the 10 passing tests; original geometry / scan-pending status is explicit |
+| Final WASM/static/native release builds | **Passed**; existing Vite large-chunk warning remains |
+| Final native Monaco/2023 driving smoke | **118.9 km/h**, passed serially after browser checks |
 
-The initial browser failure expected eight Spa grandstand objects. The revised renderer correctly uses 69 terrain-following modules from the same eight mapped footprints. The assertion now checks agreement with the shared Rust module count **and eight unique mapped footprint IDs**, retaining the road/pit exclusion checks. This was a stale test assumption, not a claim of 69 newly mapped grandstands. The final focused suite passes on the packaged build.
+The final focused cases rerun two of the earlier ten browser cases and add one materials/tunnel case; this is **not thirteen distinct browser tests** or a full-suite run. Screenshots from the final actual 3D renderer were inspected for Casino, Hôtel de Paris and Fairmont areas. Grounding checks recorded no missing supports or floating sampled bottoms after adding the Monaco barriers.
 
-## New checks
+The initial architecture screenshots revealed missing building bodies despite nonzero footprint/detail counts. This led to the multi-material batching fix and independent raycast regression, rather than treating those screenshots as completed work. A subsequent image review found low-elevation landmark roofs hidden behind terrain; roof anchors and camera targets were refined. The final focused production rerun validates those changes.
 
-- **Car silhouettes:** bounded, finite, indexed shared chassis and wheel meshes. The 1967 profile includes the oval radiator cavity/surround, open monocoque, exposed engine/header parts and roll hoop; it has no modern wings, halo or sidepods. The 2023 profile includes curved mainplanes/DRS flap, undercut pods, intake openings, halo/centre pillar and venturi-floor parts.
-- **Wheel agreement:** shared generated layout data controls visible wheel anchors and Rust contact. Modern wheelbase is 3.40 m, wheel-centre half-track 0.90 m; classic front/rear tyre widths are 0.22/0.34 m. These are authored approximate proportions, not surveyed engineering dimensions. Contact-patch/track-limit assertions retain their geometric checks with the updated dimensions.
-- **Eau Rouge profile:** 40.0 m compression-to-crest rise, peak sampled climb approximately 17.4%; geographic anchor rotation invariance; exact offline regeneration. Rust samples and steps the car on the climb in all four eras with all four tyre patches legal and matching road support. This is section contact coverage, not four autonomously driven complete laps.
-- **Local all-era scene:** compression/uphill/crest/exit kerbs and red/green paved apron are identical across the four selections. The covered hillside stand is terrain-following; local outer fencing is retained even for the 1967 car, as part of the explicitly requested modern scene. All-ten road/pit/stand/barrier exclusion tests remain.
-- **Browser screenshots:** actual showroom canvas captures for both new profiles and an elevated actual 3D Eau Rouge/Raidillon view. No AI-generated render or photographic background is substituted for the game. Driver-eye and elevated scene views were inspected during refinement.
-- **Native:** the same car triangles are rendered, with simpler lighting and baked vertex shading. The draw-call index budget accommodates the largest shared aero batch. Native smoke/menu checks do not establish full-lap scenery accuracy or physical controller behaviour.
+The prior barrier-grounding suite samples exact rendered post bottoms and concrete lower corners/edge midpoints against rendered ground, preserving the 0.9.1 fix. Independent geometric tests still exclude complete race/pit corridors for buildings, grandstands and barrier capsules. No collision-clearance check was weakened to accommodate the photo estimates.
 
-## Retained regression scope
+## Cleanup / provenance
 
-Rust/Node/Python coverage retains spin/countersteer/assists/wet behaviour, recording/pitch DSP, recovery, swept barriers, playable pit service across 40 circuit/era combinations, all-four-off track limits, physical kerb/floor support, road/pit mesh clipping and deterministic map/corner generation. Browser coverage includes all ten modern road-surface audits, Monaco tunnel/facades, controls/disconnect, session persistence, wet AI/rain, recording fallbacks, build-coherence rejection, all 47 atlas selections twice, GPU-resource bounds, failed-texture fallback, reduced motion and mobile layout.
+128 former loose validation logs and assistant work scripts were consolidated into a verified archive under `artifacts/archive/`. Original reference uploads, all source, asset notices and earlier release archives are retained. A dry-run-first cleanup script removes only ignored test/import/Python caches and, optionally, Rust debug build output; it refuses tracked content. Final cleanup removed **3,007,214,641 bytes** of generated caches (~2.80 GiB), plus a 6,174,823-byte image-search preview cache. Exact cleanup output is retained in the validation artifacts.
 
-## Scope and remaining limits
+An earlier broad version replacement had accidentally changed the optional fsevents dependency's Node engine constraint. It is restored to the package registry's `^8.16.0 || ^10.6.0 || >=11.0.0`; version updates now target only owned manifest fields.
 
-These are photo-guided original procedural approximations, **not scans, surveys or photographic equivalence**. Car chassis remain shared within each era rather than unique engineering replicas for every constructor. Tyres, suspension, aero and mechanical dimensions are approximate. The road correction intentionally uses the pictured modern Eau Rouge complex for all eras; it does not finish historic Spa or the other historical road/scenery layouts. Their existing substitution notices remain visible. Stand/forest/paint extents and detailed intermediate road heights are not surveyed. Native vegetation, lighting and scenery remain simpler than web. DRS is a visible assembly, not a new operable DRS system.
-
-Physical controller hardware, subjective handling/listening approval, exact sponsor typography/placement, geographic accuracy elsewhere and legal permission to distribute marks remain unverified. See `data/PHOTO-REFERENCE-NOTICE.md` and the existing source/asset notices. Reference photographs are not redistributed.
+No third-party car scan/model was imported. Candidate uploader licenses and capture-method descriptions are recorded separately from verified full-scale scans. No paid purchase, authentication bypass or commercial-game mesh extraction was performed. Original reference photographs and image-search previews are not redistributed.
 
 ## Reproduce
 
 ```sh
 . "$HOME/.cargo/env"
-python3 scripts/build-car-shapes.py
-python3 scripts/build-liveries.py
-cargo fmt
-python3 scripts/build-elevation.py
-python3 scripts/build-pits.py
+python3 scripts/monaco_reference.py
 python3 scripts/build-corner-details.py
 cargo test --features native
 npm test
 python3 -m unittest discover -s tests -p 'test_*.py'
 ./scripts/build-web.sh
-python3 -m http.server 8080 --directory site
-# Separate terminal; keep browser runs serial on a 2 GB sandbox:
-APEX_URL=http://127.0.0.1:8080 npx playwright test
-
+python3 -m http.server 8080 --bind 0.0.0.0 --directory site
+# Separate terminal; software-rendered browser/native checks run serially:
+APEX_URL=http://127.0.0.1:8080 npx playwright test tests/monaco-visuals.spec.js tests/barrier-grounding.spec.js tests/venue.spec.js tests/showroom.spec.js
 cargo build --release --features native --bin apex-native
-APEX_SMOKE=1 APEX_SMOKE_TRACK=0 APEX_SMOKE_ERA=3 xvfb-run -a target/release/apex-native
-APEX_SMOKE=1 APEX_SMOKE_TRACK=0 APEX_SMOKE_ERA=0 xvfb-run -a target/release/apex-native
+APEX_SMOKE=1 APEX_SMOKE_TRACK=1 APEX_SMOKE_ERA=3 xvfb-run -a target/release/apex-native
+python3 scripts/clean-workspace.py --apply --debug-cache
 ```
 
-Use the complete coherent **0.9.1-preview.1** static build rather than individual files copied over an old release. Logs, screenshots, reference images, caches and test reports are ignored workspace artifacts and are not packaged. Licenses, editable authoring data and prior releases are retained.
+## Remaining limits
+
+This is not a surveyed architectural digital twin, exact race-date barrier plan, historical Monaco reconstruction or completed scan-based car collection. Detailed landmark ornament, building interiors, constructor-specific chassis geometry, source camera calibration, subjective handling approval and physical controller hardware remain unverified. The full unrelated browser suite was not rerun for this stage. Prior release results remain available in their preserved source ZIPs/tags; they are not claimed as new passes here.

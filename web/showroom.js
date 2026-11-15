@@ -139,7 +139,7 @@ export class Showroom {
     this.container.dataset.ready = ready ? "true" : "fallback";
     this.dirty = true;
     document.getElementById("showroom-status").textContent = ready
-      ? "REFERENCE LIVERY / LIVE 3D"
+      ? "ORIGINAL GEOMETRY / SCAN PENDING"
       : "LIVERY TEXTURE UNAVAILABLE";
   }
   view(kind) {

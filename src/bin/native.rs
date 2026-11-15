@@ -543,7 +543,12 @@ fn mapped_buildings(
                 Color::from_rgba(155, 159, 148, 255),
             ][b.osm_id as usize % 3];
             for p in &b.footprint {
-                for h in [base, base + b.height] {
+                for h in [
+                    base,
+                    b.roof_height
+                        .unwrap_or(base + b.height)
+                        .max(base + b.height),
+                ] {
                     vs.push(Vertex::new2(
                         vec3(p[0], h, p[1]),
                         vec2((p[0] + p[1]) / 6., (h - base) / 4.),

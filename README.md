@@ -1,8 +1,17 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.9.1-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.10.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## 0.10 Monaco scenery / graphics stage
+
+- Restores the actual roof/facade draw ranges lost by multi-material mesh batching. Mapped buildings now render correctly across all ten circuits.
+- Recovers mapped Casino, Hôtel de Paris and Fairmont outlines/courtyards; adds modern Monaco named-building metadata, photo-estimated massing, balconies, cornices and simplified Casino roof towers.
+- Adds photo-estimated street safety sections shared by web/native collision and rendering. **Modern Monaco scenery is explicitly used for all eras**, as requested; offsets/heights are estimates, not surveys.
+- Web high quality adds filtered sky reflections with consistent sunlight; paint gets a clear coat while tyre rubber remains rough. Removes redundant livery allocations on classic/modern car creation.
+- Consolidates old loose work files and provides a conservative, dry-run-first cleanup command; see `WORKSPACE.md`.
+- **Car scans remain unfinished: 0/47 integrated.** The exact roster and examined candidates are tracked in `data/CAR-SCAN-STATUS.md`. Authored models and a wrong-year toy scan were not mislabeled or substituted as full-size scans. This release is a graphics/scenery stage, not completion of the 47-car scan conversion.
 
 ## 0.9.1 grounded barriers
 
@@ -68,7 +77,7 @@ python3 -m http.server 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.9.1-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.10.0-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|

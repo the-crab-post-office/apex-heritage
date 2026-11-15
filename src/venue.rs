@@ -59,7 +59,7 @@ impl Venue {
             grandstands: record.grandstands.clone(),
             cells: HashMap::new(),
         };
-        if era == 0 {
+        if era == 0 && name != "Monaco" {
             for b in &mut v.barriers {
                 if !(name == "Spa-Francorchamps" && (140..250).contains(&b.index)) {
                     b.fence = false;
@@ -233,6 +233,21 @@ mod tests {
         let overlap = v.collide([0., 0.], [0., 0.], [0., 0.]).unwrap();
         assert!(overlap.position[0].hypot(overlap.position[1]) > 1.25);
         assert_eq!(overlap.strength, 0.);
+    }
+    #[test]
+    fn requested_modern_monaco_barriers_are_identical_for_every_car_era() {
+        let modern = Venue::for_era("Monaco", 3);
+        assert!(modern.barriers.len() > 1000);
+        assert!(modern.barriers.iter().filter(|b| b.fence).count() > 500);
+        for era in 0..3 {
+            let earlier = Venue::for_era("Monaco", era);
+            assert_eq!(earlier.barriers.len(), modern.barriers.len());
+            for (a, b) in earlier.barriers.iter().zip(&modern.barriers) {
+                assert_eq!(a.a, b.a);
+                assert_eq!(a.b, b.b);
+                assert_eq!(a.fence, b.fence);
+            }
+        }
     }
     #[test]
     fn no_phantom_barrier_across_the_pit_entry() {

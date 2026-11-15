@@ -116,3 +116,9 @@ Corner windows, widths/heights/profiles, temporary Monaco stand platforms and ty
 ## 0.9 supplied-photo geometry update
 
 The user supplied a 2023 Red Bull frontal view, a 1967 Lotus-style three-quarter view and an Eau Rouge/Raidillon photograph. These guide original procedural meshes and scene changes; no photograph pixels or third-party car models are packaged. Car triangles and wheel layouts are generated offline in `scripts/build-car-shapes.py`; `data/car-shapes.json` is consumed by web and native, with the small `car-layouts.json` also used by Rust contact. The modern photo-guided Eau Rouge complex is intentionally shared by all eras at the user's request. Approximately 40 m rise / 17% peak grade is cross-checked against https://lapmeta.com/en/track/variation/14 and https://spatrackexperience.be/en/the-circuit/ ; detailed shape is authored, not surveyed. Full scope/rights/remaining limitations: `data/PHOTO-REFERENCE-NOTICE.md`.
+
+## 0.10 modern Monaco and scan acquisition
+
+See `data/MONACO-REFERENCE-NOTICE.md` and editable `data/monaco-reference.json` for the OSM map API extract, outer/inner source IDs, inspected architecture/barrier photo URLs and uncertainty. No photographic pixels are redistributed. Modern Monaco architecture/barriers are deliberately shared across eras.
+
+`data/CAR-SCAN-STATUS.md` and `data/car-asset-status.json` document all 47 requested cars and examined candidates. Zero verified matching scans are integrated. Free authored models are not evidence of a scan; a documented 1:18 F2008 photogrammetry candidate is the wrong year. Authenticated downloads and unresolved provenance/licensing are not bypassed. Current chassis remain original shared-era geometry; visual shading improvements are not scan-derived geometry.

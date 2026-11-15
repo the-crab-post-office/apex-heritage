@@ -15,6 +15,7 @@ import {
   updateFloorSparks,
 } from "./corners.js";
 import { buildVenue } from "./venue.js";
+import { addArchitecture } from "./architecture.js";
 import { SurfaceLibrary } from "./materials.js";
 import { RoadMask, ribbon, roadPoint } from "./road-surface.js";
 import mappedScenery from "../data/buildings.json";
@@ -90,7 +91,7 @@ export class World {
       new THREE.HemisphereLight(
         wet ? "#bdced6" : "#d4e3e6",
         "#5d6545",
-        wet ? 2 : 1.65,
+        wet ? 2 : 1.35,
       ),
     );
     this.sun = new THREE.DirectionalLight(
@@ -109,7 +110,7 @@ export class World {
       far: 500,
     });
     this.sun.shadow.bias = -0.0002;
-    this.sun.shadow.normalBias = 0.1;
+    this.sun.shadow.normalBias = 0.035;
     this.scene.add(this.sun);
     this.scene.add(this.sun.target);
     if (!wet) {
@@ -120,7 +121,22 @@ export class World {
       u.rayleigh.value = 2.3;
       u.mieCoefficient.value = 0.004;
       u.mieDirectionalG.value = 0.8;
-      u.sunPosition.value.set(-0.2, 0.75, -0.4);
+      u.sunPosition.value.copy(this.sun.position).normalize();
+      if (config.quality === "high") {
+        const environmentScene = new THREE.Scene();
+        environmentScene.add(sky.clone());
+        const generator = new THREE.PMREMGenerator(this.renderer);
+        this.skyEnvironment = generator.fromScene(
+          environmentScene,
+          0.045,
+          0.1,
+          12000,
+        );
+        this.scene.environment = this.skyEnvironment.texture;
+        this.scene.environmentIntensity = 0.35;
+        generator.dispose();
+        environmentScene.clear();
+      }
       this.scene.add(sky);
     }
     this.pitTrack = config.pit
@@ -509,8 +525,11 @@ export class World {
       const shape = new THREE.Shape(
         b.footprint.map(([x, z]) => new THREE.Vector2(x, -z)),
       );
+      const y =
+        Math.min(...b.footprint.map(([x, z]) => this.height(x, z))) - 0.2;
+      const roofY = Math.max(y + b.height, b.roof_height ?? -Infinity);
       const geo = new THREE.ExtrudeGeometry(shape, {
-        depth: b.height,
+        depth: roofY - y,
         bevelEnabled: false,
         steps: 1,
       });
@@ -519,13 +538,37 @@ export class World {
         normal = geo.attributes.normal;
       for (let i = 0; i < uv.count; i++) {
         if (Math.abs(normal.getY(i)) > 0.5) uv.setXY(i, 0.02, 0.02);
-        else uv.setXY(i, uv.getX(i) / 10, uv.getY(i) / 12);
+        else {
+          const casino = b.name?.includes("Casino");
+          const scaleY = casino
+            ? b.height * 2
+            : ["belle-epoque", "fairmont"].includes(b.style)
+              ? (b.height / 7) * 4
+              : 12;
+          uv.setXY(
+            i,
+            uv.getX(i) / (casino ? 20 : 10),
+            (uv.getY(i) + y - (roofY - b.height)) / scaleY,
+          );
+        }
       }
       uv.needsUpdate = true;
       // Keep the whole floor embedded in sloping terrain, not floating off one edge.
-      const y =
-        Math.min(...b.footprint.map(([x, z]) => this.height(x, z))) - 0.2;
-      const mesh = new THREE.Mesh(geo, [roofMat, mats[b.osm_id % mats.length]]);
+      b.renderBase = y;
+      b.detailBase = roofY - b.height;
+      const facade =
+        this.track.code === "MC"
+          ? mats[
+              b.style === "belle-epoque"
+                ? 5
+                : b.style === "tower"
+                  ? 2
+                  : b.style === "fairmont"
+                    ? 5
+                    : 0
+            ]
+          : mats[b.osm_id % mats.length];
+      const mesh = new THREE.Mesh(geo, [roofMat, facade]);
       mesh.position.y = y;
       mesh.castShadow = true;
       mesh.receiveShadow = true;
@@ -534,6 +577,51 @@ export class World {
     }
     mergeBody(group);
     this.scene.add(group);
+    this.buildingGroup = group;
+    addArchitecture(this, this.mappedBuildings);
+  }
+  auditBuildingMeshes() {
+    this.scene.updateMatrixWorld(true);
+    const ray = new THREE.Raycaster();
+    let checked = 0,
+      hits = 0;
+    for (const b of this.mappedBuildings.filter(
+      (b) => b.monaco_reference_part,
+    )) {
+      const p = b.footprint;
+      let area = 0;
+      for (let i = 0; i < p.length; i++)
+        area +=
+          p[i][0] * p[(i + 1) % p.length][1] -
+          p[(i + 1) % p.length][0] * p[i][1];
+      for (let i = 0; i < p.length; i++) {
+        const a = p[i],
+          q = p[(i + 1) % p.length],
+          dx = q[0] - a[0],
+          dz = q[1] - a[1],
+          len = Math.hypot(dx, dz);
+        if (len < 2) continue;
+        const nx = (dz / len) * (area > 0 ? 1 : -1),
+          nz = (-dx / len) * (area > 0 ? 1 : -1);
+        ray.set(
+          new THREE.Vector3(
+            (a[0] + q[0]) / 2 + nx * 2,
+            b.detailBase + b.height * 0.5,
+            (a[1] + q[1]) / 2 + nz * 2,
+          ),
+          new THREE.Vector3(-nx, 0, -nz),
+        );
+        ray.far = 3;
+        checked++;
+        if (ray.intersectObject(this.buildingGroup, true).length) hits++;
+      }
+    }
+    return {
+      checked,
+      hits,
+      missing: checked - hits,
+      drawBatches: this.buildingGroup.children.length,
+    };
   }
   nearBuilding(x, z, radius) {
     if (this.cornerIndex?.at(x, z)) return true;
@@ -1195,6 +1283,7 @@ export class World {
     gs.forEach((g) => g.dispose());
     ms.forEach((m) => m.dispose());
     ts.forEach((t) => t.dispose());
+    this.skyEnvironment?.dispose();
     this.renderer.dispose();
     this.scene.clear();
   }

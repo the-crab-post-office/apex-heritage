@@ -67,6 +67,8 @@ pub struct Building {
     pub osm_id: u64,
     pub footprint: Vec<[f32; 2]>,
     pub height: f32,
+    #[serde(default)]
+    pub roof_height: Option<f32>,
 }
 #[derive(Deserialize)]
 pub struct BuildingTrack {

@@ -24,11 +24,13 @@ export function liveryMaterials(team) {
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 4;
   const mat = (region) => {
-    const m = new THREE.MeshStandardMaterial({
+    const m = new THREE.MeshPhysicalMaterial({
       color: "#ffffff",
       map: texture,
-      roughness: 0.39,
-      metalness: 0.18,
+      roughness: region === "tyre" ? 0.94 : 0.3,
+      metalness: region === "tyre" ? 0 : 0.16,
+      clearcoat: region === "tyre" ? 0 : 0.75,
+      clearcoatRoughness: 0.2,
     });
     m.userData.region = region;
     mappedMaterials.push(m);

@@ -1,3 +1,4 @@
+import assetStatus from "../data/car-asset-status.json";
 import { referenceCar } from "./reference-car.js";
 import { eras } from "./catalog.js";
 import { liveryMaterials, bodyUV } from "./livery.js";
@@ -9,13 +10,13 @@ import {
   sphereGeo,
   material,
 } from "./mesh-utils.js";
-export function makeCar(era = 2, color = "#e53c2f", selectedTeam = null) {
+function buildCar(era = 2, color = "#e53c2f", selectedTeam = null) {
   const team =
-      selectedTeam ||
-      eras[era].teams.find((t) => t.color === color) ||
-      eras[era].teams[0],
-    livery = liveryMaterials(team);
+    selectedTeam ||
+    eras[era].teams.find((t) => t.color === color) ||
+    eras[era].teams[0];
   if (era === 0 || era === 3) return referenceCar(era, team);
+  const livery = liveryMaterials(team);
   color = team.color;
   const car = new THREE.Group();
   const paint = livery.body,
@@ -479,5 +480,15 @@ export function makeCar(era = 2, color = "#e53c2f", selectedTeam = null) {
     gold,
     helmet,
   ];
+  return car;
+}
+
+export function makeCar(era = 2, color = "#e53c2f", selectedTeam = null) {
+  const team =
+    selectedTeam ||
+    eras[era].teams.find((t) => t.color === color) ||
+    eras[era].teams[0];
+  const car = buildCar(era, color, team);
+  car.userData.assetProvenance = assetStatus.cars.find((c) => c.id === team.id);
   return car;
 }

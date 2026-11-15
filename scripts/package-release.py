@@ -58,6 +58,9 @@ common.update(licenses)
 common['licenses/LIVERY-NOTICE.md'] = Path('data/LIVERY-NOTICE.md').read_bytes()
 common['licenses/PHOTO-REFERENCE-NOTICE.md'] = Path('data/PHOTO-REFERENCE-NOTICE.md').read_bytes()
 common['licenses/DejaVu.txt'] = Path('scripts/fonts/LICENSE-DejaVu.txt').read_bytes()
+common['licenses/MONACO-REFERENCE-NOTICE.md'] = Path('data/MONACO-REFERENCE-NOTICE.md').read_bytes()
+common['licenses/CAR-SCAN-STATUS.md'] = Path('data/CAR-SCAN-STATUS.md').read_bytes()
+common['WORKSPACE.md'] = Path('WORKSPACE.md').read_bytes()
 common['BUILD-INFO.txt'] = info
 common['PREVIEW-SCOPE.txt'] = (Path('data/CORNER-DETAILS-NOTICE.md').read_bytes())
 source = {p: Path(p).read_bytes() for p in run('git', 'ls-files').splitlines() if Path(p).is_file()}

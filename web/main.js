@@ -181,8 +181,10 @@ function updateLayoutNote() {
     note.textContent = `${eras[config.era].year} SURFACE PRESET · ${config.era < 3 ? "RECENT LAYOUT SUBSTITUTE" : "RECENT MAPPED ALIGNMENT"}`;
     if (config.track === 0)
       note.textContent += " · EAU ROUGE PHOTO UPDATE (ALL ERAS)";
+    if (config.track === 1)
+      note.textContent += " · MODERN MONACO SCENERY (ALL ERAS)";
     note.title =
-      "Era-specific kerbs/runoff on the supported recent road. Full historic road geometry and facility extents are not reconstructed. At Spa, Eau Rouge/Raidillon uses the same photo-guided modern complex for all eras, as requested.";
+      "Era-specific kerbs/runoff on the supported recent road. Full historic road geometry and facility extents are not reconstructed. At Spa, Eau Rouge/Raidillon uses the same photo-guided modern complex for all eras, as requested. Monaco uses modern photo-guided scenery for every era; barrier offsets and architectural heights are estimates.";
   }
 }
 function updateTrack() {
