@@ -22,7 +22,10 @@ import { CircuitClearance, inside, pointSegmentDistance } from "./scenery.js";
 import * as THREE from "three";
 import { ElevationField, profileAt } from "./elevation.js";
 import { Sky } from "three/addons/objects/Sky.js";
-import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import {
+  mergeGeometries,
+  mergeVertices,
+} from "three/addons/utils/BufferGeometryUtils.js";
 const rnd = ((seed) => () => {
   seed = (1664525 * seed + 1013904223) >>> 0;
   return seed / 4294967296;
@@ -61,8 +64,8 @@ export class World {
     const wet = config.weather === "wet";
     this.scene.background = new THREE.Color(wet ? "#8c9f9d" : "#b0c5bd");
     this.scene.fog = new THREE.FogExp2(
-      wet ? "#8c9f9d" : "#aebfb1",
-      wet ? 0.0014 : 0.00065,
+      wet ? "#8c9f9d" : "#b4c8d0",
+      wet ? 0.0014 : 0.00038,
     );
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -76,7 +79,7 @@ export class World {
     this.renderer.shadowMap.enabled = config.quality === "high";
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = wet ? 0.9 : 1.15;
+    this.renderer.toneMappingExposure = wet ? 0.9 : 0.95;
     this.camera = new THREE.PerspectiveCamera(
       60,
       innerWidth / innerHeight,
@@ -87,12 +90,12 @@ export class World {
       new THREE.HemisphereLight(
         wet ? "#bdced6" : "#d4e3e6",
         "#5d6545",
-        wet ? 2 : 2.8,
+        wet ? 2 : 1.65,
       ),
     );
     this.sun = new THREE.DirectionalLight(
       wet ? "#d4dfe1" : "#fff0d2",
-      wet ? 1.1 : 3.8,
+      wet ? 1.1 : 2.3,
     );
     this.sun.position.set(100, 180, 130);
     this.sun.castShadow = true;
@@ -113,11 +116,11 @@ export class World {
       const sky = new Sky();
       sky.scale.setScalar(10000);
       const u = sky.material.uniforms;
-      u.turbidity.value = 6;
-      u.rayleigh.value = 1.5;
+      u.turbidity.value = 2.5;
+      u.rayleigh.value = 2.3;
       u.mieCoefficient.value = 0.004;
       u.mieDirectionalG.value = 0.8;
-      u.sunPosition.value.set(0.55, 0.3, 0.4);
+      u.sunPosition.value.set(-0.2, 0.75, -0.4);
       this.scene.add(sky);
     }
     this.pitTrack = config.pit
@@ -257,13 +260,17 @@ export class World {
       4,
     );
     terrain.dispose();
+    const unmerged = ground.geometry;
+    ground.geometry = mergeVertices(unmerged, 0.001);
+    unmerged.dispose();
+    ground.geometry.computeVertexNormals();
     this.terrainMesh = ground;
     const wet = this.config.weather === "wet";
     // Multiplying a dark road texture by a dark metallic material made wet
     // asphalt nearly black; keep it readable without pretending to be a mirror.
     const roadMat = this.surfaces.pbr(
       "Asphalt012",
-      wet ? "#adb7b9" : "#d9dddd",
+      wet ? "#879396" : "#7b8285",
       wet ? 0.12 : 0.3,
     );
     roadMat.roughness = wet ? 0.43 : 0.96;
@@ -578,32 +585,47 @@ export class World {
       count,
     );
     const leaf = new THREE.InstancedMesh(
-      new THREE.ConeGeometry(1, 1, 7, 1),
-      material("#354b2f", 1),
-      count * 2,
+      new THREE.ConeGeometry(1, 1, 11, 3),
+      material("#ffffff", 1),
+      count * 4,
     );
     const matrix = new THREE.Object3D(),
       c = new THREE.Color();
     let accepted = 0;
     for (let i = 0; i < count * 4 && accepted < count; i++) {
-      let idx = Math.floor(rnd() * n),
+      let idx =
+          this.track.code === "BE" && i < 300
+            ? 180 + Math.floor(rnd() * 140)
+            : Math.floor(rnd() * n),
         a = p[idx],
         b = p[(idx + 1) % n],
         dx = b[0] - a[0],
         dz = b[1] - a[1],
         len = Math.hypot(dx, dz);
-      let side = rnd() < 0.5 ? -1 : 1;
-      let offset = side * (this.track.width / 2 + 18 + rnd() * 260);
+      let side = this.track.code === "BE" && i < 300 ? 1 : rnd() < 0.5 ? -1 : 1;
+      let offset =
+        side *
+        (this.track.code === "BE" && i < 300
+          ? 95 + rnd() * 160
+          : this.track.width / 2 + 18 + rnd() * 260);
       let x = a[0] + (dz / len) * offset + (rnd() - 0.5) * 30,
         z = a[1] - (dx / len) * offset + (rnd() - 0.5) * 30;
       const h = 5 + rnd() * 12,
         radius = h * 0.35;
       // Reject, never shove a failed candidate somewhere else without rechecking.
       if (
-        !forestAt(this.photoArea, x, z) ||
+        (!forestAt(this.photoArea, x, z) &&
+          !(this.track.code === "BE" && i < 300)) ||
         !this.clearance.circleClear(x, z, radius) ||
         (this.pitClearance && !this.pitClearance.circleClear(x, z, radius)) ||
-        this.nearBuilding(x, z, radius)
+        this.nearBuilding(x, z, radius) ||
+        this.config.venue?.grandstands.some((s) =>
+          inside([x, z], s.footprint),
+        ) ||
+        (this.track.code === "BE" &&
+          idx >= 135 &&
+          idx <= 260 &&
+          Math.abs(offset) < 90)
       )
         continue;
       const y = this.height(x, z),
@@ -614,18 +636,22 @@ export class World {
       matrix.scale.set(1, h * 0.5, 1);
       matrix.updateMatrix();
       trunk.setMatrixAt(slot, matrix.matrix);
-      for (let j = 0; j < 2; j++) {
-        matrix.position.set(x, y + h * (j ? 0.72 : 0.48), z);
-        matrix.scale.set(h * (j ? 0.25 : 0.35), h * 0.7, h * (j ? 0.25 : 0.35));
+      for (let j = 0; j < 4; j++) {
+        matrix.position.set(x, y + h * (0.35 + j * 0.16), z);
+        matrix.scale.set(
+          h * (0.32 - j * 0.065),
+          h * 0.44,
+          h * (0.32 - j * 0.065),
+        );
         matrix.rotation.y = rnd() * 6;
         matrix.updateMatrix();
-        leaf.setMatrixAt(slot * 2 + j, matrix.matrix);
-        c.setHSL(0.22 + rnd() * 0.07, 0.2 + rnd() * 0.2, 0.11 + rnd() * 0.13);
-        leaf.setColorAt(slot * 2 + j, c);
+        leaf.setMatrixAt(slot * 4 + j, matrix.matrix);
+        c.setHSL(0.22 + rnd() * 0.07, 0.2 + rnd() * 0.2, 0.17 + rnd() * 0.13);
+        leaf.setColorAt(slot * 4 + j, c);
       }
     }
     trunk.count = accepted;
-    leaf.count = accepted * 2;
+    leaf.count = accepted * 4;
     trunk.castShadow = true;
     leaf.castShadow = true;
     leaf.receiveShadow = true;
@@ -648,6 +674,7 @@ export class World {
       side: THREE.DoubleSide,
     });
     for (let i = 30; i < n; i += 75) {
+      if (this.track.code === "BE" && i >= 140 && i <= 250) continue;
       const a = this.sample(i / n);
       const bx = a.x + Math.cos(a.yaw) * (this.track.width / 2 + 5),
         bz = a.z - Math.sin(a.yaw) * (this.track.width / 2 + 5);

@@ -61,7 +61,9 @@ impl Venue {
         };
         if era == 0 {
             for b in &mut v.barriers {
-                b.fence = false;
+                if !(name == "Spa-Francorchamps" && (140..250).contains(&b.index)) {
+                    b.fence = false;
+                }
             }
         }
         for (i, b) in v.barriers.iter().enumerate() {

@@ -1,3 +1,4 @@
+import { referenceCar } from "./reference-car.js";
 import { eras } from "./catalog.js";
 import { liveryMaterials, bodyUV } from "./livery.js";
 import * as THREE from "three";
@@ -14,6 +15,7 @@ export function makeCar(era = 2, color = "#e53c2f", selectedTeam = null) {
       eras[era].teams.find((t) => t.color === color) ||
       eras[era].teams[0],
     livery = liveryMaterials(team);
+  if (era === 0 || era === 3) return referenceCar(era, team);
   color = team.color;
   const car = new THREE.Group();
   const paint = livery.body,

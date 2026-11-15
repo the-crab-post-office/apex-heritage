@@ -49,7 +49,7 @@ export function buildCornerSurfaces(world) {
   const groups = new Map();
   world.cornerMeshes = [];
   for (const f of d.facets) {
-    const key = `${f.kind}:${f.kind === 0 ? f.color : 0}`;
+    const key = `${f.kind}:${f.color}`;
     if (!groups.has(key))
       groups.set(key, { kind: f.kind, color: f.color, triangles: [] });
     const p = f.p.map((p) => p.slice());
@@ -61,7 +61,7 @@ export function buildCornerSurfaces(world) {
   }
   for (const { kind, color, triangles } of groups.values()) {
     let material;
-    if (kind === 0)
+    if (kind === 0 || (kind === 2 && color !== 0x666e70))
       material = new THREE.MeshStandardMaterial({
         color,
         roughness: 0.88,
@@ -70,7 +70,13 @@ export function buildCornerSurfaces(world) {
     else
       material = world.surfaces.pbr(
         kind === 1 ? "Gravel001" : kind === 2 ? "Asphalt012" : "Grass004",
-        kind === 1 ? "#dfcfb1" : kind === 2 ? "#b7c0c0" : "#e0e5c9",
+        kind === 1
+          ? "#dfcfb1"
+          : kind === 2
+            ? color === 0x666e70
+              ? "#8b9193"
+              : color
+            : "#e0e5c9",
         0.28,
       );
     material.side = THREE.DoubleSide;

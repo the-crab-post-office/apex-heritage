@@ -2,7 +2,7 @@
 """Original reference-guided texture atlases, shared by web/native. Offline; no photo pixels."""
 import json, math
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont, ImageColor, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageColor
 ROOT=Path(__file__).resolve().parents[1]
 D=json.loads((ROOT/'data/roster.json').read_text())
 FONT=ROOT/'scripts/fonts/DejaVuSans-Bold.ttf'
@@ -45,8 +45,10 @@ def panel(t,pods=False):
  elif style=='minardi':
   d.rectangle((0,280,1024,460),fill=s);d.rectangle((0,240,1024,280),fill=a)
  elif style=='bull':
-  for x in [256,768]:d.ellipse((x-155,240,x+155,403),fill=a);d.polygon([(x-150,330),(x-80,280),(x-15,320),(x+30,285),(x+135,335),(x+50,357),(x-35,345),(x-120,370)],fill=s)
-  for x in [0,1024]:d.polygon([(x-170,0),(x+170,0),(x+70,175),(x-70,175)],fill=a)
+  if not pods:
+   for x in [256,768]:d.ellipse((x-155,240,x+155,403),fill=a);d.polygon([(x-150,330),(x-80,280),(x-15,320),(x+30,285),(x+135,335),(x+50,357),(x-35,345),(x-120,370)],fill=s)
+   for x in [0,1024]:d.polygon([(x-170,0),(x+170,0),(x+70,175),(x-70,175)],fill=a)
+  else:d.rectangle((0,430,1024,452),fill=s)
  elif style in ['mercedes','aston']:
   for x in [256,768]:d.polygon([(x-160,0),(x-80,0),(x+115,512),(x+45,512)],fill=s)
   d.rectangle((0,416,1024,432),fill=s)
@@ -77,12 +79,16 @@ manifest=[];rust=[]
 for era in D['eras']:
  for t in era['teams']:
   atlas=Image.new('RGB',(2048,1024),t['color']);atlas.paste(panel(t),(0,0));atlas.paste(panel(t,True),(1024,0));d=ImageDraw.Draw(atlas)
-  d.rectangle((0,512,1023,767),fill=t['secondary']);word=text_layer(t['wing'],880,140,contrast(t['secondary']));atlas.paste(word,(72,567),word)
+  wingbase='#141922'if era['year']=='2023'else t['secondary'];d.rectangle((0,512,1023,767),fill=wingbase);word=text_layer(t['wing'],880,140,contrast(wingbase));atlas.paste(word,(72,567),word)
   d.rectangle((1024,512,1535,767),fill=t['secondary']);end=text_layer(t['minor'],440,100,contrast(t['secondary']));atlas.paste(end,(1060,589),end)
+  if era['year']=='2023':
+   d.rectangle((1024,512,1535,767),fill=wingbase)
+   for xx in [1042,1302]:
+    word=text_layer(t['wing'],205,88,contrast(wingbase));atlas.paste(word,(xx,596),word)
   # Sidewall band, repeated around the circumference by each wheel's UVs.
   d.rectangle((0,768,2047,1023),fill='#141719');tyre=t['tyre'].upper();ink='#e9d12f'if tyre=='PIRELLI'else'#eeeee4'
-  for x in [40,1064]:
-   word=text_layer(tyre,800,90,ink);atlas.paste(word,(x,840),word)
+  for x in [260,1284]:
+   word=text_layer(tyre,500,60,ink);atlas.paste(word,(x,855),word)
   atlas.quantize(colors=128,method=Image.Quantize.FASTOCTREE,dither=Image.Dither.NONE).save(OUT/(t['id']+'.png'),optimize=True)
   manifest.append({'id':t['id'],'file':t['id']+'.png','width':2048,'height':1024,'number':t['number'],'style':t['style'],'source':t['reference']})
   rust.append(f'        "{t["id"]}" => include_bytes!("../web/assets/liveries/{t["id"]}.png"),')

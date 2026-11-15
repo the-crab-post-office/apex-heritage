@@ -1,5 +1,7 @@
 # Season roster and original livery artwork — 0.8
 
+**0.9 local exception/update:** Eau Rouge/Raidillon now uses a geographically anchored, photo-guided modern climb and the same local kerbs/paved apron/barriers for all eras, explicitly requested by the user. 1967 and 2023 car silhouettes are revised with shared web/native meshes. These are authored approximations, not surveys or scans. See [PHOTO-REFERENCE-NOTICE.md](PHOTO-REFERENCE-NOTICE.md); the remaining historical-layout limitations below still apply.
+
 Reference review: 8 November 2026. Independent unofficial prototype; no affiliation or endorsement.
 
 ## Scope

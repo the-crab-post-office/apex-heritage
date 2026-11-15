@@ -1,5 +1,7 @@
 # Geographic elevation data (0.3.1)
 
+**0.9 local exception/update:** Eau Rouge/Raidillon now uses a geographically anchored, photo-guided modern climb and the same local kerbs/paved apron/barriers for all eras, explicitly requested by the user. 1967 and 2023 car silhouettes are revised with shared web/native meshes. These are authored approximations, not surveys or scans. See [PHOTO-REFERENCE-NOTICE.md](PHOTO-REFERENCE-NOTICE.md); the remaining historical-layout limitations below still apply.
+
 Terrain and road elevation estimates are **produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.**
 
 Dataset: Copernicus DEM GLO-30 Public, approximately 30 m digital **surface** model (buildings/vegetation included), AWS Cloud Optimized GeoTIFF distribution. Retrieved 8 November 2026.

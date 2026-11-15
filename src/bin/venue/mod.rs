@@ -239,7 +239,7 @@ pub fn build(t: &Track, v: &Venue) -> Vec<Mesh> {
             b.cube(
                 frame * Mat4::from_translation(vec3(0., s.rows as f32 * 0.48 + 3.35, 0.)),
                 vec3(s.width + 2., 0.16, s.depth + 3.),
-                LIGHTGRAY,
+                Color::from_rgba(69, 78, 83, 255),
             );
         }
         b.flush();

@@ -1,14 +1,20 @@
 //! Lightweight native renderer using exactly the same Rust simulation as the browser.
+mod reference_car;
 mod venue;
 use apex_heritage::native_audio::NativeAudio;
 use apex_heritage::{tracks, Simulation, Track};
 use macroquad::prelude::*;
-fn conf() -> Conf {
-    Conf {
-        window_title: "APEX / HERITAGE — Native".into(),
-        window_width: 1440,
-        window_height: 900,
-        high_dpi: true,
+fn conf() -> macroquad::conf::Conf {
+    macroquad::conf::Conf {
+        draw_call_vertex_capacity: 10000,
+        draw_call_index_capacity: 32768,
+        miniquad_conf: Conf {
+            window_title: "APEX / HERITAGE — Native".into(),
+            window_width: 1440,
+            window_height: 900,
+            high_dpi: true,
+            ..Default::default()
+        },
         ..Default::default()
     }
 }
@@ -43,6 +49,24 @@ fn loft(sections: &[[f32; 5]], _color: Color, texture: &Texture2D) {
     });
 }
 fn car(
+    p: Vec3,
+    yaw: f32,
+    pitch: f32,
+    roll: f32,
+    heights: [f32; 4],
+    texture: &Texture2D,
+    color: Color,
+    era: usize,
+    cars: &mut reference_car::Cars,
+    team: usize,
+) {
+    if era == 0 || era == 3 {
+        cars.draw(p, yaw, pitch, roll, heights, texture, era, team);
+    } else {
+        legacy_car(p, yaw, pitch, roll, heights, texture, color, era);
+    }
+}
+fn legacy_car(
     p: Vec3,
     yaw: f32,
     pitch: f32,
@@ -636,6 +660,7 @@ async fn main() {
     let mut details = apex_heritage::corner::Details::new(&circuits[ti], era);
     let mut corner_mesh = venue::corners(&details);
     let mut camera_mode = 0;
+    let mut reference_cars = reference_car::Cars::new();
     let mut livery_key = (era, team);
     let mut livery_texture = Texture2D::from_file_with_format(
         apex_heritage::livery_assets::png(&apex_heritage::roster::team(era, team).id),
@@ -972,6 +997,8 @@ async fn main() {
                 &livery_texture,
                 team_color,
                 era,
+                &mut reference_cars,
+                team,
             );
             if s.bottoming > 0.05 && s.speed > 4. {
                 for i in 0..7 {
@@ -1024,6 +1051,8 @@ async fn main() {
                 &livery_texture,
                 team_color,
                 era,
+                &mut reference_cars,
+                team,
             );
         }
         set_default_camera();

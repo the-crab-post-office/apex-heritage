@@ -43,3 +43,11 @@ class GeographicElevationTests(unittest.TestCase):
   for i in range(len(h)):
    j=(i+1)%len(h);self.assertLess(abs(h[j]-h[i])/math.dist(p[i],p[j]),.18)
 if __name__=='__main__':unittest.main()
+
+class PhotoClimbTests(unittest.TestCase):
+ def test_spa_compression_crest_and_peak_gradient(self):
+  t=TRACKS[0];c=next(c for c in t['road_corrections']if c['type']=='photo-guided-climb');a,b=c['compression_index'],c['crest_index']
+  self.assertAlmostEqual(t['heights'][b]-t['heights'][a],40,delta=.002)
+  grades=[(t['heights'][i+1]-t['heights'][i])/math.dist(t['points'][i+1],t['points'][i])for i in range(a,b)]
+  self.assertGreater(max(grades),.16);self.assertLess(max(grades),.18)
+  self.assertGreater(t['heights'][a-20],t['heights'][a]);self.assertLess(t['heights'][b+5]-t['heights'][b],2)

@@ -1,5 +1,7 @@
 # Corner surfaces and venue furniture — preview scope and attribution
 
+**0.9 local exception/update:** Eau Rouge/Raidillon now uses a geographically anchored, photo-guided modern climb and the same local kerbs/paved apron/barriers for all eras, explicitly requested by the user. 1967 and 2023 car silhouettes are revised with shared web/native meshes. These are authored approximations, not surveys or scans. See [PHOTO-REFERENCE-NOTICE.md](PHOTO-REFERENCE-NOTICE.md); the remaining historical-layout limitations below still apply.
+
 **This preview does not fulfil the requested full historical layouts.** All ten circuits have corner-specific kerb/runoff profiles for the four car eras, but the three historical profiles use the supported recent road alignment. Setup and race HUD explicitly say `RECENT-LAYOUT SUBSTITUTE`. This is not a valid claim that every older circuit was unavailable. In particular, historic Spa, Silverstone, Hockenheim and Interlagos had substantially different roads. Grandstands, buildings, pits, starts, elevation, AI and minimaps still use recent mapped geometry. Montréal 1967 and Nürburgring GP 1967 are separately explained as nonexistent-era combinations; that exception does not justify the other unfinished layouts.
 
 ## What was actually referenced

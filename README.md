@@ -1,10 +1,20 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.8.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.9.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
 
-## 0.8 collection update
+## 0.9 photo-guided cars and Eau Rouge
+
+- 2023 cars now use a more slender nose, curved front aerofoils, low undercut sidepods, recessed inlets, substantial halo, rounded rear-wing/DRS assembly and more realistic tyre shoulders/rims. Modern wings use dark panels instead of the generic secondary colour.
+- 1967 cars now use an open oval radiator nose, rounded cigar monocoque/open cockpit, exposed engine/inlet trumpets/exhausts, chrome roll hoop and wider rear tyres—without modern aero parts.
+- Original authored chassis/wheel meshes are shared by web and native; the updated wheel layout is also used by Rust contact/track-limit calculations. Constructor paint schemes and all 47 selections are retained; these remain era-shared silhouettes, not individual scanned chassis.
+- Eau Rouge/Raidillon has an approximately **40 m compression-to-crest rise / 17.4% peak climb**, separate apex/crest kerbs, red/green paved aprons, connected outside barriers and a covered, terrain-following hillside stand. **The pictured modern complex is intentionally used for all four eras**, as requested.
+- Less washed-out web lighting, smoother terrain shading and a denser layered forest backdrop. Native retains simpler lighting/vegetation but shares the new car triangles, road heights and physical venue surfaces.
+
+See [photo-reference notice](data/PHOTO-REFERENCE-NOTICE.md). This is a photo-guided procedural approximation, not photogrammetry or survey data. The rest of the historical circuit reconstruction remains unfinished.
+
+## Retained 0.8 collection update
 
 - Full season constructor selection shared by Rust, web/native menus, handling and web rival liveries. 1967 counts constructor representatives, excluding F2 guests and duplicate privateer/engine entries; one representative car per constructor, not every driver/race variant. Quick races still use the existing smaller AI field, not 47 simultaneous cars.
 - 47 original 2048×1024 offline-generated atlases: characteristic colour blocking, race numbers, period sponsor lettering, wing/endplate panels and web tyre/rim details. These remain **stylised reconstructions**, not exact corporate fonts or race-by-race replicas. Chassis are shared per-era models; native has simpler decal/tyre coverage.
@@ -16,9 +26,9 @@ See [data/LIVERY-NOTICE.md](data/LIVERY-NOTICE.md) for visual references, roster
 
 ## Preview status — read first
 
-This feature preview implements the corner/contact changes below, but **the requested full historical road reconstructions are unfinished**. All ten tracks still use recent mapped roads. The 1967/1988/2004 selections have era-inspired surface presets and visible **RECENT-LAYOUT SUBSTITUTE** labels, not authentic historic layouts. Stands, buildings, pit routes, elevation, AI paths and minimaps also remain recent-layout approximations. Montréal 1967 and Nürburgring GP 1967 are separately identified as nonexistent-era combinations; that exception does **not** justify the other missing historic alignments.
+This feature preview implements the corner/contact changes below, but **the requested full historical road reconstructions are unfinished**. All ten tracks still use recent mapped roads. The 1967/1988/2004 selections have era-inspired surface presets and visible **RECENT-LAYOUT SUBSTITUTE** labels, not authentic historic layouts. At Eau Rouge/Raidillon specifically, all eras now deliberately share the photo-guided modern complex chosen by the user. Stands, buildings, pit routes, elevation, AI paths and minimaps also remain recent-layout approximations. Montréal 1967 and Nürburgring GP 1967 are separately identified as nonexistent-era combinations; that exception does **not** justify the other missing historic alignments.
 
-The work remains on `feature/full-grid-liveries-showroom`; stable `main`/`v0.6.0` are not replaced. No remote repository has been created or pushed.
+The work remains on `feature/photo-cars-eau-rouge`; stable `main`/`v0.6.0` are not replaced. No remote repository has been created or pushed.
 
 ## New playable corner/contact features
 
@@ -52,7 +62,7 @@ python3 -m http.server 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.8.0-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.9.0-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|
@@ -65,7 +75,7 @@ Native setup: arrows select track, E selects era, T selects team, Enter starts; 
 
 ## Build and test
 
-Requires Rust, Node/npm, `wasm32-unknown-unknown`, and `wasm-bindgen-cli` **0.2.105**. Native Linux additionally needs OpenGL/X11, ALSA and libudev development/runtime libraries. Python geometric regeneration/tests use Shapely; elevation tooling also uses NumPy/SciPy/rasterio. Offline livery regeneration uses Pillow and the bundled licensed font (`python3 scripts/build-liveries.py`).
+Requires Rust, Node/npm, `wasm32-unknown-unknown`, and `wasm-bindgen-cli` **0.2.105**. Native Linux additionally needs OpenGL/X11, ALSA and libudev development/runtime libraries. Python geometric regeneration/tests use Shapely; elevation tooling also uses NumPy/SciPy/rasterio. Offline shared car geometry regenerates with `python3 scripts/build-car-shapes.py`. Offline livery regeneration uses Pillow and the bundled licensed font (`python3 scripts/build-liveries.py`).
 
 ```sh
 . "$HOME/.cargo/env"

@@ -6,6 +6,7 @@ No fractional-lap elevation keyframes. Start-index rotation must not move hills.
 import json,math
 from pathlib import Path
 import numpy as np
+from scipy.interpolate import PchipInterpolator
 from scipy.ndimage import median_filter,gaussian_filter,gaussian_filter1d
 ROOT=Path(__file__).resolve().parent.parent
 
@@ -47,6 +48,14 @@ def build(track,source,structures):
    delta=arc_distance(dist,dist[i],length);ground+=(common-ground[i])*np.exp(-(delta/110)**4)
   delta=arc_distance(dist,dist[upper],length);lift=ref['clearance_metres']*np.exp(-(delta/160)**4)
   corrections.append({'type':'bridge','longitude':ref['longitude'],'latitude':ref['latitude'],'upper_index':upper,'lower_index':next(i for i in legs if i!=upper),'clearance':ref['clearance_metres'],'height_source':'authored clearance at geographic crossover; not surveyed'})
+ if track['code']=='BE':
+  ref=json.loads((ROOT/'data/spa-reference.json').read_text())
+  ids=[nearest(track,project(track,a[0],a[1]))for a in ref['anchors']]
+  foot=ids[3];datum_foot=float(ground[foot]);begin=dist[ids[0]]
+  xs=np.array([(dist[i]-begin)%length for i in ids]);ys=np.array([float(ground[i])if a[2]is None else datum_foot+a[2]for i,a in zip(ids,ref['anchors'])])
+  curve=PchipInterpolator(xs,ys);progress=(dist-begin)%length;mask=progress<=xs[-1]
+  ground[mask]=curve(progress[mask])
+  corrections.append({'type':'photo-guided-climb','name':'Eau Rouge / Raidillon','start_index':ids[0],'compression_index':foot,'crest_index':ids[9],'end_index':ids[-1],'rise_metres':40.,'scope':'modern photo-guided complex for all eras, not a survey','source':'data/spa-reference.json'})
  heights=ground+lift;datum=float(ground.min())
  terrain={k:v for k,v in grid.items()if k!='array'};terrain['heights']=[round(float(v)-datum,3)for v in grid['array'].ravel()]
  track.update(heights=[round(float(v)-datum,4)for v in heights],ground_heights=[round(float(v)-datum,4)for v in ground],terrain=terrain,elevation=round(float(heights.max()-heights.min()),1),elevation_datum=round(datum,4),sea_level=round(-datum,4),water_level=round((float(np.percentile(source['altitudes'],5)) if track['code']=='CA' else 0)-datum,4),elevation_source='Georeferenced Copernicus GLO-30 DSM; filtered/road-corrected approximation, not surveyed road heights',road_corrections=corrections)

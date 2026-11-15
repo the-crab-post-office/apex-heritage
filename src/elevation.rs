@@ -136,6 +136,32 @@ impl Track {
 mod tests {
     use crate::{tracks, Simulation};
     #[test]
+    fn spa_photo_climb_feeds_the_driving_surface_for_every_era() {
+        let ts = tracks();
+        let t = &ts[0];
+        let foot = 164;
+        let crest = 220;
+        assert!((t.heights[crest] - t.heights[foot] - 40.).abs() < 0.002);
+        for era in 0..4 {
+            let mut sim = Simulation::new(0, era, 0, false, true);
+            for i in (foot..=crest).step_by(4) {
+                let p = t.points[i];
+                let q = t.points[i + 1];
+                let yaw = (q[0] - p[0]).atan2(q[1] - p[1]);
+                sim.nearest = i;
+                sim.state.x = p[0];
+                sim.state.z = p[1];
+                sim.state.yaw = yaw;
+                sim.state.speed = 30.;
+                let surface = t.driving_surface(p[0], p[1], i, yaw);
+                assert!((surface.height - t.heights[i]).abs() < 0.002);
+                sim.step(0.4, 0., 0., 0.01);
+                assert!((sim.state.y - t.heights[i]).abs() < 0.7);
+                assert_eq!(sim.state.wheels_on_track, 4);
+            }
+        }
+    }
+    #[test]
     fn profiles_are_aligned_periodic_and_bounded() {
         for t in tracks() {
             let n = t.points.len();

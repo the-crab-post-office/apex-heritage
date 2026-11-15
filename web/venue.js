@@ -20,7 +20,7 @@ export function buildVenue(world) {
     dark = mat("#1a2022", 0.6, 0.25),
     rubber = mat("#ffffff", 0.94),
     seat = mat("#ffffff", 0.8),
-    roof = mat("#b7bfc0", 0.55, 0.25),
+    roof = mat("#454e53", 0.65, 0.25),
     clothes = mat("#ffffff"),
     skin = mat("#d0b591");
   const wires = [],
@@ -235,7 +235,9 @@ export function buildVenue(world) {
       }
     }
     // Continuous stair aisles, rear rail, supporting piers and an optional roof.
-    for (const x of [-s.width / 2 + 10.4, -s.width / 2 + 21.8])
+    for (const x of s.width < 14
+      ? [0]
+      : [-s.width / 2 + 10.4, -s.width / 2 + 21.8])
       for (let row = 0; row < s.rows * 2; row++)
         cube(
           "stairs",
@@ -287,7 +289,7 @@ export function buildVenue(world) {
         0.16,
         s.depth + 3,
       );
-      for (const x of [-14, 0, 14])
+      for (const x of [-s.width * 0.35, 0, s.width * 0.35])
         cube(
           "roof-trusses",
           steel,

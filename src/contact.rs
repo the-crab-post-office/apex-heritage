@@ -10,26 +10,21 @@ pub struct Wheel {
 }
 pub fn wheels(era: usize) -> [Wheel; 4] {
     let classic = era == 0;
-    let half = if classic { 0.82 } else { 1.02 };
-    let (front, rear) = if classic { (1.12, -1.1) } else { (1.43, -1.44) };
+    let layout = crate::car_shapes::layout(era);
+    let half = layout.map_or(1.02, |l| l.half);
+    let (front, rear) = layout.map_or((1.43, -1.44), |l| (l.front, l.rear));
     std::array::from_fn(|i| Wheel {
         lateral: if i < 2 { -half } else { half },
         longitudinal: if i % 2 == 0 { front } else { rear },
-        width: if classic {
-            0.24
-        } else if i % 2 == 0 {
-            0.34
-        } else {
-            0.44
-        },
+        width: layout.map_or(if i % 2 == 0 { 0.34 } else { 0.44 }, |l| {
+            if i % 2 == 0 {
+                l.front_width
+            } else {
+                l.rear_width
+            }
+        }),
         patch_length: if classic { 0.18 } else { 0.24 },
-        radius: if classic {
-            0.34
-        } else if era == 3 {
-            0.38
-        } else {
-            0.35
-        },
+        radius: layout.map_or(0.35, |l| l.radius),
     })
 }
 pub fn world(x: f32, z: f32, yaw: f32, lateral: f32, longitudinal: f32) -> [f32; 2] {
@@ -159,7 +154,10 @@ mod tests {
     fn wheel_positions_match_the_four_rendered_tyre_centres() {
         assert_eq!(wheels(0)[0].longitudinal, 1.12);
         assert_eq!(wheels(0)[1].longitudinal, -1.1);
-        assert_eq!(wheels(3)[0].lateral, -1.02);
+        assert_eq!(wheels(3)[0].lateral, -0.90);
+        assert_eq!(wheels(3)[0].longitudinal, 1.65);
+        assert_eq!(wheels(3)[3].longitudinal, -1.75);
+        assert_eq!(wheels(0)[1].width, 0.34);
         assert_eq!(wheels(3)[3].width, 0.44);
     }
     #[test]

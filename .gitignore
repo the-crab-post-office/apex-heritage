@@ -5,10 +5,12 @@
 /playwright-report/
 *.log
 
-/site/
+/site
 /artifacts/
 /releases/
 
 /.map-import/
 
 __pycache__/
+
+/build/

@@ -140,11 +140,18 @@ impl Details {
             let (kind, color) = match r.kind.as_str() {
                 "gravel" => (1, 0xc1ad84),
                 "asphalt" => (2, 0x666e70),
+                "red_paint" => (2, 0xb52b24),
+                "green_paint" => (2, 0x27814b),
                 _ => (3, 0x91a366),
             };
             for tri in &r.triangles {
                 let points = tri.map(|p| {
-                    let ground = track.driving_surface(p[0], p[1], r.index, 0.);
+                    let ground =
+                        if track.name == "Spa-Francorchamps" && r.name.contains("photo apron") {
+                            track.surface_at(p[0], p[1], r.index, 0.)
+                        } else {
+                            track.driving_surface(p[0], p[1], r.index, 0.)
+                        };
                     [p[0], ground.height + 0.025, p[1]]
                 });
                 for piece in roadmask

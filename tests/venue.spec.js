@@ -80,6 +80,11 @@ for (const [track, name] of [
         seats: a.seats,
         spectators: a.spectators,
         stands: a.grandstands.length,
+        sharedStands: JSON.parse(r.sim.venue_geometry_json()).grandstands
+          .length,
+        sourceFootprints: new Set(
+          a.grandstands.filter((s) => s.osm_id).map((s) => s.osm_id),
+        ).size,
         barriers: a.barriers.length,
         shared: JSON.parse(r.sim.venue_geometry_json()).barriers.length,
       };
@@ -87,7 +92,9 @@ for (const [track, name] of [
     expect(result.blocked).toBe(0);
     expect(result.nonFinite).toBe(0);
     expect(result.barriers).toBe(result.shared);
-    expect(result.stands).toBe(track === 0 ? 8 : 2);
+    expect(result.stands).toBe(result.sharedStands);
+    if (track === 0) expect(result.sourceFootprints).toBe(8);
+    else expect(result.stands).toBe(2);
     if (track === 0) expect(result.tyres).toBeGreaterThan(100);
     expect(result.seats).toBeGreaterThan(250);
     expect(result.spectators).toBeGreaterThan(100);

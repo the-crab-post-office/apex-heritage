@@ -56,6 +56,7 @@ info = (f'APEX / HERITAGE {version}\nCommit: {run("git", "rev-parse", "HEAD")}\n
 common = {name: Path(name).read_bytes() for name in ['README.md', 'SOURCES.md', 'TESTING.md', 'LICENSE']}
 common.update(licenses)
 common['licenses/LIVERY-NOTICE.md'] = Path('data/LIVERY-NOTICE.md').read_bytes()
+common['licenses/PHOTO-REFERENCE-NOTICE.md'] = Path('data/PHOTO-REFERENCE-NOTICE.md').read_bytes()
 common['licenses/DejaVu.txt'] = Path('scripts/fonts/LICENSE-DejaVu.txt').read_bytes()
 common['BUILD-INFO.txt'] = info
 common['PREVIEW-SCOPE.txt'] = (Path('data/CORNER-DETAILS-NOTICE.md').read_bytes())

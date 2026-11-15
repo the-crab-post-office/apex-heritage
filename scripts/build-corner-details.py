@@ -128,4 +128,6 @@ for ti,(t,pit,build,osm)in enumerate(zip(T,P,B,O)):
  else:photo_evidence={'url':'https://fly-foto.de/luftbild/album/hockenheim/','additional_reference':'https://fly-foto.de/luftbild/haupttribuene-des-hockenheimring-baden-wuerttemberg-2017-08-24-img-102548-jpg/','image_date':'2017-08-24 for linked main-stand view; other album image dates not established'}
  output.append({'inspected_photo':photo_evidence,'id':t['id'],'name':t['name'],'photo':{'url':refs[ti][0],'file':refs[ti][1],'year':refs[ti][2],'observations':refs[ti][3],'redistributed':False},'history_url':'https://www.racingcircuits.info/','grandstands':stands,'barriers':mapped_barriers,'profiles':profiles})
  print(t['name'],len(stands),'mapped/photo stands',len(mapped_barriers),'mapped barrier pieces',[(p['year'],len(p['kerbs']),len(p['runoffs']))for p in profiles])
+from spa_reference import refine
+refine(T,output)
 (ROOT/'data/corner-details.json').write_text(json.dumps({'source':'Map/photo-referenced corner details. Historical SURFACING presets, not full historical road alignments. Every recent-layout substitution is labelled in-game. Geometry/kerb heights are approximate. OSM data © OpenStreetMap contributors, ODbL-1.0; reference photos are not redistributed.','tracks':output},separators=(',',':')))
