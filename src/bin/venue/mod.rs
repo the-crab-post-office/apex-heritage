@@ -1,5 +1,7 @@
 //! Low-detail native safety furniture, baked once into bounded vertex batches.
+mod ground;
 use apex_heritage::{venue::Venue, Track};
+pub use ground::Ground;
 use macroquad::prelude::*;
 #[derive(Default)]
 struct Builder {
@@ -79,94 +81,155 @@ impl Builder {
 fn transform(x: f32, y: f32, z: f32, yaw: f32) -> Mat4 {
     Mat4::from_translation(vec3(x, y, z)) * Mat4::from_rotation_y(yaw)
 }
-pub fn build(t: &Track, v: &Venue) -> Vec<Mesh> {
+pub fn build(t: &Track, v: &Venue, support: &Ground) -> Vec<Mesh> {
     let mut b = Builder::default();
     let steel = Color::from_rgba(135, 150, 152, 255);
     let cement = Color::from_rgba(181, 187, 177, 255);
     let rubber = Color::from_rgba(29, 33, 34, 255);
-    for wall in &v.barriers {
-        let dx = wall.b[0] - wall.a[0];
-        let dz = wall.b[1] - wall.a[1];
-        let len = dx.hypot(dz);
-        let yaw = dx.atan2(dz);
-        let ground = |x, z| t.terrain_height(x, z) - 1.2;
-        let ya = ground(wall.a[0], wall.a[1]);
-        let yb = ground(wall.b[0], wall.b[1]);
-        let base = transform(
-            (wall.a[0] + wall.b[0]) / 2.,
-            (ya + yb) / 2.,
-            (wall.a[1] + wall.b[1]) / 2.,
-            yaw,
-        ) * Mat4::from_rotation_x(-(yb - ya).atan2(len));
-        if wall.kind == "tyres" {
-            let count = (len / 0.79).ceil() as usize;
-            for i in 0..count {
-                let f = (i as f32 + 0.5) / count as f32;
-                let x = wall.a[0] + dx * f;
-                let z = wall.a[1] + dz * f;
-                for row in 0..3 {
-                    b.ring(
-                        vec3(x, ground(x, z) + 0.2 + row as f32 * 0.39, z),
-                        if i % 9 == 0 {
-                            LIGHTGRAY
-                        } else if i % 9 == 1 {
-                            MAROON
-                        } else {
-                            rubber
-                        },
+    for original in &v.barriers {
+        let spans = if original.kind == "tyres" {
+            vec![(
+                vec3(original.a[0], 0., original.a[1]),
+                vec3(original.b[0], 0., original.b[1]),
+            )]
+        } else {
+            support.spans(original.a, original.b, |x, z| t.terrain_height(x, z) - 1.25)
+        };
+        for (a, end) in spans {
+            let wall = apex_heritage::venue::Barrier {
+                a: [a.x, a.z],
+                b: [end.x, end.z],
+                ..original.clone()
+            };
+            let dx = wall.b[0] - wall.a[0];
+            let dz = wall.b[1] - wall.a[1];
+            let len = dx.hypot(dz);
+            let yaw = dx.atan2(dz);
+            let ground = |x, z| {
+                support
+                    .height(x, z)
+                    .unwrap_or_else(|| t.terrain_height(x, z) - 1.25)
+            };
+            let ya = ground(wall.a[0], wall.a[1]);
+            let yb = ground(wall.b[0], wall.b[1]);
+            let sloped_length = len.hypot(yb - ya);
+            let base = transform(
+                (wall.a[0] + wall.b[0]) / 2.,
+                (ya + yb) / 2.,
+                (wall.a[1] + wall.b[1]) / 2.,
+                yaw,
+            ) * Mat4::from_rotation_x(-(yb - ya).atan2(len));
+            if wall.kind == "tyres" {
+                let count = (len / 0.79).ceil() as usize;
+                for i in 0..count {
+                    let f = (i as f32 + 0.5) / count as f32;
+                    let x = wall.a[0] + dx * f;
+                    let z = wall.a[1] + dz * f;
+                    for row in 0..3 {
+                        b.ring(
+                            vec3(x, ground(x, z) + 0.2 + row as f32 * 0.39, z),
+                            if i % 9 == 0 {
+                                LIGHTGRAY
+                            } else if i % 9 == 1 {
+                                MAROON
+                            } else {
+                                rubber
+                            },
+                        );
+                    }
+                }
+            } else if wall.kind == "concrete" {
+                let nx = dz / len.max(0.0001) * wall.radius;
+                let nz = -dx / len.max(0.0001) * wall.radius;
+                let base_points = [
+                    [wall.a[0] - nx, wall.a[1] - nz],
+                    [wall.a[0] + nx, wall.a[1] + nz],
+                    [wall.b[0] + nx, wall.b[1] + nz],
+                    [wall.b[0] - nx, wall.b[1] - nz],
+                ]
+                .map(|[x, z]| vec3(x, ground(x, z) - 0.06, z));
+                let mut extension = 0.0_f32;
+                for edge in 0..4 {
+                    for f in [0.25, 0.5, 0.75] {
+                        let p = base_points[edge].lerp(base_points[(edge + 1) % 4], f);
+                        extension = extension.max(p.y - ground(p.x, p.z) + 0.06);
+                    }
+                }
+                let c = [
+                    base_points[0] - Vec3::Y * extension,
+                    base_points[1] - Vec3::Y * extension,
+                    base_points[2] - Vec3::Y * extension,
+                    base_points[3] - Vec3::Y * extension,
+                    base_points[0] + Vec3::Y * wall.height,
+                    base_points[1] + Vec3::Y * wall.height,
+                    base_points[2] + Vec3::Y * wall.height,
+                    base_points[3] + Vec3::Y * wall.height,
+                ];
+                for face in [
+                    [0, 1, 2, 3],
+                    [4, 7, 6, 5],
+                    [0, 4, 5, 1],
+                    [1, 5, 6, 2],
+                    [2, 6, 7, 3],
+                    [3, 7, 4, 0],
+                ] {
+                    b.quad(face.map(|i| c[i]), cement);
+                }
+            } else {
+                for y in [0.35, 0.62, 0.89] {
+                    b.cube(
+                        base * Mat4::from_translation(vec3(0., y, 0.)),
+                        vec3(0.16, 0.19, sloped_length + 0.02),
+                        steel,
                     );
                 }
             }
-        } else if wall.kind == "concrete" {
-            b.cube(
-                base * Mat4::from_translation(vec3(0., wall.height / 2., 0.)),
-                vec3(wall.radius * 2., wall.height, len + 0.04),
-                cement,
-            );
-        } else {
-            for y in [0.35, 0.62, 0.89] {
-                b.cube(
-                    base * Mat4::from_translation(vec3(0., y, 0.)),
-                    vec3(0.16, 0.19, len + 0.04),
-                    steel,
-                );
+            if wall.fence {
+                for level in [1.6, 2.4, 3.2, 4.] {
+                    b.cube(
+                        base * Mat4::from_translation(vec3(0., level, 0.)),
+                        vec3(0.025, 0.025, sloped_length),
+                        steel,
+                    );
+                }
+                let count = (len / 1.4).ceil() as usize;
+                for i in 0..=count {
+                    let f = i as f32 / count as f32;
+                    let x = wall.a[0] + dx * f;
+                    let z = wall.a[1] + dz * f;
+                    b.cube(
+                        transform(x, ground(x, z) + 2.75, z, yaw),
+                        vec3(0.018, 2.9, 0.018),
+                        steel,
+                    );
+                }
             }
         }
-        let posts = (len / 4.).ceil() as usize;
+        let dx = original.b[0] - original.a[0];
+        let dz = original.b[1] - original.a[1];
+        let len = dx.hypot(dz);
+        let yaw = dx.atan2(dz);
+        let ground = |x, z| {
+            support
+                .height(x, z)
+                .unwrap_or_else(|| t.terrain_height(x, z) - 1.25)
+        };
+        let posts = (len / 4.).ceil().max(1.) as usize;
         for i in 0..=posts {
             let f = i as f32 / posts as f32;
-            let x = wall.a[0] + dx * f;
-            let z = wall.a[1] + dz * f;
-            if wall.fence {
+            let x = original.a[0] + dx * f;
+            let z = original.a[1] + dz * f;
+            if original.fence {
                 b.cube(
-                    transform(x, ground(x, z) + 2.65, z, yaw),
-                    vec3(0.08, 3.3, 0.08),
+                    transform(x, ground(x, z) + 2.10, z, yaw),
+                    vec3(0.08, 4.4, 0.08),
                     steel,
                 );
-            } else if wall.kind == "armco" {
+            }
+            if original.kind == "armco" {
                 b.cube(
                     transform(x, ground(x, z) + 0.5, z, yaw),
-                    vec3(0.12, 1., 0.14),
-                    steel,
-                );
-            }
-        }
-        if wall.fence {
-            for level in [1.6, 2.4, 3.2, 4.] {
-                b.cube(
-                    base * Mat4::from_translation(vec3(0., level, 0.)),
-                    vec3(0.025, 0.025, len),
-                    steel,
-                );
-            }
-            let count = (len / 1.4).ceil() as usize;
-            for i in 0..=count {
-                let f = i as f32 / count as f32;
-                let x = wall.a[0] + dx * f;
-                let z = wall.a[1] + dz * f;
-                b.cube(
-                    transform(x, ground(x, z) + 2.75, z, yaw),
-                    vec3(0.018, 2.9, 0.018),
+                    vec3(0.12, 1.2, 0.14),
                     steel,
                 );
             }
@@ -277,10 +340,95 @@ mod tests {
         }
     }
     #[test]
+    fn native_concrete_bottom_corners_embed_in_sloped_rendered_ground() {
+        let t = &apex_heritage::tracks()[0];
+        let mut v = Venue::for_track(&t.name);
+        v.grandstands.clear();
+        let mut wall = v
+            .barriers
+            .iter()
+            .find(|b| b.kind == "concrete")
+            .unwrap()
+            .clone();
+        wall.a = [-2., -2.];
+        wall.b = [2., 2.];
+        wall.radius = 0.4;
+        wall.fence = false;
+        v.barriers = vec![wall];
+        let points = [
+            vec3(-10., -5., -10.),
+            vec3(-10., 1., 10.),
+            vec3(10., -1., -10.),
+            vec3(10., 5., 10.),
+        ];
+        let mesh = Mesh {
+            vertices: points.map(|p| Vertex::new2(p, Vec2::ZERO, WHITE)).to_vec(),
+            indices: vec![0, 1, 2, 2, 1, 3],
+            texture: None,
+        };
+        let g = Ground::new(&[&[mesh]]);
+        let meshes = build(t, &v, &g);
+        let positions: Vec<_> = meshes
+            .iter()
+            .flat_map(|m| m.vertices.iter().map(|v| v.position))
+            .collect();
+        assert!(!positions.is_empty());
+        for segment in positions.chunks_exact(36) {
+            for p in &segment[..6] {
+                let gap = p.y - g.height(p.x, p.z).unwrap();
+                assert!((gap + 0.06).abs() < 0.00001, "bottom gap {gap}");
+            }
+        }
+    }
+    #[test]
+    fn concrete_foundations_cover_ground_steps_across_wall_width() {
+        let t = &apex_heritage::tracks()[0];
+        let mut v = Venue::for_track(&t.name);
+        v.grandstands.clear();
+        let mut wall = v
+            .barriers
+            .iter()
+            .find(|b| b.kind == "concrete")
+            .unwrap()
+            .clone();
+        wall.a = [0., -2.];
+        wall.b = [0., 2.];
+        wall.radius = 0.4;
+        wall.fence = false;
+        v.barriers = vec![wall];
+        let mut ground_mesh = Builder::default();
+        for (x0, x1, y) in [(-10., -0.1, 1.), (-0.1, 0.1, 0.), (0.1, 10., 1.)] {
+            ground_mesh.quad(
+                [
+                    vec3(x0, y, -10.),
+                    vec3(x0, y, 10.),
+                    vec3(x1, y, 10.),
+                    vec3(x1, y, -10.),
+                ],
+                WHITE,
+            );
+        }
+        ground_mesh.flush();
+        let support = Ground::new(&[&ground_mesh.meshes]);
+        let meshes = build(t, &v, &support);
+        for m in meshes {
+            for segment in m.vertices.chunks_exact(36) {
+                for vertex in &segment[..6] {
+                    assert!(
+                        (vertex.position.y + 0.06).abs() < 0.00001,
+                        "foundation must extend through the lower grass level"
+                    );
+                }
+            }
+        }
+    }
+    #[test]
     fn all_native_venue_batches_fit_and_are_finite() {
         for t in apex_heritage::tracks() {
             let v = Venue::for_track(&t.name);
-            let meshes = build(&t, &v);
+            let landscape = crate::terrain_mesh(&t);
+            let support = Ground::new(&[&landscape]);
+            let meshes = build(&t, &v, &support);
             assert!(!meshes.is_empty());
             for m in meshes {
                 assert!(m.vertices.len() <= 3996);

@@ -1,4 +1,35 @@
-# Validation — 0.9.0-preview.1
+# Validation — 0.9.1-preview.1
+
+Branch: `fix/grounded-barriers`; based on preserved tag `v0.9.0-preview.1`.
+
+## Grounding patch
+
+- Web barriers query a spatial index of the **actual rendered terrain, road, pit and corner/shoulder triangles**, rather than taking the maximum of analytic terrain and a nearby road sample.
+- Native uses its actual terrain, pit and corner triangles. Both renderers subdivide long spans to at most 1.5 m and adapt around terrain creases; sloped members use their full three-dimensional length.
+- Concrete bases have ground-conforming lower corners with a 6 cm minimum embed; foundations extend further below ground at sampled apron/grass steps. Fence and guardrail posts embed 10 cm. The prior fence post began a metre above its nominal base; it now reaches the ground. Posts retain original mapped segment spacing, independent of adaptive rail subdivision.
+- Horizontal mapped barrier/collision footprints, road/pit clearance, car shapes and the explicitly all-era photo-guided Spa profile are unchanged.
+
+### Patch validation
+
+- Rust: **69 passed** (62 library + 7 native tests), including synthetic sloped and stepped concrete foundations, actual-triangle/top-layer sampling, adaptive spans and bounded finite venue meshes for all ten circuits.
+- Node: **93 passed**, including three new ground-support/interpolation/span tests.
+- Release WASM/static and native Linux builds: passed. The existing large Vite-chunk warning remains.
+- Native Spa/2023 driving smoke: **119.3 km/h**, no mesh-capacity warnings.
+- Production browser grounding and route-clearance checks: **5 passed (2.9 minutes)**. Across the three grounding cases, **5,305 independent raycast samples** found zero missing ground hits and zero floating sampled foundations/post bottoms (maximum signed gap −5.2 cm; posts approximately 10 cm embedded). The grounding audit independently raycasts rendered post bottoms and concrete lower corners/edge midpoints against the rendered ground, not just against cached placement heights. Cases cover Spa 2023 low, Spa 1967 high and Monaco 2023 low.
+
+An initial development check exposed too few sampled posts at Monaco (449 total footings, only seven with the original stride); the final check samples more densely. During the version bump, stale HTML/CSS identity constants correctly triggered the build-coherence guard. All displayed/runtime identities were then updated together before final production validation. A stronger edge-midpoint audit then exposed additional apron/grass steps, fixed by extending foundations below those transitions. These intermediate failures are not counted as passes. One native smoke attempt was killed while competing with software-rendered browser tests for the 2 GB sandbox; the final serial native smoke passed.
+
+Reproduce this patch's focused browser checks after `./scripts/build-web.sh`:
+
+```sh
+APEX_URL=http://127.0.0.1:8080 npx playwright test tests/barrier-grounding.spec.js tests/venue.spec.js
+```
+
+The complete older full browser suite and Python regeneration suite were **not rerun for this rendering-only patch**. Their preceding-release results and caveats are retained below, not represented as new patch results.
+
+---
+
+## Preceding release validation — 0.9.0-preview.1
 
 Branch: `feature/photo-cars-eau-rouge`. The previous 0.8 release and stable main are preserved. This update responds to the supplied 2023 car, 1967 car and Eau Rouge/Raidillon photographs. User-confirmed scene choice: **modern photo-guided Eau Rouge for every era**.
 
@@ -62,4 +93,4 @@ APEX_SMOKE=1 APEX_SMOKE_TRACK=0 APEX_SMOKE_ERA=3 xvfb-run -a target/release/apex
 APEX_SMOKE=1 APEX_SMOKE_TRACK=0 APEX_SMOKE_ERA=0 xvfb-run -a target/release/apex-native
 ```
 
-Use the complete coherent **0.9.0-preview.1** static build rather than individual files copied over an old release. Logs, screenshots, reference images, caches and test reports are ignored workspace artifacts and are not packaged. Licenses, editable authoring data and prior releases are retained.
+Use the complete coherent **0.9.1-preview.1** static build rather than individual files copied over an old release. Logs, screenshots, reference images, caches and test reports are ignored workspace artifacts and are not packaged. Licenses, editable authoring data and prior releases are retained.

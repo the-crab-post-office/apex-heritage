@@ -1,8 +1,14 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.9.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.9.1-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## 0.9.1 grounded barriers
+
+- Roadside walls, guardrail supports and catch-fence posts now use the actual rendered terrain/overlay triangles instead of a nearby road-height approximation.
+- Short, slope-following barrier spans and ground-conforming concrete foundations remove hillside gaps. Fence posts extend into the ground; mapped support spacing and collision footprints are retained.
+- The correction applies to web and native, without changing the photo-guided cars or all-era Eau Rouge profile.
 
 ## 0.9 photo-guided cars and Eau Rouge
 
@@ -62,7 +68,7 @@ python3 -m http.server 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.9.0-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.9.1-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|

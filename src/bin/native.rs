@@ -656,9 +656,14 @@ async fn main() {
     let mut pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
     let mut pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
     let mut safety = apex_heritage::venue::Venue::for_era(&circuits[ti].name, era);
-    let mut safety_mesh = venue::build(&circuits[ti], &safety);
+
     let mut details = apex_heritage::corner::Details::new(&circuits[ti], era);
     let mut corner_mesh = venue::corners(&details);
+    let mut safety_mesh = venue::build(
+        &circuits[ti],
+        &safety,
+        &venue::Ground::new(&[&landscape, &pit_mesh, &corner_mesh]),
+    );
     let mut camera_mode = 0;
     let mut reference_cars = reference_car::Cars::new();
     let mut livery_key = (era, team);
@@ -789,7 +794,7 @@ async fn main() {
         }
         if terrain_track != ti || terrain_era != era {
             safety = apex_heritage::venue::Venue::for_era(&circuits[ti].name, era);
-            safety_mesh = venue::build(&circuits[ti], &safety);
+
             details = apex_heritage::corner::Details::new(&circuits[ti], era);
             corner_mesh = venue::corners(&details);
             pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
@@ -798,6 +803,11 @@ async fn main() {
             for mesh in &mut landscape {
                 mesh.texture = Some(grass.clone());
             }
+            safety_mesh = venue::build(
+                &circuits[ti],
+                &safety,
+                &venue::Ground::new(&[&landscape, &pit_mesh, &corner_mesh]),
+            );
             buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
             for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
                 mesh.texture = Some(walls[i % walls.len()].clone());

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { GroundSupport, groundSpans } from "./ground-support.js";
 // All placement/collision geometry comes from Rust's same editable venue data.
 export function buildVenue(world) {
   const data = world.config.venue;
@@ -23,6 +24,7 @@ export function buildVenue(world) {
     roof = mat("#454e53", 0.65, 0.25),
     clothes = mat("#ffffff"),
     skin = mat("#d0b591");
+  const wallFaces = [];
   const wires = [],
     counts = new Map();
   function put(
@@ -51,116 +53,187 @@ export function buildVenue(world) {
       .get(bucket)
       .instances.push({ matrix: matrix.matrix.clone(), color });
   }
-  const n = world.track.points.length;
-  const ground = (x, z, index) =>
-    Math.max(
-      world.height(x, z) - 1.25,
-      world.roadHeight(x, z, index / n) - 0.18,
-    );
-  for (const b of data.barriers) {
-    const dx = b.b[0] - b.a[0],
-      dz = b.b[1] - b.a[1],
-      len = Math.hypot(dx, dz),
-      yaw = Math.atan2(dx, dz),
-      cx = (b.a[0] + b.b[0]) / 2,
-      cz = (b.a[1] + b.b[1]) / 2;
-    const ya = ground(...b.a, b.index),
-      yb = ground(...b.b, b.index),
-      y = (ya + yb) / 2,
-      pitch = -Math.atan2(yb - ya, len);
-    if (b.kind === "tyres") {
-      const count = Math.max(2, Math.ceil(len / 0.79));
-      for (let j = 0; j < count; j++) {
-        const f = (j + 0.5) / count,
-          x = b.a[0] + dx * f,
-          z = b.a[1] + dz * f;
-        const yy = ground(x, z, b.index);
-        for (let row = 0; row < 3; row++)
-          put(
-            "tyres",
-            tyre,
-            rubber,
-            x,
-            yy + 0.2 + row * 0.39,
-            z,
-            1,
-            1,
-            1.7,
-            0,
-            Math.PI / 2,
-            j % 9 === 0 ? "#ddd9d0" : j % 9 === 1 ? "#b6392d" : "#161b1c",
-          );
-      }
-    } else if (b.kind === "concrete") {
-      put(
-        "walls",
-        box,
-        concrete,
-        cx,
-        y + b.height / 2,
-        cz,
-        b.radius * 2,
-        b.height,
-        len + 0.05,
-        yaw,
-        pitch,
-      );
-      put(
-        "wall-caps",
-        box,
-        steel,
-        cx,
-        y + b.height + 0.025,
-        cz,
-        b.radius * 2 + 0.08,
-        0.06,
-        len + 0.07,
-        yaw,
-        pitch,
-      );
-    } else {
-      for (const level of [0.35, 0.62, 0.89])
+  const support = new GroundSupport([
+    world.terrainMesh,
+    world.roadMesh,
+    world.pitMesh,
+    ...world.surfaceOverlays,
+  ]);
+  world.barrierSupport = support;
+  const footings = [],
+    unsupported = [];
+  const ground = (x, z) => {
+    const y = support.height(x, z);
+    if (y === null) {
+      unsupported.push([x, z]);
+      return world.height(x, z) - 1.25;
+    }
+    return y;
+  };
+  for (const source of data.barriers) {
+    const spans =
+      source.kind === "tyres"
+        ? [[[...source.a], [...source.b]]]
+        : groundSpans(source, ground).map(([a, b]) => [
+            [a[0], a[2]],
+            [b[0], b[2]],
+          ]);
+    for (const [a, end] of spans) {
+      const b = { ...source, a, b: end };
+      const dx = b.b[0] - b.a[0],
+        dz = b.b[1] - b.a[1],
+        len = Math.hypot(dx, dz),
+        yaw = Math.atan2(dx, dz),
+        cx = (b.a[0] + b.b[0]) / 2,
+        cz = (b.a[1] + b.b[1]) / 2;
+      const ya = ground(...b.a),
+        yb = ground(...b.b),
+        y = (ya + yb) / 2,
+        pitch = -Math.atan2(yb - ya, len),
+        slopedLength = Math.hypot(len, yb - ya);
+      if (b.kind === "tyres") {
+        const count = Math.max(2, Math.ceil(len / 0.79));
+        for (let j = 0; j < count; j++) {
+          const f = (j + 0.5) / count,
+            x = b.a[0] + dx * f,
+            z = b.a[1] + dz * f;
+          const yy = ground(x, z);
+          for (let row = 0; row < 3; row++)
+            put(
+              "tyres",
+              tyre,
+              rubber,
+              x,
+              yy + 0.2 + row * 0.39,
+              z,
+              1,
+              1,
+              1.7,
+              0,
+              Math.PI / 2,
+              j % 9 === 0 ? "#ddd9d0" : j % 9 === 1 ? "#b6392d" : "#161b1c",
+            );
+        }
+      } else if (b.kind === "concrete") {
+        const nx = (dz / Math.max(len, 0.0001)) * b.radius,
+          nz = (-dx / Math.max(len, 0.0001)) * b.radius;
+        const base = [
+          [b.a[0] - nx, b.a[1] - nz],
+          [b.a[0] + nx, b.a[1] + nz],
+          [b.b[0] + nx, b.b[1] + nz],
+          [b.b[0] - nx, b.b[1] - nz],
+        ].map(([x, z]) => [x, ground(x, z) - 0.06, z]);
+        // Ground layers can have steps at apron/grass boundaries. Extend the
+        // foundation below the lowest support along every lower edge, keeping
+        // the visible wall top aligned with the independently sampled corners.
+        let extension = 0;
+        for (let edge = 0; edge < 4; edge++)
+          for (const f of [0.25, 0.5, 0.75]) {
+            const a = base[edge],
+              b = base[(edge + 1) % 4];
+            const x = a[0] + (b[0] - a[0]) * f,
+              z = a[2] + (b[2] - a[2]) * f;
+            extension = Math.max(
+              extension,
+              a[1] + (b[1] - a[1]) * f - ground(x, z) + 0.06,
+            );
+          }
+        const corners = [
+          ...base.map(([x, y, z]) => [x, y - extension, z]),
+          ...base.map(([x, y, z]) => [x, y + b.height, z]),
+        ];
+        for (const face of [
+          [0, 1, 2, 3],
+          [4, 7, 6, 5],
+          [0, 4, 5, 1],
+          [1, 5, 6, 2],
+          [2, 6, 7, 3],
+          [3, 7, 4, 0],
+        ])
+          for (const i of [
+            face[0],
+            face[1],
+            face[2],
+            face[0],
+            face[2],
+            face[3],
+          ])
+            wallFaces.push(...corners[i]);
         put(
-          "armco",
+          "wall-caps",
           box,
           steel,
           cx,
-          y + level,
+          y + b.height + 0.025,
           cz,
-          0.16,
-          0.19,
-          len + 0.06,
+          b.radius * 2 + 0.08,
+          0.06,
+          slopedLength + 0.03,
           yaw,
           pitch,
         );
-    }
-    const posts = Math.max(1, Math.ceil(len / 4));
-    for (let j = 0; j <= posts; j++) {
-      const f = j / posts,
-        x = b.a[0] + dx * f,
-        z = b.a[1] + dz * f,
-        yy = ground(x, z, b.index);
-      if (b.kind !== "tyres")
-        put("posts", box, steel, x, yy + 0.55, z, 0.12, 1.1, 0.14, yaw);
+      } else {
+        for (const level of [0.35, 0.62, 0.89])
+          put(
+            "armco",
+            box,
+            steel,
+            cx,
+            y + level,
+            cz,
+            0.16,
+            0.19,
+            slopedLength + 0.02,
+            yaw,
+            pitch,
+          );
+      }
       if (b.fence) {
-        put("fence-posts", box, steel, x, yy + 2.65, z, 0.065, 3.3, 0.07, yaw);
+        const top = b.height + 3.1;
+        for (let h = b.height + 0.35; h < top; h += 0.48)
+          wires.push(...[b.a[0], ya + h, b.a[1], b.b[0], yb + h, b.b[1]]);
+        const count = Math.ceil(len / 1.4);
+        for (let j = 0; j <= count; j++) {
+          let f = j / count;
+          wires.push(
+            b.a[0] + dx * f,
+            ya + (yb - ya) * f + b.height,
+            b.a[1] + dz * f,
+            b.a[0] + dx * f,
+            ya + (yb - ya) * f + top,
+            b.a[1] + dz * f,
+          );
+        }
       }
     }
-    if (b.fence) {
-      const top = b.height + 3.1;
-      for (let h = b.height + 0.35; h < top; h += 0.48)
-        wires.push(...[b.a[0], ya + h, b.a[1], b.b[0], yb + h, b.b[1]]);
-      const count = Math.ceil(len / 1.4);
-      for (let j = 0; j <= count; j++) {
-        let f = j / count;
-        wires.push(
-          b.a[0] + dx * f,
-          ya + (yb - ya) * f + b.height,
-          b.a[1] + dz * f,
-          b.a[0] + dx * f,
-          ya + (yb - ya) * f + top,
-          b.a[1] + dz * f,
+    const sourceDx = source.b[0] - source.a[0],
+      sourceDz = source.b[1] - source.a[1],
+      sourceLength = Math.hypot(sourceDx, sourceDz),
+      sourceYaw = Math.atan2(sourceDx, sourceDz);
+    const posts = Math.max(1, Math.ceil(sourceLength / 4));
+    for (let j = 0; j <= posts; j++) {
+      const f = j / posts,
+        x = source.a[0] + sourceDx * f,
+        z = source.a[1] + sourceDz * f,
+        yy = ground(x, z);
+      if (source.kind !== "tyres") {
+        put("posts", box, steel, x, yy + 0.5, z, 0.12, 1.2, 0.14, sourceYaw);
+        footings.push({ x, z, bottom: yy - 0.1, ground: yy });
+      }
+      if (source.fence) {
+        put(
+          "fence-posts",
+          box,
+          steel,
+          x,
+          yy + 2.1,
+          z,
+          0.065,
+          4.4,
+          0.07,
+          sourceYaw,
         );
+        footings.push({ x, z, bottom: yy - 0.1, ground: yy });
       }
     }
   }
@@ -303,17 +376,102 @@ export function buildVenue(world) {
     }
     cube("stand-fascia", dark, 0, 0.9, s.depth / 2 + 0.04, s.width, 1.3, 0.15);
   }
-  for (const { geo, material, instances } of batches.values()) {
+  for (const [bucket, { geo, material, instances }] of batches.entries()) {
     const mesh = new THREE.InstancedMesh(geo, material, instances.length);
     instances.forEach((o, i) => {
       mesh.setMatrixAt(i, o.matrix);
       if (o.color) mesh.setColorAt(i, new THREE.Color(o.color));
       else mesh.setColorAt(i, new THREE.Color("#ffffff"));
     });
+    mesh.userData.venueKey = bucket.split(":")[0];
     mesh.castShadow = world.config.quality === "high";
     mesh.receiveShadow = true;
     world.scene.add(mesh);
   }
+  if (wallFaces.length) {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(wallFaces, 3),
+    );
+    geometry.computeVertexNormals();
+    const wall = new THREE.Mesh(geometry, concrete);
+    wall.material.side = THREE.DoubleSide;
+    wall.userData.venueKey = "concrete-walls";
+    wall.castShadow = wall.receiveShadow = true;
+    world.scene.add(wall);
+  }
+  world.auditBarrierGrounding = (stride = 31) => {
+    const meshes = [
+      ...new Set(
+        [
+          world.terrainMesh,
+          world.roadMesh,
+          world.pitMesh,
+          ...world.surfaceOverlays,
+        ].filter(Boolean),
+      ),
+    ];
+    const ray = new THREE.Raycaster(),
+      matrix = new THREE.Matrix4(),
+      p = new THREE.Vector3(),
+      direction = new THREE.Vector3(0, -1, 0);
+    let checked = 0,
+      missing = 0,
+      maxGap = -Infinity,
+      maxEmbedding = 0,
+      total = 0;
+    let wallsChecked = 0,
+      maxPostEmbedding = 0;
+    const checkPoint = (post = false) => {
+      ray.set(new THREE.Vector3(p.x, p.y + 500, p.z), direction);
+      const hit = ray.intersectObjects(meshes, false)[0];
+      if (!hit) {
+        missing++;
+        return;
+      }
+      const gap = p.y - hit.point.y;
+      checked++;
+      maxGap = Math.max(maxGap, gap);
+      maxEmbedding = Math.max(maxEmbedding, -gap);
+      if (post) maxPostEmbedding = Math.max(maxPostEmbedding, -gap);
+    };
+    for (const mesh of world.scene.children) {
+      if (mesh.userData.venueKey === "concrete-walls") {
+        const pos = mesh.geometry.attributes.position;
+        for (let i = 0; i < pos.count; i += 36 * stride * 4) {
+          // The first face contains the four lower corners. Also check side midpoints.
+          const corners = [0, 1, 2, 5].map((j) =>
+            new THREE.Vector3().fromBufferAttribute(pos, i + j),
+          );
+          for (let j = 0; j < 4; j++) {
+            p.copy(corners[j]);
+            checkPoint();
+            wallsChecked++;
+            p.copy(corners[j]).lerp(corners[(j + 1) % 4], 0.5);
+            checkPoint();
+            wallsChecked++;
+          }
+        }
+      }
+      if (!["posts", "fence-posts"].includes(mesh.userData.venueKey)) continue;
+      mesh.updateMatrixWorld(true);
+      for (let i = 0; i < mesh.count; i++) {
+        if (total++ % stride) continue;
+        mesh.getMatrixAt(i, matrix);
+        p.set(0, -0.5, 0).applyMatrix4(matrix).applyMatrix4(mesh.matrixWorld);
+        checkPoint(true);
+      }
+    }
+    return {
+      checked,
+      wallsChecked,
+      missing,
+      maxGap,
+      maxEmbedding,
+      maxPostEmbedding,
+    };
+  };
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(wires, 3));
   world.scene.add(
@@ -327,6 +485,8 @@ export function buildVenue(world) {
     ),
   );
   world.venueAudit = {
+    groundFootings: footings,
+    unsupportedGround: unsupported,
     barriers: data.barriers,
     grandstands: data.grandstands,
     tyres: counts.get("tyres") || 0,
