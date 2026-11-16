@@ -1,4 +1,5 @@
 //! Lightweight native renderer using exactly the same Rust simulation as the browser.
+mod camera_controls;
 mod reference_car;
 mod venue;
 use apex_heritage::native_audio::NativeAudio;
@@ -371,10 +372,11 @@ async fn main() {
         &safety,
         &venue::Ground::new(&[&landscape, &pit_mesh, &corner_mesh]),
     );
+    let mut camera_controls = camera_controls::Controls::new(smoke);
     let mut camera_mode = std::env::var("APEX_SMOKE_CAMERA")
         .ok()
         .and_then(|s| s.parse::<usize>().ok())
-        .unwrap_or(0)
+        .unwrap_or_else(|| camera_controls.selected())
         .min(apex_heritage::cameras::rigs().len() - 1);
     let mut reference_cars = reference_car::Cars::new();
     let mut livery_key = (era, team);
@@ -523,6 +525,7 @@ async fn main() {
                 }
             }
         }
+        camera_controls.update(camera_mode, !menu);
         if terrain_track != ti || terrain_era != era {
             safety = apex_heritage::venue::Venue::for_era(&circuits[ti].name, era);
 
@@ -570,7 +573,14 @@ async fn main() {
         if !menu {
             let p = vec3(s.x, s.y, s.z);
             let rig = &apex_heritage::cameras::rigs()[camera_mode];
-            let (eye, target) = apex_heritage::cameras::pose(camera_mode, era, get_time() as f32);
+            let tuning = camera_controls.tuning(camera_mode);
+            let (eye, target, fov) = apex_heritage::cameras::adjusted_pose(
+                camera_mode,
+                era,
+                get_time() as f32,
+                tuning,
+                camera_controls.look,
+            );
             let rotation = Mat4::from_rotation_y(s.yaw)
                 * if rig.attached {
                     Mat4::from_rotation_x(s.pitch) * Mat4::from_rotation_z(s.body_roll)
@@ -581,8 +591,8 @@ async fn main() {
                 position: p + rotation.transform_vector3(Vec3::from_array(eye)),
                 target: p + rotation.transform_vector3(Vec3::from_array(target)),
                 up: rotation.transform_vector3(vec3(0., 1., 0.)),
-                fovy: (rig.fov
-                    + if camera_mode == 0 {
+                fovy: (fov
+                    + if camera_mode == 0 && tuning.fov.is_none() {
                         (s.speed.abs() / 110.).min(1.) * 10.
                     } else {
                         0.
@@ -987,6 +997,41 @@ async fn main() {
                 19.,
                 YELLOW,
             );
+        }
+        if !menu {
+            let tuning = camera_controls.tuning(camera_mode);
+            draw_rectangle(
+                20.,
+                screen_height() - 66.,
+                1000.,
+                49.,
+                Color::new(0., 0., 0., 0.65),
+            );
+            draw_text(
+                &format!(
+                    "CAM {} | FOV {:.0}{} | Distance {} | {}",
+                    apex_heritage::cameras::rigs()[camera_mode].label,
+                    tuning
+                        .fov
+                        .unwrap_or(apex_heritage::cameras::rigs()[camera_mode].fov),
+                    if tuning.fov.is_none() { " auto" } else { "" },
+                    if apex_heritage::cameras::rigs()[camera_mode].attached {
+                        "fixed onboard".into()
+                    } else {
+                        format!("{:.2}x", tuning.distance)
+                    },
+                    if camera_controls.saved {
+                        "local preferences"
+                    } else {
+                        "session only: cannot save"
+                    }
+                ),
+                30.,
+                screen_height() - 47.,
+                16.,
+                WHITE,
+            );
+            draw_text("Right-drag: look | Backspace: center | [ / ]: FOV | Wheel / PgUp,Dn: distance | Home: reset camera",30.,screen_height()-26.,15.,YELLOW);
         }
         draw_text(
             &format!("v{}", env!("CARGO_PKG_VERSION")),

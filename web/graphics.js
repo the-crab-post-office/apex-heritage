@@ -1095,7 +1095,13 @@ export class World {
     }
     const center = p.position.clone();
     this.cameraTime = (this.cameraTime || 0) + dt;
-    const rig = cameraRig(this.cameraMode, this.config.era, this.cameraTime);
+    const rig = cameraRig(
+      this.cameraMode,
+      this.config.era,
+      this.cameraTime,
+      this.cameraTuning,
+      this.cameraLook,
+    );
     // Onboards inherit chassis pitch/roll; exterior cameras retain a level horizon.
     const transform = (v) => {
       const local = new THREE.Vector3(...v);
@@ -1121,7 +1127,9 @@ export class World {
     this.camera.lookAt(target);
     const fov =
       rig.fov +
-      (rig.id === "chase" ? Math.min(Math.abs(state.speed) / 110, 1) * 10 : 0);
+      (rig.id === "chase" && !rig.customFov
+        ? Math.min(Math.abs(state.speed) / 110, 1) * 10
+        : 0);
     if (Math.abs(this.camera.fov - fov) > 0.1) {
       this.camera.fov = fov;
       this.camera.updateProjectionMatrix();

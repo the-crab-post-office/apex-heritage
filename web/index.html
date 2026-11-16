@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="apex-build" content="0.11.0-preview.1" />
+    <meta name="apex-build" content="0.11.1-preview.1" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#111413" />
     <title>APEX / HERITAGE — The history of speed</title>
@@ -229,7 +229,7 @@
           </button>
         </div>
         <footer>
-          <span>APEX / HERITAGE <b>PREVIEW 0.11.0-preview.1</b></span>
+          <span>APEX / HERITAGE <b>PREVIEW 0.11.1-preview.1</b></span>
           <p>
             An independent tribute to racing. Not affiliated with Formula 1 or
             its teams.
@@ -262,7 +262,7 @@
       </div>
       <div id="hud-layout" class="hud-layout"></div>
       <div id="hud-build" class="hud-build">
-        v0.11.0-preview.1 · checking build
+        v0.11.1-preview.1 · checking build
       </div>
       <canvas id="race-canvas" aria-label="3D racing game"></canvas>
       <div class="race-vignette"></div>
@@ -327,10 +327,74 @@
         ><span><kbd>SPACE</kbd> BRAKE</span
         ><label class="camera-control"
           ><kbd>C</kbd>
-          <select id="camera-picker" aria-label="Race camera"></select></label
+          <select id="camera-picker" aria-label="Race camera"></select>
+          <button
+            id="camera-settings-toggle"
+            aria-expanded="false"
+            aria-controls="camera-settings"
+            aria-label="Adjust camera"
+          >
+            ⚙
+          </button></label
         ><span><kbd>R</kbd> RECOVER</span
         ><button id="audio-toggle"><i data-lucide="volume-2"></i> AUDIO</button>
       </div>
+      <section
+        id="camera-settings"
+        class="camera-settings"
+        aria-labelledby="camera-settings-title"
+        hidden
+      >
+        <header>
+          <strong id="camera-settings-title">Camera settings</strong
+          ><button
+            id="camera-settings-close"
+            aria-label="Close camera settings"
+          >
+            ×
+          </button>
+        </header>
+        <label for="camera-fov"
+          >Field of view <output id="camera-fov-value" for="camera-fov"></output
+        ></label>
+        <input
+          id="camera-fov"
+          type="range"
+          min="45"
+          max="100"
+          step="1"
+          value="58"
+        />
+        <label for="camera-distance"
+          >Exterior distance
+          <output id="camera-distance-value" for="camera-distance"></output
+        ></label>
+        <input
+          id="camera-distance"
+          type="range"
+          min="0.6"
+          max="1.8"
+          step="0.05"
+          value="1"
+        />
+        <p>
+          Right-drag to look · Alt + wheel for exterior distance.<br />Or use
+          the look buttons below.
+        </p>
+        <div class="camera-look" role="group" aria-label="Free-look controls">
+          <button data-look="0.26,0" aria-label="Look left">←</button>
+          <button data-look="0,0.17" aria-label="Look up">↑</button>
+          <button id="camera-center">Center view</button>
+          <button data-look="0,-0.17" aria-label="Look down">↓</button>
+          <button data-look="-0.26,0" aria-label="Look right">→</button>
+        </div>
+        <div class="camera-settings-footer">
+          <button id="camera-defaults">Reset this camera</button
+          ><span id="camera-save-status" role="status"
+            >Preferences load automatically</span
+          >
+        </div>
+      </section>
       <div class="race-weather" id="race-weather"></div>
       <div id="touch-controls">
         <button data-touch="left" aria-label="Steer left">◀</button

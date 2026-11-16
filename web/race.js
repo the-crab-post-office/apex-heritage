@@ -1,3 +1,4 @@
+import { RaceCameraControls } from "./race-camera-controls.js";
 import { CAMERAS } from "./cameras.js";
 import * as Core from "./wasm/apex.js";
 import { assertCompatibleBuild } from "./build-check.js";
@@ -141,10 +142,21 @@ export class Race {
         return option;
       }),
     );
+    this.cameraControls = new RaceCameraControls(this.world, $("#race-canvas"));
     this.cameraPicker.value = String(this.world.cameraMode);
     this.onCameraChange = () => this.setCamera(Number(this.cameraPicker.value));
     this.cameraPicker.addEventListener("change", this.onCameraChange);
     this.onKeyDown = (e) => {
+      // Escape still pauses after closing settings leaves focus on its button.
+      if (
+        e.code === "Escape" &&
+        !e.repeat &&
+        !e.target?.closest?.("select, input, textarea")
+      ) {
+        e.preventDefault();
+        this.togglePause();
+        return;
+      }
       if (e.target?.closest?.("select, input, textarea, button")) return;
       if (
         [
@@ -160,7 +172,6 @@ export class Race {
       this.keys.add(e.code);
       this.audio.resume();
       if (!e.repeat) {
-        if (e.code === "Escape") this.togglePause();
         if (e.code === "KeyC") this.cycleCamera();
         if (e.code === "KeyP") this.requestPit();
         if (e.code === "KeyL") this.toggleLimiter();
@@ -515,6 +526,7 @@ export class Race {
     this.world.cameraTime = 0;
     this.world.cameraInitialized = false;
     this.cameraPicker.value = String(mode);
+    this.cameraControls.modeChanged();
     this.callbacks.toast(`${CAMERAS[mode].label} camera`);
   }
   cycleCamera() {
@@ -560,6 +572,7 @@ export class Race {
     this.running = false;
     cancelAnimationFrame(this.animation);
     this.audio.dispose();
+    this.cameraControls.dispose();
     this.cameraPicker.removeEventListener("change", this.onCameraChange);
     this.world.dispose();
     this.sim.free();

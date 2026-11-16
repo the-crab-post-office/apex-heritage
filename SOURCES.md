@@ -126,3 +126,7 @@ See `data/MONACO-REFERENCE-NOTICE.md` and editable `data/monaco-reference.json` 
 ## 0.11 authored car finishing and camera rigs
 
 No additional third-party car model, photograph or scan was acquired for this pass. The offline original mesh generator now supplies all four era silhouettes to both clients. 1988/2004 are era approximations with period-specific noses, sidepods, aero and engine details; 1967/2023 retain the earlier supplied-photo guidance. Cockpit/instrument/driver, brake/wheel and closed-panel details are authored geometry. Existing team atlases and rights notices remain unchanged. Camera positions/FOVs in `data/cameras.json` are authored gameplay choices, not calibrated broadcast camera or engineering measurements. The cockpit's translucent halo is a visibility aid, not a physical material claim. No constructor-specific scan work is claimed complete (0/47).
+
+## 0.11.1 camera controls
+
+Camera tuning UI, distance/FOV/free-look transforms and device-local preference handling are original code. No new external imagery, geometry, scans, recordings or runtime services are added. Preset camera locations and engineering/scan limitations from 0.11 remain unchanged. User camera preferences are local browser storage or a native user-config JSON file, not part of source/release archives.

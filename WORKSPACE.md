@@ -32,3 +32,10 @@ The cleanup command rejects tracked files and preserves source, licenses, refere
 - `scripts/build-car-shapes.py` generates all four era meshes and shared wheel layouts; 1988/2004 no longer use legacy runtime primitive builders.
 - `data/cameras.json` defines eight rigs consumed by `web/cameras.js` and `src/cameras.rs`. Attached views inherit chassis pose; only the player's isolated head batches are hidden in cockpit mode; halo batches become translucent.
 - Browser direct selector supports touch/keyboard; native uses C/RB or 1–8. Camera smoke validation can use `APEX_SMOKE_ALL_CAMERAS=1` or `APEX_SMOKE_CAMERA=0..7`.
+
+## Adjustable camera preferences (0.11.1)
+
+- `web/camera-controls.js`: pure bounded tuning, pose adjustment and versioned preference serialization; covered by Node tests.
+- `web/race-camera-controls.js`: accessible settings panel, pointer-capture free-look, touch look buttons, local-storage failure handling and teardown.
+- `src/cameras.rs`: matching distance/FOV/free-look math. `src/bin/camera_controls/mod.rs`: native input and user-local file preferences; smoke checks ignore preference files and never save them.
+- `apex-camera-preferences-v1` is the browser local-storage key. Mode uses stable rig IDs; views have independent distance/FOV values. Temporary look angles are not persisted.

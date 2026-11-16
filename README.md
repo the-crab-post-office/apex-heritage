@@ -1,8 +1,15 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.11.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.11.1-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## 0.11.1 adjustable camera controls
+
+- Open the **gear button beside the race camera selector** for per-camera FOV (**45–100°**) and exterior-distance (**0.60–1.80×**) sliders. Onboard mounts stay fixed to prevent distance changes moving them inside the chassis.
+- **Right-drag** the canvas to look around, or use the panel's left/right/up/down buttons on touch screens. **Center view** clears free-look; **Reset this camera** restores its default FOV/distance and clears free-look. Alt + wheel adjusts exterior distance. Escape closes the settings panel before pausing the race.
+- Selected camera and per-camera FOV/distance save **locally on this device**, independently of race setup. Free-look is temporary and centers on view changes/restart. Corrupt/blocked storage safely falls back to usable session controls; no account/cloud service is involved.
+- Native has right-drag free-look, **[ / ]** for FOV, **wheel or PgUp/PgDn** for exterior distance, **Backspace** to center and **Home** to reset the current camera. Preferences use `$XDG_CONFIG_HOME/apex-heritage/cameras.json` or `~/.config/apex-heritage/cameras.json` (override with `APEX_CAMERA_PREFS`). Camera count remains eight; this pass changes controls, not car assets or scan coverage.
 
 ## 0.11 car finishing / camera rigs
 
@@ -85,7 +92,7 @@ python3 -m http.server 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.11.0-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.11.1-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|

@@ -2364,7 +2364,7 @@ kbd {
 
 /* Versioned with HTML/JS/WASM; startup refuses mixed cached assets. */
 :root {
-  --apex-build: "0.11.0-preview.1";
+  --apex-build: "0.11.1-preview.1";
 }
 .hud-build {
   position: fixed;
@@ -2520,5 +2520,143 @@ kbd {
   #camera-picker {
     min-height: 38px;
     max-width: 138px;
+  }
+}
+
+.camera-control > button {
+  background: #14231ee8;
+  color: #e0ead1;
+  border: 1px solid #96ab7355;
+  border-radius: 4px;
+  padding: 7px 10px;
+  min-height: 32px;
+  cursor: pointer;
+}
+.camera-settings {
+  position: absolute;
+  right: 24px;
+  bottom: 78px;
+  z-index: 20;
+  width: 310px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 170px);
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid #a4b38270;
+  border-radius: 8px;
+  color: #e0ead1;
+  background: #14231ef7;
+  box-shadow: 0 12px 40px #0008;
+  font: 12px/1.5 monospace;
+}
+.camera-settings[hidden] {
+  display: none;
+}
+.camera-settings header,
+.camera-settings .camera-settings-footer,
+.camera-settings label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.camera-settings header {
+  margin-bottom: 14px;
+}
+.camera-settings button {
+  border: 1px solid #a4b38270;
+  border-radius: 4px;
+  padding: 7px;
+  color: inherit;
+  background: #304139;
+  cursor: pointer;
+  min-height: 34px;
+}
+.camera-settings input {
+  width: 100%;
+  margin: 8px 0 14px;
+  accent-color: #c4d4a0;
+}
+.camera-settings input:disabled {
+  opacity: 0.35;
+}
+.camera-settings p,
+.camera-settings .camera-settings-footer span {
+  color: #b3c4ad;
+  font-size: 10px;
+}
+.camera-settings .camera-look {
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+.camera-settings button:focus-visible {
+  outline: 2px solid #e0ead1;
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  .camera-settings {
+    right: 12px;
+    top: 122px;
+    bottom: auto;
+    width: 310px;
+    max-height: calc(100dvh - 270px);
+  }
+  .camera-control > button,
+  .camera-settings button {
+    min-height: 40px;
+  }
+}
+
+.camera-settings button {
+  font: 12px/1.4 monospace;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.camera-settings .camera-settings-footer {
+  padding: 0;
+  margin: 12px 0 0;
+  border: 0;
+  color: #e0ead1;
+}
+.camera-settings .camera-settings-footer button {
+  flex: 0 0 auto;
+}
+@media (max-width: 760px) {
+  .hud-build {
+    top: 48px;
+    right: 12px;
+    font-size: 8px;
+  }
+  .controller-status {
+    display: none;
+  }
+  .hud-layout {
+    top: 64px;
+    left: 16px;
+    max-width: calc(100% - 32px);
+    font-size: 6px;
+  }
+  .timing-panel {
+    top: 132px;
+  }
+  .pit-panel {
+    top: 132px;
+  }
+  .race-controls {
+    top: 83px;
+  }
+  #camera-picker {
+    max-width: 130px;
+    font-size: 10px;
+  }
+  #camera-settings-toggle {
+    min-width: 38px;
+    font-size: 16px;
+  }
+  .camera-settings {
+    top: 130px;
   }
 }

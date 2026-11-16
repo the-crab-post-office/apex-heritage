@@ -1,6 +1,7 @@
+import { tuneCameraRig } from "./camera-controls.js";
 import rigs from "../data/cameras.json";
 export const CAMERAS = Object.freeze(rigs.map((r) => Object.freeze(r)));
-export function cameraRig(mode, era = 3, time = 0) {
+export function cameraRig(mode, era = 3, time = 0, tuning = {}, look = {}) {
   const rig = CAMERAS[mode] || CAMERAS[0];
   const position = [...rig.position],
     target = [...rig.target];
@@ -9,5 +10,5 @@ export function cameraRig(mode, era = 3, time = 0) {
     position[0] = Math.sin(time * 0.22) * 7.5;
     position[2] = -Math.cos(time * 0.22) * 7.5;
   }
-  return { ...rig, position, target };
+  return tuneCameraRig({ ...rig, position, target }, tuning, look);
 }
