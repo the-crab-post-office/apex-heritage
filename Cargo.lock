@@ -47,7 +47,7 @@ dependencies = [
 
 [[package]]
 name = "apex-heritage"
-version = "0.11.1-preview.1"
+version = "0.11.2-preview.1"
 dependencies = [
  "cpal",
  "gilrs",

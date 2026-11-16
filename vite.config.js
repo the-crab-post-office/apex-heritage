@@ -11,6 +11,14 @@ const buildInfo = { version, hash };
 function buildIdentity() {
   return {
     name: "consistent-build-identity",
+    enforce: "pre",
+    transformIndexHtml(html) {
+      return html.replaceAll("__APEX_VERSION__", version);
+    },
+    transform(code, id) {
+      if (id.split("?")[0].endsWith("/web/style.css"))
+        return code.replaceAll("__APEX_VERSION__", version);
+    },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (req.url?.split("?")[0] !== "/version.json") return next();
@@ -88,6 +96,17 @@ function licenseAssets() {
     generateBundle() {
       for (const [name, source] of content())
         this.emitFile({ type: "asset", fileName: `licenses/${name}`, source });
+      this.emitFile({
+        type: "asset",
+        fileName: "serve.py",
+        source: readFileSync(new URL("scripts/serve-web.py", import.meta.url)),
+      });
+      this.emitFile({
+        type: "asset",
+        fileName: "_headers",
+        source:
+          "/*\n  Cache-Control: no-store, no-cache, must-revalidate, max-age=0\n",
+      });
     },
   };
 }
@@ -104,5 +123,5 @@ export default defineConfig({
     allowedHosts: true,
     headers: { "Cache-Control": "no-store" },
   },
-  build: { outDir: "../site", emptyOutDir: true },
+  build: { outDir: "../build/staging-site", emptyOutDir: true },
 });

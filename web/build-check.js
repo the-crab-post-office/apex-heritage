@@ -14,9 +14,10 @@ export function assertCompatibleBuild(info) {
       failures.push(`${key}: ${info[key] || "missing"}`);
   if (failures.length) {
     const error = new Error(
-      `Build mismatch (${failures.join("; ")}). Open the fresh ${info.version} preview, or extract the latest ZIP into an empty folder. HTML, CSS, game code and WASM must come from one build.`,
+      `Build mismatch (${failures.join("; ")}). Running ${info.version}; server ${info.serverVersion || "unavailable"}. Reload the latest build. HTML, CSS, game code and WASM must come from one build.`,
     );
     error.code = "APEX_BUILD_MISMATCH";
+    error.buildInfo = { ...info };
     throw error;
   }
   return { version: info.version, hash: info.hash };

@@ -69,7 +69,7 @@ source['GIT-REFS.txt'] = (run('git', 'for-each-ref', '--format=%(refname:short) 
 web = {str(p.relative_to('site')): p.read_bytes() for p in Path('site').rglob('*') if p.is_file()}
 web.update(common)
 web['START-HERE.txt'] = (f'APEX / HERITAGE {version} — web\n'
-    'From this extracted folder: python3 -m http.server 8080\n'
+    'From this extracted folder: python3 serve.py --port 8080\n'
     'Open http://localhost:8080 in a current desktop browser. Do not open index.html as file://.\n'
     'All runtime game assets are local; no external image/audio service is required.\n'
     'A standard controller requires HTTPS or localhost and may need a button press.\n'

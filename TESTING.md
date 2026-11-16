@@ -1,52 +1,59 @@
-# Validation — 0.11.1-preview.1
+# Validation — 0.11.2-preview.1
 
-Branch: `feature/adjustable-camera-controls`, based on preserved `v0.11.0-preview.1`. User chose expanded camera controls: adjustable distance/FOV, free-look and saved preferences. Eight existing rigs and all car/track assets are retained. **Verified constructor scans remain 0/47.** Earlier release results remain in their preserved source ZIPs/tags and are not counted as new passes here.
+Branch: `fix/coherent-preview-and-cleanup`, based on preserved `v0.11.1-preview.1`. User reported a build mismatch: an old 0.10.0 client was comparing itself to a 0.11.1 server. The legacy Python static server sent no Cache-Control header. This pass fixes delivery/recovery and cleans generated files; it does not disable version checking or change car/track assets.
 
-## Implemented scope
+## Fixes
 
-- Browser settings gear beside the camera selector. Per-camera vertical FOV 45–100° and exterior distance 0.60–1.80×. Onboard distance is disabled; physical mounts do not move when distance preferences are supplied.
-- Right-drag pointer-capture free-look, with release/cancel/blur cleanup, and labeled touch/keyboard-operable look buttons. Center clears transient look; resetting a rig clears its tuning and look, without affecting other rigs. Alt + wheel adjusts exterior distance.
-- Selected view and independent per-rig settings use stable IDs in versioned local storage. Temporary look angles never persist. Malformed/future data and denied/quota-limited storage are handled; failed writes display a session-only message instead of breaking racing.
-- Panel Escape closes the panel and returns focus. Escape can then pause even while the gear button has focus. Native inputs: right-drag, FOV brackets, wheel/PgUp/PgDn distance, Backspace center, Home reset. Native user-config JSON saves selected rig and tuning; smoke mode ignores all preference files and never writes them.
-- Explicit cleanup on race disposal prevents duplicate slider/pointer handlers after re-entry. Mobile settings remain within the viewport; panel footer styling is isolated from the main site footer. Mobile timing/build/control placement avoids collisions with the new menu.
-- FOV overrides suppress Chase's speed-dependent FOV expansion; reset restores the default automatic behavior. Shared JS/Rust tuning bounds keep exterior adjustment separate from attached camera mounts.
+- New canonical **Fixed game** preview, port **5186**, uses `scripts/serve-web.py`; obsolete caching preview on 5185 is stopped. HTML, manifests and assets receive no-store/no-cache headers. Conditional requests cannot turn an old entry page into a freshly validated 304.
+- HTML/CSS identity is stamped from package version at build time. Node tests also check the Cargo manifest agrees. The actual WASM version and track hash are checked by `scripts/verify-core.mjs` before publishing; the emitted WASM bytes must match that verified core.
+- Build output is staged separately. `scripts/publish-site.py` validates a complete output tree, fingerprints it, then atomically swaps the `site` symlink. The live tree is never emptied by Vite; failed verification leaves it intact.
+- One URL-scoped cache-busting reload recovers stale HTML/version mismatches or missing hashed chunks, resuming an explicitly requested race. Settings, records and camera preferences are not cleared. A repeated mismatch stops safely with **Reload latest build**, not an infinite refresh or an unchecked simulation.
+- Source and web ZIPs include a no-cache server; web ZIPs also carry static-host `_headers` rules. START-HERE and README use the bundled server rather than the old caching command.
 
-## Validation record
+## Current validation
 
 | Check | Result |
 |---|---|
 | Rust release native-feature suite | **75 passed**: 66 library + 9 native |
-| Node suite | **105 passed** |
-| Production browser camera/constructor/controller cases | **6 passed**, 3.6 minutes, before final footer/mobile/focus refinements |
-| Focused final production settings rerun | **3 passed**, 1.5 minutes, after final footer/mobile/focus changes |
-| Release WASM/static web/native Linux builds | **Passed**; existing Vite large-chunk warning remains |
-| Native eight-camera driving/render smoke | **2 passed** serially: 2004 **119.6 km/h**, 2023 **119.3 km/h**; preference path untouched |
+| Node suite | **109 passed** |
+| Python offline/server/cleanup suite | **17 passed** |
+| Production browser regressions | **6 passed**, 3.9 minutes |
+| Actual WASM identity, staged asset checks and atomic publication | **Passed** |
+| Release WASM/static/native Linux builds | **Passed**; existing Vite large-chunk warning remains |
+| Native 2023/eight-camera driving/render smoke | **119.3 km/h**, passed serially after browser checks |
+| Plain-browser driving after cleanup | **Passed**: 19.1 km/h, matching 0.11.2 HTML/CSS/HUD, no build banner or page errors |
 
-The six-case run includes three new settings cases, the previous two car/camera cases, and the simulated-controller driving/camera/disconnect case. New checks cover FOV/distance changes, true right-drag movement, fixed onboard mounts, independent per-camera preferences, reload restoration, transient-look reset, mobile look controls, explicit blocked-storage fallback and disposal/re-entry. Actual browser-rendered desktop/mobile settings screenshots were inspected; footer inheritance originally made the reset label too small and was fixed. These are real game captures, not generated concept art.
+The six browser cases explicitly test: a stale server identity that recovers and drives while preserving camera preferences; stale HTML that recovers without bypassing guards; a permanently mixed deployment that stops after one reload and supports a manual retry; a missing old hashed race chunk; camera/FOV/distance/free-look/persistence/mobile controls; and actual WASM driving/braking/steering/recovery/pause/exit. The first four are new deployment regressions. These are focused cases, not the complete unrelated browser suite.
 
-A final review caught Rust's `signum(+0.0) == +1`, which would have treated an idle wheel like scrolling. Native input now explicitly ignores zero/nonfinite wheel values and includes a regression test. Default distance-one math also preserves the exact preset coordinates rather than adding floating-point drift.
+Python tests independently verify no-cache headers, 200 responses despite conditional requests, a running server seeing an atomic symlink change, and cleanup excluding the active preview while including stale generated output. Offline asset tests also passed. Node tests cover recovery-loop bounds, query/fragment preservation, cleanup of only internal URL flags and single-source HTML/CSS metadata.
 
-The focused reruns overlap earlier cases: do not add their counts as distinct tests. Python/offline geometry generation and the full unrelated browser/game/scenery suites were **not rerun** for this control-only pass. Physical controller/mouse hardware and subjective camera comfort remain unverified; browser pointer and simulated controller behavior are exercised automatically. Native camera preference serialization and transform/input math have unit coverage, not a claim of full end-to-end desktop file-persistence certification.
+## Executed cleanup
+
+- Removed **527,927,680 bytes** (~503.5 MiB) of stale generated preview output, Rust compiler intermediates and test/Python caches.
+- Preserved the active fingerprinted preview, finished native/WASM executables, source, local dependencies, original uploads and every existing release archive.
+- **389 protected files** were SHA256-checked before/after cleanup and were unchanged. The protection set covers tracked/new source files, preview files, uploads, old releases and executables; records are under ignored `artifacts/validation/0.11.2-preview.1/`.
+- Moved six loose assistant validation logs from the workspace root into `artifacts/validation/archived-car-pass-logs/`, without deleting them.
+- Cleanup is dry-run-first and refuses tracked files. `--release-cache` removes only intermediate subdirectories, not the finished binaries. A later build will recompile those dependencies.
 
 ## Reproduce
 
 ```sh
 . "$HOME/.cargo/env"
-cargo test --release --features native
+python3 -m unittest discover -s tests -p 'test_*.py'
 npm test
+cargo test --release --features native
 bash scripts/build-web.sh
 cargo build --release --features native --bin apex-native
-python3 -m http.server 8080 --bind 0.0.0.0 --directory site
-# Separate terminal; run browser and native OpenGL checks serially:
-APEX_URL=http://127.0.0.1:8080 npx playwright test tests/camera-controls.spec.js tests/cameras-and-finish.spec.js tests/features.spec.js --grep 'camera|controller-only|blocked|race exit'
-APEX_URL=http://127.0.0.1:8080 npx playwright test tests/camera-controls.spec.js
-for era in 2 3; do
-  APEX_SMOKE=1 APEX_SMOKE_ALL_CAMERAS=1 APEX_SMOKE_TRACK=0 APEX_SMOKE_ERA=$era xvfb-run -a target/release/apex-native
-done
+python3 scripts/serve-web.py --port 8080
+# Separate terminal; browser/native OpenGL checks run serially:
+APEX_URL=http://127.0.0.1:8080 npx playwright test tests/build-recovery.spec.js tests/game.spec.js tests/camera-controls.spec.js --grep 'stale|permanently|missing old|Rust WASM drives|FOV/distance'
+APEX_SMOKE=1 APEX_SMOKE_ALL_CAMERAS=1 APEX_SMOKE_ERA=3 xvfb-run -a target/release/apex-native
+python3 scripts/clean-workspace.py --release-cache # dry-run
+python3 scripts/clean-workspace.py --apply --debug-cache --release-cache
 ```
 
-Native preferences normally use `$XDG_CONFIG_HOME/apex-heritage/cameras.json` or `~/.config/apex-heritage/cameras.json`; `APEX_CAMERA_PREFS` overrides the path. Smoke mode does not load or modify it. Browser preferences use `apex-camera-preferences-v1`, separate from race setup. No local user preferences, original uploads, caches or previous releases are bundled in new packages.
+From an extracted web ZIP: `python3 serve.py --port 8080`. Do not open index.html with file://. Use the new **Fixed game** preview rather than an already-open old tab; code already loaded by 0.10 cannot retroactively acquire recovery logic without navigating to the fresh build.
 
-## Remaining scope
+## Remaining limits
 
-This is a camera-control update, not scan acquisition or a new constructor-specific model pass. The collection remains four authored era silhouettes across 47 liveries. Modern Monaco and the photographed Eau Rouge/Raidillon complex remain intentionally shared by all eras. Source/rights, historical-route and survey limitations in `SOURCES.md` and the asset notices remain unchanged.
+Persistent server corruption still blocks safely; no retry can repair missing files on an unrelated host. Hosts ignoring the supplied cache rules should be configured to revalidate entry HTML/manifests. Browser/device hardware certification and subjective camera comfort remain unverified. Car scan integration remains 0/47, and all historical-route/geometry/provenance limitations from previous releases remain unchanged.

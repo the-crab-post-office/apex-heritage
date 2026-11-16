@@ -8,7 +8,7 @@
 - `releases/<version>/` — complete verified release ZIPs and checksums (preserved).
 - `artifacts/` — ignored game captures and validation history, never bundled as runtime assets.
 - `artifacts/archive/pre-0.10-validation.zip` — previous loose session logs/work scripts, verified before consolidation.
-- `site -> build/site` — generated current static preview; recreate with `scripts/build-web.sh`.
+- `site -> build/previews/<version>-<fingerprint>` — generated current static preview; recreate with `scripts/build-web.sh`.
 - `target/`, `node_modules/` — rebuildable tool output/dependencies, not source deliverables.
 
 Original user reference uploads stay outside the project in `../uploads/`; they are never removed by cleanup or included in a release.
@@ -19,6 +19,7 @@ Original user reference uploads stay outside the project in `../uploads/`; they 
 python3 scripts/clean-workspace.py                  # dry-run
 python3 scripts/clean-workspace.py --apply          # generated test/import caches
 python3 scripts/clean-workspace.py --apply --debug-cache # also Rust debug build cache
+python3 scripts/clean-workspace.py --apply --release-cache # also compiler intermediates; keeps executables
 ```
 
 The cleanup command rejects tracked files and preserves source, licenses, reference uploads, captures, release archives and the current preview. It does not uninstall dependencies or toolchains.
@@ -39,3 +40,11 @@ The cleanup command rejects tracked files and preserves source, licenses, refere
 - `web/race-camera-controls.js`: accessible settings panel, pointer-capture free-look, touch look buttons, local-storage failure handling and teardown.
 - `src/cameras.rs`: matching distance/FOV/free-look math. `src/bin/camera_controls/mod.rs`: native input and user-local file preferences; smoke checks ignore preference files and never save them.
 - `apex-camera-preferences-v1` is the browser local-storage key. Mode uses stable rig IDs; views have independent distance/FOV values. Temporary look angles are not persisted.
+
+## Coherent publishing (0.11.2)
+
+`npm run build` compiles to `build/staging-site`, then `scripts/publish-site.py` verifies HTML/CSS/assets plus the actual WASM identity (`scripts/verify-core.mjs`) and atomically switches `site` to a complete fingerprinted preview. Old generated previews are cleanup candidates, never the active target. A failed build leaves the previous preview untouched.
+
+Use `python3 scripts/serve-web.py --port 8080` from source. Web ZIPs include the same standalone server as `serve.py` and static-host `_headers` cache rules. The legacy caching server was retired; the current live preview is **Fixed game**, port 5186. HTML/CSS metadata use build-time tokens, not hand-edited version strings.
+
+Release-cache cleanup removes only Rust intermediates (`deps`, `build`, `incremental`, `.fingerprint`, `examples`); it keeps the finished native executable and WASM outputs. Rebuilding afterwards will recompile dependencies. Source/asset/previous-release/upload hashes are checked across cleanup.

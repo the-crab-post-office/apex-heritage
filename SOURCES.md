@@ -130,3 +130,7 @@ No additional third-party car model, photograph or scan was acquired for this pa
 ## 0.11.1 camera controls
 
 Camera tuning UI, distance/FOV/free-look transforms and device-local preference handling are original code. No new external imagery, geometry, scans, recordings or runtime services are added. Preset camera locations and engineering/scan limitations from 0.11 remain unchanged. User camera preferences are local browser storage or a native user-config JSON file, not part of source/release archives.
+
+## 0.11.2 coherent build delivery and cleanup
+
+No new third-party assets or runtime services are introduced. The original no-cache Python server, staged/verified atomic publisher and bounded browser reload recovery fix mixed cached releases while retaining compatibility checks. Browser setup/records/camera storage is not erased. Cleanup removes only ignored generated output/compiler/test caches; all prior releases, user uploads and source are preserved, with before/after hash verification recorded in validation artifacts.

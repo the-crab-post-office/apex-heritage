@@ -1,8 +1,15 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.11.1-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.11.2-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## 0.11.2 build mismatch / cleanup fix
+
+- Replaces the caching preview server with the bundled **no-cache server** (`python3 serve.py --port 8080` from a web ZIP; `python3 scripts/serve-web.py --port 8080` from source).
+- HTML/CSS/JS identity now derives from the package version. Publishing verifies the actual WASM version and track hash, stages a complete build and **atomically switches** the `site` symlink; the live build is not emptied during compilation.
+- Stale tabs get **one cache-busting refresh**, resuming a requested race without erasing setup, records or camera preferences. A persistently mixed/incomplete deployment stops safely and offers **Reload latest build**; it never bypasses compatibility checks or loops indefinitely.
+- Safe cleanup can remove inactive preview output and rebuildable compiler caches while preserving the active preview, native executable, source, uploads, dependencies and previous release archives. See `WORKSPACE.md`.
 
 ## 0.11.1 adjustable camera controls
 
@@ -88,11 +95,11 @@ Use the live feature preview, or extract the **complete web ZIP into an empty fo
 
 ```sh
 cd apex-heritage-web
-python3 -m http.server 8080
+python3 serve.py --port 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.11.1-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.11.2-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|
@@ -122,7 +129,7 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 APEX_URL=http://127.0.0.1:5173 npx playwright test
 ```
 
-For production browser tests, serve the generated `site/` and point `APEX_URL` to that server. See [TESTING.md](TESTING.md) for actual results and exclusions. To regenerate corner data offline: `python3 scripts/build-corner-details.py`. The retired generic `venue.json` generator is retained only in v0.6 Git history, not duplicated in this source tree.
+For production browser tests, use `python3 scripts/serve-web.py --port 8080` to serve the generated `site/` and point `APEX_URL` to that server. See [TESTING.md](TESTING.md) for actual results and exclusions. To regenerate corner data offline: `python3 scripts/build-corner-details.py`. The retired generic `venue.json` generator is retained only in v0.6 Git history, not duplicated in this source tree.
 
 ## Source organization
 

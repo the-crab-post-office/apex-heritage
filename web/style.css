@@ -2364,7 +2364,7 @@ kbd {
 
 /* Versioned with HTML/JS/WASM; startup refuses mixed cached assets. */
 :root {
-  --apex-build: "0.11.1-preview.1";
+  --apex-build: "__APEX_VERSION__";
 }
 .hud-build {
   position: fixed;
@@ -2659,4 +2659,16 @@ kbd {
   .camera-settings {
     top: 130px;
   }
+}
+
+#build-error button {
+  display: block;
+  margin-top: 12px;
+  padding: 10px 16px;
+  color: #fff2d7;
+  background: #493322;
+  border: 1px solid #fa946f;
+  border-radius: 4px;
+  font: 14px sans-serif;
+  cursor: pointer;
 }
