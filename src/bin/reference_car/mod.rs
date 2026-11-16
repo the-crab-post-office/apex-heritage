@@ -6,12 +6,13 @@ fn hex(s: &str) -> Color {
     Color::from_rgba((n >> 16) as u8, (n >> 8) as u8, n as u8, 255)
 }
 pub struct Cars {
-    meshes: HashMap<usize, Vec<(String, Option<String>, Mesh)>>,
+    pub hide_head: bool,
+    meshes: HashMap<usize, Vec<(String, Option<String>, bool, bool, Mesh)>>,
 }
 impl Cars {
     pub fn new() -> Self {
         let mut meshes = HashMap::new();
-        for era in [0, 3] {
+        for era in 0..4 {
             let batches = apex_heritage::car_shapes::model(era)
                 .unwrap()
                 .iter()
@@ -45,6 +46,8 @@ impl Cars {
                     (
                         b.material.clone(),
                         b.wheel.clone(),
+                        b.head,
+                        b.cockpit_ghost,
                         Mesh {
                             vertices,
                             indices: b.indices.clone(),
@@ -55,7 +58,10 @@ impl Cars {
                 .collect();
             meshes.insert(era, batches);
         }
-        Self { meshes }
+        Self {
+            meshes,
+            hide_head: false,
+        }
     }
     pub fn draw(
         &mut self,
@@ -77,21 +83,31 @@ impl Cars {
                 .push_model_matrix(Mat4::from_translation(p) * rot);
         }
         let wheels = apex_heritage::contact::wheels(era);
-        for (material, wheel, mesh) in self.meshes.get_mut(&era).unwrap() {
+        for (material, wheel, head, ghost, mesh) in self.meshes.get_mut(&era).unwrap() {
+            if *head && self.hide_head {
+                continue;
+            }
             let mapped =
                 ["body", "pods", "wing", "tyre", "front_wing"].contains(&material.as_str());
             mesh.texture = if mapped { Some(texture.clone()) } else { None };
-            let color = match material.as_str() {
+            let mut color = match material.as_str() {
                 "carbon" => hex("#14191f"),
                 "rubber" => hex("#111317"),
                 "rim" => hex("#aab0ae"),
                 "engine" => hex("#56595a"),
                 "exhaust" => hex("#a7947c"),
+                "screen" => hex("#55c7ac"),
+                "belt" => hex("#b52b21"),
+                "brake" => hex("#74716c"),
+                "groove" => hex("#070809"),
                 "helmet" => hex("#ece9da"),
                 "accent" => hex(if era == 0 { &t.secondary } else { &t.accent }),
                 "compound" => hex(if era == 0 { "#202224" } else { "#c62a36" }),
                 _ => WHITE,
             };
+            if *ghost && self.hide_head {
+                color.a = 0.22;
+            }
             // Vertex lighting is baked once; material tint is supplied independently.
             gl_use_default_material();
             if let Some(which) = wheel {
@@ -137,6 +153,7 @@ fn draw_tinted(mesh: &Mesh, color: Color) {
             v.color[0] = (v.color[0] as f32 * color.r) as u8;
             v.color[1] = (v.color[1] as f32 * color.g) as u8;
             v.color[2] = (v.color[2] as f32 * color.b) as u8;
+            v.color[3] = (v.color[3] as f32 * color.a) as u8;
             v
         })
         .collect();

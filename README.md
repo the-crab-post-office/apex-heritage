@@ -1,8 +1,16 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.10.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.11.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## 0.11 car finishing / camera rigs
+
+- Replaces the old 1988/2004 primitive cars with shared detailed era meshes: low turbo versus high-nose V10 bodywork, recessed sidepod mouths, period wings/endplates, suspension, mirrors, rollover protection and exhausts. The V10 has its own airbox/bargeboards and grooved dry tyres.
+- All four eras receive cockpit floors, instruments, headrests, driver arms/harnesses, brake/upright and wheel-lock details. Closed loft bulkheads and solid modern wing endplates remove exposed holes/wire-only panels; modern wheels have aero covers.
+- **Eight race cameras:** Chase, Cockpit, High chase, TV onboard, Nose, Rear-facing, Side tracking and Orbit. Choose from the browser's accessible camera menu (also on mobile), or cycle with C/RB. Native also supports direct keys 1–8 and shows the active camera name.
+- Cockpit mode hides only the player's helmet/visor and ghosts the halo for visibility; onboards follow chassis pitch/roll. Showroom adds top and close-detail presets.
+- All 47 constructor selections retain their liveries. These remain **four original shared-era reconstructions, not 47 unique chassis or scans**. Verified scan integration remains **0/47**.
 
 ## 0.10 Monaco scenery / graphics stage
 
@@ -77,14 +85,14 @@ python3 -m http.server 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.10.0-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.11.0-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|
 | Steer / accelerate / brake | WASD or arrows; Space brake | Left stick / RT / LT |
 | Recover | R | B |
 | Request pit stop / limiter | P / L | X / Y |
-| Camera / pause | C / Esc | RB / Start |
+| Camera / pause | C / Esc; browser camera menu; native 1–8 direct | RB / Start |
 
 Native setup: arrows select track, E selects era, T selects team, Enter starts; controller D-pad/LB/RB/A. Native O stages pit-entry practice, M/View returns to setup, V toggles sound. Browser/native options differ; no physical controller certification is claimed.
 

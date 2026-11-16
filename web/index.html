@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="apex-build" content="0.10.0-preview.1" />
+    <meta name="apex-build" content="0.11.0-preview.1" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#111413" />
     <title>APEX / HERITAGE — The history of speed</title>
@@ -73,6 +73,8 @@
                 <button data-camera="front">FRONT</button
                 ><button data-camera="side">SIDE</button
                 ><button data-camera="rear">REAR</button
+                ><button data-camera="top">TOP</button
+                ><button data-camera="detail">DETAIL</button
                 ><button
                   id="showroom-rotate"
                   aria-pressed="true"
@@ -227,7 +229,7 @@
           </button>
         </div>
         <footer>
-          <span>APEX / HERITAGE <b>PREVIEW 0.10.0-preview.1</b></span>
+          <span>APEX / HERITAGE <b>PREVIEW 0.11.0-preview.1</b></span>
           <p>
             An independent tribute to racing. Not affiliated with Formula 1 or
             its teams.
@@ -260,7 +262,7 @@
       </div>
       <div id="hud-layout" class="hud-layout"></div>
       <div id="hud-build" class="hud-build">
-        v0.10.0-preview.1 · checking build
+        v0.11.0-preview.1 · checking build
       </div>
       <canvas id="race-canvas" aria-label="3D racing game"></canvas>
       <div class="race-vignette"></div>
@@ -322,7 +324,10 @@
       </div>
       <div class="race-controls">
         <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> DRIVE</span
-        ><span><kbd>SPACE</kbd> BRAKE</span><span><kbd>C</kbd> CAMERA</span
+        ><span><kbd>SPACE</kbd> BRAKE</span
+        ><label class="camera-control"
+          ><kbd>C</kbd>
+          <select id="camera-picker" aria-label="Race camera"></select></label
         ><span><kbd>R</kbd> RECOVER</span
         ><button id="audio-toggle"><i data-lucide="volume-2"></i> AUDIO</button>
       </div>

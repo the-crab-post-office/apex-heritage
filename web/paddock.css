@@ -746,3 +746,8 @@
     font-size: 6px;
   }
 }
+
+.showroom-tools > div {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}

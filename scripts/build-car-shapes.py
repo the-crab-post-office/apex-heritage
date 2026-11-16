@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Original photo-guided meshes for the 1967 and 2023 silhouettes.
+"""Original detailed meshes for all four era silhouettes.
 No photo pixels or third-party meshes. Shared by web and native renderers.
 Units metres; +Z forward. Wheels remain separate, driven by contact geometry.
 """
@@ -7,9 +7,9 @@ import json, math
 from pathlib import Path
 R=Path(__file__).resolve().parents[1]
 TAU=math.tau
-LAYOUTS={'0':dict(half=.82,front=1.12,rear=-1.1,front_width=.22,rear_width=.34,radius=.34),'3':dict(half=.90,front=1.65,rear=-1.75,front_width=.34,rear_width=.44,radius=.38)}
+LAYOUTS={'1':dict(half=1.02,front=1.43,rear=-1.44,front_width=.34,rear_width=.44,radius=.35),'2':dict(half=1.02,front=1.43,rear=-1.44,front_width=.34,rear_width=.44,radius=.35),'0':dict(half=.82,front=1.12,rear=-1.1,front_width=.22,rear_width=.34,radius=.34),'3':dict(half=.90,front=1.65,rear=-1.75,front_width=.34,rear_width=.44,radius=.38)}
 class Model:
- def __init__(self):self.parts=[]
+ def __init__(self,era=3):self.parts=[];self.era=era
  def mesh(self,name,mat,p,tri,uv=None,wheel=None):
   self.parts.append(dict(name=name,material=mat,positions=[[round(v,5) for v in q] for q in p],indices=tri,uvs=uv or [[0,0]for _ in p],wheel=wheel))
  def loft(self,name,mat,sections,steps=32,opening=False):
@@ -22,6 +22,12 @@ class Model:
    for j in range(steps):
     if opening and (j<steps*.15 or j>=steps*.85):continue
     k=i*(steps+1)+j;idx.extend([k,k+steps+1,k+1,k+1,k+steps+1,k+steps+2])
+  # End bulkheads are explicit, with separate normals (not open loft holes).
+  for end,sign in [(0,-1),(len(sections)-1,1)]:
+   if name=='rounded cigar nose' and end==0:continue # intentional radiator opening
+   ring=p[end*(steps+1):(end+1)*(steps+1)];center=[sum(q[k]for q in ring[:-1])/steps for k in range(3)];offset=len(p);p.append(center);uv.append([.25,(2.6-center[2])/10.4])
+   p.extend(ring);uv.extend([[.25,(2.6-center[2])/10.4]for _ in ring])
+   for j in range(steps):idx.extend([offset,offset+j+1,offset+j+2]if sign>0 else[offset,offset+j+2,offset+j+1])
   self.mesh(name,mat,p,idx,uv)
  def tube(self,name,mat,points,r=.018,steps=8):
   p=[];idx=[]
@@ -42,12 +48,24 @@ class Model:
    for j in range(24):k=i*25+j;idx.extend([k,k+25,k+1,k+1,k+25,k+26])
   self.mesh(name,mat,p,idx)
  def box(self,name,mat,c,s):
-  x,y,z=c;w,h,d=[v/2 for v in s];p=[[x+a*w,y+b*h,z+e*d]for a,b,e in[(-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1)]];self.mesh(name,mat,p,[0,2,1,0,3,2,4,5,6,4,6,7,0,1,5,0,5,4,3,7,6,3,6,2,0,4,7,0,7,3,1,2,6,1,6,5])
+  x,y,z=c;w,h,d=[v/2 for v in s];corners=[[x+a*w,y+b*h,z+e*d]for a,b,e in[(-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1)]];p=[];idx=[]
+  for face in [[0,3,2,1],[4,5,6,7],[0,1,5,4],[3,7,6,2],[0,4,7,3],[1,2,6,5]]:
+   k=len(p);p.extend([corners[i]for i in face]);idx.extend([k,k+1,k+2,k,k+2,k+3])
+  self.mesh(name,mat,p,idx)
+ def panel(self,name,mat,x,outline,thickness=.025):
+  # Closed side plate; outline is a convex polygon in (z,y), not a wire rod.
+  p=[];idx=[];n=len(outline)
+  for side in [-1,1]:
+   offset=len(p);p.extend([[x+side*thickness/2,y,z]for z,y in outline])
+   for j in range(1,n-1):idx.extend([offset,offset+j,offset+j+1]if side>0 else[offset,offset+j+1,offset+j])
+  for j in range(n):
+   k=len(p);q=(j+1)%n;p.extend([[x-thickness/2,outline[j][1],outline[j][0]],[x+thickness/2,outline[j][1],outline[j][0]],[x+thickness/2,outline[q][1],outline[q][0]],[x-thickness/2,outline[q][1],outline[q][0]]]);idx.extend([k,k+1,k+2,k,k+2,k+3])
+  self.mesh(name,mat,p,idx)
  def wing(self,name,z,half,y,chord,mat='wing',rear=False):
   # Closed cambered airfoil with continuous curved tips, not stacked boxes.
   p=[];uv=[];idx=[];nx=40;nc=16
   for j in range(nx+1):
-   x=-half+2*half*j/nx;t=abs(x/half);dihedral=(.11*t**5 if rear else .15*t**3);sweep=(.13*t*t if rear else -.26*t*t)
+   x=-half+2*half*j/nx;t=abs(x/half);dihedral=(.11*t**5 if rear else .15*t**3)if self.era==3 else(0 if rear or self.era==1 else .035*t*t);sweep=(.13*t*t if rear else -.26*t*t)if self.era==3 else(0 if self.era==1 else -.07*t*t)
    for k in range(nc+1):
     a=TAU*k/nc;f=(1-math.cos(a))/2;zz=z+sweep+(f-.5)*chord;yy=y+dihedral+(.10 if rear else .055)*math.sin(math.pi*f)+(.12*f if rear else 0)+.014*math.sin(a)
     p.append([x,yy,zz]);uv.append([round(.5+j/nx*.25 if mat=='front_wing'else j/nx*.5,5),round(.5+f*.25,5)])
@@ -59,9 +77,9 @@ class Model:
  def wheels(self,classic):
   # Rounded tyre shoulders, dished rims and sidewall compound stripe.
   for typ in ['front','rear']:
-   layout=LAYOUTS['0'if classic else'3'];radius=layout['radius'];width=layout[typ+'_width']
+   layout=LAYOUTS[str(self.era)];radius=layout['radius'];width=layout[typ+'_width'];rimratio=.61 if self.era==3 else .50
    p=[];uv=[];idx=[]
-   profile=[(-.5,.60),(-.53,.74),(-.5,.89),(-.40,.98),(-.25,1),(0,1),(.25,1),(.40,.98),(.5,.89),(.53,.74),(.5,.60)]
+   profile=[(-.5,rimratio),(-.53,.74),(-.5,.89),(-.40,.98),(-.25,1),(0,1),(.25,1),(.40,.98),(.5,.89),(.53,.74),(.5,rimratio)]
    for i,(x,r)in enumerate(profile):
     for j in range(65):a=j/64*TAU;p.append([x*width,math.cos(a)*radius*r,math.sin(a)*radius*r]);uv.append([j/64,(r-.6)/.4])
    for i in range(len(profile)-1):
@@ -75,14 +93,18 @@ class Model:
     for j in range(64):idx.extend([j,j+1,j+65,j+1,j+66,j+65])
     self.mesh(typ+' sidewall lettering','tyre',p,idx,uv,typ)
     # Rim lip ring and inset dark wheel barrel.
-    for rr,mat,r in[(.61,'rim',.015),(.88,'compound',.008 if not classic else .003)]:
+    for rr,mat,r in[(rimratio,'rim',.015),(.88,'compound',.008 if not classic else .003)]:
      pts=[[side*width*.508,math.cos(i/64*TAU)*radius*rr,math.sin(i/64*TAU)*radius*rr]for i in range(65)];start=len(self.parts);self.tube(typ+' rim lip'if mat=='rim'else typ+' sidewall ring',mat,pts,r)
      self.parts[-1]['wheel']=typ
-    p=[[side*width*.46,0,0]]+[[side*width*.48,math.cos(i/48*TAU)*radius*.61,math.sin(i/48*TAU)*radius*.61]for i in range(49)];idx=[]
+    p=[[side*width*.46,0,0]]+[[side*width*.48,math.cos(i/48*TAU)*radius*rimratio,math.sin(i/48*TAU)*radius*rimratio]for i in range(49)];idx=[]
     for j in range(48):idx.extend([0,j+1,j+2])
     self.mesh(typ+' wheel dish','rim'if classic else'carbon',p,idx,wheel=typ)
-    for j in range(8 if classic else 12):
-     a=j/(8 if classic else 12)*TAU;self.tube(typ+' wheel spoke','rim',[[side*width*.5,math.cos(a)*radius*.12,math.sin(a)*radius*.12],[side*width*.49,math.cos(a)*radius*.56,math.sin(a)*radius*.56]],.012,5);self.parts[-1]['wheel']=typ
+    if self.era==3:
+     p=[[side*width*.522,0,0]]+[[side*width*.520,math.cos(i/64*TAU)*radius*.59,math.sin(i/64*TAU)*radius*.59]for i in range(65)];idx=[]
+     for j in range(64):idx.extend([0,j+1,j+2])
+     self.mesh(typ+' aerodynamic wheel cover','carbon',p,idx,wheel=typ)
+    for j in range(0 if self.era==3 else(8 if classic else 12)):
+     a=j/(8 if classic else 12)*TAU;self.tube(typ+' wheel spoke','rim',[[side*width*.5,math.cos(a)*radius*.12,math.sin(a)*radius*.12],[side*width*.49,math.cos(a)*radius*(rimratio-.05),math.sin(a)*radius*(rimratio-.05)]],.012,5);self.parts[-1]['wheel']=typ
  def driver(self,classic):
   y=.93 if classic else .87
   self.ellipsoid('recessed seat','rubber',[0,y-.18,-.02],[.22,.18,.32]);self.ellipsoid('driver helmet','helmet',[0,y,.12],[.145,.18,.17]);self.ellipsoid('dark visor','rubber',[0,y+.02,.262],[.135,.063,.045])
@@ -145,13 +167,91 @@ class Model:
      self.tube('exposed coilover','engine',[[side*.35,.56,z-.12],[side*.63,.30,z]],.031,10)
   self.driver(classic);self.wheels(classic)
   return self.parts
-models={str(e):Model().build(e==0) for e in [0,3]}
-# Consolidate meshes by material and wheel. Names survive as semantic component list.
+def period_car(m,era):
+ turbo=era==1
+ m.loft('1988 low turbo monocoque'if turbo else'2004 high-nose monocoque','body',[[2.18,.07,.26 if turbo else .48,.07],[1.75,.12,.30 if turbo else .53,.10],[.85,.25,.43 if turbo else .57,.18],[.40,.33,.48,.22]])
+ m.loft('open period cockpit','body',[[.40,.33,.48,.22],[.10,.37,.49,.25],[-.50,.35,.47,.24],[-.83,.30,.46,.23]],opening=True)
+ m.loft('low turbo engine cowl'if turbo else'V10 engine cover','body',[[-.66,.29,.56,.28],[-.95,.27,.76 if not turbo else .60,.41 if not turbo else .24],[-1.5,.18,.49,.22],[-1.95,.09,.33,.12]])
+ m.box('flat carbon floor','carbon',[0,.16,-.15],[1.65,.055,3.25])
+ for side in [-1,1]:
+  m.loft('1988 slab sidepod'if turbo else'2004 coke-bottle sidepod','pods',[[-1.6,.14,.32,.13,side*.48],[-1.15,.25,.40,.20,side*.61],[-.4,.30,.48,.23,side*.64],[.5,.28,.52,.18,side*.59]])
+  m.ellipsoid('recessed radiator mouth','rubber',[side*.59,.53,.515],[.24,.145,.015])
+  m.tube('period mirror stalk','carbon',[[side*.32,.61,.35],[side*.60,.70,.43]],.016)
+  m.ellipsoid('period mirror shell','body',[side*.62,.72,.44],[.095,.055,.10])
+  m.panel('front wing closed endplate','front_wing',side*.99,[(1.80,.12),(2.42,.12),(2.42,.40),(1.86,.40)])
+  m.panel('rear wing closed endplate','wing',side*.88,[(-2.25,.64),(-1.65,.64),(-1.65,1.29),(-2.25,1.29)])
+  m.tube('rear wing pylon','carbon',[[side*.3,.30,-1.67],[side*.3,1.04,-1.94]],.025)
+  if turbo:
+   for j in range(5):m.box('turbo cooling outlet','rubber',[side*.67,.695,-.70-j*.12],[.26,.012,.04])
+   m.tube('turbo exhaust outlet','exhaust',[[side*.28,.35,-1.4],[side*.36,.31,-2.0]],.035)
+  else:
+   m.panel('2004 bargeboard','carbon',side*.56,[(.65,.16),(.92,.20),(.84,.65),(.54,.65)])
+   m.loft('2004 sidepod shoulder','pods',[[-.9,.22,.65,.10,side*.60],[-.1,.29,.70,.10,side*.63],[.4,.25,.64,.10,side*.61]])
+   m.tube('V10 exhaust chimney','exhaust',[[side*.37,.47,-1.13],[side*.37,.76,-1.40]],.038)
+  for z in [1.43,-1.44]:
+   for y in [.24,.54]:
+    for dz in [-.28,.28]:m.tube('period double wishbone','carbon',[[side*.28,y,z+dz],[side*.94,.35,z]],.016)
+ m.wing('period front mainplane',2.13,1.0,.14,.45,'front_wing')
+ m.wing('period front flap',1.96,.95,.24,.24,'wing')
+ m.wing('period rear mainplane',-1.95,.87,.94,.50,'wing',True)
+ m.wing('period rear flap',-2.08,.87,1.14,.28,'wing',True)
+ m.tube('period rollover hoop','carbon',[[-.19,.65,-.45],[-.16,1.15,-.5],[.16,1.15,-.5],[.19,.65,-.45]],.035,10)
+ if not turbo:
+  m.loft('V10 airbox','body',[[-1.0,.12,.99,.20],[-.63,.14,1.07,.19],[-.52,.11,1.04,.15]])
+  m.ellipsoid('V10 air intake','rubber',[0,1.07,-.50],[.10,.13,.018])
+ m.driver(False);m.wheels(False)
+
+def finish(m,era):
+ classic=era==0;layout=LAYOUTS[str(era)]
+ # Continuous cockpit tub and coaming hide the former hollow-looking body.
+ m.box('cockpit floor pan','rubber',[0,.35,-.05],[.44,.055,.77])
+ m.ellipsoid('padded headrest','rubber',[0,.68,-.31],[.25,.13,.09])
+ m.box('instrument binnacle','carbon',[0,.63,.43],[.36,.15,.06])
+ if classic:
+  for x in [-.11,0,.11]:m.ellipsoid('analogue dashboard dial','rim',[x,.65,.468],[.042,.043,.008]);m.ellipsoid('black instrument face','rubber',[x,.65,.477],[.033,.034,.003])
+ else:
+  m.box('steering telemetry screen','screen',[0,.69,.468],[.15,.075,.008])
+  for x in [-.115,.115]:
+   for y in [.65,.70]:m.ellipsoid('steering wheel control','accent',[x,y,.478],[.018,.018,.008])
+ for side in [-1,1]:
+  m.tube('driver sleeve','helmet',[[side*.11,.79,.03],[side*.19,.69,.22],[side*.13,.67,.42]],.045,10)
+  m.ellipsoid('driver glove','rubber',[side*.13,.67,.44],[.055,.045,.04])
+  m.tube('shoulder harness','belt',[[side*.13,.83,-.10],[side*.09,.64,.09]],.022,6)
+  m.tube('harness lap strap','belt',[[side*.19,.54,-.05],[side*.03,.53,.11]],.018,6)
+  for front in [True,False]:
+   z=layout['front'if front else'rear'];half=layout['half'];r=layout['radius']
+   m.box('stationary brake caliper','engine',[side*(half-.10),r,z-.16],[.065,.15,.10])
+   m.tube('upright steering link','engine',[[side*(half-.10),r-.10,z],[side*(half-.10),r+.13,z]],.03,10)
+   # Brake rotor and centre-lock hardware are local to the spinning wheel.
+   m.ellipsoid('ventilated brake rotor','brake',[side*layout['front_width'if front else'rear_width']*.44,0,0],[.012,r*.48,r*.48]);m.parts[-1]['wheel']='front'if front else'rear'
+   m.ellipsoid('centre-lock wheel nut','accent',[side*layout['front_width'if front else'rear_width']*.55,0,0],[.055,.055,.055]);m.parts[-1]['wheel']='front'if front else'rear'
+  if era==3:
+   m.panel('solid curved rear endplate','carbon',side*.89,[(-2.52,.68),(-2.02,.68),(-1.98,.96),(-2.11,1.31),(-2.46,1.38),(-2.56,1.20)])
+   m.panel('front endplate surface','carbon',side*1.10,[(1.98,.18),(2.56,.18),(2.55,.31),(2.11,.43),(1.98,.37)])
+   for i in range(6):m.box('sidepod cooling gill','rubber',[side*(.69+i*.015),.674,-.30-i*.115],[.18,.012,.032])
+  if classic:
+   m.tube('rear anti-roll linkage','rim',[[side*.28,.42,-1.45],[side*.64,.39,-1.26],[side*.74,.32,-1.1]],.014)
+ # Four independent circumferential grooves on the 2004 dry tyre surface.
+ if era==2:
+  for typ in ['front','rear']:
+   for off in [-.30,-.10,.10,.30]:
+    m.tube('four circumferential grooves','groove',[[layout[typ+'_width']*off,math.cos(i/64*TAU)*(layout['radius']+.001),math.sin(i/64*TAU)*(layout['radius']+.001)]for i in range(65)],.004,5);m.parts[-1]['wheel']=typ
+
+models={}
+for era in range(4):
+ model=Model(era)
+ if era in [0,3]:model.build(era==0)
+ else:period_car(model,era)
+ finish(model,era);models[str(era)]=model.parts
+# Bound every batch for both renderers; names remain available to regression tests.
 for era,parts in models.items():
- batches={}
+ batches=[];current={}
  for part in parts:
-  key=(part['material'],part['wheel']);b=batches.setdefault(key,dict(material=part['material'],wheel=part['wheel'],positions=[],indices=[],uvs=[],components=[]));offset=len(b['positions']);b['components'].append(part['name']);b['positions']+=part['positions'];b['uvs']+=part['uvs'];b['indices'] += [v+offset for v in part['indices']]
- models[era]=list(batches.values())
+  head=part['name']in['driver helmet','dark visor'];ghost=part['name']in['halo surround','halo centre pillar'];key=(part['material'],part['wheel'],head,ghost);b=current.get(key)
+  if b is None or len(b['positions'])+len(part['positions'])>=9500 or len(b['indices'])+len(part['indices'])>30000:
+   b=dict(material=part['material'],wheel=part['wheel'],head=head,cockpit_ghost=ghost,positions=[],indices=[],uvs=[],components=[]);current[key]=b;batches.append(b)
+  offset=len(b['positions']);b['components'].append(part['name']);b['positions']+=part['positions'];b['uvs']+=part['uvs'];b['indices'] += [v+offset for v in part['indices']]
+ models[era]=batches
 (R/'data/car-layouts.json').write_text(json.dumps(LAYOUTS,separators=(',',':'))+'\n')
-path=R/'data/car-shapes.json';path.write_text(json.dumps(dict(schema=1,source='Original procedural reconstruction guided by user-supplied 2023 frontal and 1967 three-quarter photographs; not scans or licensed chassis.',models=models,layouts=LAYOUTS),separators=(',',':'))+'\n')
+path=R/'data/car-shapes.json';path.write_text(json.dumps(dict(schema=2,source='Original detailed procedural era reconstructions. Existing user photo guidance retained for 1967/2023; 1988/2004 authored era approximations. Not scans or constructor-specific replicas.',models=models,layouts=LAYOUTS),separators=(',',':'))+'\n')
 print('Shared car geometry:',path.stat().st_size,'bytes;',[(e,sum(len(b['positions'])for b in m))for e,m in models.items()])

@@ -26,3 +26,9 @@ The cleanup command rejects tracked files and preserves source, licenses, refere
 ## Important unfinished work
 
 `data/CAR-SCAN-STATUS.md` and `data/car-asset-status.json` track all 47 requested constructor-specific scans. None is yet integrated; the existing cars must not be described as scanned replicas. Modern Monaco is user-selected for all eras. Source/massing/placement uncertainties are in `data/MONACO-REFERENCE-NOTICE.md`.
+
+## Current car / camera pipeline (0.11)
+
+- `scripts/build-car-shapes.py` generates all four era meshes and shared wheel layouts; 1988/2004 no longer use legacy runtime primitive builders.
+- `data/cameras.json` defines eight rigs consumed by `web/cameras.js` and `src/cameras.rs`. Attached views inherit chassis pose; only the player's isolated head batches are hidden in cockpit mode; halo batches become translucent.
+- Browser direct selector supports touch/keyboard; native uses C/RB or 1–8. Camera smoke validation can use `APEX_SMOKE_ALL_CAMERAS=1` or `APEX_SMOKE_CAMERA=0..7`.

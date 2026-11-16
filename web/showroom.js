@@ -148,7 +148,10 @@ export class Showroom {
       side: [9, 1.9, 0.3],
       rear: [-4.5, 2.5, -7.5],
       hero: [5.4, 2.7, 7.2],
+      top: [0.01, 10, 0.01],
+      detail: [1.7, 1.7, 2.5],
     }[kind] || [5.4, 2.7, 7.2];
+    this.controls.minPolarAngle = kind === "top" ? 0.001 : 0.35;
     this.camera.position.set(...p);
     this.controls.autoRotate = false;
     this.controls.update();

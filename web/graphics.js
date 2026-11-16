@@ -1,3 +1,4 @@
+import { cameraRig } from "./cameras.js";
 import { makeCar } from "./car.js";
 export { makeCar } from "./car.js";
 import {
@@ -84,7 +85,7 @@ export class World {
     this.camera = new THREE.PerspectiveCamera(
       60,
       innerWidth / innerHeight,
-      0.15,
+      0.035,
       11000,
     );
     this.scene.add(
@@ -1075,11 +1076,6 @@ export class World {
         state.steering * Math.min(state.speed / 50, 0.8) * 0.035,
       "YXZ",
     );
-    const f = new THREE.Vector3(
-      Math.sin(state.yaw) * Math.cos(pitch),
-      -Math.sin(pitch),
-      Math.cos(state.yaw) * Math.cos(pitch),
-    );
     p.updateMatrix();
     const pose = p.matrix.elements;
     updateFloorSparks(this, state, performance.now() / 1000);
@@ -1097,39 +1093,35 @@ export class World {
       w.mesh.rotation.x += (state.speed * dt) / 0.35;
       if (w.front) w.mesh.rotation.y = state.steering * 0.22;
     }
-    let cameraPos, target;
     const center = p.position.clone();
-    if (this.cameraMode === 0) {
-      cameraPos = center
-        .clone()
-        .addScaledVector(f, -8.6)
-        .add(new THREE.Vector3(0, 3.7, 0));
-      target = center
-        .clone()
-        .addScaledVector(f, 10)
-        .add(new THREE.Vector3(0, 1, 0));
-    } else if (this.cameraMode === 1) {
-      cameraPos = center
-        .clone()
-        .addScaledVector(f, 0.25)
-        .add(new THREE.Vector3(0, 1.45, 0));
-      target = center
-        .clone()
-        .addScaledVector(f, 28)
-        .add(new THREE.Vector3(0, 1.15, 0));
-    } else {
-      cameraPos = center
-        .clone()
-        .addScaledVector(f, -15)
-        .add(new THREE.Vector3(0, 9, 0));
-      target = center.clone().addScaledVector(f, 10);
-    }
-    if (!this.cameraInitialized || this.cameraMode === 1) {
+    this.cameraTime = (this.cameraTime || 0) + dt;
+    const rig = cameraRig(this.cameraMode, this.config.era, this.cameraTime);
+    // Onboards inherit chassis pitch/roll; exterior cameras retain a level horizon.
+    const transform = (v) => {
+      const local = new THREE.Vector3(...v);
+      if (rig.attached) local.applyQuaternion(p.quaternion);
+      else local.applyAxisAngle(new THREE.Vector3(0, 1, 0), state.yaw);
+      return local.add(center);
+    };
+    const cameraPos = transform(rig.position),
+      target = transform(rig.target);
+    p.traverse((o) => {
+      if (o.userData.cameraHideHead) o.visible = !rig.hide_head;
+      if (o.userData.cameraGhost) {
+        o.material.opacity = rig.hide_head ? 0.22 : 1;
+        o.material.depthWrite = !rig.hide_head;
+      }
+    });
+    if (!this.cameraInitialized || rig.attached) {
       this.camera.position.copy(cameraPos);
       this.cameraInitialized = true;
     } else this.camera.position.lerp(cameraPos, 1 - Math.exp(-dt * 7));
+    this.camera.up.set(0, 1, 0);
+    if (rig.attached) this.camera.up.applyQuaternion(p.quaternion);
     this.camera.lookAt(target);
-    let fov = 58 + Math.min(state.speed / 110, 1) * 10;
+    const fov =
+      rig.fov +
+      (rig.id === "chase" ? Math.min(Math.abs(state.speed) / 110, 1) * 10 : 0);
     if (Math.abs(this.camera.fov - fov) > 0.1) {
       this.camera.fov = fov;
       this.camera.updateProjectionMatrix();

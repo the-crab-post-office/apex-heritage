@@ -1,6 +1,7 @@
 //! Shared deterministic-ish, fixed-step single-seater driving model.
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+pub mod cameras;
 pub mod car_shapes;
 pub mod contact;
 #[cfg(feature = "native")]

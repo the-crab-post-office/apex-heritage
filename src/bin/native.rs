@@ -18,36 +18,6 @@ fn conf() -> macroquad::conf::Conf {
         ..Default::default()
     }
 }
-fn loft(sections: &[[f32; 5]], _color: Color, texture: &Texture2D) {
-    let mut vertices = Vec::new();
-    let mut indices = Vec::new();
-    let ring = 32;
-    for (i, s) in sections.iter().enumerate() {
-        for j in 0..=ring {
-            let a = j as f32 / ring as f32 * std::f32::consts::TAU;
-            let shade = 0.72 + 0.28 * a.cos().max(0.);
-            vertices.push(Vertex::new2(
-                vec3(s[4] + a.sin() * s[1], s[2] + a.cos() * s[3], s[0]),
-                vec2(
-                    if s[4] != 0. { 0.5 } else { 0. } + j as f32 / ring as f32 * 0.5,
-                    (2.6 - s[0]) / 10.4,
-                ),
-                Color::new(shade, shade, shade, 1.),
-            ));
-            if i + 1 < sections.len() && j < ring {
-                let k = (i * (ring + 1) + j) as u16;
-                let l = k + 1;
-                let r = (ring + 1) as u16;
-                indices.extend([k, k + r, l, l, k + r, l + r]);
-            }
-        }
-    }
-    draw_mesh(&Mesh {
-        vertices,
-        indices,
-        texture: Some(texture.clone()),
-    });
-}
 fn car(
     p: Vec3,
     yaw: f32,
@@ -55,281 +25,13 @@ fn car(
     roll: f32,
     heights: [f32; 4],
     texture: &Texture2D,
-    color: Color,
+    _color: Color,
     era: usize,
     cars: &mut reference_car::Cars,
     team: usize,
 ) {
-    if era == 0 || era == 3 {
-        cars.draw(p, yaw, pitch, roll, heights, texture, era, team);
-    } else {
-        legacy_car(p, yaw, pitch, roll, heights, texture, color, era);
-    }
+    cars.draw(p, yaw, pitch, roll, heights, texture, era, team);
 }
-fn legacy_car(
-    p: Vec3,
-    yaw: f32,
-    pitch: f32,
-    roll: f32,
-    wheel_heights: [f32; 4],
-    texture: &Texture2D,
-    color: Color,
-    era: usize,
-) {
-    let rotation =
-        Mat4::from_rotation_y(yaw) * Mat4::from_rotation_x(pitch) * Mat4::from_rotation_z(roll);
-    unsafe {
-        get_internal_gl()
-            .quad_gl
-            .push_model_matrix(Mat4::from_translation(p) * rotation);
-    }
-    unsafe {
-        get_internal_gl()
-            .quad_gl
-            .push_model_matrix(Mat4::from_translation(vec3(
-                0.,
-                apex_heritage::corner::ride_height(era) - 0.195,
-                0.,
-            )));
-    }
-    let classic = era == 0;
-    let dark = Color::from_rgba(22, 25, 27, 255);
-    let length = if era == 3 {
-        5.2
-    } else if classic {
-        3.65
-    } else {
-        4.55
-    };
-    loft(
-        &[
-            [-1.8, 0.12, 0.4, 0.12, 0.],
-            [-1.1, 0.32, 0.48, 0.26, 0.],
-            [-0.4, 0.36, 0.51, 0.29, 0.],
-            [0.3, 0.32, 0.52, 0.25, 0.],
-            [1.1, 0.19, 0.4, 0.16, 0.],
-            [2., 0.06, 0.28, 0.06, 0.],
-        ],
-        color,
-        texture,
-    );
-    draw_cube(
-        vec3(0., 0.18, -0.1),
-        vec3(if classic { 0.7 } else { 1.65 }, 0.07, 3.2),
-        None,
-        dark,
-    );
-    draw_cube(vec3(0., 0.77, 0.12), vec3(0.47, 0.13, 0.62), None, dark);
-    draw_sphere(
-        vec3(0., 1., 0.08),
-        0.19,
-        None,
-        Color::from_rgba(232, 217, 181, 255),
-    );
-    draw_cube(vec3(0., 1.02, 0.24), vec3(0.3, 0.09, 0.04), None, dark);
-    if !classic {
-        for side in [-1., 1.] {
-            loft(
-                &[
-                    [-1.55, 0.12, 0.32, 0.12, side * 0.43],
-                    [-0.9, 0.3, 0.4, 0.23, side * 0.62],
-                    [0.1, 0.34, 0.46, 0.23, side * 0.61],
-                    [0.57, 0.25, 0.47, 0.12, side * 0.57],
-                ],
-                color,
-                texture,
-            );
-            draw_cube(
-                vec3(side * 0.59, 0.52, 0.6),
-                vec3(0.47, 0.18, 0.04),
-                None,
-                dark,
-            );
-            for i in 0..7 {
-                draw_cube(
-                    vec3(side * 0.61, 0.69, -0.25 - i as f32 * 0.1),
-                    vec3(0.24, 0.012, 0.025),
-                    None,
-                    dark,
-                );
-            }
-            draw_cube(
-                vec3(side * 0.76, 0.58, 0.73),
-                vec3(0.2, 0.12, 0.25),
-                None,
-                color,
-            );
-            draw_cube(
-                vec3(side * 0.62, 0.51, 0.73),
-                vec3(0.32, 0.035, 0.035),
-                None,
-                dark,
-            );
-            draw_cube(
-                vec3(side * 0.92, 0.34, length * 0.48),
-                vec3(0.055, 0.35, 0.6),
-                None,
-                color,
-            );
-            draw_cube(
-                vec3(side * 0.82, 0.9, -length * 0.43),
-                vec3(0.055, 0.55, 0.65),
-                None,
-                color,
-            );
-            for i in 0..3 {
-                draw_cube(
-                    vec3(side * (0.22 + i as f32 * 0.15), 0.2, -1.95),
-                    vec3(0.02, 0.2, 0.5),
-                    None,
-                    dark,
-                );
-            }
-        }
-        for i in 0..3 {
-            draw_cube(
-                vec3(
-                    0.,
-                    0.2 + i as f32 * 0.045,
-                    length * 0.48 + i as f32 * 0.12 - 0.12,
-                ),
-                vec3(1.9, 0.035, 0.16),
-                None,
-                color,
-            );
-        }
-        draw_cube(
-            vec3(0., 1.15, -length * 0.43),
-            vec3(1.68, 0.065, 0.55),
-            None,
-            color,
-        );
-        draw_cube(
-            vec3(0., 1.02, -length * 0.43 + 0.12),
-            vec3(1.65, 0.05, 0.35),
-            None,
-            dark,
-        );
-        loft(
-            &[
-                [-1.65, 0.07, 0.5, 0.09, 0.],
-                [-1., 0.19, 0.7, 0.33, 0.],
-                [-0.65, 0.22, 0.86, 0.46, 0.],
-                [-0.42, 0.18, 0.86, 0.32, 0.],
-            ],
-            color,
-            texture,
-        );
-        draw_cube(vec3(0., 1.3, -0.65), vec3(0.18, 0.14, 0.2), None, dark);
-        draw_cube(vec3(0., 0.52, -2.13), vec3(0.1, 0.07, 0.04), None, RED);
-    } else {
-        draw_cube(vec3(0., 0.7, -1.), vec3(0.44, 0.24, 0.9), None, GRAY);
-        for side in [-1., 1.] {
-            for i in 0..4 {
-                let z = -0.55 - i as f32 * 0.19;
-                draw_line_3d(
-                    vec3(side * 0.2, 0.82, z),
-                    vec3(side * 0.47, 0.5, -1.7),
-                    LIGHTGRAY,
-                );
-                draw_cube(
-                    vec3(side * 0.25, 0.9, z),
-                    vec3(0.1, 0.2, 0.1),
-                    None,
-                    LIGHTGRAY,
-                );
-            }
-            draw_line_3d(
-                vec3(side * 0.47, 0.5, -1.7),
-                vec3(side * 0.47, 0.5, -1.95),
-                LIGHTGRAY,
-            );
-        }
-    }
-    if !classic {
-        let z = -length * 0.43;
-        let positions = [
-            [-0.84, 1.19, z - 0.275],
-            [0.84, 1.19, z - 0.275],
-            [0.84, 1.19, z + 0.275],
-            [-0.84, 1.19, z + 0.275],
-        ];
-        let uv = [[0., 0.5], [0.5, 0.5], [0.5, 0.75], [0., 0.75]];
-        draw_mesh(&Mesh {
-            vertices: positions
-                .into_iter()
-                .zip(uv)
-                .map(|(p, u)| Vertex::new2(vec3(p[0], p[1], p[2]), vec2(u[0], u[1]), WHITE))
-                .collect(),
-            indices: vec![0, 1, 2, 0, 2, 3],
-            texture: Some(texture.clone()),
-        });
-    }
-    if era == 3 {
-        for i in 0..16 {
-            let a = i as f32 / 16. * std::f32::consts::PI;
-            let b = (i + 1) as f32 / 16. * std::f32::consts::PI;
-            draw_line_3d(
-                vec3(a.cos() * 0.36, 1.13, 0.1 + a.sin() * 0.4),
-                vec3(b.cos() * 0.36, 1.13, 0.1 + b.sin() * 0.4),
-                dark,
-            );
-        }
-        draw_line_3d(vec3(0., 0.7, 0.65), vec3(0., 1.13, 0.5), dark);
-    }
-    unsafe {
-        get_internal_gl().quad_gl.pop_model_matrix();
-    }
-    let wheel_geometry = apex_heritage::contact::wheels(era);
-    for (wi, w) in wheel_geometry.iter().enumerate() {
-        let x = w.lateral;
-        let z = w.longitudinal;
-        let side = x.signum();
-        let width = w.width;
-        let radius = w.radius;
-        let wy = (wheel_heights[wi] + radius - p.y - rotation.x_axis.y * x - rotation.z_axis.y * z)
-            / rotation.y_axis.y;
-        unsafe {
-            get_internal_gl().quad_gl.push_model_matrix(
-                Mat4::from_translation(vec3(x + width / 2., wy, z))
-                    * Mat4::from_rotation_z(std::f32::consts::FRAC_PI_2),
-            );
-        }
-        draw_cylinder(vec3(0., 0., 0.), radius, radius, width, None, dark);
-        draw_cylinder(
-            vec3(0., -0.01, 0.),
-            radius * 0.53,
-            radius * 0.53,
-            width + 0.02,
-            None,
-            GRAY,
-        );
-        unsafe {
-            get_internal_gl().quad_gl.pop_model_matrix();
-        }
-        let outer = x + side * width * 0.52;
-        for i in 0..10 {
-            let a = i as f32 / 10. * std::f32::consts::TAU;
-            draw_line_3d(
-                vec3(outer, wy, z),
-                vec3(
-                    outer,
-                    wy + a.sin() * radius * 0.5,
-                    z + a.cos() * radius * 0.5,
-                ),
-                LIGHTGRAY,
-            );
-        }
-        for h in [0.27, 0.54] {
-            draw_line_3d(vec3(side * 0.26, h, z - 0.3), vec3(x, wy, z), dark);
-            draw_line_3d(vec3(side * 0.26, h, z + 0.3), vec3(x, wy, z), dark);
-        }
-    }
-    unsafe {
-        get_internal_gl().quad_gl.pop_model_matrix();
-    }
-}
-
 fn tunnel(t: &Track, range: Option<(usize, usize)>, player: Vec3, texture: &Texture2D) {
     let Some((start, end)) = range else {
         return;
@@ -669,7 +371,11 @@ async fn main() {
         &safety,
         &venue::Ground::new(&[&landscape, &pit_mesh, &corner_mesh]),
     );
-    let mut camera_mode = 0;
+    let mut camera_mode = std::env::var("APEX_SMOKE_CAMERA")
+        .ok()
+        .and_then(|s| s.parse::<usize>().ok())
+        .unwrap_or(0)
+        .min(apex_heritage::cameras::rigs().len() - 1);
     let mut reference_cars = reference_car::Cars::new();
     let mut livery_key = (era, team);
     let mut livery_texture = Texture2D::from_file_with_format(
@@ -691,6 +397,9 @@ async fn main() {
         }
         if smoke {
             smoke_frames += 1;
+            if std::env::var("APEX_SMOKE_ALL_CAMERAS").is_ok() {
+                camera_mode = ((smoke_frames - 1) / 15) % apex_heritage::cameras::rigs().len();
+            }
             if smoke_frames > 120 {
                 assert!(sim.state().speed > 5.);
                 println!(
@@ -794,7 +503,24 @@ async fn main() {
                 sim.start_pit_practice();
             }
             if is_key_pressed(KeyCode::C) || pad.pressed.contains(&gilrs::Button::RightTrigger) {
-                camera_mode = (camera_mode + 1) % 3;
+                camera_mode = (camera_mode + 1) % apex_heritage::cameras::rigs().len();
+            }
+            for (i, key) in [
+                KeyCode::Key1,
+                KeyCode::Key2,
+                KeyCode::Key3,
+                KeyCode::Key4,
+                KeyCode::Key5,
+                KeyCode::Key6,
+                KeyCode::Key7,
+                KeyCode::Key8,
+            ]
+            .iter()
+            .enumerate()
+            {
+                if is_key_pressed(*key) {
+                    camera_mode = i;
+                }
             }
         }
         if terrain_track != ti || terrain_era != era {
@@ -843,21 +569,26 @@ async fn main() {
         let t = &circuits[ti];
         if !menu {
             let p = vec3(s.x, s.y, s.z);
-            let f = vec3(
-                s.yaw.sin() * s.pitch.cos(),
-                -s.pitch.sin(),
-                s.yaw.cos() * s.pitch.cos(),
-            );
-            set_camera(&Camera3D {
-                position: if camera_mode == 1 {
-                    p + f * 0.3 + vec3(0., 1.4, 0.)
+            let rig = &apex_heritage::cameras::rigs()[camera_mode];
+            let (eye, target) = apex_heritage::cameras::pose(camera_mode, era, get_time() as f32);
+            let rotation = Mat4::from_rotation_y(s.yaw)
+                * if rig.attached {
+                    Mat4::from_rotation_x(s.pitch) * Mat4::from_rotation_z(s.body_roll)
                 } else {
-                    p - f * if camera_mode == 2 { 16. } else { 10. }
-                        + vec3(0., if camera_mode == 2 { 9. } else { 5. }, 0.)
-                },
-                target: p + f * 12. + vec3(0., 0.7, 0.),
-                up: vec3(0., 1., 0.),
-                fovy: 58.0_f32.to_radians(),
+                    Mat4::IDENTITY
+                };
+            set_camera(&Camera3D {
+                position: p + rotation.transform_vector3(Vec3::from_array(eye)),
+                target: p + rotation.transform_vector3(Vec3::from_array(target)),
+                up: rotation.transform_vector3(vec3(0., 1., 0.)),
+                fovy: (rig.fov
+                    + if camera_mode == 0 {
+                        (s.speed.abs() / 110.).min(1.) * 10.
+                    } else {
+                        0.
+                    })
+                .to_radians(),
+                z_near: 0.035,
                 z_far: 12000.,
                 ..Default::default()
             });
@@ -1003,6 +734,7 @@ async fn main() {
                     draw_sphere(tree + vec3(0., 5., 0.), 3., None, DARKGREEN);
                 }
             }
+            reference_cars.hide_head = rig.hide_head;
             car(
                 p,
                 s.yaw,
@@ -1015,6 +747,7 @@ async fn main() {
                 &mut reference_cars,
                 team,
             );
+            reference_cars.hide_head = false;
             if s.bottoming > 0.05 && s.speed > 4. {
                 for i in 0..7 {
                     let q = i as f32 * 0.71 + get_time() as f32 * 16.;
@@ -1244,7 +977,10 @@ async fn main() {
                         (pit_lane.box_distance - s.pit_distance).max(0.)
                     )
                 } else {
-                    "O: pit practice (resets lap); C/RB: camera".into()
+                    format!(
+                        "C/RB or 1-8: {} · O: pit practice",
+                        apex_heritage::cameras::rigs()[camera_mode].label
+                    )
                 },
                 30.,
                 177.,

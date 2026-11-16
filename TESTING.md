@@ -1,65 +1,53 @@
-# Validation — 0.10.0-preview.1
+# Validation — 0.11.0-preview.1
 
-Branch: `feature/monaco-reference-visuals`, based on preserved tag `v0.9.1-preview.1`. This is an initial scenery/graphics/cleanup stage. **Zero of 47 constructor-specific scans are integrated.** Scan acquisition and retopology are not complete; see `data/CAR-SCAN-STATUS.md`.
+Branch: `feature/finished-cars-camera-rigs`, based on preserved `v0.10.0-preview.1`. This pass improves original car geometry and adds cameras. **Zero of 47 constructor-specific scans are integrated.** Earlier Monaco/Spa changes remain; their previous validation records are in preserved release source ZIPs/tags, not counted as new passes here.
 
-## Scope
+## Implemented scope
 
-- Modern Monaco buildings and barrier positions for **all eras**, explicitly requested by the user. Historical-road substitution notices remain.
-- Three recovered OSM landmarks (Casino, Hôtel de Paris, Fairmont), represented by 13 simple footprint parts preserving courtyards and protected road/pit corridors. The database has 490 Monaco building parts, not 490 newly surveyed structures.
-- Photo-estimated heights/architectural rhythm, modular balcony/cornice details and simplified Casino towers. Landmarks use common road-level roof anchors above embedded foundations; taking only the lowest downhill footprint height had buried the Casino below the hillside.
-- 1,208 additional photo-estimated temporary barrier pieces, for 1,326 total Monaco pieces. Approximate offsets (roughly ±1 m), not a calibrated photographic survey. Gaps remain wherever protected routes/buildings/existing barriers override estimates.
-- Corrected multi-material mesh batching restores actual wall/roof draw ranges across all ten circuits; raw data counts alone did not prove visibility. New mesh tests check triangle preservation and ray hits. Browser checks independently raycast recovered building walls and still audit road triangles.
-- Web filtered sky reflections, matching sky/sun direction, paint clear coat and rough rubber. Native receives the same recovered footprint/roof-height/barrier data but retains simpler shading and no web-only balcony/cornice batches.
-- Avoided an unused extra livery allocation for each 1967/2023 car creation. Repeated 47-constructor showroom switching retains GPU-resource bounds.
+- Four shared authored era meshes in both clients; legacy 1988/2004 runtime primitive builders removed. Period turbo/V10 bodywork, wings, suspension, mirrors, radiator mouths, engine covers and exhausts are approximations, not constructor-specific CAD.
+- Cockpit floor, instruments/headrest, arms/gloves/harnesses, wheel/brake/upright details, closed loft bulkheads, solid modern endplates, modern wheel covers and V10 four-groove dry tyres. Original 1967/2023 photo guidance retained; no new scan/photo evidence claimed for 1988/2004.
+- Eight rigs in `data/cameras.json`: Chase, Cockpit, High chase, TV onboard, Nose, Rear-facing, Side tracking and Orbit. Browser selector supports keyboard/touch, C/RB cycles; native also supports 1–8 direct selection and an active-view label.
+- Attached views inherit chassis pitch/roll. Cockpit mode hides only the player's isolated helmet/visor batches and makes halo batches translucent for road visibility; exterior views restore them. Opponents remain visible. Near plane reduced for close fittings.
+- Showroom top/detail presets. Existing 47 constructor liveries and explicit scan-pending notices retained.
+- 1988/2004 wheel dimensions are unchanged from the previous contact fallback; now explicitly stored alongside their shared meshes. This is not a physics re-tune.
 
-## Validation record
-
-Final release validation:
+## Current validation
 
 | Check | Result |
 |---|---|
-| Rust native-feature suite | **70 passed** (63 library + 7 native) |
-| Node, including source metadata and material-group batching | **98 passed** |
-| Python offline regeneration/courtyard/corridor checks | **15 passed** |
-| Production grounding, architecture, showroom and venue suite before last roof/lighting refinement | **10 passed** (5.8 minutes) |
-| Final production roof/architecture/low-high quality rerun | **2 passed** (1.3 minutes) after the last refinement |
-| Final local-material/tunnel/no-external-request browser check | **1 passed** (24 seconds) |
-| 47 showroom constructor selections, repeated | Included in the 10 passing tests; original geometry / scan-pending status is explicit |
-| Final WASM/static/native release builds | **Passed**; existing Vite large-chunk warning remains |
-| Final native Monaco/2023 driving smoke | **118.9 km/h**, passed serially after browser checks |
+| Rust release native-feature suite | **71 passed**: 64 library + 7 native |
+| Node suite | **100 passed** |
+| Python offline suite, including byte-deterministic car regeneration | **15 passed** |
+| Final production browser checks | **13 passed** in 9.2 minutes |
+| WASM, production static web and Linux native release builds | **Passed** |
+| Native all-era/eight-camera rendering + driving smoke | **4 passed**, serially: 1967 **75.7**, 1988 **98.4**, 2004 **119.6**, 2023 **119.3 km/h** |
 
-The final focused cases rerun two of the earlier ten browser cases and add one materials/tunnel case; this is **not thirteen distinct browser tests** or a full-suite run. Screenshots from the final actual 3D renderer were inspected for Casino, Hôtel de Paris and Fairmont areas. Grounding checks recorded no missing supports or floating sampled bottoms after adding the Monaco barriers.
+The 13 final browser cases comprise two new car/camera cases, eight existing game cases and three showroom cases. They cover all four rendered era cars, eight distinct camera poses, head/halo restoration, direct selection and C-key wraparound, mobile selector access, driving/braking/steering/recovery/pause/exit, wet quick-race AI, mobile sizing, setup persistence, recorded/procedural audio paths, and all 47 livery selections repeated with GPU resource bounds. No browser page errors occurred in the new car/camera cases. The earlier five-case pre-refinement run also passed but is not added to this total.
 
-The initial architecture screenshots revealed missing building bodies despite nonzero footprint/detail counts. This led to the multi-material batching fix and independent raycast regression, rather than treating those screenshots as completed work. A subsequent image review found low-elevation landmark roofs hidden behind terrain; roof anchors and camera targets were refined. The final focused production rerun validates those changes.
+Actual renderer screenshots for all four era cars and cockpit/onboard/rear/orbit views were inspected. Initial inspection prompted period-specific flatter wing profiles, modern aero wheel covers, and cockpit halo translucency instead of accepting a heavily blocked view. Final captures are under ignored `artifacts/`. Screenshots are not generated concept art.
 
-The prior barrier-grounding suite samples exact rendered post bottoms and concrete lower corners/edge midpoints against rendered ground, preserving the 0.9.1 fix. Independent geometric tests still exclude complete race/pit corridors for buildings, grandstands and barrier capsules. No collision-clearance check was weakened to accommodate the photo estimates.
-
-## Cleanup / provenance
-
-128 former loose validation logs and assistant work scripts were consolidated into a verified archive under `artifacts/archive/`. Original reference uploads, all source, asset notices and earlier release archives are retained. A dry-run-first cleanup script removes only ignored test/import/Python caches and, optionally, Rust debug build output; it refuses tracked content. Final cleanup removed **3,007,214,641 bytes** of generated caches (~2.80 GiB), plus a 6,174,823-byte image-search preview cache. Exact cleanup output is retained in the validation artifacts.
-
-An earlier broad version replacement had accidentally changed the optional fsevents dependency's Node engine constraint. It is restored to the package registry's `^8.16.0 || ^10.6.0 || >=11.0.0`; version updates now target only owned manifest fields.
-
-No third-party car scan/model was imported. Candidate uploader licenses and capture-method descriptions are recorded separately from verified full-scale scans. No paid purchase, authentication bypass or commercial-game mesh extraction was performed. Original reference photographs and image-search previews are not redistributed.
+Vite still reports a large-chunk warning: shared generated geometry is bundled locally. Native shading/decals remain simpler. No subjective handling/listening approval or physical controller hardware certification is claimed. The entire unrelated Monaco/grounding/venue browser suite was not rerun in this stage; all offline suites were.
 
 ## Reproduce
 
 ```sh
 . "$HOME/.cargo/env"
-python3 scripts/monaco_reference.py
-python3 scripts/build-corner-details.py
-cargo test --features native
+python3 scripts/build-car-shapes.py
+cargo test --release --features native
 npm test
 python3 -m unittest discover -s tests -p 'test_*.py'
-./scripts/build-web.sh
-python3 -m http.server 8080 --bind 0.0.0.0 --directory site
-# Separate terminal; software-rendered browser/native checks run serially:
-APEX_URL=http://127.0.0.1:8080 npx playwright test tests/monaco-visuals.spec.js tests/barrier-grounding.spec.js tests/venue.spec.js tests/showroom.spec.js
+bash scripts/build-web.sh
 cargo build --release --features native --bin apex-native
-APEX_SMOKE=1 APEX_SMOKE_TRACK=1 APEX_SMOKE_ERA=3 xvfb-run -a target/release/apex-native
-python3 scripts/clean-workspace.py --apply --debug-cache
+python3 -m http.server 8080 --bind 0.0.0.0 --directory site
+# Separate terminal; run browser and native GL checks serially:
+APEX_URL=http://127.0.0.1:8080 npx playwright test tests/cameras-and-finish.spec.js tests/game.spec.js tests/showroom.spec.js
+for era in 0 1 2 3; do
+  APEX_SMOKE=1 APEX_SMOKE_ALL_CAMERAS=1 APEX_SMOKE_TRACK=0 APEX_SMOKE_ERA=$era xvfb-run -a target/release/apex-native
+done
 ```
 
-## Remaining limits
+`APEX_SMOKE_CAMERA=0..7` can select a single native smoke view instead. Safe workspace cleanup remains dry-run-first; no original uploads, previous releases or source assets were removed during this pass. Release-profile Rust checks avoid rebuilding the previously removed large debug cache.
 
-This is not a surveyed architectural digital twin, exact race-date barrier plan, historical Monaco reconstruction or completed scan-based car collection. Detailed landmark ornament, building interiors, constructor-specific chassis geometry, source camera calibration, subjective handling approval and physical controller hardware remain unverified. The full unrelated browser suite was not rerun for this stage. Prior release results remain available in their preserved source ZIPs/tags; they are not claimed as new passes here.
+## Accuracy / unfinished work
+
+These are four shared-era reconstructions across 47 livery selections, **not 47 distinct chassis or licensed scans**. Source/rights and candidate-acquisition status remain in `SOURCES.md`, `data/PHOTO-REFERENCE-NOTICE.md` and `data/CAR-SCAN-STATUS.md`. Historic circuit routing, survey-correct scenery, exact constructor geometry and scan retopology remain unfinished. Modern Monaco and the photographed Eau Rouge/Raidillon complex remain intentionally shared by all eras per the user's choices.

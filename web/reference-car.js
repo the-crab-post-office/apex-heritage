@@ -25,6 +25,10 @@ export function referenceCar(era, team) {
     exhaust: mat("#a7947c", 0.4, 0.75),
     helmet: mat("#ece9da", 0.3, 0.1),
     accent: mat(classic ? team.secondary : team.accent, 0.4, 0.1),
+    screen: mat("#55c7ac", 0.35, 0),
+    belt: mat("#b52b21", 0.7, 0),
+    brake: mat("#74716c", 0.55, 0.65),
+    groove: mat("#070809", 0.95, 0),
     compound: mat(classic ? "#202224" : "#c62a36", 0.75, 0),
   };
   for (const m of Object.values(materials)) m.side = THREE.DoubleSide;
@@ -41,6 +45,8 @@ export function referenceCar(era, team) {
       car.add(wheel);
       wheels.push({ mesh: wheel, front });
     }
+  const haloMaterial = materials.carbon.clone();
+  haloMaterial.transparent = true;
   for (const batch of shapes.models[String(era)]) {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
@@ -57,8 +63,13 @@ export function referenceCar(era, team) {
     geometry.setIndex(batch.indices);
     geometry.computeVertexNormals();
     const build = () => {
-      const mesh = new THREE.Mesh(geometry, materials[batch.material]);
+      const mesh = new THREE.Mesh(
+        geometry,
+        batch.cockpit_ghost ? haloMaterial : materials[batch.material],
+      );
       mesh.castShadow = mesh.receiveShadow = true;
+      mesh.userData.cameraHideHead = Boolean(batch.head);
+      mesh.userData.cameraGhost = Boolean(batch.cockpit_ghost);
       return mesh;
     };
     if (batch.wheel) {
@@ -67,7 +78,7 @@ export function referenceCar(era, team) {
     } else car.add(build());
   }
   car.userData.wheels = wheels;
-  car.userData.materials = Object.values(materials);
+  car.userData.materials = [...Object.values(materials), haloMaterial];
   car.userData.liveryReady = l.ready;
   car.userData.livery = {
     id: team.id,
@@ -85,7 +96,7 @@ export function referenceCar(era, team) {
     diffuser: !classic,
     referenceProfile: classic
       ? "1967-open-radiator-cigar"
-      : "2023-ground-effect",
+      : ["", "1988-turbo", "2004-v10", "2023-ground-effect"][era],
     components,
     paintedVertices: shapes.models[String(era)]
       .filter((b) => ["body", "pods", "wing"].includes(b.material))

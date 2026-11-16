@@ -2363,15 +2363,162 @@ kbd {
 }
 
 /* Versioned with HTML/JS/WASM; startup refuses mixed cached assets. */
-:root { --apex-build: "0.10.0-preview.1"; }
-.hud-build { position: fixed; top: 65px; right: 28px; z-index: 10; font-size: 10px; color: #e2e8d5; letter-spacing: 1px; pointer-events: none; }
-#build-error { position: fixed; z-index: 1000; bottom: 24px; left: 5%; width: 90%; padding: 20px; background: #301d16; border: 1px solid #fa946f; color: #fff2d7; font: 15px/1.6 sans-serif; }
+:root {
+  --apex-build: "0.11.0-preview.1";
+}
+.hud-build {
+  position: fixed;
+  top: 65px;
+  right: 28px;
+  z-index: 10;
+  font-size: 10px;
+  color: #e2e8d5;
+  letter-spacing: 1px;
+  pointer-events: none;
+}
+#build-error {
+  position: fixed;
+  z-index: 1000;
+  bottom: 24px;
+  left: 5%;
+  width: 90%;
+  padding: 20px;
+  background: #301d16;
+  border: 1px solid #fa946f;
+  color: #fff2d7;
+  font: 15px/1.6 sans-serif;
+}
 
-.controller-status{position:fixed;right:28px;top:84px;z-index:10;color:#d6dfc3;font:9px/1.5 sans-serif;letter-spacing:1px;pointer-events:none;}
+.controller-status {
+  position: fixed;
+  right: 28px;
+  top: 84px;
+  z-index: 10;
+  color: #d6dfc3;
+  font: 9px/1.5 sans-serif;
+  letter-spacing: 1px;
+  pointer-events: none;
+}
 
-.pit-panel{position:fixed;right:28px;top:116px;width:255px;padding:14px;background:#182b24e8;border-left:2px solid #edb279;color:#e6ebd7;font:11px/1.6 sans-serif;z-index:12}.pit-panel small{display:block;color:#aebda5;margin-top:6px;font-size:9px}.pit-actions{display:flex;flex-direction:column;gap:5px;margin-top:10px}.pit-actions button{background:#263e32;color:#efe9cd;border:1px solid #829a70;padding:8px;font:10px sans-serif;cursor:pointer}.pit-actions button[aria-pressed=true]{background:#62723e}@media(max-width:700px){.pit-panel{right:12px;top:105px;width:185px;padding:8px;font-size:9px}.pit-panel small{font-size:8px}.controller-status{top:78px;right:12px;font-size:8px}.pit-actions button{font-size:8px;padding:6px}}
+.pit-panel {
+  position: fixed;
+  right: 28px;
+  top: 116px;
+  width: 255px;
+  padding: 14px;
+  background: #182b24e8;
+  border-left: 2px solid #edb279;
+  color: #e6ebd7;
+  font: 11px/1.6 sans-serif;
+  z-index: 12;
+}
+.pit-panel small {
+  display: block;
+  color: #aebda5;
+  margin-top: 6px;
+  font-size: 9px;
+}
+.pit-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+}
+.pit-actions button {
+  background: #263e32;
+  color: #efe9cd;
+  border: 1px solid #829a70;
+  padding: 8px;
+  font: 10px sans-serif;
+  cursor: pointer;
+}
+.pit-actions button[aria-pressed="true"] {
+  background: #62723e;
+}
+@media (max-width: 700px) {
+  .pit-panel {
+    right: 12px;
+    top: 105px;
+    width: 185px;
+    padding: 8px;
+    font-size: 9px;
+  }
+  .pit-panel small {
+    font-size: 8px;
+  }
+  .controller-status {
+    top: 78px;
+    right: 12px;
+    font-size: 8px;
+  }
+  .pit-actions button {
+    font-size: 8px;
+    padding: 6px;
+  }
+}
 
-.layout-note {font:10px/1.5 var(--font-mono,monospace);letter-spacing:.06em;color:#d7ad79;max-width:450px;margin:10px 0;}
-.hud-layout {position:absolute;left:30px;top:63px;max-width:60%;font:9px/1.4 monospace;color:#d5c7a5;text-transform:uppercase;pointer-events:none;}
+.layout-note {
+  font: 10px/1.5 var(--font-mono, monospace);
+  letter-spacing: 0.06em;
+  color: #d7ad79;
+  max-width: 450px;
+  margin: 10px 0;
+}
+.hud-layout {
+  position: absolute;
+  left: 30px;
+  top: 63px;
+  max-width: 60%;
+  font: 9px/1.4 monospace;
+  color: #d5c7a5;
+  text-transform: uppercase;
+  pointer-events: none;
+}
 
-.hud-layout{background:rgba(12,20,14,.62);border-left:1px solid #ccaf76;padding:3px 6px;max-width:70%;color:#e9d5ae;}
+.hud-layout {
+  background: rgba(12, 20, 14, 0.62);
+  border-left: 1px solid #ccaf76;
+  padding: 3px 6px;
+  max-width: 70%;
+  color: #e9d5ae;
+}
+
+/* Direct camera control remains available on touch screens. */
+.camera-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#camera-picker {
+  color: #e0ead1;
+  background: #14231ee8;
+  border: 1px solid #96ab7355;
+  border-radius: 4px;
+  padding: 7px;
+  max-width: 145px;
+  font: 11px monospace;
+  cursor: pointer;
+}
+#camera-picker:focus-visible {
+  outline: 2px solid #d4e7ac;
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .race-controls {
+    display: flex;
+    top: 76px;
+    right: 12px;
+    left: auto;
+    bottom: auto;
+    z-index: 12;
+  }
+  .race-controls > span,
+  .race-controls > button,
+  .race-controls kbd {
+    display: none;
+  }
+  #camera-picker {
+    min-height: 38px;
+    max-width: 138px;
+  }
+}

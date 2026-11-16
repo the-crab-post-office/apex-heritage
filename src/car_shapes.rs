@@ -5,6 +5,10 @@ use std::{collections::HashMap, sync::OnceLock};
 pub struct Batch {
     pub material: String,
     pub wheel: Option<String>,
+    #[serde(default)]
+    pub head: bool,
+    #[serde(default)]
+    pub cockpit_ghost: bool,
     pub positions: Vec<[f32; 3]>,
     pub indices: Vec<u16>,
     pub uvs: Vec<[f32; 2]>,
@@ -47,7 +51,7 @@ mod tests {
     use super::*;
     #[test]
     fn reference_meshes_are_finite_indexed_and_have_the_distinguishing_components() {
-        for era in [0, 3] {
+        for era in 0..4 {
             let m = model(era).unwrap();
             let names = m
                 .iter()
@@ -57,7 +61,11 @@ mod tests {
             assert!(names.iter().any(|n| n.contains(if era == 0 {
                 "radiator cavity"
             } else {
-                "halo centre"
+                match era {
+                    1 => "low turbo",
+                    2 => "high-nose",
+                    _ => "halo centre",
+                }
             })));
             for b in m {
                 assert_eq!(b.positions.len(), b.uvs.len());

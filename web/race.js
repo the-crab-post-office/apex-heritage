@@ -1,3 +1,4 @@
+import { CAMERAS } from "./cameras.js";
 import * as Core from "./wasm/apex.js";
 import { assertCompatibleBuild } from "./build-check.js";
 import { Controller } from "./controller.js";
@@ -131,7 +132,20 @@ export class Race {
         ai.mesh.rotation.y = p.yaw;
         this.ai.push(ai);
       }
+    this.cameraPicker = $("#camera-picker");
+    this.cameraPicker.replaceChildren(
+      ...CAMERAS.map((rig, i) => {
+        const option = document.createElement("option");
+        option.value = String(i);
+        option.textContent = rig.label;
+        return option;
+      }),
+    );
+    this.cameraPicker.value = String(this.world.cameraMode);
+    this.onCameraChange = () => this.setCamera(Number(this.cameraPicker.value));
+    this.cameraPicker.addEventListener("change", this.onCameraChange);
     this.onKeyDown = (e) => {
+      if (e.target?.closest?.("select, input, textarea, button")) return;
       if (
         [
           "ArrowUp",
@@ -495,14 +509,16 @@ export class Race {
         : "Pit limiter OFF",
     );
   }
-  cycleCamera() {
-    this.world.cameraMode = (this.world.cameraMode + 1) % 3;
+  setCamera(mode) {
+    if (!Number.isInteger(mode) || !CAMERAS[mode]) return;
+    this.world.cameraMode = mode;
+    this.world.cameraTime = 0;
     this.world.cameraInitialized = false;
-    this.callbacks.toast(
-      ["Chase camera", "Cockpit camera", "High chase camera"][
-        this.world.cameraMode
-      ],
-    );
+    this.cameraPicker.value = String(mode);
+    this.callbacks.toast(`${CAMERAS[mode].label} camera`);
+  }
+  cycleCamera() {
+    this.setCamera((this.world.cameraMode + 1) % CAMERAS.length);
   }
   recover() {
     this.sim.recover();
@@ -544,6 +560,7 @@ export class Race {
     this.running = false;
     cancelAnimationFrame(this.animation);
     this.audio.dispose();
+    this.cameraPicker.removeEventListener("change", this.onCameraChange);
     this.world.dispose();
     this.sim.free();
     for (const id of ["#request-pit", "#pit-limiter", "#pit-practice"])
