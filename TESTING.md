@@ -21,6 +21,13 @@ Terrain/shoulder grass is geometrically excluded from shared physical apron/kerb
 
 This is **not** a complete reconstruction of ten tracks/fifty historical layouts or 57 constructor chassis. Five recent track presets receive bounded corrections; five are reviewed/retained on insufficient evidence. Only representative cars from each era are compared. Source photos differ in date/viewpoint and are not camera-registered. Period dimensions, sponsor text and small aero remain authored approximations. **0/57 verified scans**. No calibrated telemetry, physical-controller or subjective audio validation is claimed. Native remains visually simpler and does not animate steering/spin; the browser wobble fix is not described as a new native animation feature.
 
+## Final regression and publication
+
+- **26 unique browser checks passed** on the final production build: 7 targeted wheel/contact/offline-report/mobile cases plus the 19-test extended game/grid/build-recovery/car-reference/showroom run. The 114 showroom changes (two complete 57-entry passes) loaded every atlas, disposed previous resources and kept existing geometry/texture ceilings. Extended run: 15.9 minutes using software rendering, including 5.6-minute showroom suite; this is not a device performance benchmark.
+- Source/tag: `280b203`, **`v0.14.0-preview.1`**. Feature branch and main pushed. Pages commit **`093cef7ffda011e5550fbce9d1ec8c340419de6b`** publishes that coherent version.
+- All four release downloads (source/web/Linux ZIPs + SHA256SUMS) uploaded; each remote SHA256 digest and byte length matches. Archive integrity, HTML/notice inclusion, no caches/history and zero credential bytes verified before upload. `RELEASE-ARCHIVES.json` now indexes **48 remotely verified assets**. Large ZIP copies stay outside the size-limited workspace.
+- The public photo and 2021 comparison pages and all three new audit manifests/notices match local SHA256 bytes. **Live public browser check passed**: real Rust/WASM acceleration, 2021 selection, forty-frame independent wheel-axis/support test, both reports (20 + 30 decoded images), team/track/car filters and 390px audit layout; **zero page errors or HTTP error responses**. Evidence: `artifacts/014-public.json` and `014-public-{game,comparison,audit}.png`. Initial public screenshot/navigation attempts exceeded 30-second software-renderer bounds; the successful rerun uses an 800 × 600 view, a longer screenshot/navigation bound, a smaller wheel-regression render target and a fresh browser after releasing the game WebGL context. No game assertion was removed.
+
 ## Reproduce
 
 ```sh
