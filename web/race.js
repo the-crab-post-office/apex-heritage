@@ -17,7 +17,7 @@ export class Race {
       coreVersion = Core.build_version?.();
       coreHash = Core.track_data_hash?.();
     } catch {}
-    const response = await fetch(`/version.json?check=${Date.now()}`, {
+    const response = await fetch(`./version.json?check=${Date.now()}`, {
       cache: "no-store",
     });
     if (!response.ok)

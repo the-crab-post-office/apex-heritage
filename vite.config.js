@@ -113,6 +113,7 @@ function licenseAssets() {
   };
 }
 export default defineConfig({
+  base: "./",
   preview: { host: "0.0.0.0", allowedHosts: true },
   root: "web",
   plugins: [licenseAssets(), buildIdentity()],

@@ -20,8 +20,8 @@ def main():
     if manifest['version'] != version: raise SystemExit('Staged build version mismatch')
     html = (STAGE/'index.html').read_text()
     if f'content="{version}"' not in html or '__APEX_VERSION__' in html: raise SystemExit('Unstamped HTML')
-    for ref in re.findall(r'(?:src|href)="(/assets/[^"]+)"', html):
-        if not (STAGE/ref.lstrip('/')).is_file(): raise SystemExit('Missing entry asset: '+ref)
+    for ref in re.findall(r'(?:src|href)="((?:/|\./)assets/[^"]+)"', html):
+        if not (STAGE/ref.removeprefix('./').lstrip('/')).is_file(): raise SystemExit('Missing entry asset: '+ref)
     css = '\n'.join(p.read_text() for p in (STAGE/'assets').glob('*.css'))
     if version not in css or '__APEX_VERSION__' in css: raise SystemExit('Unstamped CSS')
     wasms = list((STAGE/'assets').glob('*.wasm'))

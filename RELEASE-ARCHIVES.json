@@ -1,0 +1,282 @@
+[
+  {
+    "local_path": "releases/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.6.0/APEX-Heritage-native-linux.zip",
+    "sha256": "271069d0604fdb7ab14e9b6710e82b5880ac01c6d5d5c759b5d6845e05d3afcd",
+    "size": 5110455,
+    "tag": "v0.6.0"
+  },
+  {
+    "local_path": "releases/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.6.0/APEX-Heritage-source.zip",
+    "sha256": "c08d2a08f1201e458282a458f66658aa537ccf8392c1a8eed413ca8222416cc9",
+    "size": 6545361,
+    "tag": "v0.6.0"
+  },
+  {
+    "local_path": "releases/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.6.0/APEX-Heritage-web.zip",
+    "sha256": "c51334c5acc21db40d21d972774bc6a0d7dc76010ce809e66e14d794a7d7ed84",
+    "size": 6031277,
+    "tag": "v0.6.0"
+  },
+  {
+    "local_path": "releases/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.6.0/SHA256SUMS.txt",
+    "sha256": "a8c281997563b97a1bf5126c4559a3fe20b977c73296a056f78f8c1adc31ff2b",
+    "size": 276,
+    "tag": "v0.6.0"
+  },
+  {
+    "local_path": "releases/0.10.0-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.10.0-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "02619f7bb172b557a26eeb90e4cecd6f807f79d9fa940818023c8e1ec5aa2031",
+    "size": 8237964,
+    "tag": "v0.10.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.10.0-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.10.0-preview.1/APEX-Heritage-source.zip",
+    "sha256": "373192ffdedfb4f3b4c3e8698c31d766ed15be14ff934989aa21115d8e8bf483",
+    "size": 9104307,
+    "tag": "v0.10.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.10.0-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.10.0-preview.1/APEX-Heritage-web.zip",
+    "sha256": "eed94d8f0d536161e74def3fc3ec93c42d533255ce7282992db942939617e4d4",
+    "size": 8684624,
+    "tag": "v0.10.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.10.0-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.10.0-preview.1/SHA256SUMS.txt",
+    "sha256": "1dd4276e20a65e29e4257443a7da33a21c86b49bae98566e872a73112254e024",
+    "size": 276,
+    "tag": "v0.10.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.0-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.0-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "ab21c2bb1ec3156c8528e076b68cef4bd3c044f00f6d01eff5b53ce6c8486d0c",
+    "size": 9306384,
+    "tag": "v0.11.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.0-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.0-preview.1/APEX-Heritage-source.zip",
+    "sha256": "5dd7092407bf08d21c24d1b6d5aeb83ddb1ba690cb0d1275059983cd2b5a76d8",
+    "size": 9639522,
+    "tag": "v0.11.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.0-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.0-preview.1/APEX-Heritage-web.zip",
+    "sha256": "1188648006709ac6666cdba61718e09e32ca15cf5cde54a50c55f2931aead5d2",
+    "size": 9212154,
+    "tag": "v0.11.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.0-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.0-preview.1/SHA256SUMS.txt",
+    "sha256": "bf36c224975a1cc2181d5bd0d889ae1d710912e0f8a3fc3ae683ae15c1b2f781",
+    "size": 276,
+    "tag": "v0.11.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.1-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.1-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "2c5639f2a00f971a11ae8ae367074fc20003cf663d881daf4ee88456e70d218f",
+    "size": 9343686,
+    "tag": "v0.11.1-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.1-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.1-preview.1/APEX-Heritage-source.zip",
+    "sha256": "299ad4e4b46867991e6c4d0250ec80aeaab44337148d3ed8b6ae943973f2e97b",
+    "size": 9651732,
+    "tag": "v0.11.1-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.1-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.1-preview.1/APEX-Heritage-web.zip",
+    "sha256": "94ff0ecc9586a59c19cbbeaf0cd4a79ba0033494fd20616c966d459a67883a72",
+    "size": 9216201,
+    "tag": "v0.11.1-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.1-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.1-preview.1/SHA256SUMS.txt",
+    "sha256": "e6f65ca571c4dfb4d8932393550c1ebeb1bd00bfe18da4c53cabd285a4c14446",
+    "size": 276,
+    "tag": "v0.11.1-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.2-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.2-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "bd11a20832ad389577631a408d57e212cd48e800540138c992ac90bf583e9059",
+    "size": 9344795,
+    "tag": "v0.11.2-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.2-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.2-preview.1/APEX-Heritage-source.zip",
+    "sha256": "4f2bba29be47e1dc35cf86e8428ebd1441da5d98ccaacc1161e7540f953fb6c1",
+    "size": 9660964,
+    "tag": "v0.11.2-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.2-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.2-preview.1/APEX-Heritage-web.zip",
+    "sha256": "dc01451ef101b3a7bcd08338c5837e5a749ebe292ac8b3a51a632ea2a12ecadf",
+    "size": 9218996,
+    "tag": "v0.11.2-preview.1"
+  },
+  {
+    "local_path": "releases/0.11.2-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.11.2-preview.1/SHA256SUMS.txt",
+    "sha256": "c232012298961b1816c3c944e1075e10d09e493c63cf153ba3b3a0bec3c23776",
+    "size": 276,
+    "tag": "v0.11.2-preview.1"
+  },
+  {
+    "local_path": "releases/0.12.0-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.12.0-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "dcd0886f2ba2d8c2978b1b01eec936b6d9ebcdbb6c555ed5d9d467d606bfbe79",
+    "size": 9454228,
+    "tag": "v0.12.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.12.0-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.12.0-preview.1/APEX-Heritage-source.zip",
+    "sha256": "5ae8f0180493431227bde6bf7368b3bd660a0650846c2a9505188ef516a28b5d",
+    "size": 9749215,
+    "tag": "v0.12.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.12.0-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.12.0-preview.1/APEX-Heritage-web.zip",
+    "sha256": "158af20c8f440f9e439b39574364119eea4c9fe4725ad2ed7ab7fbdc49b531d9",
+    "size": 9313819,
+    "tag": "v0.12.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.12.0-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.12.0-preview.1/SHA256SUMS.txt",
+    "sha256": "54a2285a736750ecb723a038096859727fa801fd5f716307569cf2dbe2a1279f",
+    "size": 276,
+    "tag": "v0.12.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.7.0-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.7.0-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "0168099f8a1738bf8197f487e580e9de75e57b3238b4a08f9c4779a3379e80df",
+    "size": 6106126,
+    "tag": "v0.7.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.7.0-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.7.0-preview.1/APEX-Heritage-source.zip",
+    "sha256": "828fcf3420f12b60c9b283ba2ad6f098c0bf62310d9ea17e49d1b608569b17fc",
+    "size": 7545464,
+    "tag": "v0.7.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.7.0-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.7.0-preview.1/APEX-Heritage-web.zip",
+    "sha256": "01a489202f01996a13a1ba2778e2623a9161d9f1918e0b2424530acda2992d74",
+    "size": 7014344,
+    "tag": "v0.7.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.7.0-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.7.0-preview.1/SHA256SUMS.txt",
+    "sha256": "2bc39de547f86bc102a82914663cc994bf62fcb54a4c6f2ef65619d4f583636c",
+    "size": 276,
+    "tag": "v0.7.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.8.0-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.8.0-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "38adf8f5f3d39503b930f6a1c6fa2bdddd884e61782609d8878d7d8a617d2b8c",
+    "size": 7515720,
+    "tag": "v0.8.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.8.0-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.8.0-preview.1/APEX-Heritage-source.zip",
+    "sha256": "595bcdc79b0a1dd3ab5657927fa7780e76dc02a30ee7021628919e0ffc270e55",
+    "size": 8666105,
+    "tag": "v0.8.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.8.0-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.8.0-preview.1/APEX-Heritage-web.zip",
+    "sha256": "28005701dcef878ebdd1056e4c1dbfb9af9285d016929ff673f20a293580c168",
+    "size": 8271750,
+    "tag": "v0.8.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.8.0-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.8.0-preview.1/SHA256SUMS.txt",
+    "sha256": "11684932c8a7aedb92d28a611f38fe38c8bd4ebcbc16b16374086680154f1b15",
+    "size": 276,
+    "tag": "v0.8.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.9.0-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.9.0-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "65c4baaaaf565f913d4fe4ba28d7112b3c80fa6e9199e037d3c448f941855150",
+    "size": 8160774,
+    "tag": "v0.9.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.9.0-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.9.0-preview.1/APEX-Heritage-source.zip",
+    "sha256": "bd9f532208463be39d2deb63ce1d07ef27c9615fdcfe959865120621fdf62923",
+    "size": 9019879,
+    "tag": "v0.9.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.9.0-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.9.0-preview.1/APEX-Heritage-web.zip",
+    "sha256": "db22e4275208aecd89a47126acea1dbd3e2f80e55e5093dc8a748d3d3f139526",
+    "size": 8610661,
+    "tag": "v0.9.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.9.0-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.9.0-preview.1/SHA256SUMS.txt",
+    "sha256": "b305f5675436321299a054a008993d765d8ba85938f199fd1d5d5042726d6082",
+    "size": 276,
+    "tag": "v0.9.0-preview.1"
+  },
+  {
+    "local_path": "releases/0.9.1-preview.1/APEX-Heritage-native-linux.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.9.1-preview.1/APEX-Heritage-native-linux.zip",
+    "sha256": "55ae5fc30713473c38e35176efd1b49435a50671dac2978e4b3024b00f18489a",
+    "size": 8169758,
+    "tag": "v0.9.1-preview.1"
+  },
+  {
+    "local_path": "releases/0.9.1-preview.1/APEX-Heritage-source.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.9.1-preview.1/APEX-Heritage-source.zip",
+    "sha256": "069da5b7eaad61eaa2667953e8f62df36869202e1501b49031adde6b2b996bd8",
+    "size": 9029422,
+    "tag": "v0.9.1-preview.1"
+  },
+  {
+    "local_path": "releases/0.9.1-preview.1/APEX-Heritage-web.zip",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.9.1-preview.1/APEX-Heritage-web.zip",
+    "sha256": "f1fd7ed0b22aea4cbfb83a1ee3a9cfb83241c61f8934b62737eeb99181d22624",
+    "size": 8613804,
+    "tag": "v0.9.1-preview.1"
+  },
+  {
+    "local_path": "releases/0.9.1-preview.1/SHA256SUMS.txt",
+    "url": "https://github.com/the-crab-post-office/apex-heritage/releases/download/v0.9.1-preview.1/SHA256SUMS.txt",
+    "sha256": "cb8153714a698629052a5a5118cc6b69f1c5d834717571afb225566282779672",
+    "size": 276,
+    "tag": "v0.9.1-preview.1"
+  }
+]

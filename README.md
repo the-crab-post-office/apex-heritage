@@ -4,6 +4,15 @@
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
 
+## Play / download / deploy
+
+- **Play:** https://the-crab-post-office.github.io/apex-heritage/
+- **Source:** https://github.com/the-crab-post-office/apex-heritage
+- **Preserved release downloads:** https://github.com/the-crab-post-office/apex-heritage/releases — source, browser and Linux ZIPs with SHA256 checksums. `RELEASE-ARCHIVES.json` indexes the 40 migrated assets (0.6–0.12).
+- GitHub Pages serves the built **`gh-pages` branch**, root folder. Source stays on `main`; release tags retain their original contents. The main branch includes project-subpath hosting fixes on top of the 0.12 gameplay release.
+- Rebuild with `npm ci && bash scripts/build-web.sh` (Rust/WASM tooling required); publish using `python3 scripts/deploy-pages.py` with your own Git credentials. No token is stored in source, deployed assets or Git remotes. GitHub Pages ignores `_headers`; the explicit no-store manifest fetch and bounded build compatibility checks are retained, but CDN propagation can briefly delay a new deployment.
+- Workspace budget: `python3 scripts/workspace-budget.py`. Rebuildable toolchains/caches can live outside `/home/user`; they are ephemeral and may need reinstalling after a sandbox restart. The project, active preview and current release downloads remain local.
+
 ## 0.12 Monaco Swimming Pool reference update
 
 - Both Piscine chicanes now have broad, short alternating red/white kerbs and close three-rail Armco with debris fencing. These use shared Rust-rendered/physical geometry, including native parity.

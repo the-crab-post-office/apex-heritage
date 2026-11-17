@@ -1,3 +1,16 @@
+# GitHub Pages / workspace migration checks
+
+Deployment-only changes on top of 0.12.0-preview.1: relative asset base, relative `version.json` and license links, preserved strict core gate, static `gh-pages` publisher and workspace-budget audit.
+
+- **110 Node tests passed**, including the new domain-root/project-Pages URL regression.
+- Production Vite build passed; actual WASM identity verified unchanged (0.12.0-preview.1 / d934b07c).
+- Local GitHub-style `/apex-heritage/` browser test loaded Monaco, displayed all new Piscine assets and accelerated through real Rust WASM to >2 m/s; **no page errors or failed asset responses**. The manifest request stayed at `/apex-heritage/version.json`.
+- All **40 migrated release assets** checked against GitHub's reported SHA256 digests and byte lengths before local archive cleanup.
+- Entire local Git blob history scanned for the supplied credential before upload: **0 matches**. Original uploads and credential file are not source or deployment assets.
+- Existing gameplay/geometry tests below remain applicable; this pass does not change Rust, geometry or native executable.
+
+---
+
 # Validation — 0.12.0-preview.1
 
 Branch: `feature/monaco-swimming-pool-reference`, based on preserved `v0.11.2-preview.1`. Modern Monaco Swimming Pool reference refinement, shared across all four eras. Road centreline/elevations and car assets are unchanged.

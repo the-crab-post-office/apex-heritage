@@ -57,3 +57,14 @@ Release-cache cleanup removes only Rust intermediates (`deps`, `build`, `increme
 - `data/monaco-piscine.json`: shared non-driving scenic facets, boxes and terrain cutouts; `src/piscine.rs` and `web/graphics.js` consume it.
 - `tests/test_piscine_reference.py`, `tests/piscine-visuals.spec.js`, Rust `piscine::tests`: mapped water/corridor/all-era/visual regressions.
 - `artifacts/piscine-{overhead,entry,exit}.png`: actual game captures, not AI-generated imagery.
+
+
+## GitHub migration / workspace budget
+
+Repository: https://github.com/the-crab-post-office/apex-heritage . Source/history/feature branches and release tags are preserved there. `gh-pages` contains only the compiled static game; `scripts/deploy-pages.py` publishes a verified build without copying uploads or credentials. Vite assets, runtime build-manifest requests and credit/license links are relative so root and `/apex-heritage/` hosting both work.
+
+All 40 previous archive/checksum files from versions 0.6–0.12 were uploaded as GitHub release assets and verified against GitHub's SHA256 digests and sizes before older local copies were moved. `RELEASE-ARCHIVES.json` is the persistent download/digest index. Current 0.12 ZIPs remain under `releases/0.12.0-preview.1/`; older redundant local copies are outside `/home/user` and may disappear, but the GitHub copies persist. No original reference uploads were published.
+
+Rebuildable Rust toolchains/registries, Node dependencies, browser caches, npm caches and Rust compiler output were moved to `/var/tmp/apex-workspace-cache/` with symlinks for the current session. Those files are **not persisted** with the workspace. After a sandbox restart, reinstall Rust/wasm-bindgen, `npm ci` and Playwright browsers as needed. Inactive generated previews and old diagnostic captures were moved there too; current Piscine screenshots and validation evidence remain in `artifacts/`.
+
+`python3 scripts/workspace-budget.py` audits all regular files and symlinks in `/home/user`, including Git history/uploads, without following external cache links. Limits are conservatively checked as **128,000,000 bytes and 10,000 entries**. Do not follow external cache symlinks when calculating persisted workspace size.

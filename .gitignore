@@ -14,3 +14,10 @@
 __pycache__/
 
 /build/
+
+# Credentials are never source or public deployment assets.
+*.token
+*.token.txt
+*.github.token.txt
+.env
+.env.local
