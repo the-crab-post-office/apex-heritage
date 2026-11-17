@@ -15,7 +15,7 @@
       "description": "Le circuit de Spa-Francorchamps 4 Heures de Spa-Francorchamps 2022",
       "changes": "Resized to fit 960 × 640 and JPEG-recompressed; no retouching. Reference only, never a game texture.",
       "observation": "La Source/pit straight context and red/yellow Spa kerbs; the supplied image-8 is a game view, not a surveyed photograph.",
-      "implemented": "Broader paved La Source outer apron; separate short apex/exit kerbs and recent red/yellow exits.",
+      "implemented": "La Source continuous paved escape and paved pit island; separate Les Combes T5/T6 and Malmedy T7 kerbs, green/gravel margins; short right-left Bus Stop apices, green-edged finish straight and grid markings. Follow-up placements also use user-supplied views, which are not redistributed.",
       "limits": "Road centreline and legal white-line width unchanged; exact pit-island geometry and lettering remain approximate."
     },
     {
@@ -32,7 +32,7 @@
       "description": "Circuit de Monaco - Virage de la Piscine",
       "changes": "Resized to fit 960 × 640 and JPEG-recompressed; no retouching. Reference only, never a game texture.",
       "observation": "Piscine is constrained harbour-side asphalt with Armco and close quay facilities.",
-      "implemented": "Reviewed and retained the previous mapped pool/quay/stand reconstruction.",
+      "implemented": "Existing mapped Piscine/harbour treatment retained. Separate user tunnel reference guides a connected over-road Fairmont hotel mass and portal; overhead geometry keeps the existing 4.65 m tunnel ceiling clear and is shared across all eras.",
       "limits": "2022 off-session photo does not establish race-day barrier placement; no new barrier offset claimed."
     },
     {

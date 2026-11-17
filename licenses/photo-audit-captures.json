@@ -1,24 +1,27 @@
 {
-  "version": "0.14.0-preview.1",
+  "version": "0.15.0-preview.1",
   "inputs": {
     "data/car-shapes.json": "1bd46d6324b6bb55ad58cbfb31b9d7a0c2a722536e08a9cc90eae1aeda25e81b",
     "data/car-layouts.json": "f0436dd41cd56dc6c39711e2cd39d9c2b7a7d2c82dc16aef6ccf1e6595e61455",
-    "data/corner-details.json": "533f63550d1a0dbc41a090ba104d1b46420e7b0eee0f0c108d1458ec4720e6c4",
+    "data/corner-details.json": "5284823ddff7f15e6c817bf7e35d73bfb90f49bc8f56aa6529e7eceb95b38e7b",
     "data/roster.json": "53db7010f62b83b67cbcbffd67fe6288a3861a2af783c2d3e281f34850157f90",
     "data/car-variants.json": "f75645be8cc6cd17d14f59a209f74a9dfe87da76ae9651d6e5f64fc394f07a0f",
     "web/assets/liveries/manifest.json": "f48689f898d8e8ead66bbb73f3d05b87c077ad9b87cb6fe1decde1d186573f61",
     "web/wheel-motion.js": "925d8daa761bff4c6f037c4a06a43178d3a996913798f23ba60a1c492721e3ba",
-    "web/graphics.js": "e942f51236bcb13d6b910079a39eafa32c9389c8621917f3879acda487cee941",
-    "web/corners.js": "8682c5eef437ebc03a7d567ff76a640c63708903fed74645de357da6450bd60d",
+    "web/graphics.js": "bcbf26d8fc296d495a8d06cc3c707a68db3a3a595af4d3ff66a36332f9a5c9f5",
+    "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
     "web/road-surface.js": "7647da069df80a15f43f50356334dd1be050a2e3268d2607e80135e446381878",
-    "src/corner.rs": "c5f60ea6216e6f0f94312cea5c1421e9719f1883b0bf78982205196cbd858c4b"
+    "src/corner.rs": "f99b53bb2770baf1736b1028c0ec16a6789159cd67592b599b9417f93e980468",
+    "data/reference-scenes.json": "4d85fea474dd62712793751dca24678e031735420c04834ca1642825928093a4",
+    "web/reference-scene.js": "b20f6425c18a1a00efda17618fd8ec6af14ba419a476a9e6da07d1b87fb4fad0",
+    "web/venue.js": "540094f9a0cf12a8eec0a5ce0cd5db47c4073c86916a66d7b872c4c284b26aa2"
   },
   "captures": [
     {
       "id": "spa",
       "category": "track",
-      "sha256": "f2b5c5763d68be622bee5da502bcd5bb2a6a9696f6dadbabfe68d2ea2a395d7b",
-      "bytes": 79074,
+      "sha256": "df8c7fa45e8737965b856cb415bcbc55288d9abc07d226afef7e7703645d6992",
+      "bytes": 78629,
       "camera": {
         "station": 31,
         "position": [
@@ -43,8 +46,8 @@
     {
       "id": "monaco",
       "category": "track",
-      "sha256": "e36056120bc9db27b323376d95d49ca50bb370c39e3fd0d30f333ebcdae1a4c3",
-      "bytes": 114930,
+      "sha256": "e6b9bda643393a81d2d0cfcc098976a36dc5197464a9e22c8500b37d1ad752ce",
+      "bytes": 115938,
       "camera": {
         "station": 530,
         "position": [
@@ -69,8 +72,8 @@
     {
       "id": "monza",
       "category": "track",
-      "sha256": "7189f720ed4fd8556aec5d06c83f286131f276cb9870e12501063b07632dc578",
-      "bytes": 84526,
+      "sha256": "57e6d152624f2793354ec0c012ca733d5615e014e6c24762ea52a19cf2f52d1a",
+      "bytes": 90154,
       "camera": {
         "station": 98,
         "position": [
@@ -121,8 +124,8 @@
     {
       "id": "suzuka",
       "category": "track",
-      "sha256": "2ef06d218444b6ba342d683d421ccb08b001a0fd44c7fc05e9b56717b04cb1fd",
-      "bytes": 96792,
+      "sha256": "fe46fe94e4470e75c16098dc3acb474ef57fdaaa03c8b87f545040a80839723a",
+      "bytes": 104544,
       "camera": {
         "station": 1045,
         "position": [
@@ -147,8 +150,8 @@
     {
       "id": "interlagos",
       "category": "track",
-      "sha256": "4c8ade529fc643877d9418615540a9e08bf477bcc88e0bb80eec208b5dfc2524",
-      "bytes": 87600,
+      "sha256": "86665b588882571493116b0e2ea7035287dc55b07a1e3181128d10373c3f8d81",
+      "bytes": 88465,
       "camera": {
         "station": 56,
         "position": [

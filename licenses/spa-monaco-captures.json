@@ -1,0 +1,284 @@
+{
+  "version": "0.15.0-preview.1",
+  "inputs": {
+    "data/corner-details.json": "5284823ddff7f15e6c817bf7e35d73bfb90f49bc8f56aa6529e7eceb95b38e7b",
+    "data/reference-scenes.json": "4d85fea474dd62712793751dca24678e031735420c04834ca1642825928093a4",
+    "data/spa-monaco-reference.json": "295c763fcd25204f0ca90e438f311f9d9e585441aaca308c16a803994beee161",
+    "web/graphics.js": "bcbf26d8fc296d495a8d06cc3c707a68db3a3a595af4d3ff66a36332f9a5c9f5",
+    "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
+    "web/venue.js": "540094f9a0cf12a8eec0a5ce0cd5db47c4073c86916a66d7b872c4c284b26aa2",
+    "web/reference-scene.js": "b20f6425c18a1a00efda17618fd8ec6af14ba419a476a9e6da07d1b87fb4fad0",
+    "src/corner.rs": "f99b53bb2770baf1736b1028c0ec16a6789159cd67592b599b9417f93e980468",
+    "src/venue.rs": "7cd83df4013c677c4291ac3509400a71d716d90e58bd3927505862e852d2e90f",
+    "src/reference_scene.rs": "2251e7b40abc2e1d67c516c8aa38ebf5fc24f4090086ce8ad0961a4cf9345f66"
+  },
+  "captures": [
+    {
+      "id": "la-source",
+      "track": 0,
+      "station": 31,
+      "offset": [
+        75,
+        110,
+        85
+      ],
+      "title": "Spa \u00b7 La Source",
+      "camera": {
+        "position": [
+          -294.9110000000002,
+          166.2151,
+          -1186.6489999999994
+        ],
+        "target": [
+          -369.9110000000002,
+          56.21510000000001,
+          -1271.6489999999994
+        ],
+        "fov": 48
+      },
+      "version": "0.15.0-preview.1",
+      "reference": {
+        "facets": 174,
+        "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
+        "eras": [
+          3,
+          4
+        ]
+      },
+      "sha256": "a539ab6e9fad40db37294132b4842cbebbdf27a586d4795ff0211f0b6f6ace4f",
+      "bytes": 89653
+    },
+    {
+      "id": "les-combes",
+      "track": 0,
+      "station": 451,
+      "offset": [
+        -95,
+        125,
+        -100
+      ],
+      "title": "Spa \u00b7 Les Combes, turns 5\u20136",
+      "camera": {
+        "position": [
+          485.93299999999977,
+          224.0544,
+          322.7090000000005
+        ],
+        "target": [
+          580.9329999999998,
+          99.05439999999999,
+          422.7090000000005
+        ],
+        "fov": 48
+      },
+      "version": "0.15.0-preview.1",
+      "reference": {
+        "facets": 174,
+        "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
+        "eras": [
+          3,
+          4
+        ]
+      },
+      "sha256": "3f3da72cf004d19a5d24bec061e0abd165927526ede07d3e3058aef829390be2",
+      "bytes": 93679
+    },
+    {
+      "id": "malmedy",
+      "track": 0,
+      "station": 489,
+      "offset": [
+        -55,
+        70,
+        65
+      ],
+      "title": "Spa \u00b7 Malmedy, turn 7",
+      "camera": {
+        "position": [
+          520.5579999999998,
+          172.23219999999998,
+          668.6430000000001
+        ],
+        "target": [
+          575.5579999999998,
+          102.23219999999998,
+          603.6430000000001
+        ],
+        "fov": 48
+      },
+      "version": "0.15.0-preview.1",
+      "reference": {
+        "facets": 174,
+        "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
+        "eras": [
+          3,
+          4
+        ]
+      },
+      "sha256": "fe31ee11efca5baa7626329524a573db677c2e4e242b376ea6976ff336098a76",
+      "bytes": 96756
+    },
+    {
+      "id": "bus-stop",
+      "track": 0,
+      "station": 1305,
+      "offset": [
+        100,
+        120,
+        110
+      ],
+      "title": "Spa \u00b7 Bus Stop chicane",
+      "camera": {
+        "position": [
+          -21.424999999999997,
+          161.4336,
+          -649.534
+        ],
+        "target": [
+          -121.425,
+          41.4336,
+          -759.534
+        ],
+        "fov": 48
+      },
+      "version": "0.15.0-preview.1",
+      "reference": {
+        "facets": 174,
+        "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
+        "eras": [
+          3,
+          4
+        ]
+      },
+      "sha256": "ba1885560374e048e76292aa376d5018b25f08ab404ddc7027f9fb334d77dec9",
+      "bytes": 89143
+    },
+    {
+      "id": "finish-straight",
+      "track": 0,
+      "station": 1380,
+      "offset": [
+        100,
+        100,
+        25
+      ],
+      "fov": 58,
+      "title": "Spa \u00b7 finish straight",
+      "camera": {
+        "position": [
+          -162.55599999999998,
+          152.92430000000002,
+          -1045.482
+        ],
+        "target": [
+          -262.556,
+          52.9243,
+          -1070.482
+        ],
+        "fov": 58
+      },
+      "version": "0.15.0-preview.1",
+      "reference": {
+        "facets": 174,
+        "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
+        "eras": [
+          3,
+          4
+        ]
+      },
+      "sha256": "aa69b5062fc0808ad4dfb9383915ec3d6a35b0af7364ce4afd4404580e547b77",
+      "bytes": 105820
+    },
+    {
+      "id": "monaco-portal",
+      "track": 1,
+      "station": 307,
+      "fromStation": 298,
+      "eye": 2.5,
+      "targetHeight": 3.2,
+      "fov": 66,
+      "title": "Monaco \u00b7 entrance under the hotel",
+      "camera": {
+        "position": [
+          405.53,
+          9.7879,
+          -381.905
+        ],
+        "target": [
+          401.47999999999996,
+          9.266899999999993,
+          -337.08399999999943
+        ],
+        "fov": 66
+      },
+      "version": "0.15.0-preview.1",
+      "reference": {
+        "facets": 5486,
+        "scope": "Modern Monaco for every era, as requested. Over-road Fairmont infill on the original mapped hotel footprint, plus estimated portal connection. Not a survey; image-12.png reference only.",
+        "clearance": {
+          "start_index": 303,
+          "end_index": 340,
+          "floor_y": 11.0044,
+          "min_road_clearance": 4.65,
+          "roof_y": 52.9871,
+          "hotel_osm_id": 156242249
+        },
+        "eras": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "sha256": "8809a0273b0b1979e314e96bfb33d38b502cc26ca701b81a4c0efd14168e99c3",
+      "bytes": 79581
+    },
+    {
+      "id": "monaco-hotel",
+      "track": 1,
+      "station": 319,
+      "offset": [
+        100,
+        90,
+        -65
+      ],
+      "title": "Monaco \u00b7 connected hotel above the tunnel",
+      "camera": {
+        "position": [
+          491.6209999999999,
+          95.7651,
+          -342.8969999999997
+        ],
+        "target": [
+          391.6209999999999,
+          5.7651,
+          -277.8969999999997
+        ],
+        "fov": 48
+      },
+      "version": "0.15.0-preview.1",
+      "reference": {
+        "facets": 5486,
+        "scope": "Modern Monaco for every era, as requested. Over-road Fairmont infill on the original mapped hotel footprint, plus estimated portal connection. Not a survey; image-12.png reference only.",
+        "clearance": {
+          "start_index": 303,
+          "end_index": 340,
+          "floor_y": 11.0044,
+          "min_road_clearance": 4.65,
+          "roof_y": 52.9871,
+          "hotel_osm_id": 156242249
+        },
+        "eras": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "sha256": "d76434593296194605ddd192164867e4020374798672c699a95b535fd617a1cf",
+      "bytes": 141147
+    }
+  ]
+}

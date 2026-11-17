@@ -1,0 +1,103 @@
+{
+  "scope": "User follow-up: latest Spa surface + labelled 2021 substitute; modern Monaco tunnel/hotel for all eras. Road/pit centrelines unchanged.",
+  "reference_pixels_redistributed": false,
+  "references": [
+    {
+      "file": "image-8.png",
+      "sha256": "31bf664900404f083072424d906283a7ca51d2bb90d80bf4effb1f7c83fb4783",
+      "subject": "Spa La Source; game-like reference, not a surveyed photograph",
+      "source": "User attachment; original source/date/rights not independently established",
+      "use": "Visual reference only; no image pixels in source/deployment/archives"
+    },
+    {
+      "file": "image-9.png",
+      "sha256": "dcfb3f6baa5ec60d422574e61728e3646c9ad7dcffca1664b702ee12fc6a3300",
+      "subject": "Spa Les Combes / Malmedy, turns 5\u20137",
+      "source": "User attachment; original source/date/rights not independently established",
+      "use": "Visual reference only; no image pixels in source/deployment/archives"
+    },
+    {
+      "file": "image-10.png",
+      "sha256": "25f34ad2862f0036be922bbb7699ca85a0700c1aab7478228c479df1d7ec1492",
+      "subject": "Spa Bus Stop / finish straight overview",
+      "source": "User attachment; original source/date/rights not independently established",
+      "use": "Visual reference only; no image pixels in source/deployment/archives"
+    },
+    {
+      "file": "image-11.png",
+      "sha256": "6840895f96442daa7509b8c0c73fda4e713de6072611e2f5d6bfa596550d3481",
+      "subject": "Spa right-left Bus Stop chicane",
+      "source": "User attachment; original source/date/rights not independently established",
+      "use": "Visual reference only; no image pixels in source/deployment/archives"
+    },
+    {
+      "file": "image-12.png",
+      "sha256": "442ab4f9927b33b0a8fae10a22f57609ab5a26cab948792cada39e6f887b161a",
+      "subject": "Monaco tunnel entrance through building",
+      "source": "User attachment; original source/date/rights not independently established",
+      "use": "Visual reference only; no image pixels in source/deployment/archives"
+    }
+  ],
+  "baseline_release": "v0.14.0-preview.1 / 280b203",
+  "unchanged_profile_sha256": {
+    "be-1925": {
+      "1967": "6fd11fd9935304fe8b40c086ffce1df0189ae4fe9f8eca9992dc991f39695b6b",
+      "1988": "0b04c69afbadfb18d12f2286ac373aaa04fc3f8c7c3f260f3d03a12b6fdb29ec",
+      "2004": "cb6f184f6058e3ece3327b095704c453ff77a53857f57a42ec61a11b09694f8c"
+    },
+    "mc-1929": {
+      "1967": "4a4d8de150d9ebf736d63b761f1dca7d27f37650d273bdcda6ef5f29532d51a3",
+      "1988": "ff3fd536a49fc4ca431cb9c59f3895930243b44600840311ed062f34295d8e52",
+      "2004": "36cf6d128dab0b2686c977b8975f37688829e6853f71bc2260bac74518c0b889",
+      "2023": "b03cc7f62040c6507070ba077e4a965e027dd698d24599a621578d6d71cdf376"
+    },
+    "it-1922": {
+      "1967": "7962f6aa0ebfb00827923338930fa0b6b44a64aa776dd4a88e382222d0df22c2",
+      "1988": "6b1b469f166e8efcfc5994ee16e41e135d668f6a24baf15ae37e237d4541974b",
+      "2004": "582f10255499c3dbc3439904a14b2cd49da1881fe7307ca30b2946c5a9cad0d1",
+      "2023": "5c5283d95682b91f9e42b9e0268a8d2e10e331c0e8d074c41a0c83e2747e630e"
+    },
+    "gb-1948": {
+      "1967": "5ef945c2efd1bef856a6261cef2985216e25a6eb18730859d137cd14a2d9ba1a",
+      "1988": "91922f758a8f59531f1ef8839e379b30f164ca80834b8abd5d46ebe3bb7cfe39",
+      "2004": "808643a40192401755d924c3ef5c7eec8b599a69de45a361646cb909dc379a71",
+      "2023": "e8579a020c9463e0b8d4bed89a963ed3f1e95849c56ade61ecd472bd46f4803e"
+    },
+    "jp-1962": {
+      "1967": "3a69f5face9daf060bd6226834be4614399431a9b0e12051f366a3bb5acff03d",
+      "1988": "bd9171f57cb5397c854954615281f948b4297ab077f1c587c73ec52ed85538e6",
+      "2004": "a31e746e58b0c11fa078a7968f94e91694680462f5a26301901ad04defd0a2f8",
+      "2023": "41ea06f1866953de768d216d44b28e52f9041921d67aefea7722bd42d40d055f"
+    },
+    "br-1940": {
+      "1967": "17c11d5dbf6cfed16241e4f29e234f5714bd6501809d173bc46b1493c03236ac",
+      "1988": "2b7843ff7ccaa6c2d6268e0ff22901eba18b07d0312e730ece2852bada222e12",
+      "2004": "e4bc665d972c9a61f3eefed75c1bdc390888196857daacd9e8d1f1fa0796fae7",
+      "2023": "0bf7de503920c09d6247c489be2fce05f6bad294f9317c4e752ecb7a8906cd9e"
+    },
+    "it-1953": {
+      "1967": "1f2f3a9e2baa09201cd60c693c2f1fa8751b58324ec8f72b1a27cd1324a142c7",
+      "1988": "2c6cd5084ba627c512b2ec90c5c49eb73a36659d5a321c21958778b5097253db",
+      "2004": "02dd3fe29420369ca3757ffc802ce1506d7d19229cf32c650af8ddb6ddb44aee",
+      "2023": "238449334189caad02bc9aa6c25a5cd017da7d14f4dcd34d943218a281121e5a"
+    },
+    "de-1927": {
+      "1967": "e23d50a589821e828f762f4314bd76ec234831d7dd51539efd06f76d0c43a574",
+      "1988": "826458f814921a83df6bf1b138ff5638ded26c4457d1b2d735d76449e46a8fd1",
+      "2004": "f165cae0d67915eeb0d399181587f243f4089a0c483cc44f4fd2fcb251a4699a",
+      "2023": "55cf48c03a16370fa1496ca2b4b5ffacfa19e405ecd9e150e7927c1ffd12f6b8"
+    },
+    "ca-1978": {
+      "1967": "147fc3d361e13bab250bc67084380d713783ab6fd6b55288d41982c8b08082d8",
+      "1988": "2bc4e0e3a5aba60f9a833b7368225a728584fe06cae5b0b6e3744ddbb59cf2cd",
+      "2004": "e0353f8cb6522f6440909bf7338be0bc650784d5ea7a7d2169e92e9a0ddaa393",
+      "2023": "5953b4609bca924705ba794fd66581f57c8159f057a4a96b91aa6dcf75c06c7f"
+    },
+    "de-1932": {
+      "1967": "b2387753df6c994e92be930a44ce12ef790a9a9739e8ba732e51bfd29f3a6893",
+      "1988": "9b9e7c8bdd04a19a5cc9cbb64a486e61051624edf0a40b7b4c412bd2ae4c5235",
+      "2004": "868e3b289cca52ed83269aa135241d9fb7e41bb4cab08ec99e5d79c740a55664",
+      "2023": "30d2817d7421bf55f51f5f9d79cabb707d93e38c21d53bd4271dd267bfdac344"
+    }
+  }
+}
