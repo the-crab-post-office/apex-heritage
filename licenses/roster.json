@@ -38,7 +38,8 @@
           "tyre": "Firestone",
           "reference": "https://en.wikipedia.org/wiki/Lotus_49",
           "livery_note": "Representative season colours and sponsor lettering; original stylised reconstruction on shared era geometry, not a licensed car scan. Race-specific changes and exact corporate letterforms are not reproduced.",
-          "rim_color": "#b4b9ba"
+          "rim_color": "#b4b9ba",
+          "helmet_color": "#182639"
         },
         {
           "id": "1967-ferrari",
@@ -248,7 +249,8 @@
           "tyre": "Goodyear",
           "reference": "https://en.wikipedia.org/wiki/McLaren_MP4_4",
           "livery_note": "Representative season colours and sponsor lettering; original stylised reconstruction on shared era geometry, not a licensed car scan. Race-specific changes and exact corporate letterforms are not reproduced.",
-          "rim_color": "#b4b9ba"
+          "rim_color": "#b4b9ba",
+          "helmet_color": "#ecd535"
         },
         {
           "id": "1988-ferrari",
@@ -656,7 +658,8 @@
           "tyre": "Bridgestone",
           "reference": "https://en.wikipedia.org/wiki/Ferrari_F2004",
           "livery_note": "Representative season colours and sponsor lettering; original stylised reconstruction on shared era geometry, not a licensed car scan. Race-specific changes and exact corporate letterforms are not reproduced.",
-          "rim_color": "#b4b9ba"
+          "rim_color": "#b4b9ba",
+          "helmet_color": "#d82b29"
         },
         {
           "id": "2004-williams",
@@ -888,7 +891,8 @@
           "tyre": "Pirelli",
           "reference": "https://en.wikipedia.org/wiki/Red_Bull_RB19",
           "livery_note": "Representative season colours and sponsor lettering; original stylised reconstruction on shared era geometry, not a licensed car scan. Race-specific changes and exact corporate letterforms are not reproduced.",
-          "rim_color": "#b4b9ba"
+          "rim_color": "#b4b9ba",
+          "helmet_color": "#192c58"
         },
         {
           "id": "2023-mercedes",
