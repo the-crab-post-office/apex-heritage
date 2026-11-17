@@ -1,0 +1,22 @@
+{
+  "scope": "Photo-guided modern Eau Rouge/Raidillon for ALL car eras, explicitly requested by the user. Not survey data or a historical Spa reconstruction.",
+  "photo": "User-supplied image-3.png, reference-only; pixels not redistributed",
+  "sources": ["https://lapmeta.com/en/track/variation/14", "https://spatrackexperience.be/en/the-circuit/"],
+  "height_note": "Approximately 40 m from the compression to the crest with peak climb around 17%. Absolute datum and detailed intermediate shape remain estimates. Geographic anchors survive track start rotation.",
+  "anchors": [
+    [5.9684745,50.4440072,null],
+    [5.9696088,50.4431476,2.05],
+    [5.9702937,50.4426342,0.05],
+    [5.9704929,50.4425077,0.0],
+    [5.9708469,50.4423603,1.4],
+    [5.9714212,50.4421009,8.3],
+    [5.9718075,50.4417282,16.7],
+    [5.9719772,50.4412940,25.1],
+    [5.9721096,50.4408543,33.45],
+    [5.9724571,50.4404641,40.0],
+    [5.9728296,50.4400827,42.2],
+    [5.9733905,50.4395115,43.6],
+    [5.9743064,50.4385279,44.2],
+    [5.9749815,50.4372781,null]
+  ]
+}
