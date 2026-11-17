@@ -23,6 +23,7 @@ pub mod recorded_audio;
 pub mod roster;
 pub mod scenery;
 pub mod surface_mesh;
+pub mod tyres;
 pub mod venue;
 
 #[wasm_bindgen]
@@ -65,9 +66,9 @@ pub struct CarSpec {
     pub lag: f32,
     pub gears: u32,
 }
-// Four historically inspired eras; values are gameplay approximations, not telemetry.
+// Five historically inspired eras; values are gameplay approximations, not telemetry.
 pub fn car_spec(era: usize, team: usize) -> CarSpec {
-    let mut s = match era.min(3) {
+    let mut s = match roster::era_index(era) {
         0 => CarSpec {
             mass: 540.,
             power: 300000.,
@@ -101,6 +102,17 @@ pub fn car_spec(era: usize, team: usize) -> CarSpec {
             lag: 0.,
             gears: 7,
         },
+        4 => CarSpec {
+            mass: 752.,
+            power: 735000.,
+            grip: 1.94,
+            aero: 3.8,
+            brake: 32.,
+            steer: 0.29,
+            drag: 0.87,
+            lag: 0.18,
+            gears: 8,
+        },
         _ => CarSpec {
             mass: 798.,
             power: 735000.,
@@ -114,7 +126,7 @@ pub fn car_spec(era: usize, team: usize) -> CarSpec {
         },
     };
     let t = roster::team(era, team);
-    s.power *= t.power / [410., 680., 900., 1000.][era.min(3)];
+    s.power *= t.power / [410., 680., 900., 1000., 1000.][roster::era_index(era)];
     s.grip *= t.grip / 100.;
     s.brake *= t.brake / 100.;
     if era.min(3) == 1 && !t.turbo {
@@ -218,7 +230,7 @@ impl Simulation {
             lap_start: 0.,
             lap_distance: 0.,
             shift_timer: 0.,
-            era: era.min(3),
+            era: roster::era_index(era),
         };
         s.reset();
         s
@@ -378,10 +390,13 @@ impl Simulation {
         s.steering += (steer - s.steering) * (1. - (-dt * response).exp());
         let wet_factor = if self.wet { 0.70 } else { 1. };
         let terrain = s.surface_grip;
-        let grip = spec.grip * (0.8 + 0.2 * s.tyre_condition) * 9.81 / (1. + grade * grade).sqrt()
+        let mechanical = spec.grip * (0.8 + 0.2 * s.tyre_condition) * 9.81
+            / (1. + grade * grade).sqrt()
             * wet_factor
-            * terrain
-            + spec.aero * s.speed * s.speed / spec.mass * wet_factor * (1. - s.bottoming * 0.25);
+            * terrain;
+        let aero =
+            spec.aero * s.speed * s.speed / spec.mass * wet_factor * (1. - s.bottoming * 0.25);
+        let grip = tyres::effective_grip(mechanical, aero);
         let target_boost = if throttle > 0.4 && spec.lag > 0. {
             1.
         } else {
@@ -398,11 +413,7 @@ impl Simulation {
         let raw_accel = throttle * power * (if self.shift_timer > 0. { 0.16 } else { 1. })
             / (spec.mass * (s.speed + 20.));
         let lateral_use = (s.yaw_rate.abs() * s.speed / grip.max(0.1)).min(0.98);
-        let combined = if classic {
-            (1. - lateral_use * lateral_use).sqrt()
-        } else {
-            1.
-        };
+        let combined = tyres::combined_budget(lateral_use * grip, grip);
         let acceleration = if s.pit_limiter && s.speed >= self.pit.limit {
             0.
         } else {
@@ -419,14 +430,15 @@ impl Simulation {
             };
         s.speed = (s.speed
             + (acceleration
-                - brake * spec.brake.min(grip * 1.5) * combined
+                - brake * spec.brake.min(grip * 1.15) * combined
                 - resistance
                 - grade_gravity)
                 * dt)
             .max(0.);
         let max_angle = spec.steer / (1. + s.speed * if classic { 0.045 } else { 0.038 });
-        let desired_yaw =
-            s.speed / if classic { 2.45 } else { 3.1 } * (s.steering * max_angle).tan();
+        let desired_yaw = s.speed
+            / crate::car_shapes::layout(self.era).map_or(3.1, |l| l.front - l.rear)
+            * (s.steering * max_angle).tan();
         dynamics::advance(
             s,
             &mut self.rear_memory,
@@ -586,11 +598,11 @@ impl Simulation {
             if s.pit_phase == 1 && box_error < 1.75 && s.speed < 0.7 {
                 s.pit_phase = 2;
                 s.speed = 0.;
-                s.pit_remaining = [12., 7., 4., 2.8][self.era];
+                s.pit_remaining = [12., 7., 4., 2.8, 2.8][self.era];
                 if pit::refuelling_allowed(self.era) {
                     s.pit_remaining = s
                         .pit_remaining
-                        .max((1. - s.fuel) * [18., 0., 12., 0.][self.era]);
+                        .max((1. - s.fuel) * [18., 0., 12., 0., 0.][self.era]);
                 }
             } else if s.pit_phase == 1 && s.pit_distance > self.pit.box_distance + 1.75 {
                 s.pit_missed = true;
@@ -649,7 +661,7 @@ mod tests {
     #[test]
     fn pit_stops_enter_service_and_exit_in_all_eras() {
         for circuit in 0..10 {
-            for era in 0..4 {
+            for era in 0..5 {
                 let mut sim = Simulation::new(circuit, era, 0, false, true);
                 let e = sim.pit.points[0];
                 let (_, yaw, _, _) = sim.pit.sample(0., sim.track.points.len());
@@ -737,7 +749,7 @@ mod tests {
     }
     #[test]
     fn every_era_and_team_has_distinct_power() {
-        for e in 0..4 {
+        for e in 0..5 {
             for t in 1..4 {
                 assert_ne!(car_spec(e, 0).power, car_spec(e, t).power)
             }
@@ -794,7 +806,7 @@ mod tests {
     }
     #[test]
     fn actual_simulation_transmits_slides_and_recover_resets_velocity_heading() {
-        for era in 0..4 {
+        for era in 0..5 {
             let mut sim = Simulation::new(0, era, 0, false, false);
             let p = sim.track.points[0];
             // A fixed-speed on-road handling rig: hold position at the same

@@ -1142,7 +1142,7 @@ export class World {
     updateFloorSparks(this, state, performance.now() / 1000);
     for (const [wi, w] of p.userData.wheels.entries()) {
       if (state.wheel_heights) {
-        const radius = [0.34, 0.35, 0.35, 0.38][this.config.era];
+        const radius = w.radius;
         w.mesh.position.y =
           (state.wheel_heights[wi] +
             radius -
@@ -1151,8 +1151,17 @@ export class World {
             pose[9] * w.mesh.position.z) /
           pose[5];
       }
-      w.mesh.rotation.x += (state.speed * dt) / 0.35;
-      if (w.front) w.mesh.rotation.y = state.steering * 0.22;
+      w.mesh.rotation.x += (state.speed * dt) / w.radius;
+      if (w.front) {
+        const layout = p.userData.layout,
+          wb = layout.front - layout.rear;
+        const angle =
+          (state.steering * p.userData.steeringLock) /
+          (1 + state.speed * (this.config.era === 0 ? 0.045 : 0.038));
+        const turnRadius =
+          Math.abs(angle) > 0.0001 ? wb / Math.tan(angle) : Infinity;
+        w.mesh.rotation.y = Math.atan(wb / (turnRadius - w.mesh.position.x));
+      }
     }
     const center = p.position.clone();
     this.cameraTime = (this.cameraTime || 0) + dt;

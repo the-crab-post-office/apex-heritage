@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 const cars = JSON.parse(fs.readFileSync("data/car-shapes.json"));
 const rigs = JSON.parse(fs.readFileSync("data/cameras.json"));
-test("all four eras use bounded detailed meshes, isolated driver heads and cockpit fittings", () => {
-  assert.deepEqual(Object.keys(cars.models), ["0", "1", "2", "3"]);
+test("all five eras use bounded detailed meshes, isolated driver heads and cockpit fittings", () => {
+  assert.deepEqual(Object.keys(cars.models), ["0", "1", "2", "3", "4"]);
   for (const [era, batches] of Object.entries(cars.models)) {
     const names = batches.flatMap((b) => b.components);
     for (const name of [

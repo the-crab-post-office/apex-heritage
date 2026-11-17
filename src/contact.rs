@@ -125,7 +125,7 @@ mod tests {
     #[test]
     fn partial_car_over_the_line_stays_legal_until_all_four_tyres_leave() {
         let t = straight();
-        for era in 0..4 {
+        for era in 0..5 {
             assert_eq!(wheels_on_road(&t, 2, 0., 0., 0., era), 4);
             assert_eq!(wheels_on_road(&t, 2, 5., 0., 0., era), 2);
             assert_eq!(wheels_on_road(&t, 2, 7., 0., 0., era), 0);
@@ -134,7 +134,7 @@ mod tests {
     #[test]
     fn sideways_front_or_rear_axle_still_on_track_is_legal() {
         let t = straight();
-        for era in 0..4 {
+        for era in 0..5 {
             let yaw = std::f32::consts::FRAC_PI_2;
             assert_eq!(wheels_on_road(&t, 2, 5.3, 0., yaw, era), 2);
             assert_eq!(wheels_on_road(&t, 2, 7., 0., yaw, era), 0);
@@ -154,11 +154,11 @@ mod tests {
     fn wheel_positions_match_the_four_rendered_tyre_centres() {
         assert_eq!(wheels(0)[0].longitudinal, 1.12);
         assert_eq!(wheels(0)[1].longitudinal, -1.1);
-        assert_eq!(wheels(3)[0].lateral, -0.90);
-        assert_eq!(wheels(3)[0].longitudinal, 1.65);
-        assert_eq!(wheels(3)[3].longitudinal, -1.75);
+        assert_eq!(wheels(3)[0].lateral, -0.80);
+        assert_eq!(wheels(3)[0].longitudinal, 1.75);
+        assert_eq!(wheels(3)[3].longitudinal, -1.85);
         assert_eq!(wheels(0)[1].width, 0.34);
-        assert_eq!(wheels(3)[3].width, 0.44);
+        assert_eq!(wheels(3)[3].width, 0.405);
     }
     #[test]
     fn triangle_bounding_boxes_are_not_used_as_track_limits() {

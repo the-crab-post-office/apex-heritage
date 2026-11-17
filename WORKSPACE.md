@@ -26,11 +26,11 @@ The cleanup command rejects tracked files and preserves source, licenses, refere
 
 ## Important unfinished work
 
-`data/CAR-SCAN-STATUS.md` and `data/car-asset-status.json` track all 47 requested constructor-specific scans. None is yet integrated; the existing cars must not be described as scanned replicas. Modern Monaco is user-selected for all eras. Source/massing/placement uncertainties are in `data/MONACO-REFERENCE-NOTICE.md`.
+`data/CAR-SCAN-STATUS.md` and `data/car-asset-status.json` track all 57 constructor-season entries (the original 47 plus the full 2021 grid). None is yet integrated; the existing cars must not be described as scanned replicas. Modern Monaco is user-selected for all eras. Source/massing/placement uncertainties are in `data/MONACO-REFERENCE-NOTICE.md`.
 
 ## Current car / camera pipeline (0.11)
 
-- `scripts/build-car-shapes.py` generates all four era meshes and shared wheel layouts; 1988/2004 no longer use legacy runtime primitive builders.
+- `scripts/build-car-shapes.py` generates all five era meshes and shared wheel layouts; 1988/2004 no longer use legacy runtime primitive builders.
 - `data/cameras.json` defines eight rigs consumed by `web/cameras.js` and `src/cameras.rs`. Attached views inherit chassis pose; only the player's isolated head batches are hidden in cockpit mode; halo batches become translucent.
 - Browser direct selector supports touch/keyboard; native uses C/RB or 1–8. Camera smoke validation can use `APEX_SMOKE_ALL_CAMERAS=1` or `APEX_SMOKE_CAMERA=0..7`.
 
@@ -73,3 +73,7 @@ Rebuildable Rust toolchains/registries, Node dependencies, browser caches, npm c
 Public deployment verified: https://the-crab-post-office.github.io/apex-heritage/ (Monaco loaded and accelerated using Rust WASM, no page errors/failed responses). Source repository is public; original user photos and the supplied GitHub credential were not published. The credential attachment is moved out of the persisted workspace to private temporary storage after publication; revoke/rotate it once no longer needed.
 
 After archival and Git object repacking (without pruning history), the complete `/home/user` audit was approximately **106 MB / 590 entries**, including the current release ZIPs, active preview, source, complete local Git history and reference uploads. Exact current figures: `python3 scripts/workspace-budget.py`. This leaves margin below the conservative 128,000,000-byte / 10,000-entry caps.
+
+## 0.13 car comparison
+
+`web/public/car-comparison.html` is a self-contained deliverable with ten licensed reference photos and actual game captures. Rebuild captures via `scripts/capture-car-comparison.mjs`, then run `scripts/build-car-comparison.py` and rebuild the web site. `data/CAR-REFERENCE-PHOTOS.md` and `data/car-references.json` retain full credit, sources, license and photo checksums. Captures are not scans; there are still zero verified car scans. 2021 uses the latest track-surface profile as an explicitly labelled substitute, not a newly surveyed 2021 circuit.

@@ -53,6 +53,11 @@ export const ENGINE_PROFILES = [
     ],
   },
 ];
+ENGINE_PROFILES.push({
+  ...ENGINE_PROFILES[3],
+  name: "2021 / hybrid V6 (procedural)",
+  harmonics: [...ENGINE_PROFILES[3].harmonics],
+});
 function tables(profile, limit, off) {
   const table = new Float32Array(SIZE + 1);
   for (let i = 0; i < SIZE; i++) {
@@ -86,7 +91,7 @@ function read(table, phase) {
 }
 class Voice {
   constructor(era, sr, id) {
-    this.era = clamp(era | 0, 0, 3);
+    this.era = clamp(era | 0, 0, ENGINE_PROFILES.length - 1);
     this.profile = ENGINE_PROFILES[this.era];
     this.sr = sr;
     this.id = id;

@@ -30,8 +30,8 @@ test("reference chassis have distinct silhouettes and matching physical wheel la
     expect(result.components).toContain(
       era === 0 ? "radiator cavity" : "halo centre pillar",
     );
-    expect(result.wheels[0]).toEqual(era === 0 ? [-0.82, 1.12] : [-0.9, 1.65]);
-    expect(result.wheels[3]).toEqual(era === 0 ? [0.82, -1.1] : [0.9, -1.75]);
+    expect(result.wheels[0]).toEqual(era === 0 ? [-0.82, 1.12] : [-0.8, 1.75]);
+    expect(result.wheels[3]).toEqual(era === 0 ? [0.82, -1.1] : [0.8, -1.85]);
     await page
       .locator("#showroom-canvas")
       .screenshot({ path: `artifacts/v09-reference-car-${era}.png` });

@@ -11,7 +11,15 @@ test.beforeEach(async ({ page }) => {
 test("ten circuits, geographic filters, car selection and persistent setup", async ({
   page,
 }) => {
+  test.setTimeout(240000);
   await page.goto("/");
+  await expect(page.locator("#showroom-stage")).toHaveAttribute(
+    "data-ready",
+    "true",
+  );
+  // This test exercises setup DOM/storage, not 3D throughput. The separate
+  // 114-switch showroom test renders every car and checks GPU disposal.
+  await page.evaluate(() => cancelAnimationFrame(window.__showroom.animation));
   await expect(page.locator(".track-card")).toHaveCount(10);
   await page
     .getByRole("button", { name: "Select Monaco", exact: true })
@@ -21,10 +29,10 @@ test("ten circuits, geographic filters, car selection and persistent setup", asy
   await expect(page.locator(".track-card")).toHaveCount(3);
   await page.locator('[data-filter="Europe"]').click();
   await expect(page.locator(".track-card")).toHaveCount(7);
-  for (let era = 0; era < 4; era++) {
+  for (let era = 0; era < 5; era++) {
     await page.locator(`[data-era="${era}"]`).click();
     await expect(page.locator("#team-select option")).toHaveCount(
-      [9, 18, 10, 10][era],
+      [9, 18, 10, 10, 10][era],
     );
   }
   await page.locator("#team-select").selectOption("2");
@@ -53,7 +61,7 @@ test("ten circuits, geographic filters, car selection and persistent setup", asy
     "false",
   );
   await page.locator('[data-nav="garage"]').click();
-  await expect(page.locator(".era-info")).toHaveCount(4);
+  await expect(page.locator(".era-info")).toHaveCount(5);
   await page.locator(".dialog-close").click();
   await page.locator('[data-nav="records"]').click();
   await expect(page.locator(".records-empty")).toBeVisible();
@@ -193,7 +201,15 @@ test("mobile layout has touch controls and no horizontal overflow", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  test.setTimeout(240000);
   await page.goto("/");
+  await expect(page.locator("#showroom-stage")).toHaveAttribute(
+    "data-ready",
+    "true",
+  );
+  // This test exercises setup DOM/storage, not 3D throughput. The separate
+  // 114-switch showroom test renders every car and checks GPU disposal.
+  await page.evaluate(() => cancelAnimationFrame(window.__showroom.animation));
   await expect(page.locator(".track-card")).toHaveCount(10);
   expect(
     await page.evaluate(

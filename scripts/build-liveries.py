@@ -59,12 +59,55 @@ def panel(t,pods=False):
  else:
   d.rectangle((0,410,1024,512),fill=s)
   if pods:d.rectangle((0,0,1024,52),fill=s)
+ # Modern liveries are season-specific, not broad generic chevrons.
+ if int(t['id'][:4])>=2021:
+  d.rectangle((0,0,1023,511),fill=base)
+  year=int(t['id'][:4])
+  if style=='mercedes':
+   if year==2021 and not pods:
+    d.rectangle((0,322,1023,511),fill='#82868a')
+    for yy in range(332,510,31):
+     for xx in range(22,1024,68):
+      for j in range(3):
+       an=j*math.tau/3;d.line((xx,yy,xx+9*math.sin(an),yy+9*math.cos(an)),fill='#bdc2c5',width=2)
+   for xx in [300,700]:d.line((xx,0,xx-45,512),fill='#10cbb5',width=13)
+   if not pods:d.rectangle((0,273,1023,301),fill='#902338')
+  elif style=='bull':
+   if not pods:
+    for xx in [0,1024]:d.polygon([(xx-105,0),(xx+105,0),(xx+55,145),(xx-55,145)],fill='#f3d32f')
+    for xx in [256,768]:
+     d.ellipse((xx-99,285,xx+99,419),fill='#efcd26')
+     d.polygon([(xx-110,375),(xx-65,330),(xx-5,351),(xx+33,315),(xx+110,365),(xx+57,393),(xx-10,371),(xx-91,404)],fill='#d62536')
+  elif style=='ferrari':
+   if year==2021 and not pods:d.rectangle((0,367,1023,511),fill='#761c29')
+   for xx in [228,740]:d.ellipse((xx-22,199,xx+22,225),fill='#f5d127')
+  elif style=='aston':
+   for xx in [330,695]:d.line((xx,0,xx-25,512),fill=('#d954a3'if year==2021 else '#c8e33e'),width=12)
+  elif style=='mclaren':
+   d.rectangle((330,0,694,511),fill=('#228fcf'if year==2021 else '#18202b'))
+   if not pods:d.polygon([(180,512),(360,125),(570,512)],fill='#15202c')
+  elif style=='alpine':
+   if not pods:d.polygon([(0,512),(0,329),(420,305),(920,512)],fill='#ed4747');d.line((0,327,420,306,920,512),fill='#f6f1e6',width=15)
+   for xx in [256,768]:d.polygon([(xx-32,298),(xx+50,350),(xx-30,410),(xx-8,354)],fill='#eee8df')
+  elif style=='williams':
+   d.rectangle((0,0,1023,210),fill=('#eceee8'if year==2021 else base))
+   for j in range(8):d.line((90+j*110,235,310+j*100,470),fill='#32a8e1',width=22)
+  elif style=='alphatauri':
+   d.rectangle((330,0,695,511),fill='#1a263b')
+   if not pods:
+    for xx in [256,768]:d.ellipse((xx-85,290,xx+85,410),fill='#1a263b');d.polygon([(xx-91,330),(xx-10,285),(xx+96,335),(xx+25,351)],fill='#1a263b')
+  elif style=='alfa':
+   if not pods:d.rectangle((0,278,1023,511),fill=s)
+   else:
+    for xx in [256,768]:d.rectangle((xx-130,0,xx+130,511),fill=s)
+  elif style=='haas':
+   for xx in [256,768]:d.polygon([(xx-130,190),(xx-20,170),(xx+125,400),(xx+55,450)],fill='#d12c3f');d.line((xx-130,175,xx-20,155,xx+140,390),fill='#2a54a3',width=18)
  # Fine pinstripes, fastener rows and panel shut-lines, deliberately not fake random sponsor rows.
- for yy in [225,440]:d.line((0,yy,1024,yy),fill=a,width=2)
- for x in [188,324,700,836]:
+ for yy in ([]if int(t['id'][:4])>=2021 else[225,440]):d.line((0,yy,1024,yy),fill=a,width=2)
+ for x in ([]if int(t['id'][:4])>=2021 else[188,324,700,836]):
   for yy in [216,438]:d.ellipse((x-2,yy-2,x+2,yy+2),fill='#a4a7a5')
  # Real sponsor names, with original simplified letterforms (not redistributed corporate vectors).
- for x,angle in [(256,-90),(768,90)]:
+ for x,angle in ([] if int(t['id'][:4])>=2021 else [(256,-90),(768,90)]):
   word=t['sponsor'] if pods else t['minor'];ink=contrast(im.getpixel((x,300)));label=text_layer(word,145 if pods else 116,74 if pods else 58,ink).rotate(angle,expand=True).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
   im.paste(label,(int(x-label.width/2),int(300-label.height/2)),label)
   small=text_layer(t['minor']if pods else t['name'].upper(),70,29,contrast(im.getpixel((x,160)))).rotate(angle,expand=True).transpose(Image.Transpose.FLIP_LEFT_RIGHT);im.paste(small,(int(x-small.width/2),int(165-small.height/2)),small)
@@ -78,10 +121,10 @@ def panel(t,pods=False):
 manifest=[];rust=[]
 for era in D['eras']:
  for t in era['teams']:
-  atlas=Image.new('RGB',(2048,1024),t['color']);atlas.paste(panel(t),(0,0));atlas.paste(panel(t,True),(1024,0));d=ImageDraw.Draw(atlas)
-  wingbase='#141922'if era['year']=='2023'else t['secondary'];d.rectangle((0,512,1023,767),fill=wingbase);word=text_layer(t['wing'],880,140,contrast(wingbase));atlas.paste(word,(72,567),word)
+  atlas=Image.new('RGBA',(2048,1024),t['color']);atlas.paste(panel(t),(0,0));atlas.paste(panel(t,True),(1024,0));d=ImageDraw.Draw(atlas)
+  wingbase=t.get('wing_color','#141922'if int(era['year'])>=2021 else t['secondary']);d.rectangle((0,512,1023,767),fill=wingbase);word=text_layer(t['wing'],880,140,contrast(wingbase));atlas.paste(word,(72,567),word)
   d.rectangle((1024,512,1535,767),fill=t['secondary']);end=text_layer(t['minor'],440,100,contrast(t['secondary']));atlas.paste(end,(1060,589),end)
-  if era['year']=='2023':
+  if int(era['year'])>=2021:
    d.rectangle((1024,512,1535,767),fill=wingbase)
    for xx in [1042,1302]:
     word=text_layer(t['wing'],205,88,contrast(wingbase));atlas.paste(word,(xx,596),word)
@@ -89,6 +132,12 @@ for era in D['eras']:
   d.rectangle((0,768,2047,1023),fill='#141719');tyre=t['tyre'].upper();ink='#e9d12f'if tyre=='PIRELLI'else'#eeeee4'
   for x in [260,1284]:
    word=text_layer(tyre,500,60,ink);atlas.paste(word,(x,855),word)
+  # Separate alpha-backed decal strips, conformally placed on the actual pods.
+  d.rectangle((0,940,2047,1023),fill=(0,0,0,0))
+  ink=('#e62738'if (t['style']=='haas' or (t['style']=='bull' and era['year']=='2021'))else '#151b23'if t['style']=='mclaren'else '#f6f4ee')
+  sponsor=text_layer(t['sponsor'],1000,66,ink);atlas.paste(sponsor,(12,944),sponsor)
+  number=text_layer(str(t['number']),150,66,contrast(t['color']));atlas.paste(number,(1060,944),number)
+  partner=text_layer(t['minor'],780,66,contrast(t['color']));atlas.paste(partner,(1250,944),partner)
   atlas.quantize(colors=128,method=Image.Quantize.FASTOCTREE,dither=Image.Dither.NONE).save(OUT/(t['id']+'.png'),optimize=True)
   manifest.append({'id':t['id'],'file':t['id']+'.png','width':2048,'height':1024,'number':t['number'],'style':t['style'],'source':t['reference']})
   rust.append(f'        "{t["id"]}" => include_bytes!("../web/assets/liveries/{t["id"]}.png"),')

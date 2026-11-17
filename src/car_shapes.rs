@@ -46,12 +46,37 @@ pub fn layout(era: usize) -> Option<&'static Layout> {
         })
         .get(&era.to_string())
 }
+#[derive(Deserialize)]
+struct Variant {
+    nose_scale: f32,
+    pod_scale: f32,
+    engine_scale: f32,
+}
+pub fn variant_point(id: &str, material: &str, mut p: [f32; 3]) -> [f32; 3] {
+    static VARIANTS: OnceLock<HashMap<String, Variant>> = OnceLock::new();
+    let variants = VARIANTS.get_or_init(|| {
+        serde_json::from_str(include_str!("../data/car-variants.json")).expect("car variants")
+    });
+    if let Some(v) = variants.get(id) {
+        if material == "pods" || material == "decals" {
+            p[0] *= v.pod_scale;
+        } else if material == "body" || material == "engine_decals" {
+            if p[2] > 0.7 {
+                p[0] *= 1. + (v.nose_scale - 1.) * ((p[2] - 0.7) / 0.7).min(1.);
+            }
+            if p[2] < -0.7 {
+                p[0] *= v.engine_scale;
+            }
+        }
+    }
+    p
+}
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn reference_meshes_are_finite_indexed_and_have_the_distinguishing_components() {
-        for era in 0..4 {
+        for era in 0..5 {
             let m = model(era).unwrap();
             let names = m
                 .iter()

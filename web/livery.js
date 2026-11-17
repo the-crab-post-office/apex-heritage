@@ -27,9 +27,23 @@ export function liveryMaterials(team) {
     const m = new THREE.MeshPhysicalMaterial({
       color: "#ffffff",
       map: texture,
-      roughness: region === "tyre" ? 0.94 : 0.3,
-      metalness: region === "tyre" ? 0 : 0.16,
-      clearcoat: region === "tyre" ? 0 : 0.75,
+      roughness:
+        region === "tyre"
+          ? 0.94
+          : (team.paint_roughness ?? (team.style === "bull" ? 0.48 : 0.27)),
+      metalness: region === "tyre" ? 0 : (team.paint_metalness ?? 0.16),
+      clearcoat:
+        region === "tyre"
+          ? 0
+          : ["bull", "ferrari"].includes(team.style)
+            ? 0.2
+            : 0.65,
+      transparent: region === "decals",
+      alphaTest: region === "decals" ? 0.08 : 0,
+      depthWrite: region !== "decals",
+      polygonOffset: region === "decals",
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
       clearcoatRoughness: 0.2,
     });
     m.userData.region = region;
@@ -41,6 +55,7 @@ export function liveryMaterials(team) {
     pods: mat("pods"),
     wing: mat("wing"),
     end: mat("end"),
+    decals: mat("decals"),
     tyre: mat("tyre"),
     plain: new THREE.MeshStandardMaterial({
       color: team.color,

@@ -1,0 +1,122 @@
+{
+  "2021-mercedes": {
+    "nose_scale": 0.72,
+    "pod_scale": 0.94,
+    "engine_scale": 0.94,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-red-bull": {
+    "nose_scale": 0.8,
+    "pod_scale": 1.02,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-ferrari": {
+    "nose_scale": 1.13,
+    "pod_scale": 1.02,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-aston-martin": {
+    "nose_scale": 0.84,
+    "pod_scale": 1.0,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-mclaren": {
+    "nose_scale": 0.94,
+    "pod_scale": 1.01,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-alpine": {
+    "nose_scale": 1.04,
+    "pod_scale": 0.98,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-williams": {
+    "nose_scale": 1.14,
+    "pod_scale": 0.97,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-alphatauri": {
+    "nose_scale": 1.09,
+    "pod_scale": 1.03,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-alfa-romeo": {
+    "nose_scale": 1.04,
+    "pod_scale": 0.98,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2021-haas": {
+    "nose_scale": 1.15,
+    "pod_scale": 1.04,
+    "engine_scale": 1.0,
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+  },
+  "2023-red-bull": {
+    "nose_scale": 1.0,
+    "pod_scale": 1.0,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-mercedes": {
+    "nose_scale": 0.9,
+    "pod_scale": 0.83,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-ferrari": {
+    "nose_scale": 1.1,
+    "pod_scale": 1.07,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-aston-martin": {
+    "nose_scale": 1.0,
+    "pod_scale": 1.04,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-mclaren": {
+    "nose_scale": 1.0,
+    "pod_scale": 1.0,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-alpine": {
+    "nose_scale": 1.0,
+    "pod_scale": 1.0,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-williams": {
+    "nose_scale": 1.0,
+    "pod_scale": 1.0,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-alphatauri": {
+    "nose_scale": 1.0,
+    "pod_scale": 1.0,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-alfa-romeo": {
+    "nose_scale": 1.0,
+    "pod_scale": 1.0,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2023-haas": {
+    "nose_scale": 1.0,
+    "pod_scale": 1.0,
+    "engine_scale": 1.0,
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  }
+}

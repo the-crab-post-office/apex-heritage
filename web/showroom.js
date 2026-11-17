@@ -131,7 +131,7 @@ export class Showroom {
     if (this.car) disposeCar(this.car);
     const team = eras[era].teams[index];
     this.car = makeCar(era, team.color, team);
-    this.car.position.y = [-0.01, 0, 0, 0.03][era];
+    this.car.position.y = [-0.01, 0, 0, 0.03, 0][era];
     this.scene.add(this.car);
     this.dirty = true;
     const ready = await this.car.userData.liveryReady;

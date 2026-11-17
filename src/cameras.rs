@@ -96,7 +96,7 @@ mod tests {
         for (i, r) in rigs().iter().enumerate() {
             assert!(rigs()[..i].iter().all(|p| p.id != r.id));
             assert!((45.0..90.0).contains(&r.fov));
-            for era in 0..4 {
+            for era in 0..5 {
                 let (p, t) = pose(i, era, 2.0);
                 assert!(p.iter().chain(t.iter()).all(|v| v.is_finite()));
                 assert_ne!(p, t);

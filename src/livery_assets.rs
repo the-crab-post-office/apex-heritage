@@ -48,6 +48,16 @@ pub fn png(id: &str) -> &'static [u8] {
         "2023-alphatauri" => include_bytes!("../web/assets/liveries/2023-alphatauri.png"),
         "2023-alfa-romeo" => include_bytes!("../web/assets/liveries/2023-alfa-romeo.png"),
         "2023-haas" => include_bytes!("../web/assets/liveries/2023-haas.png"),
+        "2021-mercedes" => include_bytes!("../web/assets/liveries/2021-mercedes.png"),
+        "2021-red-bull" => include_bytes!("../web/assets/liveries/2021-red-bull.png"),
+        "2021-ferrari" => include_bytes!("../web/assets/liveries/2021-ferrari.png"),
+        "2021-aston-martin" => include_bytes!("../web/assets/liveries/2021-aston-martin.png"),
+        "2021-mclaren" => include_bytes!("../web/assets/liveries/2021-mclaren.png"),
+        "2021-alpine" => include_bytes!("../web/assets/liveries/2021-alpine.png"),
+        "2021-williams" => include_bytes!("../web/assets/liveries/2021-williams.png"),
+        "2021-alphatauri" => include_bytes!("../web/assets/liveries/2021-alphatauri.png"),
+        "2021-alfa-romeo" => include_bytes!("../web/assets/liveries/2021-alfa-romeo.png"),
+        "2021-haas" => include_bytes!("../web/assets/liveries/2021-haas.png"),
         _ => include_bytes!("../web/assets/liveries/2004-ferrari.png"),
     }
 }

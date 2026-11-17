@@ -4,6 +4,14 @@ use std::sync::OnceLock;
 #[derive(Deserialize)]
 pub struct Team {
     pub id: String,
+    #[serde(default)]
+    pub helmet_color: Option<String>,
+    #[serde(default)]
+    pub rim_color: Option<String>,
+    #[serde(default)]
+    pub endplate_color: Option<String>,
+    #[serde(default)]
+    pub front_endplate_color: Option<String>,
     pub name: String,
     pub car: String,
     pub number: u32,
@@ -34,8 +42,15 @@ pub fn eras() -> &'static [Era] {
         })
         .eras
 }
+pub fn era_index(era: usize) -> usize {
+    if era < eras().len() {
+        era
+    } else {
+        3
+    }
+}
 pub fn teams(era: usize) -> &'static [Team] {
-    &eras()[era.min(3)].teams
+    &eras()[era_index(era)].teams
 }
 pub fn team(era: usize, index: usize) -> &'static Team {
     let list = teams(era);
@@ -47,7 +62,7 @@ mod tests {
     #[test]
     fn full_constructor_rosters_are_unique_and_have_distinct_handling() {
         let mut ids = std::collections::HashSet::new();
-        for (e, count) in [9, 18, 10, 10].into_iter().enumerate() {
+        for (e, count) in [9, 18, 10, 10, 10].into_iter().enumerate() {
             assert_eq!(teams(e).len(), count);
             let mut powers = std::collections::HashSet::new();
             for (i, t) in teams(e).iter().enumerate() {

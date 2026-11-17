@@ -424,6 +424,96 @@
       "number": 20,
       "style": "haas",
       "source": "https://en.wikipedia.org/wiki/Haas_VF-23"
+    },
+    {
+      "id": "2021-mercedes",
+      "file": "2021-mercedes.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 44,
+      "style": "mercedes",
+      "source": "https://en.wikipedia.org/wiki/Mercedes_F1_W12_E_Performance"
+    },
+    {
+      "id": "2021-red-bull",
+      "file": "2021-red-bull.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 33,
+      "style": "bull",
+      "source": "https://en.wikipedia.org/wiki/Red_Bull_Racing_RB16B"
+    },
+    {
+      "id": "2021-ferrari",
+      "file": "2021-ferrari.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 16,
+      "style": "ferrari",
+      "source": "https://en.wikipedia.org/wiki/Ferrari_SF21"
+    },
+    {
+      "id": "2021-aston-martin",
+      "file": "2021-aston-martin.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 5,
+      "style": "aston",
+      "source": "https://en.wikipedia.org/wiki/Aston_Martin_AMR21"
+    },
+    {
+      "id": "2021-mclaren",
+      "file": "2021-mclaren.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 3,
+      "style": "mclaren",
+      "source": "https://en.wikipedia.org/wiki/McLaren_MCL35M"
+    },
+    {
+      "id": "2021-alpine",
+      "file": "2021-alpine.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 14,
+      "style": "alpine",
+      "source": "https://en.wikipedia.org/wiki/Alpine_A521"
+    },
+    {
+      "id": "2021-williams",
+      "file": "2021-williams.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 63,
+      "style": "williams",
+      "source": "https://en.wikipedia.org/wiki/Williams_FW43B"
+    },
+    {
+      "id": "2021-alphatauri",
+      "file": "2021-alphatauri.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 10,
+      "style": "alphatauri",
+      "source": "https://en.wikipedia.org/wiki/AlphaTauri_AT02"
+    },
+    {
+      "id": "2021-alfa-romeo",
+      "file": "2021-alfa-romeo.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 7,
+      "style": "alfa",
+      "source": "https://en.wikipedia.org/wiki/Alfa_Romeo_Racing_C41"
+    },
+    {
+      "id": "2021-haas",
+      "file": "2021-haas.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 47,
+      "style": "haas",
+      "source": "https://en.wikipedia.org/wiki/Haas_VF-21"
     }
   ]
 }

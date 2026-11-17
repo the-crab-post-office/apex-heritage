@@ -44,11 +44,11 @@ test("Monaco temporary barrier estimates are named, labelled and road-clear", ()
   for (const p of venue.profiles)
     assert.match(p.label, /MODERN MONACO SCENERY ALL ERAS/);
 });
-test("all 47 scan slots remain honest about unverified geometry", () => {
+test("all 57 scan slots remain honest about unverified geometry", () => {
   const roster = read("data/roster.json").eras.flatMap((e) => e.teams),
     assets = read("data/car-asset-status.json");
-  assert.equal(assets.cars.length, 47);
-  assert.equal(new Set(assets.cars.map((c) => c.id)).size, 47);
+  assert.equal(assets.cars.length, 57);
+  assert.equal(new Set(assets.cars.map((c) => c.id)).size, 57);
   assert.equal(assets.integrated_scan_count, 0);
   assert.deepEqual(
     new Set(assets.cars.map((c) => c.id)),

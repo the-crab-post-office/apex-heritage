@@ -1,6 +1,6 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.12.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.13.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
 
@@ -9,9 +9,24 @@ Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Ma
 - **Play:** https://the-crab-post-office.github.io/apex-heritage/
 - **Source:** https://github.com/the-crab-post-office/apex-heritage
 - **Preserved release downloads:** https://github.com/the-crab-post-office/apex-heritage/releases — source, browser and Linux ZIPs with SHA256 checksums. `RELEASE-ARCHIVES.json` indexes the 40 migrated assets (0.6–0.12).
-- GitHub Pages serves the built **`gh-pages` branch**, root folder. Source stays on `main`; release tags retain their original contents. The main branch includes project-subpath hosting fixes on top of the 0.12 gameplay release.
+- GitHub Pages serves the built **`gh-pages` branch**, root folder. Source stays on `main`; release tags retain their original contents. The main branch includes the 0.13 full-grid car and tyre-force update, with project-subpath hosting support.
 - Rebuild with `npm ci && bash scripts/build-web.sh` (Rust/WASM tooling required); publish using `python3 scripts/deploy-pages.py` with your own Git credentials. No token is stored in source, deployed assets or Git remotes. GitHub Pages ignores `_headers`; the explicit no-store manifest fetch and bounded build compatibility checks are retained, but CDN propagation can briefly delay a new deployment.
-- Workspace budget: `python3 scripts/workspace-budget.py`. Rebuildable toolchains/caches can live outside `/home/user`; they are ephemeral and may need reinstalling after a sandbox restart. The project, active preview and current release downloads remain local.
+- Workspace budget: `python3 scripts/workspace-budget.py`. Rebuildable toolchains/caches can live outside `/home/user`; they are ephemeral and may need reinstalling after a sandbox restart. The project and active preview remain local; large release ZIPs are published to GitHub and indexed without keeping redundant copies in the workspace.
+
+## 0.13 — full 2021 grid / car realism / handling
+
+- **[Compare all ten 2021 cars with real photographs](https://the-crab-post-office.github.io/apex-heritage/car-comparison.html)**. The self-contained HTML embeds credited CC BY-SA 4.0 reference photos and actual production-render captures, plus per-car remaining differences. Downloaded/previewed offline, it needs no network assets. The game menu also links to it.
+- Full 2021 grid: Mercedes W12, Red Bull RB16B, Ferrari SF21, Aston Martin AMR21, McLaren MCL35M, Alpine A521, Williams FW43B, AlphaTauri AT02, Alfa Romeo C41 and Haas VF-21. **57 constructor-season entries / five eras**. 2021 is appended internally as era 4, preserving existing 1967/1988/2004/2023 save/record indices; the web menu is displayed chronologically.
+- Separate 2021 geometry: flat stepped floor, diagonal floor cut, multi-vane bargeboards, narrower squared rear-wing assembly and open-spoke 13-inch wheels, not a 2023 repaint. Modern tyre widths/radii and wheel centres are shared with physics. The 2023 cars retain their ground-effect treatment and larger covered rims, with revised wheel/wing dimensions.
+- Reworked modern season-specific paint blocks, conformal unmirrored sponsor/number decals, helmet/suit colours, matte vs metallic finishes and estimated team nose/pod/engine-cover proportion variants. Native shares authored geometry, variant transforms and atlases but has simpler lighting. These remain shared-base reconstructions with estimated team differences, **not ten exact constructor CAD models or scans**; 0/57 verified scans integrated.
+- Shared Rust handling adds a combined-slip tyre-force budget for every era, sublinear load sensitivity under downforce, rear-load response to braking/acceleration, tyre-limited braking and wheelbase-derived steering. Browser front wheels use matching speed-sensitive Ackermann steering, and tyre rotation/support use the actual shared radius. The 2021 preset has a 752 kg base mass/eight ratios; other tuning is approximate, not validated vehicle telemetry. No Rapier dependency was needed.
+- Five-era pit-stop durations, AI pace, HUD RPM, procedural hybrid audio, mobile controls and deep links are covered. Selecting a comparison car via `?season=2021&constructor=2021-mercedes` changes the setup, not auto-starting a race. Existing strict core compatibility, bounded stale-build recovery and modern-all-eras Monaco/Spa refinements remain intact.
+
+Regenerate: `python3 scripts/add-2021-roster.py`, `python3 scripts/build-car-shapes.py`, `python3 scripts/build-liveries.py`; build/serve; `APEX_URL=http://localhost:5186 node scripts/capture-car-comparison.mjs`; `python3 scripts/build-car-comparison.py`; rebuild to publish the HTML. Photos retain their separate license; see `data/CAR-REFERENCE-PHOTOS.md`.
+
+## Previous release notes
+
+Counts and scan statuses below describe those historical releases; current totals are above.
 
 ## 0.12 Monaco Swimming Pool reference update
 
@@ -69,8 +84,8 @@ See [photo-reference notice](data/PHOTO-REFERENCE-NOTICE.md). This is a photo-gu
 
 ## Retained 0.8 collection update
 
-- Full season constructor selection shared by Rust, web/native menus, handling and web rival liveries. 1967 counts constructor representatives, excluding F2 guests and duplicate privateer/engine entries; one representative car per constructor, not every driver/race variant. Quick races still use the existing smaller AI field, not 47 simultaneous cars.
-- 47 original 2048×1024 offline-generated atlases: characteristic colour blocking, race numbers, period sponsor lettering, wing/endplate panels and web tyre/rim details. These remain **stylised reconstructions**, not exact corporate fonts or race-by-race replicas. Chassis are shared per-era models; native has simpler decal/tyre coverage.
+- Full season constructor selection shared by Rust, web/native menus, handling and web rival liveries. 1967 counts constructor representatives, excluding F2 guests and duplicate privateer/engine entries; one representative car per constructor, not every driver/race variant. Quick races still use the existing smaller AI field, not 57 simultaneous cars.
+- 57 original 2048×1024 offline-generated atlases: characteristic colour blocking, race numbers, period sponsor lettering, wing/endplate panels and web tyre/rim details. These remain **stylised reconstructions**, not exact corporate fonts or race-by-race replicas. Chassis are shared per-era models; native has simpler decal/tyre coverage.
 - Dark/sage browser menu, orbitable selected-car showroom, camera presets, constructor strip, engine/power/number data and clearer session setup. Native setup has a simpler 3D car studio; native camera field-of-view units are corrected. Reduced-motion, mobile sizing, failed-texture fallback and resource disposal are covered by browser tests.
 - Removed redundant checked-in map/building databases and obsolete concept hero; runtime and offline generators use authoritative `data/` inputs. Existing licenses and releases are retained.
 - 1988 naturally aspirated constructors no longer inherit turbo lag/boost.
@@ -92,12 +107,12 @@ The work remains on `feature/photo-cars-eau-rouge`; stable `main`/`v0.6.0` are n
 - **Kerb strikes and bottoming**: per-wheel support, approximate sprung heave/roll/pitch, era ride heights and underfloor probes. A high ridge can hit the floor while tyres remain legal, with drag, suspension reaction, sparks, scrape audio and HUD feedback. This is not a validated suspension/rigid-body model.
 - Previous progressive, recoverable spins, assists, swept barrier impacts and playable pit service remain. The new physics uses a fresh lap-record bucket.
 
-Full source evidence, photo links, database attribution and limitations: [corner-detail notice](data/CORNER-DETAILS-NOTICE.md). Reference photos are **not redistributed**, used as textures or presented as a photogrammetry scan.
+Full source evidence, photo links, database attribution and limitations: [corner-detail notice](data/CORNER-DETAILS-NOTICE.md). Scenery reference photos are **not redistributed** or used as textures. The separately credited 2021 car comparison photos are redistributed under CC BY-SA 4.0; neither is presented as a photogrammetry scan.
 
 ## Retained prototype features
 
 - Ten circuits: Spa, Monaco, Monza, Silverstone, Suzuka, Interlagos, Imola, Nürburgring GP, Montréal and Hockenheim.
-- Four car eras (1967, 1988, 2004, 2023), **47 constructor representatives** (9 / 18 / 10 / 10), distinct power/grip/braking and era handling, turbo boost, wet-weather grip and progressive rear breakaway. Handling is inspired by the eras, not calibrated real vehicle telemetry.
+- Five car eras (1967, 1988, 2004, 2021, 2023), **57 constructor-season entries** (9 / 18 / 10 / 10 / 10), distinct power/grip/braking and era handling, turbo boost, wet-weather grip and progressive rear breakaway. Handling is inspired by the eras, not calibrated real vehicle telemetry.
 - Practice, time trial and browser quick races with five AI cars; keyboard, touch and standard controller inputs.
 - Real mapped recent pit routes, lane following/limiter, marked-box stop and timed tyre/fuel service. **Pit entry practice** avoids needing a full lap. Not full race strategy.
 - Phase-locked timbre derived from licensed real recordings for the first three eras; modern V6 synthesis and safe missing-recording fallback. The source cars/dates are approximate era stand-ins, not exact roster-car recordings.
@@ -115,7 +130,7 @@ python3 serve.py --port 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.11.2-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.13.0-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|

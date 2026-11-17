@@ -12,7 +12,7 @@ pub struct Cars {
 impl Cars {
     pub fn new() -> Self {
         let mut meshes = HashMap::new();
-        for era in 0..4 {
+        for era in 0..5 {
             let batches = apex_heritage::car_shapes::model(era)
                 .unwrap()
                 .iter()
@@ -87,20 +87,31 @@ impl Cars {
             if *head && self.hide_head {
                 continue;
             }
-            let mapped =
-                ["body", "pods", "wing", "tyre", "front_wing"].contains(&material.as_str());
+            let mapped = [
+                "body",
+                "pods",
+                "wing",
+                "tyre",
+                "front_wing",
+                "decals",
+                "engine_decals",
+            ]
+            .contains(&material.as_str());
             mesh.texture = if mapped { Some(texture.clone()) } else { None };
             let mut color = match material.as_str() {
                 "carbon" => hex("#14191f"),
                 "rubber" => hex("#111317"),
-                "rim" => hex("#aab0ae"),
+                "rim" => hex(t.rim_color.as_deref().unwrap_or("#aab0ae")),
                 "engine" => hex("#56595a"),
                 "exhaust" => hex("#a7947c"),
                 "screen" => hex("#55c7ac"),
                 "belt" => hex("#b52b21"),
                 "brake" => hex("#74716c"),
                 "groove" => hex("#070809"),
-                "helmet" => hex("#ece9da"),
+                "helmet" => hex(t.helmet_color.as_deref().unwrap_or("#ece9da")),
+                "suit" => hex(&t.color),
+                "endplate" => hex(t.endplate_color.as_deref().unwrap_or(&t.color)),
+                "front_endplate" => hex(t.front_endplate_color.as_deref().unwrap_or(&t.color)),
                 "accent" => hex(if era == 0 { &t.secondary } else { &t.accent }),
                 "compound" => hex(if era == 0 { "#202224" } else { "#c62a36" }),
                 _ => WHITE,
@@ -129,13 +140,13 @@ impl Cars {
                                 w.longitudinal,
                             )));
                     }
-                    draw_tinted(mesh, color);
+                    draw_tinted(mesh, color, &t.id, material);
                     unsafe {
                         get_internal_gl().quad_gl.pop_model_matrix();
                     }
                 }
             } else {
-                draw_tinted(mesh, color);
+                draw_tinted(mesh, color, &t.id, material);
             }
         }
         unsafe {
@@ -143,13 +154,18 @@ impl Cars {
         }
     }
 }
-fn draw_tinted(mesh: &Mesh, color: Color) {
+fn draw_tinted(mesh: &Mesh, color: Color, id: &str, material: &str) {
     // Macroquad's built-in mesh pipeline stores per-vertex colour. Scratch copy keeps cache immutable.
     let vertices = mesh
         .vertices
         .iter()
         .map(|v| {
             let mut v = *v;
+            v.position = Vec3::from_array(apex_heritage::car_shapes::variant_point(
+                id,
+                material,
+                v.position.to_array(),
+            ));
             v.color[0] = (v.color[0] as f32 * color.r) as u8;
             v.color[1] = (v.color[1] as f32 * color.g) as u8;
             v.color[2] = (v.color[2] as f32 * color.b) as u8;

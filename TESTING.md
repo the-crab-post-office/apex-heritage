@@ -1,3 +1,50 @@
+# Validation — 0.13.0-preview.1
+
+Full 2021 grid, five-era compatibility, modern geometry/liveries and shared tyre-force update. Branch `feature/2021-grid-and-car-realism`, based on main `5550b0a`.
+
+- **82 Rust/native tests passed** (`cargo test --features native`): 73 shared library + 9 native renderer; full rerun after tyre-limited brake fix. Includes five-era wet/dry stopping stability, 2021 mass/wheelbase/radius and all ten circuits × five-era pit service.
+- **117 Node tests passed**, including full roster/geometry/decal contracts, all photo and embedded capture SHA256 checks, new record namespace, V6 profile, and existing gameplay/asset contracts.
+- **21 Python tests passed**, including offline deterministic scenery generation.
+- Optimized Linux/native executable built successfully. Production web build verifies actual WASM build version 0.13.0-preview.1 and matching emitted binary bytes. `d934b07c` is the unchanged **track-data hash**, not a WASM checksum. New tyre dynamics do change the WASM binary.
+- 2021 Red Bull deep link / Rust acceleration / AI finite-state / wheel support / camera / audio browser test passed; mobile 390px five-era selection test passed. Existing 2023 selection index is retained.
+- Mobile showroom rendering suspension and explicit failed-texture fallback passed. The full 114-change showroom resource test also passed (6.5 minutes on software rendering): every atlas loaded and existing geometry/texture resource ceilings held. Final publication checks are recorded below.
+
+Evidence: `artifacts/realism-{node,python,rust-final,browser,showroom-final,build-final}.log`.
+
+**Limitations:** no measured vehicle telemetry validation, no verified scans (0/57), no ten exact constructor-specific CAD chassis. Shared authored era chassis with estimated team geometry differences; typography/partner positions still approximate. 2021 uses explicitly labelled latest-surface circuit substitutes. Headless software rendering is not a real-device performance benchmark; controller hardware and subjective audio review remain unverified. Rapier was not added; these are bounded original quasi-static force-budget changes, not a full articulated suspension model.
+
+## Final regression results
+
+- **21 unique browser tests passed across the final run and targeted reruns**: 2 full-grid/deep-link/mobile, 4 bounded build recovery, 2 embedded comparison/mobile, 8 general gameplay/menu/audio and 2 car/Spa reference tests, plus 3 showroom tests. The 18-test final batch initially had 17 passes and one obsolete four-era garage expectation; the corrected five-era setup test passed separately. Its first expanded rerun exhausted the old overall time budget during software-rendered showroom updates; the setup-only test now cancels background showroom animation (the independent 114-switch test still renders every model with unchanged resource limits) and has a 240-second bound. No game compatibility or correctness assertion was relaxed.
+- **Native 2021 Monaco / all eight cameras render+physics smoke passed** on the optimized executable; exact terminal result is in `artifacts/realism-native-smoke.log`.
+- Roster, geometry, layout, atlas manifest, embedded native atlas mapping and all 57 PNGs regenerate byte-identically (64 checked outputs, with `cargo fmt` normalization).
+- Final standalone comparison is **2,597,718 bytes**; all twenty embedded JPEGs decoded successfully and their hashes match retained photo/capture manifests. No external image/script/font requests are needed. Final production build includes comparison HTML and capture provenance manifest.
+- 117 Node / 82 Rust-native / 21 Python checks remain green. Native and browser software rendering checks ran serially to avoid GPU contention. Existing Vite large-chunk warning remains nonfatal.
+
+## Reproduce current build
+
+```sh
+cargo test --features native
+npm test
+python3 -m unittest discover -s tests -p 'test_*.py'
+bash scripts/build-web.sh
+# serve in another terminal
+python3 scripts/serve-web.py --port 5186
+APEX_URL=http://127.0.0.1:5186 npx playwright test tests/2021-grid.spec.js tests/showroom.spec.js tests/car-comparison.spec.js tests/photo-reference.spec.js tests/build-recovery.spec.js tests/game.spec.js
+APEX_URL=http://127.0.0.1:5186 node scripts/capture-car-comparison.mjs
+python3 scripts/build-car-comparison.py
+npm run build  # includes final comparison/capture manifest in distribution
+cargo build --release --features native --bin apex-native
+APEX_SMOKE=1 APEX_SMOKE_ALL_CAMERAS=1 APEX_SMOKE_TRACK=1 APEX_SMOKE_ERA=4 xvfb-run -a target/release/apex-native
+python3 scripts/workspace-budget.py
+```
+
+The initial full-grid showroom run hit its old 180-second timeout on software rendering (57→114 texture/model switches). No correctness assertion failed before timeout. Timeout raised to 480 seconds for the expanded 57-entry / more detailed chassis test; resource ceilings are unchanged.
+
+---
+
+# Historical validation
+
 # GitHub Pages / workspace migration checks
 
 Deployment-only changes on top of 0.12.0-preview.1: relative asset base, relative `version.json` and license links, preserved strict core gate, static `gh-pages` publisher and workspace-budget audit.

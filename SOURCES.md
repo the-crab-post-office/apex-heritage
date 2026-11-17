@@ -139,3 +139,11 @@ No new third-party assets or runtime services are introduced. The original no-ca
 ## 0.12 Swimming Pool reference refinement
 
 Modern Monaco Piscine uses a saved public OSM map API extract in `data/monaco-piscine-map.json` (pool way 167625723, sports centre 197170037, harbour coastline/piers 166624054), © OpenStreetMap contributors, ODbL-1.0. `data/monaco-piscine.json` is the editable derived scenery shared by both renderers. Two user reference photos guide original approximate kerbs, Armco/fences, temporary bleachers, pool finish and yacht models; no photo pixels are redistributed. Full source URL, IDs, scope and uncertainty: `data/MONACO-REFERENCE-NOTICE.md`. No scans or new car assets are introduced.
+
+
+## 0.13 — 2021 grid, car comparison and tyre forces
+
+- Regulatory mass anchor: FIA **2021 Formula 1 Technical Regulations, issue 8 (19 February 2021), article 4.1**, https://api.fia.com/sites/default/files/2021_formula_1_technical_regulations_-_iss_8_-_2021-02-19.pdf : 752 kg without fuel. Other performance parameters are explicitly gameplay estimates, not team dyno/aero data.
+- Reference photographs: ten 2021 Austrian GP side views by **Lukas Raich**, Wikimedia Commons, **CC BY-SA 4.0**. Exact original file URLs, photographer credit, licenses, modified-file checksums and resizing details: `data/car-references.json`, `data/CAR-REFERENCE-PHOTOS.md`. Resized photos retain CC BY-SA 4.0; no photographer pixels enter car liveries. `web/public/car-comparison.html` embeds the credited photos beside actual production-render captures, not generated concept art.
+- Original 2021 bargeboard/flat-floor/13-inch chassis geometry, original 2023 wheel/wing refinements, original team proportion variants and unmirrored decal meshes are shared between native/browser. No downloaded car mesh or verified scan was introduced; scan count stays 0/57. Branding/corporate artwork limitations remain as above.
+- `src/tyres.rs` adds original bounded force-budget/load-sensitivity/rear-load equations to the existing deterministic Rust dynamics, plus a tyre-limited braking cap. These are quasi-static approximations, not measured Pacejka coefficients or a full articulated suspension. Rapier was not added: generic rigid-body collision is not a substitute for the required tyre-force model, and the existing swept barrier/contact system is retained.

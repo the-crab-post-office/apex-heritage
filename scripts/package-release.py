@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import subprocess
 import zipfile
+import argparse
 
 ROOT = Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
@@ -59,6 +60,7 @@ common['licenses/LIVERY-NOTICE.md'] = Path('data/LIVERY-NOTICE.md').read_bytes()
 common['licenses/PHOTO-REFERENCE-NOTICE.md'] = Path('data/PHOTO-REFERENCE-NOTICE.md').read_bytes()
 common['licenses/DejaVu.txt'] = Path('scripts/fonts/LICENSE-DejaVu.txt').read_bytes()
 common['licenses/MONACO-REFERENCE-NOTICE.md'] = Path('data/MONACO-REFERENCE-NOTICE.md').read_bytes()
+common['licenses/CAR-REFERENCE-PHOTOS.md'] = Path('data/CAR-REFERENCE-PHOTOS.md').read_bytes()
 common['licenses/CAR-SCAN-STATUS.md'] = Path('data/CAR-SCAN-STATUS.md').read_bytes()
 common['WORKSPACE.md'] = Path('WORKSPACE.md').read_bytes()
 common['BUILD-INFO.txt'] = info
@@ -77,6 +79,7 @@ web['START-HERE.txt'] = (f'APEX / HERITAGE {version} — web\n'
     'Keyboard: WASD/arrows, R recover, P pits, L limiter, C camera, Esc pause.\n'
     'Practice setup offers PIT ENTRY PRACTICE to try a stop without a full lap.\n').encode()
 native = dict(common)
+native["car-comparison.html"] = Path("web/public/car-comparison.html").read_bytes()
 native['apex-native-linux-x86_64'] = Path('target/release/apex-native').read_bytes()
 for p in Path('data').iterdir():
     if p.is_file():
@@ -92,7 +95,10 @@ native['START-HERE.txt'] = (f'APEX / HERITAGE {version} — Linux x86_64\n'
     'Driving: WASD/arrows or LS+RT/LT. R/B recover; P/X request pits; L/Y limiter; C/RB camera.\n'
     'O stages pit-entry practice; Escape/Start pauses; M/View returns to setup; V toggles sound.\n'
     'Native is simpler free-drive; web has additional scenery detail, races and setup UI.\n').encode()
-release_dir=Path('releases') / version
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--output',type=Path,help='Output directory; may be outside a size-limited workspace')
+args=parser.parse_args()
+release_dir=args.output if args.output else Path('releases') / version
 release_dir.mkdir(parents=True,exist_ok=True)
 outputs = [('source', 'apex-heritage-source', source), ('web', 'apex-heritage-web', web),
            ('native-linux', 'apex-heritage-linux', native)]

@@ -353,7 +353,7 @@ async fn main() {
         .ok()
         .and_then(|s| s.parse::<usize>().ok())
         .unwrap_or(2)
-        .min(3);
+        .min(4);
     let mut team = 0usize;
     let mut wet = false;
     let mut assist = true;
@@ -433,7 +433,7 @@ async fn main() {
                 ti = (ti + 9) % 10;
             }
             if is_key_pressed(KeyCode::E) || pad.pressed.contains(&gilrs::Button::LeftTrigger) {
-                era = (era + 1) % 4;
+                era = (era + 1) % 5;
                 team = team.min(apex_heritage::roster::teams(era).len() - 1);
             }
             if is_key_pressed(KeyCode::T) || pad.pressed.contains(&gilrs::Button::RightTrigger) {
@@ -830,7 +830,7 @@ async fn main() {
             );
             draw_text("APEX / HERITAGE", 70., 100., 56., WHITE);
             draw_text(
-                "THE COLLECTION / 47 CONSTRUCTORS / 4 ERAS",
+                "THE COLLECTION / 57 SEASON ENTRIES / 5 ERAS",
                 72.,
                 145.,
                 22.,
@@ -845,7 +845,8 @@ async fn main() {
                         "1967 / NO WINGS",
                         "1988 / TURBO",
                         "2004 / V10",
-                        "2023 / HYBRID"
+                        "2023 / GROUND EFFECT",
+                        "2021 / V6 · 13-INCH"
                     ][era],
                     format!(
                         "{} {}",

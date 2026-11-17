@@ -25,7 +25,13 @@ pub fn advance(s: &mut State, m: &mut RearMemory, i: RearInput, dt: f32) {
     let lateral = (target.abs() / max_yaw.max(0.001)).min(1.);
     m.lift = (m.lift * (-dt / 0.38).exp()).max((i.previous_throttle - i.throttle).max(0.));
     let speed_gate = ((s.speed - 5.) / 9.).clamp(0., 1.);
-    let longitudinal = ((i.raw_accel / i.grip.max(0.1)).min(2.) * 0.45
+    let rear_load = crate::tyres::rear_load_factor(
+        i.brake * i.grip,
+        i.raw_accel.min(i.grip),
+        s.speed,
+        if i.classic { 2.22 } else { 3.6 },
+    );
+    let longitudinal = ((i.raw_accel / (i.grip * rear_load).max(0.1)).min(2.) * 0.45
         + i.brake * 0.65
         + m.lift * if i.classic { 0.35 } else { 0.22 })
         * if i.assists { 0.8 } else { 1. };

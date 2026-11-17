@@ -1,3 +1,4 @@
+import { variantPoint } from "./car-variants.js";
 import * as THREE from "three";
 import shapes from "../data/car-shapes.json";
 import { liveryMaterials } from "./livery.js";
@@ -17,13 +18,18 @@ export function referenceCar(era, team) {
     pods: l.pods,
     wing: l.wing,
     front_wing: l.end,
+    decals: l.decals,
+    engine_decals: l.decals,
+    endplate: mat(team.endplate_color || team.color, 0.35, 0.1),
+    front_endplate: mat(team.front_endplate_color || team.color, 0.35, 0.1),
+    suit: mat(team.color, 0.85, 0),
     tyre: l.tyre,
     carbon: mat("#14191f", 0.48, 0.25),
     rubber: mat("#111317", 0.85, 0),
     rim: l.rim,
     engine: mat("#56595a", 0.45, 0.7),
     exhaust: mat("#a7947c", 0.4, 0.75),
-    helmet: mat("#ece9da", 0.3, 0.1),
+    helmet: mat(team.helmet_color || "#ece9da", 0.3, 0.1),
     accent: mat(classic ? team.secondary : team.accent, 0.4, 0.1),
     screen: mat("#55c7ac", 0.35, 0),
     belt: mat("#b52b21", 0.7, 0),
@@ -43,7 +49,7 @@ export function referenceCar(era, team) {
         front ? layout.front : layout.rear,
       );
       car.add(wheel);
-      wheels.push({ mesh: wheel, front });
+      wheels.push({ mesh: wheel, front, radius: layout.radius });
     }
   const haloMaterial = materials.carbon.clone();
   haloMaterial.transparent = true;
@@ -51,7 +57,12 @@ export function referenceCar(era, team) {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(batch.positions.flat(), 3),
+      new THREE.Float32BufferAttribute(
+        batch.positions.flatMap((p) =>
+          variantPoint(team.id, batch.material, p),
+        ),
+        3,
+      ),
     );
     geometry.setAttribute(
       "uv",
@@ -78,6 +89,8 @@ export function referenceCar(era, team) {
     } else car.add(build());
   }
   car.userData.wheels = wheels;
+  car.userData.layout = layout;
+  car.userData.steeringLock = [0.5, 0.34, 0.31, 0.28, 0.29][era];
   car.userData.materials = [...Object.values(materials), haloMaterial];
   car.userData.liveryReady = l.ready;
   car.userData.livery = {
@@ -96,7 +109,13 @@ export function referenceCar(era, team) {
     diffuser: !classic,
     referenceProfile: classic
       ? "1967-open-radiator-cigar"
-      : ["", "1988-turbo", "2004-v10", "2023-ground-effect"][era],
+      : [
+          "",
+          "1988-turbo",
+          "2004-v10",
+          "2023-ground-effect",
+          "2021-flat-floor-13inch",
+        ][era],
     components,
     paintedVertices: shapes.models[String(era)]
       .filter((b) => ["body", "pods", "wing"].includes(b.material))

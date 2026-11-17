@@ -48,7 +48,7 @@ mod tests {
     use super::*;
     #[test]
     fn all_four_eras_clear_both_piscine_chicanes_at_driving_speed() {
-        for era in 0..4 {
+        for era in 0..5 {
             let mut sim = crate::Simulation::new(1, era, 0, false, true);
             for i in 497..556 {
                 let p = sim.track.points[i];
@@ -72,7 +72,7 @@ mod tests {
         let s = data();
         assert!(s.yachts >= 12);
         assert!(s.facets.len() > 100);
-        for era in 0..4 {
+        for era in 0..5 {
             let d = crate::corner::Details::new(&t, era);
             assert!(d
                 .kerbs
