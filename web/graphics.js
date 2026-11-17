@@ -1,3 +1,4 @@
+import { advanceWheel, steeringAngle } from "./wheel-motion.js";
 import piscine from "../data/monaco-piscine.json";
 import { cameraRig } from "./cameras.js";
 import { makeCar } from "./car.js";
@@ -13,6 +14,7 @@ import imageryManifest from "../data/imagery.json";
 import { imageryFor, forestAt } from "./imagery.js";
 import {
   CornerIndex,
+  cornerFootprintMask,
   buildCornerSurfaces,
   updateFloorSparks,
 } from "./corners.js";
@@ -260,6 +262,8 @@ export class World {
       // Coastlines and inland hills now come from the geographic height field.
       pos.setY(i, h);
     }
+    const cornerMask = cornerFootprintMask(this.config.details?.facets);
+    this.cornerCoverMask = cornerMask;
     const roadMask = new RoadMask(this.track),
       terrainMask = new RoadMask(this.track, 2);
     const triangles = [],
@@ -279,7 +283,9 @@ export class World {
             piscine.terrain_mask.map((t) => t.map(([x, z]) => [x, 0, z])),
           )
         : null;
-    const dryTriangles = scenicMask ? scenicMask.cutAll(triangles) : triangles;
+    const dryTriangles = cornerMask.cutAll(
+      scenicMask ? scenicMask.cutAll(triangles) : triangles,
+    );
     const ground = this.surfaceMesh(
       this.pitMask
         ? this.pitMask.cutAll(terrainMask.cutAll(dryTriangles))
@@ -361,9 +367,11 @@ export class World {
       ]) {
         const triangles = ribbon(this.track, side * a, side * b, h);
         const layer = this.surfaceMesh(
-          this.pitMask
-            ? this.pitMask.cutAll(roadMask.cutAll(triangles))
-            : roadMask.cutAll(triangles),
+          cornerMask.cutAll(
+            this.pitMask
+              ? this.pitMask.cutAll(roadMask.cutAll(triangles))
+              : roadMask.cutAll(triangles),
+          ),
           this.surfaces.pbr(
             this.track.code === "MC" ? "Concrete023" : "Grass004",
             "#e0e0ce",
@@ -1151,17 +1159,19 @@ export class World {
             pose[9] * w.mesh.position.z) /
           pose[5];
       }
-      w.mesh.rotation.x += (state.speed * dt) / w.radius;
-      if (w.front) {
-        const layout = p.userData.layout,
-          wb = layout.front - layout.rear;
-        const angle =
-          (state.steering * p.userData.steeringLock) /
-          (1 + state.speed * (this.config.era === 0 ? 0.045 : 0.038));
-        const turnRadius =
-          Math.abs(angle) > 0.0001 ? wb / Math.tan(angle) : Infinity;
-        w.mesh.rotation.y = Math.atan(wb / (turnRadius - w.mesh.position.x));
-      }
+      advanceWheel(
+        w,
+        state.speed,
+        dt,
+        steeringAngle(
+          w,
+          p.userData.layout,
+          p.userData.steeringLock,
+          state.steering,
+          state.speed,
+          this.config.era === 0,
+        ),
+      );
     }
     const center = p.position.clone();
     this.cameraTime = (this.cameraTime || 0) + dt;

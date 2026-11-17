@@ -1,3 +1,47 @@
+# Validation — 0.14.0-preview.1
+
+Branch `fix/wheel-pivots-and-photo-accuracy`, based on main `8becfba`. Tyre-axis correction, fifteen-photo all-track/all-era audit, bounded recent-surface and period-car refinements.
+
+## Completed checks
+
+- **83 Rust/native tests passed**: 74 shared library + 9 native. Includes per-axle radii, actual native terrain/road exclusion and new physical-apron coverage masking. Optimized Linux executable built successfully.
+- **123 Node tests passed** in the final post-capture run, including every embedded image and shared input hash. The wheel regression checks all five eras, both steering locks and many revolutions; apron mask checks exclude vertical kerb sides and grass-only facets.
+- **25 Python tests passed**, including all ten track audit metadata, all five recent refinements, older-profile hashes and deterministic offline geometry.
+- **7 targeted browser tests passed on the final build**: production wheel axle/contact invariance; historical/recent Monza contact and labels; both offline comparison pages with mobile layouts and working filters. Both full-2021-grid/deep-link/mobile tests also passed after the grass-mask correction as part of the extended regression run.
+- Production WASM identity and emitted binary bytes verified as **0.14.0-preview.1 / d934b07c**; the latter is the unchanged track-data identity, not the binary checksum.
+
+- Optimized **native Spa/2023 all-eight-camera render/physics smoke passed**, reaching 119.0 km/h.
+- **62 roster/shape/layout/atlas/embedded mapping files regenerate byte-identically**, after helmet refinement, shape/livery generation and Rust formatting.
+
+## Evidence and scope
+
+`artifacts/014-{rust-final,python,node-final,track-captures-final,browser-final,browser-regression,native-smoke,determinism}.log`. `data/photo-audit-captures.json` records all fifteen actual production render checksums, cameras and shared input hashes. `photo-accuracy.html` embeds fifteen credited reference photographs and fifteen game captures, with responsive offline filters, source/license links and per-card uncertainty. Updated `car-comparison.html` retains the ten-team 2021 comparison.
+
+Terrain/shoulder grass is geometrically excluded from shared physical apron/kerb projections in the browser, and terrain in native. An initial visual capture exposed grass islands over sloped Spa paving; the post-mask capture shows the wide apron instead. Coarse-cell clipping has a projection AABB early-out so unrelated facets do not fragment each other. Initial pre-optimization capture timed out; that attempt is not counted as a passing result.
+
+This is **not** a complete reconstruction of ten tracks/fifty historical layouts or 57 constructor chassis. Five recent track presets receive bounded corrections; five are reviewed/retained on insufficient evidence. Only representative cars from each era are compared. Source photos differ in date/viewpoint and are not camera-registered. Period dimensions, sponsor text and small aero remain authored approximations. **0/57 verified scans**. No calibrated telemetry, physical-controller or subjective audio validation is claimed. Native remains visually simpler and does not animate steering/spin; the browser wobble fix is not described as a new native animation feature.
+
+## Reproduce
+
+```sh
+cargo test --features native
+npm test
+python3 -m unittest discover -s tests -p 'test_*.py'
+bash scripts/build-web.sh
+python3 scripts/serve-web.py --port 5186
+# in another terminal; avoid concurrent GPU runs
+APEX_URL=http://127.0.0.1:5186 npx playwright test tests/wheel-pivots.spec.js tests/2021-grid.spec.js tests/car-comparison.spec.js tests/corners.spec.js
+node scripts/capture-car-comparison.mjs
+node scripts/capture-track-audit.mjs
+python3 scripts/build-car-comparison.py
+python3 scripts/build-photo-audit.py
+bash scripts/build-web.sh
+cargo build --release --features native --bin apex-native
+python3 scripts/workspace-budget.py
+```
+
+---
+
 # Validation — 0.13.0-preview.1
 
 Full 2021 grid, five-era compatibility, modern geometry/liveries and shared tyre-force update. Branch `feature/2021-grid-and-car-realism`, based on main `5550b0a`.

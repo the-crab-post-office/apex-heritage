@@ -208,6 +208,23 @@ impl Details {
         d.index();
         d
     }
+    /// Projection mask for rendered terrain. Physical kerb/runoff facets must
+    /// not be hidden by the interior of a coarse, higher grass triangle.
+    pub fn cover_mask(&self) -> surface_mesh::RoadMask {
+        surface_mesh::RoadMask::from_triangles(
+            self.facets
+                .iter()
+                .filter(|f| {
+                    if f.kind >= 3 {
+                        return false;
+                    }
+                    let [a, b, c] = f.p;
+                    ((b[0] - a[0]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[0] - a[0])).abs() > 0.000002
+                })
+                .map(|f| f.p.map(|p| p.map(|v| v as f64)))
+                .collect(),
+        )
+    }
     fn index(&mut self) {
         for (i, f) in self.facets.iter().enumerate() {
             let minx = f.p.iter().map(|p| p[0]).fold(f32::INFINITY, f32::min);
@@ -367,6 +384,43 @@ pub fn update_contact(t: &Track, d: &Details, s: &mut State, nearest: usize, era
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn visible_surface_mask_excludes_higher_grass_and_vertical_kerb_faces() {
+        let d = Details {
+            year: 2023,
+            label: String::new(),
+            geometry_status: String::new(),
+            notes: String::new(),
+            kerbs: vec![],
+            cells: HashMap::new(),
+            facets: vec![
+                Facet {
+                    kind: 2,
+                    color: 0,
+                    p: [[0., 2., 0.], [10., 3., 0.], [0., 2., 10.]],
+                },
+                Facet {
+                    kind: 3,
+                    color: 0,
+                    p: [[20., 0., 0.], [30., 0., 0.], [20., 0., 10.]],
+                },
+                Facet {
+                    kind: 0,
+                    color: 0,
+                    p: [[40., 0., 0.], [40., 2., 0.], [40., 2., 10.]],
+                },
+            ],
+        };
+        let mask = d.cover_mask();
+        assert!(mask
+            .cut([[0., 100., 0.], [10., 100., 0.], [0., 100., 10.]])
+            .is_empty());
+        assert_eq!(
+            mask.cut([[20., 100., 0.], [30., 100., 0.], [20., 100., 10.]])
+                .len(),
+            1
+        );
+    }
     #[test]
     fn triangle_height_is_barycentric_not_a_bounding_box() {
         assert_eq!(

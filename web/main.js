@@ -92,7 +92,7 @@ config.team = Math.min(
   eras[config.era].teams.length - 1,
   Math.max(0, Number(config.team) || 0),
 );
-let records = readStorage("apex-records-v13-combined-slip", []),
+let records = readStorage("apex-records-v14-wheel-layout", []),
   race = null,
   filter = "all",
   toastTimer;
@@ -360,7 +360,7 @@ function showRecords() {
     $("#clear-records").onclick = () => {
       if (confirm("Delete all locally saved lap records?")) {
         records = [];
-        store("apex-records-v13-combined-slip", records);
+        store("apex-records-v14-wheel-layout", records);
         showRecords();
       }
     };
@@ -472,7 +472,7 @@ function saveRecord(best) {
   if (!old || best < old.best) {
     if (old) old.best = best;
     else records.push({ ...config, best });
-    store("apex-records-v13-combined-slip", records);
+    store("apex-records-v14-wheel-layout", records);
   }
 }
 function exitRace() {

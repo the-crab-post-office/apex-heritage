@@ -1,3 +1,4 @@
+import { wheelRig } from "./wheel-motion.js";
 import { variantPoint } from "./car-variants.js";
 import * as THREE from "three";
 import shapes from "../data/car-shapes.json";
@@ -42,14 +43,9 @@ export function referenceCar(era, team) {
   const wheels = [];
   for (const side of [-1, 1])
     for (const front of [true, false]) {
-      const wheel = new THREE.Group();
-      wheel.position.set(
-        side * layout.half,
-        layout.radius,
-        front ? layout.front : layout.rear,
-      );
-      car.add(wheel);
-      wheels.push({ mesh: wheel, front, radius: layout.radius });
+      const wheel = wheelRig(layout, side, front);
+      car.add(wheel.mesh);
+      wheels.push(wheel);
     }
   const haloMaterial = materials.carbon.clone();
   haloMaterial.transparent = true;
@@ -85,7 +81,7 @@ export function referenceCar(era, team) {
     };
     if (batch.wheel) {
       for (const w of wheels)
-        if (w.front === (batch.wheel === "front")) w.mesh.add(build());
+        if (w.front === (batch.wheel === "front")) w.spin.add(build());
     } else car.add(build());
   }
   car.userData.wheels = wheels;

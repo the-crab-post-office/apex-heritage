@@ -13,7 +13,7 @@
 
 __pycache__/
 
-/build/
+/build
 
 # Credentials are never source or public deployment assets.
 *.token

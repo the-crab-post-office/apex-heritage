@@ -1,3 +1,4 @@
+import { advanceWheel } from "./wheel-motion.js";
 import { RaceCameraControls } from "./race-camera-controls.js";
 import { CAMERAS } from "./cameras.js";
 import * as Core from "./wasm/apex.js";
@@ -352,8 +353,7 @@ export class Race {
         q.z - Math.sin(q.yaw) * (a.skill - 0.92) * 18,
       );
       a.mesh.rotation.set(q.pitch, q.yaw, 0, "YXZ");
-      for (const w of a.mesh.userData.wheels)
-        w.mesh.rotation.x += (a.speed * dt) / 0.35;
+      for (const w of a.mesh.userData.wheels) advanceWheel(w, a.speed, dt);
     }
   }
   checkLaps(time) {

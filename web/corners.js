@@ -1,3 +1,4 @@
+import { RoadMask, area } from "./road-surface.js";
 import * as THREE from "three";
 export function triangleHeight(p, x, z) {
   const [a, b, c] = p,
@@ -8,6 +9,15 @@ export function triangleHeight(p, x, z) {
   return u >= -0.00001 && v >= -0.00001 && u + v <= 1.00001
     ? a[1] * u + b[1] * v + c[1] * (1 - u - v)
     : null;
+}
+// Rendered terrain/shoulder grass must not occlude the shared physical apron
+// triangles on sloping ground. Ignore vertical kerb sides/grass-only regions.
+export function cornerFootprintMask(facets = []) {
+  return new RoadMask(
+    null,
+    0,
+    facets.filter((f) => f.kind < 3 && area(f.p) > 1e-6).map((f) => f.p),
+  );
 }
 export class CornerIndex {
   constructor(facets) {

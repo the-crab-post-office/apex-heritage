@@ -22,6 +22,18 @@ pub struct Layout {
     pub front_width: f32,
     pub rear_width: f32,
     pub radius: f32,
+    pub front_radius: Option<f32>,
+    pub rear_radius: Option<f32>,
+}
+impl Layout {
+    pub fn wheel_radius(&self, front: bool) -> f32 {
+        (if front {
+            self.front_radius
+        } else {
+            self.rear_radius
+        })
+        .unwrap_or(self.radius)
+    }
 }
 #[derive(Deserialize)]
 struct Database {

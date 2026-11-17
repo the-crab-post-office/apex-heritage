@@ -61,3 +61,46 @@ test("comparison pairs stack without overflow on mobile", async ({ page }) => {
   const render = await figures.nth(1).boundingBox();
   expect(render.y).toBeGreaterThan(photo.y + photo.height - 2);
 });
+
+test("broad audit embeds 30 valid images, source credits and track/car filters", async ({
+  page,
+}) => {
+  await page.goto("/photo-accuracy.html");
+  await expect(page.locator("article")).toHaveCount(15);
+  const images = await page.evaluate(async () => {
+    await Promise.all(
+      [...document.images].map(async (image) => {
+        image.loading = "eager";
+        await image.decode();
+      }),
+    );
+    return [...document.images].map((image) => [
+      image.naturalWidth,
+      image.naturalHeight,
+    ]);
+  });
+  expect(images).toHaveLength(30);
+  expect(images.every(([width, height]) => width >= 800 && height >= 150)).toBe(
+    true,
+  );
+  await page.locator('button[data-kind="track"]').click();
+  await expect(page.locator("article:visible")).toHaveCount(10);
+  await page.locator('button[data-kind="car"]').click();
+  await expect(page.locator("article:visible")).toHaveCount(5);
+  await expect(page.locator("#count")).toHaveText("5 reviews");
+  await expect(
+    page.locator('[id="1988"] a[href*="creativecommons.org"]'),
+  ).toHaveText("CC BY-SA 4.0");
+});
+
+test("broad audit stacks on a 390 pixel screen", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/photo-accuracy.html");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
+    390,
+  );
+  const figures = page.locator("article").first().locator("figure");
+  const source = await figures.nth(0).boundingBox(),
+    game = await figures.nth(1).boundingBox();
+  expect(game.y).toBeGreaterThanOrEqual(source.y + source.height - 1);
+});

@@ -66,6 +66,14 @@ function halfPlane(poly, a, b, inside) {
   return out;
 }
 export function subtractTriangle(poly, clip) {
+  // Cell-level indexing is intentionally coarse. Preserve disjoint polygons
+  // intact instead of fragmenting them along unrelated infinite clip lines.
+  for (const axis of [0, 2]) {
+    const p = poly.map((v) => v[axis]),
+      q = clip.map((v) => v[axis]);
+    if (Math.max(...p) <= Math.min(...q) || Math.max(...q) <= Math.min(...p))
+      return [poly];
+  }
   if (cross(clip[0], clip[1], clip[2]) < 0) clip = [clip[2], clip[1], clip[0]];
   let remaining = poly;
   const result = [];

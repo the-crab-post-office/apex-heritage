@@ -107,7 +107,8 @@ fn tunnel(t: &Track, range: Option<(usize, usize)>, player: Vec3, texture: &Text
         }
     }
 }
-fn terrain_mesh(t: &Track) -> Vec<Mesh> {
+fn terrain_mesh(t: &Track, details: &apex_heritage::corner::Details) -> Vec<Mesh> {
+    let corner_mask = details.cover_mask();
     let min_x = t.points.iter().map(|p| p[0]).fold(f32::INFINITY, f32::min) - 300.;
     let max_x = t
         .points
@@ -152,6 +153,7 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
                     .into_iter()
                     .flat_map(|p| mask.cut(p))
                     .flat_map(|p| pit_mask.cut(p))
+                    .flat_map(|p| corner_mask.cut(p))
                 {
                     if vertices.len() + 3 > 3996 {
                         meshes.push(Mesh {
@@ -363,7 +365,8 @@ async fn main() {
     let mut accumulator = 0.;
     let mut terrain_track = ti;
     let mut terrain_era = era;
-    let mut landscape = terrain_mesh(&circuits[ti]);
+    let mut details = apex_heritage::corner::Details::new(&circuits[ti], era);
+    let mut landscape = terrain_mesh(&circuits[ti], &details);
     for mesh in &mut landscape {
         mesh.texture = Some(grass.clone());
     }
@@ -371,7 +374,6 @@ async fn main() {
     let mut pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
     let mut safety = apex_heritage::venue::Venue::for_era(&circuits[ti].name, era);
 
-    let mut details = apex_heritage::corner::Details::new(&circuits[ti], era);
     let mut corner_mesh = venue::corners(&details);
     let mut safety_mesh = venue::build(
         &circuits[ti],
@@ -539,7 +541,7 @@ async fn main() {
             corner_mesh = venue::corners(&details);
             pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
             pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
-            landscape = terrain_mesh(&circuits[ti]);
+            landscape = terrain_mesh(&circuits[ti], &details);
             for mesh in &mut landscape {
                 mesh.texture = Some(grass.clone());
             }
@@ -1076,7 +1078,10 @@ mod surface_tests {
         for t in tracks() {
             let mut cells: HashMap<(i32, i32), Vec<Triangle>> = HashMap::new();
             let pit = apex_heritage::pit::PitLane::new(&t);
-            for mesh in terrain_mesh(&t).into_iter().chain(pit_mesh_build(&pit, &t)) {
+            for mesh in terrain_mesh(&t, &apex_heritage::corner::Details::new(&t, 3))
+                .into_iter()
+                .chain(pit_mesh_build(&pit, &t))
+            {
                 assert!(mesh.vertices.len() < 4000);
                 for ids in mesh.indices.chunks_exact(3) {
                     let tri: Triangle = std::array::from_fn(|i| {

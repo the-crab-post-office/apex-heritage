@@ -38,11 +38,10 @@ for (const era of [0, 3])
       let s = window.__apex.getState();
       w.update(s, 0);
       w.player.updateMatrixWorld(true);
-      let radius = [0.34, 0.35, 0.35, 0.38][w.config.era];
       let tyreErrors = w.player.userData.wheels.map((t, i) =>
         Math.abs(
           t.mesh.getWorldPosition(w.player.position.clone()).y -
-            radius -
+            t.radius -
             s.wheel_heights[i],
         ),
       );

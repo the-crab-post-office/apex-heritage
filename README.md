@@ -1,6 +1,6 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.13.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.14.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
 
@@ -12,6 +12,18 @@ Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Ma
 - GitHub Pages serves the built **`gh-pages` branch**, root folder. Source stays on `main`; release tags retain their original contents. The main branch includes the 0.13 full-grid car and tyre-force update, with project-subpath hosting support.
 - Rebuild with `npm ci && bash scripts/build-web.sh` (Rust/WASM tooling required); publish using `python3 scripts/deploy-pages.py` with your own Git credentials. No token is stored in source, deployed assets or Git remotes. GitHub Pages ignores `_headers`; the explicit no-store manifest fetch and bounded build compatibility checks are retained, but CDN propagation can briefly delay a new deployment.
 - Workspace budget: `python3 scripts/workspace-budget.py`. Rebuildable toolchains/caches can live outside `/home/user`; they are ephemeral and may need reinstalling after a sandbox restart. The project and active preview remain local; large release ZIPs are published to GitHub and indexed without keeping redundant copies in the workspace.
+
+## 0.14 — wheel wobble fix / broad photograph audit
+
+- **[Photo accuracy audit: all ten circuits and all five car eras](https://the-crab-post-office.github.io/apex-heritage/photo-accuracy.html)**. Fifteen credited real photographs beside actual production renders, with explicit observations, changes/retained decisions and remaining uncertainties. Entire HTML works offline.
+- **Fixed tyre wobble:** steering now rotates a hub around Y, with tyre spin on a separate child X axle; spinning can no longer tilt the steered axle. Player and AI share actual-radius spin; phase stays bounded on long sessions. New analytic and actual-browser transform/support regressions exercise the failure, not only screenshots.
+- Photo-reviewed car proportions: smaller 1967 front than rear tyres; narrower 1988/2004 tracks and tyres; estimated 3.05 m 2004 wheelbase; smaller period wings, lower 1988 sidepods/driver/hoop and approximately 0.95 m modern rear-wing tops. Shared contact dimensions match render geometry. White/red McLaren MP4/4 sidepods, revised Ferrari F2004 panels, conformal unmirrored period lettering and representative helmet palettes. No new scans or exact constructor-specific CAD.
+- Recent-surface track corrections: La Source paved escape/short kerbs/red-yellow paint; separate Monza Rettifilo and Silverstone Vale–Club apices plus green paving; Interlagos Senna S opposite apices/green-yellow paint/apron; Hockenheim Spitzkehre blue-white kerbs. All ten circuits reviewed; Monaco/Suzuka/Imola/Nürburgring/Montréal mapped geometry retained where these views do not justify moving it.
+- Shared web/native terrain masks now cut grass out of physical gravel/paved/kerb footprints; higher coarse grass triangles no longer hide sloped aprons. Broad-phase clipping preserves disjoint polygons without unnecessary fragmentation.
+- Older surface profiles remain byte-identical, preserving the requested all-era Eau Rouge/modern Monaco exceptions. Track white-line routing/width and pit routes are not resurveyed. Latest surfaces still explicitly substitute for a 2021 circuit reconstruction. Different photo years/restorations/off-session scenes are labelled; no camera-matching or numerical likeness score is claimed.
+- Contact layout changes use a fresh lap-record namespace without deleting old records or setups. `data/PHOTO-AUDIT-NOTICE.md` and `data/photo-audit-references.json` document full source/license/processing/scope. All photographs remain separately licensed and are never used as game textures.
+
+Rebuild additions: `python3 scripts/refine-photo-roster.py`; shape/livery/corner generators; build/serve; both capture scripts; `python3 scripts/build-car-comparison.py && python3 scripts/build-photo-audit.py`; rebuild distribution. Build products/toolchains can live outside the size-limited workspace; reference manifests and original source remain inside it.
 
 ## 0.13 — full 2021 grid / car realism / handling
 
@@ -130,7 +142,7 @@ python3 serve.py --port 8080
 # Open http://localhost:8080 — do not open index.html using file://.
 ```
 
-Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.13.0-preview.1**; do not mix individual files with an older release.
+Runtime assets are local. Standard controllers need HTTPS or localhost and may need a button press. Confirm the displayed version is **0.14.0-preview.1**; do not mix individual files with an older release.
 
 | Action | Keyboard | Controller |
 |---|---|---|

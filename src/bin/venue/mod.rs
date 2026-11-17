@@ -448,7 +448,7 @@ mod tests {
     fn all_native_venue_batches_fit_and_are_finite() {
         for t in apex_heritage::tracks() {
             let v = Venue::for_track(&t.name);
-            let landscape = crate::terrain_mesh(&t);
+            let landscape = crate::terrain_mesh(&t, &apex_heritage::corner::Details::new(&t, 3));
             let support = Ground::new(&[&landscape]);
             let meshes = build(&t, &v, &support);
             assert!(!meshes.is_empty());

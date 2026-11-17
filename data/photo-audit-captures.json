@@ -1,0 +1,328 @@
+{
+  "version": "0.14.0-preview.1",
+  "inputs": {
+    "data/car-shapes.json": "1bd46d6324b6bb55ad58cbfb31b9d7a0c2a722536e08a9cc90eae1aeda25e81b",
+    "data/car-layouts.json": "f0436dd41cd56dc6c39711e2cd39d9c2b7a7d2c82dc16aef6ccf1e6595e61455",
+    "data/corner-details.json": "533f63550d1a0dbc41a090ba104d1b46420e7b0eee0f0c108d1458ec4720e6c4",
+    "data/roster.json": "53db7010f62b83b67cbcbffd67fe6288a3861a2af783c2d3e281f34850157f90",
+    "data/car-variants.json": "f75645be8cc6cd17d14f59a209f74a9dfe87da76ae9651d6e5f64fc394f07a0f",
+    "web/assets/liveries/manifest.json": "f48689f898d8e8ead66bbb73f3d05b87c077ad9b87cb6fe1decde1d186573f61",
+    "web/wheel-motion.js": "925d8daa761bff4c6f037c4a06a43178d3a996913798f23ba60a1c492721e3ba",
+    "web/graphics.js": "e942f51236bcb13d6b910079a39eafa32c9389c8621917f3879acda487cee941",
+    "web/corners.js": "8682c5eef437ebc03a7d567ff76a640c63708903fed74645de357da6450bd60d",
+    "web/road-surface.js": "7647da069df80a15f43f50356334dd1be050a2e3268d2607e80135e446381878",
+    "src/corner.rs": "c5f60ea6216e6f0f94312cea5c1421e9719f1883b0bf78982205196cbd858c4b"
+  },
+  "captures": [
+    {
+      "id": "spa",
+      "category": "track",
+      "sha256": "f2b5c5763d68be622bee5da502bcd5bb2a6a9696f6dadbabfe68d2ea2a395d7b",
+      "bytes": 79074,
+      "camera": {
+        "station": 31,
+        "position": [
+          -284.9110000000002,
+          166.2151,
+          -1181.6489999999994
+        ],
+        "target": [
+          -369.9110000000002,
+          56.21510000000001,
+          -1271.6489999999994
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "monaco",
+      "category": "track",
+      "sha256": "e36056120bc9db27b323376d95d49ca50bb370c39e3fd0d30f333ebcdae1a4c3",
+      "bytes": 114930,
+      "camera": {
+        "station": 530,
+        "position": [
+          -170.455,
+          80.1047,
+          340.146
+        ],
+        "target": [
+          -235.455,
+          0.10470000000000002,
+          300.146
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "monza",
+      "category": "track",
+      "sha256": "7189f720ed4fd8556aec5d06c83f286131f276cb9870e12501063b07632dc578",
+      "bytes": 84526,
+      "camera": {
+        "station": 98,
+        "position": [
+          -268.3920000000004,
+          92.5735,
+          -54.80000000000001
+        ],
+        "target": [
+          -328.3920000000004,
+          7.573499999999992,
+          -129.8
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "silverstone",
+      "category": "track",
+      "sha256": "bbcf4f9f03062315c2a547850f141d3315b50c6c3d35a906c358c2626b7a5fec",
+      "bytes": 80465,
+      "camera": {
+        "station": 1080,
+        "position": [
+          -346.057,
+          96.1376,
+          671.212
+        ],
+        "target": [
+          -421.057,
+          1.1376000000000002,
+          601.212
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "suzuka",
+      "category": "track",
+      "sha256": "2ef06d218444b6ba342d683d421ccb08b001a0fd44c7fc05e9b56717b04cb1fd",
+      "bytes": 96792,
+      "camera": {
+        "station": 1045,
+        "position": [
+          379.73000000000104,
+          134.69919999999996,
+          -89.85600000000042
+        ],
+        "target": [
+          299.73000000000104,
+          34.69919999999997,
+          -159.85600000000042
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "interlagos",
+      "category": "track",
+      "sha256": "4c8ade529fc643877d9418615540a9e08bf477bcc88e0bb80eec208b5dfc2524",
+      "bytes": 87600,
+      "camera": {
+        "station": 56,
+        "position": [
+          29.931999999999974,
+          130.891,
+          662.846
+        ],
+        "target": [
+          -45.068000000000026,
+          35.891,
+          587.846
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "imola",
+      "category": "track",
+      "sha256": "245a8a896ff45687ad3df1dd860c56703f61382c3a7296284847de7d3d478e4f",
+      "bytes": 88562,
+      "camera": {
+        "station": 790,
+        "position": [
+          1066.1670000000004,
+          111.99560000000001,
+          -305.9909999999995
+        ],
+        "target": [
+          986.1670000000003,
+          1.9956000000000154,
+          -385.9909999999995
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "nurburgring",
+      "category": "track",
+      "sha256": "24f58e0f743c613149ef78536aa5970e7b88c765e938b3947583c09ccb962a0b",
+      "bytes": 75062,
+      "camera": {
+        "station": 130,
+        "position": [
+          143.85899999999972,
+          174.1066,
+          -185.563
+        ],
+        "target": [
+          53.85899999999972,
+          44.10659999999999,
+          -285.563
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "montreal",
+      "category": "track",
+      "sha256": "fc774b7111c6481b9128a29a2fbdbad36f526305a4af90cd76b554c11be6cb0c",
+      "bytes": 59417,
+      "camera": {
+        "station": 0,
+        "position": [
+          341.627,
+          102.244,
+          402.078
+        ],
+        "target": [
+          256.627,
+          2.2439999999999998,
+          327.078
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "hockenheim",
+      "category": "track",
+      "sha256": "4b971dd8b50316cb4313da0132e37f2cfa3e46f772e2afac86cc9ec4db21545d",
+      "bytes": 79457,
+      "camera": {
+        "station": 419,
+        "position": [
+          989.0229999999999,
+          99.3815,
+          -252.94400000000024
+        ],
+        "target": [
+          914.0229999999999,
+          4.3815,
+          -327.94400000000024
+        ],
+        "fov": 45,
+        "quality": "high",
+        "size": [
+          900,
+          560
+        ]
+      },
+      "source": "Actual production race scene"
+    },
+    {
+      "id": "1967",
+      "category": "car",
+      "sha256": "17ca1876dc0d67089ecd0146985305dc38c44d1a9dbeed7eb7dc147c688745d2",
+      "bytes": 48638,
+      "camera": {
+        "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
+      },
+      "source": "Actual production showroom; same car meshes/materials as racing"
+    },
+    {
+      "id": "1988",
+      "category": "car",
+      "sha256": "e318c4e48df24e670a91803fe99e11413f707ce6fbbe79947d33898882c5c5ba",
+      "bytes": 56081,
+      "camera": {
+        "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
+      },
+      "source": "Actual production showroom; same car meshes/materials as racing"
+    },
+    {
+      "id": "2004",
+      "category": "car",
+      "sha256": "2e6c5f2ed2f9a2e5946f40e0a4bb43ab9b2d322b5f554934a6e678be8fd7e1da",
+      "bytes": 59844,
+      "camera": {
+        "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
+      },
+      "source": "Actual production showroom; same car meshes/materials as racing"
+    },
+    {
+      "id": "2023",
+      "category": "car",
+      "sha256": "9f9b3016c641b065225f203c5541fee8b97bebeab9cb84453d89950d561fc2ce",
+      "bytes": 61970,
+      "camera": {
+        "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
+      },
+      "source": "Actual production showroom; same car meshes/materials as racing"
+    },
+    {
+      "id": "2021",
+      "category": "car",
+      "sha256": "3d644e492790b90d65faaae8446586f33360dee8e5d63c441b48739132a41a03",
+      "bytes": 59566,
+      "camera": {
+        "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
+      },
+      "source": "Actual production showroom; same car meshes/materials as racing"
+    }
+  ]
+}

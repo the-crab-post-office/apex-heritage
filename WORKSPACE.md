@@ -77,3 +77,8 @@ After archival and Git object repacking (without pruning history), the complete 
 ## 0.13 car comparison
 
 `web/public/car-comparison.html` is a self-contained deliverable with ten licensed reference photos and actual game captures. Rebuild captures via `scripts/capture-car-comparison.mjs`, then run `scripts/build-car-comparison.py` and rebuild the web site. `data/CAR-REFERENCE-PHOTOS.md` and `data/car-references.json` retain full credit, sources, license and photo checksums. Captures are not scans; there are still zero verified car scans. 2021 uses the latest track-surface profile as an explicitly labelled substitute, not a newly surveyed 2021 circuit.
+
+
+## 0.14 photo audit and wheel pivot correction
+
+New `web/wheel-motion.js` creates an independent steering hub and spin child. Do not restore coupled XYZ Euler rotation on `wheel.mesh`: wheel geometry belongs under `wheel.spin`. Shared layouts can have per-axle radii; native/Rust contacts and browser support use the same dimensions. `scripts/photo_track_refine.py` changes only the latest surface after previous Spa/Monaco refinements. `data/photo-audit-references.json` records fifteen licensed reference views, decisions and hashes proving older surface presets unchanged. `scripts/capture-track-audit.mjs` / `scripts/build-photo-audit.py` create the self-contained `web/public/photo-accuracy.html`. Build output was moved to an external rebuildable cache to maintain the workspace budget.

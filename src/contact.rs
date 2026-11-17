@@ -24,7 +24,7 @@ pub fn wheels(era: usize) -> [Wheel; 4] {
             }
         }),
         patch_length: if classic { 0.18 } else { 0.24 },
-        radius: layout.map_or(0.35, |l| l.radius),
+        radius: layout.map_or(0.35, |l| l.wheel_radius(i % 2 == 0)),
     })
 }
 pub fn world(x: f32, z: f32, yaw: f32, lateral: f32, longitudinal: f32) -> [f32; 2] {

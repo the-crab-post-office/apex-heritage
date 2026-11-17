@@ -70,6 +70,23 @@ fn half_plane(poly: &[Point], a: Point, b: Point, inside: bool) -> Vec<Point> {
     out
 }
 pub fn subtract_triangle(poly: &[Point], mut clip: Triangle) -> Vec<Vec<Point>> {
+    // A coarse spatial cell may contain many unrelated facets. Do not split a
+    // disjoint polygon along their infinite edge lines.
+    for axis in [0, 2] {
+        let pmin = poly.iter().map(|p| p[axis]).fold(f64::INFINITY, f64::min);
+        let pmax = poly
+            .iter()
+            .map(|p| p[axis])
+            .fold(f64::NEG_INFINITY, f64::max);
+        let cmin = clip.iter().map(|p| p[axis]).fold(f64::INFINITY, f64::min);
+        let cmax = clip
+            .iter()
+            .map(|p| p[axis])
+            .fold(f64::NEG_INFINITY, f64::max);
+        if pmax <= cmin || cmax <= pmin {
+            return vec![poly.to_vec()];
+        }
+    }
     if cross(clip[0], clip[1], clip[2]) < 0. {
         clip.swap(0, 2);
     }

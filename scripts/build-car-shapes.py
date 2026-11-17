@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Original detailed meshes for all four era silhouettes.
+"""Original detailed meshes for all five era silhouettes.
 No photo pixels or third-party meshes. Shared by web and native renderers.
 Units metres; +Z forward. Wheels remain separate, driven by contact geometry.
 """
@@ -7,7 +7,7 @@ import json, math
 from pathlib import Path
 R=Path(__file__).resolve().parents[1]
 TAU=math.tau
-LAYOUTS={'1':dict(half=1.02,front=1.43,rear=-1.44,front_width=.34,rear_width=.44,radius=.35),'2':dict(half=1.02,front=1.43,rear=-1.44,front_width=.34,rear_width=.44,radius=.35),'0':dict(half=.82,front=1.12,rear=-1.1,front_width=.22,rear_width=.34,radius=.34),'3':dict(half=.80,front=1.75,rear=-1.85,front_width=.305,rear_width=.405,radius=.36),'4':dict(half=.80,front=1.74,rear=-1.86,front_width=.305,rear_width=.405,radius=.335)}
+LAYOUTS={'1':dict(half=.85,front=1.43,rear=-1.44,front_width=.30,rear_width=.44,radius=.33),'2':dict(half=.72,front=1.52,rear=-1.53,front_width=.305,rear_width=.365,radius=.33),'0':dict(half=.82,front=1.12,rear=-1.1,front_width=.22,rear_width=.34,radius=.33,front_radius=.29,rear_radius=.33),'3':dict(half=.80,front=1.75,rear=-1.85,front_width=.305,rear_width=.405,radius=.36),'4':dict(half=.80,front=1.74,rear=-1.86,front_width=.305,rear_width=.405,radius=.335)}
 class Model:
  def __init__(self,era=3):self.parts=[];self.era=era
  def mesh(self,name,mat,p,tri,uv=None,wheel=None):
@@ -77,7 +77,7 @@ class Model:
  def wheels(self,classic):
   # Rounded tyre shoulders, dished rims and sidewall compound stripe.
   for typ in ['front','rear']:
-   layout=LAYOUTS[str(self.era)];radius=layout['radius'];width=layout[typ+'_width'];rimratio=.635 if self.era==3 else .493 if self.era==4 else .50
+   layout=LAYOUTS[str(self.era)];radius=layout.get(typ+'_radius',layout['radius']);width=layout[typ+'_width'];rimratio=.635 if self.era==3 else .493 if self.era==4 else .50
    p=[];uv=[];idx=[]
    profile=[(-.5,rimratio),(-.53,.74),(-.5,.89),(-.40,.98),(-.25,1),(0,1),(.25,1),(.40,.98),(.5,.89),(.53,.74),(.5,rimratio)]
    for i,(x,r)in enumerate(profile):
@@ -167,6 +167,7 @@ class Model:
      self.tube('exposed coilover','engine',[[side*.35,.56,z-.12],[side*.63,.30,z]],.031,10)
   self.driver(classic);self.wheels(classic)
   return self.parts
+PERIOD_PODS={1:[[-1.6,.09,.28,.11,.35],[-1.15,.21,.33,.15,.51],[-.4,.25,.36,.16,.54],[.5,.23,.38,.14,.54]],2:[[-1.6,.07,.29,.11,.33],[-1.15,.18,.35,.16,.47],[-.4,.24,.43,.19,.55],[.5,.22,.48,.16,.55]]}
 def period_car(m,era):
  turbo=era==1
  m.loft('1988 low turbo monocoque'if turbo else'2004 high-nose monocoque','body',[[2.18,.07,.26 if turbo else .48,.07],[1.75,.12,.30 if turbo else .53,.10],[.85,.25,.43 if turbo else .57,.18],[.40,.33,.48,.22]])
@@ -174,8 +175,8 @@ def period_car(m,era):
  m.loft('low turbo engine cowl'if turbo else'V10 engine cover','body',[[-.66,.29,.56,.28],[-.95,.27,.76 if not turbo else .60,.41 if not turbo else .24],[-1.5,.18,.49,.22],[-1.95,.09,.33,.12]])
  m.box('flat carbon floor','carbon',[0,.16,-.15],[1.65,.055,3.25])
  for side in [-1,1]:
-  m.loft('1988 slab sidepod'if turbo else'2004 coke-bottle sidepod','pods',[[-1.6,.14,.32,.13,side*.48],[-1.15,.25,.40,.20,side*.61],[-.4,.30,.48,.23,side*.64],[.5,.28,.52,.18,side*.59]])
-  m.ellipsoid('recessed radiator mouth','rubber',[side*.59,.53,.515],[.24,.145,.015])
+  m.loft('1988 slab sidepod'if turbo else'2004 coke-bottle sidepod','pods',[[z,w,cy,h,side*cx]for z,w,cy,h,cx in PERIOD_PODS[era]])
+  m.ellipsoid('recessed radiator mouth','rubber',[side*(.54 if turbo else .55),.40 if turbo else .49,.515],[.20,.085,.015])
   m.tube('period mirror stalk','carbon',[[side*.32,.61,.35],[side*.60,.70,.43]],.016)
   m.ellipsoid('period mirror shell','body',[side*.62,.72,.44],[.095,.055,.10])
   m.panel('front wing closed endplate','front_wing',side*.99,[(1.80,.12),(2.42,.12),(2.42,.40),(1.86,.40)])
@@ -188,9 +189,9 @@ def period_car(m,era):
    m.panel('2004 bargeboard','carbon',side*.56,[(.65,.16),(.92,.20),(.84,.65),(.54,.65)])
    m.loft('2004 sidepod shoulder','pods',[[-.9,.22,.65,.10,side*.60],[-.1,.29,.70,.10,side*.63],[.4,.25,.64,.10,side*.61]])
    m.tube('V10 exhaust chimney','exhaust',[[side*.37,.47,-1.13],[side*.37,.76,-1.40]],.038)
-  for z in [1.43,-1.44]:
+  for z in [LAYOUTS[str(era)]['front'],LAYOUTS[str(era)]['rear']]:
    for y in [.24,.54]:
-    for dz in [-.28,.28]:m.tube('period double wishbone','carbon',[[side*.28,y,z+dz],[side*.94,.35,z]],.016)
+    for dz in [-.28,.28]:m.tube('period double wishbone','carbon',[[side*.28,y,z+dz],[side*(LAYOUTS[str(era)]['half']-.045),LAYOUTS[str(era)]['radius'],z]],.016)
  m.wing('period front mainplane',2.13,1.0,.14,.45,'front_wing')
  m.wing('period front flap',1.96,.95,.24,.24,'wing')
  m.wing('period rear mainplane',-1.95,.87,.94,.50,'wing',True)
@@ -219,7 +220,7 @@ def finish(m,era):
   m.tube('shoulder harness','belt',[[side*.13,.83,-.10],[side*.09,.64,.09]],.022,6)
   m.tube('harness lap strap','belt',[[side*.19,.54,-.05],[side*.03,.53,.11]],.018,6)
   for front in [True,False]:
-   z=layout['front'if front else'rear'];half=layout['half'];r=layout['radius']
+   z=layout['front'if front else'rear'];half=layout['half'];r=layout.get(('front'if front else'rear')+'_radius',layout['radius'])
    m.box('stationary brake caliper','engine',[side*(half-.10),r,z-.16],[.065,.15,.10])
    m.tube('upright steering link','engine',[[side*(half-.10),r-.10,z],[side*(half-.10),r+.13,z]],.03,10)
    # Brake rotor and centre-lock hardware are local to the spinning wheel.
@@ -237,6 +238,19 @@ def finish(m,era):
    for off in [-.30,-.10,.10,.30]:
     m.tube('four circumferential grooves','groove',[[layout[typ+'_width']*off,math.cos(i/64*TAU)*(layout['radius']+.001),math.sin(i/64*TAU)*(layout['radius']+.001)]for i in range(65)],.004,5);m.parts[-1]['wheel']=typ
 
+def period_decals(m,era):
+ sections=PERIOD_PODS[era]
+ for side in [-1,1]:
+  points=[];uv=[];indices=[]
+  for j in range(25):
+   z=-1.05+j/24*1.18;a,b=next((a,b)for a,b in zip(sections,sections[1:])if a[0]<=z<=b[0]);f=(z-a[0])/(b[0]-a[0]);w,cy,h,cx=[a[k]+f*(b[k]-a[k])for k in[1,2,3,4]]
+   for row in range(5):
+    dy=(row/4-.5)*h*1.12;y=cy+dy;x=side*(cx+w*math.sqrt(1-(dy/h)**2)+.006)
+    points.append([x,y,z]);uv.append([(j/24 if side<0 else 1-j/24)*.499,(1008-row/4*64)/1024])
+  for j in range(24):
+   for row in range(4):k=j*5+row;indices.extend([k,k+1,k+5,k+1,k+6,k+5])
+  m.mesh('period conformal sidepod sponsor','decals',points,indices,uv)
+
 models={}
 from car_2021 import build as build_2021,decals
 for era in range(5):
@@ -245,10 +259,22 @@ for era in range(5):
  elif era in [0,3]:model.build(era==0)
  else:period_car(model,era)
  finish(model,era);decals(model,era)
- if era==3:
+ # Reference-photo proportion correction; estimates, not constructor CAD.
+ if era>0:
+  rear=[p for p in model.parts if ('rear'in p['name']and any(n in p['name']for n in ['wing','mainplane','flap','endplate','swan neck']))or 'DRS'in p['name']]
+  top=max(v[1]for part in rear for v in part['positions'])
+  target=1.00 if era in[1,2]else .95
+  xscale=.64 if era in[1,2]else .70 if era==3 else 1.
+  for part in rear:
+   for p in part['positions']:p[0]=round(p[0]*xscale,5);p[1]=round(.18+(p[1]-.18)*(target-.18)/(top-.18),5)
+ if era in[1,2]:
   for part in model.parts:
-   if any(n in part['name']for n in ['rear mainplane','rear DRS','rear wing endplate','rear endplate','rear swan neck']):
-    for p in part['positions']:p[0]=round(p[0]*.70,5);p[1]=round(.18+(p[1]-.18)*.82,5)
+   if any(n in part['name']for n in ['front mainplane','front flap','front wing closed endplate']):
+    for p in part['positions']:p[0]=round(p[0]*(.90 if era==1 else .70),5)
+   if era==1 and part['name']in['driver helmet','dark visor','period rollover hoop']:
+    for p in part['positions']:p[1]=round(p[1]-.10,5)
+  period_decals(model,era)
+
  models[str(era)]=model.parts
 # Bound every batch for both renderers; names remain available to regression tests.
 for era,parts in models.items():
