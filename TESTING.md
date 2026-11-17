@@ -25,6 +25,14 @@ Road/pit centrelines, legal racing width and timing-line position are unchanged.
 
 Evidence: `artifacts/015-{rust-final,node-final,python-final,followup-python-final,browser,native-smoke,reference-captures-final,track-captures,car-captures,reports}.log`.
 
+## Published 0.15 verification
+
+- Release source **`0bbf459`**, tag **`v0.15.0-preview.1`**, Pages commit **`12ecd760a2160f4206b94ec692e44d1d3bb1aad9`**. Live manifest returned 0.15.0-preview.1 / d934b07c.
+- Public browser selected the 2021 Red Bull RB16B, started practice and accelerated through the shared WASM simulation. Wheel axle/support error remained zero through the steered-spin check.
+- Public Monaco scene raycasts: **32 covered road samples, zero obstructions, minimum overhead hotel clearance 4.7612 m**. This measures the new hotel facets; it does not replace the existing tunnel ceiling clearance check.
+- Public reports decoded all **20 car comparison images, 30 broad-audit images and 7 new scene images**, with filters working and no horizontal overflow at 390 px. **Zero page errors and zero failed HTTP responses** were recorded. Evidence: `artifacts/015-public.json`, `artifacts/015-live.log` and the four `015-public-*.png` captures.
+- Source, browser and Linux ZIPs plus SHA256SUMS.txt were uploaded to the release. Remote digest/size matched local bytes; every ZIP passed CRC, embedded-report/provenance/build-commit checks and secret/cache exclusion. `RELEASE-ARCHIVES.json` now indexes 52 assets. Archives preserve release-source documentation; this post-publication record intentionally follows in a separate metadata commit.
+
 ## Reproduce
 
 ```sh
