@@ -21,6 +21,13 @@ Evidence: `artifacts/realism-{node,python,rust-final,browser,showroom-final,buil
 - Final standalone comparison is **2,597,718 bytes**; all twenty embedded JPEGs decoded successfully and their hashes match retained photo/capture manifests. No external image/script/font requests are needed. Final production build includes comparison HTML and capture provenance manifest.
 - 117 Node / 82 Rust-native / 21 Python checks remain green. Native and browser software rendering checks ran serially to avoid GPU contention. Existing Vite large-chunk warning remains nonfatal.
 
+## Published release verification
+
+- Source/tag: `19ce2f0`, `v0.13.0-preview.1`; `main` and feature branch pushed. Pages commit `056ee6fa9829b064021e7b51ee8f012de3ec98a7` publishes that coherent build.
+- **Live public Pages browser check passed**: query selects 2021 Red Bull RB16B, actual Rust/WASM accelerates above 3 m/s, version 0.13.0-preview.1; ten comparison cards / twenty decoded images, functioning team filter, **zero page errors or HTTP error responses**. Evidence: `artifacts/realism-public.json`, `artifacts/013-public-{game,comparison}.png`.
+- Source/web/Linux ZIPs and SHA256SUMS uploaded to the GitHub release; all four byte lengths and GitHub SHA256 digests verified. ZIP integrity, absence of credential bytes and absence of caches/history checked before upload. `RELEASE-ARCHIVES.json` now indexes 44 remotely verified assets. Large ZIP copies remain external to the size-limited workspace.
+- Final budget approximately **102 MB / fewer than 1,000 entries**, under 128 MB / 10,000. Exact current count: `python3 scripts/workspace-budget.py`.
+
 ## Reproduce current build
 
 ```sh

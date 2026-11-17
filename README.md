@@ -8,7 +8,7 @@ Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Ma
 
 - **Play:** https://the-crab-post-office.github.io/apex-heritage/
 - **Source:** https://github.com/the-crab-post-office/apex-heritage
-- **Preserved release downloads:** https://github.com/the-crab-post-office/apex-heritage/releases — source, browser and Linux ZIPs with SHA256 checksums. `RELEASE-ARCHIVES.json` indexes the 40 migrated assets (0.6–0.12).
+- **Preserved release downloads:** https://github.com/the-crab-post-office/apex-heritage/releases — source, browser and Linux ZIPs with SHA256 checksums. `RELEASE-ARCHIVES.json` indexes 44 verified assets: the 40 migrated assets (0.6–0.12) plus this release’s source/web/Linux archives and checksum file.
 - GitHub Pages serves the built **`gh-pages` branch**, root folder. Source stays on `main`; release tags retain their original contents. The main branch includes the 0.13 full-grid car and tyre-force update, with project-subpath hosting support.
 - Rebuild with `npm ci && bash scripts/build-web.sh` (Rust/WASM tooling required); publish using `python3 scripts/deploy-pages.py` with your own Git credentials. No token is stored in source, deployed assets or Git remotes. GitHub Pages ignores `_headers`; the explicit no-store manifest fetch and bounded build compatibility checks are retained, but CDN propagation can briefly delay a new deployment.
 - Workspace budget: `python3 scripts/workspace-budget.py`. Rebuildable toolchains/caches can live outside `/home/user`; they are ephemeral and may need reinstalling after a sandbox restart. The project and active preview remain local; large release ZIPs are published to GitHub and indexed without keeping redundant copies in the workspace.
