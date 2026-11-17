@@ -68,3 +68,8 @@ All 40 previous archive/checksum files from versions 0.6–0.12 were uploaded as
 Rebuildable Rust toolchains/registries, Node dependencies, browser caches, npm caches and Rust compiler output were moved to `/var/tmp/apex-workspace-cache/` with symlinks for the current session. Those files are **not persisted** with the workspace. After a sandbox restart, reinstall Rust/wasm-bindgen, `npm ci` and Playwright browsers as needed. Inactive generated previews and old diagnostic captures were moved there too; current Piscine screenshots and validation evidence remain in `artifacts/`.
 
 `python3 scripts/workspace-budget.py` audits all regular files and symlinks in `/home/user`, including Git history/uploads, without following external cache links. Limits are conservatively checked as **128,000,000 bytes and 10,000 entries**. Do not follow external cache symlinks when calculating persisted workspace size.
+
+
+Public deployment verified: https://the-crab-post-office.github.io/apex-heritage/ (Monaco loaded and accelerated using Rust WASM, no page errors/failed responses). Source repository is public; original user photos and the supplied GitHub credential were not published. The credential attachment is moved out of the persisted workspace to private temporary storage after publication; revoke/rotate it once no longer needed.
+
+After archival and Git object repacking (without pruning history), the complete `/home/user` audit was approximately **106 MB / 590 entries**, including the current release ZIPs, active preview, source, complete local Git history and reference uploads. Exact current figures: `python3 scripts/workspace-budget.py`. This leaves margin below the conservative 128,000,000-byte / 10,000-entry caps.

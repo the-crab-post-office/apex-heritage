@@ -4,6 +4,7 @@ Deployment-only changes on top of 0.12.0-preview.1: relative asset base, relativ
 
 - **110 Node tests passed**, including the new domain-root/project-Pages URL regression.
 - Production Vite build passed; actual WASM identity verified unchanged (0.12.0-preview.1 / d934b07c).
+- **Live public GitHub Pages browser test passed** at `https://the-crab-post-office.github.io/apex-heritage/`: Monaco scene/541 scenic facets/20 yachts loaded, Rust/WASM acceleration reached 2.62 m/s, no page errors or failed responses, correct project-scoped manifest URL.
 - Local GitHub-style `/apex-heritage/` browser test loaded Monaco, displayed all new Piscine assets and accelerated through real Rust WASM to >2 m/s; **no page errors or failed asset responses**. The manifest request stayed at `/apex-heritage/version.json`.
 - All **40 migrated release assets** checked against GitHub's reported SHA256 digests and byte lengths before local archive cleanup.
 - Entire local Git blob history scanned for the supplied credential before upload: **0 matches**. Original uploads and credential file are not source or deployment assets.
