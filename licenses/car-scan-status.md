@@ -1,8 +1,8 @@
 # Car scan acquisition status
 
-**0 of 47 constructor cars replaced by verified scans. This is an acquisition register, not a completed scan conversion.**
+**0 of 57 constructor-season entries replaced by verified scans. This is an acquisition register, not a completed scan conversion.**
 
-Existing cars remain original shared-era approximations. Reflections and paint/rubber shading were improved, but geometry was not relabeled as scanned. Matching all 47 is a staged asset-acquisition, licensing and retopology task.
+Existing cars remain original shared-era approximations. The 2021 grid adds ten authored, photo-guided cars with estimated team proportion variants; the new comparison images are reference photos, not integrated scan assets. Reflections and paint/rubber shading were improved, but geometry was not relabeled as scanned. Matching all 57 is a staged asset-acquisition, licensing and retopology task.
 
 ## Candidates actually checked
 
@@ -64,8 +64,19 @@ Existing cars remain original shared-era approximations. Reflections and paint/r
 | 2023 | Alfa Romeo | C43 | Awaiting verified matching asset |
 | 2023 | Haas | VF-23 | Awaiting verified matching asset |
 
+| 2021 | Mercedes | W12 | Authored model; licensed reference photo; no verified scan |
+| 2021 | Red Bull | RB16B | Authored model; licensed reference photo; no verified scan |
+| 2021 | Ferrari | SF21 | Authored model; licensed reference photo; no verified scan |
+| 2021 | Aston Martin | AMR21 | Authored model; licensed reference photo; no verified scan |
+| 2021 | McLaren | MCL35M | Authored model; licensed reference photo; no verified scan |
+| 2021 | Alpine | A521 | Authored model; licensed reference photo; no verified scan |
+| 2021 | Williams | FW43B | Authored model; licensed reference photo; no verified scan |
+| 2021 | AlphaTauri | AT02 | Authored model; licensed reference photo; no verified scan |
+| 2021 | Alfa Romeo | C41 | Authored model; licensed reference photo; no verified scan |
+| 2021 | Haas | VF-21 | Authored model; licensed reference photo; no verified scan |
+
 ## Import gate
 
-Before importing: establish the exact chassis and capture method; retain the creator/license/source file and checksum; confirm adaptation and redistribution rights; normalize metres and +Z forward; separate wheel meshes; retopologize to bounded batches; preserve existing contact/physics wheel anchors or update both together; test all 47 selections, renderer disposal and both web/native. A Sketchfab free-download label alone is not proof of a full-size scan. No authentication bypass or copied commercial-game assets are used.
+Before importing: establish the exact chassis and capture method; retain the creator/license/source file and checksum; confirm adaptation and redistribution rights; normalize metres and +Z forward; separate wheel meshes; retopologize to bounded batches; preserve existing contact/physics wheel anchors or update both together; test all 57 selections, renderer disposal and both web/native. A Sketchfab free-download label alone is not proof of a full-size scan. No authentication bypass or copied commercial-game assets are used.
 
 No third-party car mesh is redistributed in this stage.
