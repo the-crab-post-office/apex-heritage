@@ -15,6 +15,7 @@ pub mod imagery;
 pub mod livery_assets;
 #[cfg(feature = "native")]
 pub mod native_audio;
+pub mod piscine;
 pub mod pit;
 pub mod powertrain;
 #[cfg(feature = "native")]

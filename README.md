@@ -1,8 +1,15 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.11.2-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.12.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## 0.12 Monaco Swimming Pool reference update
+
+- Both Piscine chicanes now have broad, short alternating red/white kerbs and close three-rail Armco with debris fencing. These use shared Rust-rendered/physical geometry, including native parity.
+- The mapped Rainier III pool has turquoise water, lane markings, white coping and a paved enclosure. The saved OSM harbour edge defines paved piers and water; twenty authored yachts replace the old misplaced Monaco boats. Five crowded temporary bleacher modules follow the pool-side corridor.
+- **Modern Monaco for every era.** Reference photos guide authored appearance; this is not a photogrammetric or surveyed reconstruction. Road centreline and elevation are unchanged; current simplified pit/return-road geometry constrains stand placement. Photos are not redistributed. See `data/MONACO-REFERENCE-NOTICE.md`.
+- Existing no-cache publishing, strict client/WASM version checks and device-local camera preferences are retained.
 
 ## 0.11.2 build mismatch / cleanup fix
 

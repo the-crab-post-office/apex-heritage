@@ -132,6 +132,7 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
             points.push([x as f64, (t.terrain_height(x, z) - 1.25) as f64, z as f64]);
         }
     }
+    let scenic_mask = apex_heritage::piscine::terrain_mask(t);
     let mask = apex_heritage::surface_mesh::RoadMask::new(t);
     let pit_track = apex_heritage::pit::PitLane::new(t).as_track();
     let pit_mask = apex_heritage::surface_mesh::RoadMask::new_open(&pit_track);
@@ -146,7 +147,12 @@ fn terrain_mesh(t: &Track) -> Vec<Mesh> {
                 [points[a], points[b], points[a + 1]],
                 [points[a + 1], points[b], points[b + 1]],
             ] {
-                for piece in mask.cut(tri).into_iter().flat_map(|p| pit_mask.cut(p)) {
+                for piece in scenic_mask
+                    .cut(tri)
+                    .into_iter()
+                    .flat_map(|p| mask.cut(p))
+                    .flat_map(|p| pit_mask.cut(p))
+                {
                     if vertices.len() + 3 > 3996 {
                         meshes.push(Mesh {
                             vertices: std::mem::take(&mut vertices),

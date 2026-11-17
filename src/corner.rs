@@ -14,6 +14,8 @@ pub struct Kerb {
     pub color_a: String,
     pub color_b: String,
     pub source: String,
+    #[serde(default)]
+    pub stripe_length: f32,
 }
 #[derive(Clone, Deserialize)]
 pub struct Runoff {
@@ -111,26 +113,51 @@ impl Details {
                         (idx - k.start_index) as f64 / (k.end_index - k.start_index).max(1) as f64;
                     ((t * 10.).min((1. - t) * 10.)).clamp(0., 1.)
                 };
-                for band in profile.windows(2) {
-                    let corner = |idx, point: (f64, f64)| {
-                        surface_mesh::road_point(
-                            track,
-                            idx,
-                            k.side as f64 * (track.width as f64 / 2. + point.0 * k.width as f64),
-                            0.05 + point.1 * k.height as f64 * fade(idx),
-                        )
-                    };
-                    let a = corner(i, band[0]);
-                    let b = corner(j, band[0]);
-                    let c = corner(i, band[1]);
-                    let e = corner(j, band[1]);
-                    for tri in [[a, b, c], [c, b, e]] {
-                        for clipped in roadmask.cut(tri).into_iter().flat_map(|t| pitmask.cut(t)) {
-                            d.facets.push(Facet {
-                                p: clipped.map(|p| p.map(|v| v as f32)),
-                                kind: 0,
-                                color: rgb(if i % 2 == 0 { &k.color_a } else { &k.color_b }),
-                            });
+                let length = ((track.points[j][0] - track.points[i][0]).powi(2)
+                    + (track.points[j][1] - track.points[i][1]).powi(2))
+                .sqrt();
+                let stripes = if k.stripe_length > 0. {
+                    (length / k.stripe_length).ceil() as usize
+                } else {
+                    1
+                };
+                for stripe in 0..stripes {
+                    for band in profile.windows(2) {
+                        let corner = |idx, point: (f64, f64)| {
+                            surface_mesh::road_point(
+                                track,
+                                idx,
+                                k.side as f64
+                                    * (track.width as f64 / 2. + point.0 * k.width as f64),
+                                0.05 + point.1 * k.height as f64 * fade(idx),
+                            )
+                        };
+                        let interpolate = |a: [f64; 3], b: [f64; 3], t: f64| {
+                            std::array::from_fn(|axis| a[axis] + (b[axis] - a[axis]) * t)
+                        };
+                        let u = stripe as f64 / stripes as f64;
+                        let v = (stripe + 1) as f64 / stripes as f64;
+                        let a = interpolate(corner(i, band[0]), corner(j, band[0]), u);
+                        let b = interpolate(corner(i, band[0]), corner(j, band[0]), v);
+                        let c = interpolate(corner(i, band[1]), corner(j, band[1]), u);
+                        let e = interpolate(corner(i, band[1]), corner(j, band[1]), v);
+                        for tri in [[a, b, c], [c, b, e]] {
+                            for clipped in
+                                roadmask.cut(tri).into_iter().flat_map(|t| pitmask.cut(t))
+                            {
+                                d.facets.push(Facet {
+                                    p: clipped.map(|p| p.map(|v| v as f32)),
+                                    kind: 0,
+                                    color: rgb(
+                                        if (if k.stripe_length > 0. { stripe } else { i }) % 2 == 0
+                                        {
+                                            &k.color_a
+                                        } else {
+                                            &k.color_b
+                                        },
+                                    ),
+                                });
+                            }
                         }
                     }
                 }

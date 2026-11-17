@@ -132,4 +132,6 @@ from spa_reference import refine
 refine(T,output)
 from monaco_reference import refine as refine_monaco
 refine_monaco(T,output)
+from piscine_reference import refine as refine_piscine
+refine_piscine(T,output)
 (ROOT/'data/corner-details.json').write_text(json.dumps({'source':'Map/photo-referenced corner details. Historical SURFACING presets, not full historical road alignments. Every recent-layout substitution is labelled in-game. Geometry/kerb heights are approximate. OSM data © OpenStreetMap contributors, ODbL-1.0; reference photos are not redistributed.','tracks':output},separators=(',',':')))

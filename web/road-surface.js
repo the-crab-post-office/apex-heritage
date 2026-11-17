@@ -79,13 +79,10 @@ export function subtractTriangle(poly, clip) {
   return result;
 }
 export class RoadMask {
-  constructor(track, extra = 0) {
-    this.triangles = ribbon(
-      track,
-      -track.width / 2 - extra,
-      track.width / 2 + extra,
-      0,
-    );
+  constructor(track, extra = 0, triangles = null) {
+    this.triangles =
+      triangles ||
+      ribbon(track, -track.width / 2 - extra, track.width / 2 + extra, 0);
     this.cells = new Map();
     this.cell = 40;
     this.triangles.forEach((tri, i) =>

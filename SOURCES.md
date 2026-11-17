@@ -134,3 +134,8 @@ Camera tuning UI, distance/FOV/free-look transforms and device-local preference 
 ## 0.11.2 coherent build delivery and cleanup
 
 No new third-party assets or runtime services are introduced. The original no-cache Python server, staged/verified atomic publisher and bounded browser reload recovery fix mixed cached releases while retaining compatibility checks. Browser setup/records/camera storage is not erased. Cleanup removes only ignored generated output/compiler/test caches; all prior releases, user uploads and source are preserved, with before/after hash verification recorded in validation artifacts.
+
+
+## 0.12 Swimming Pool reference refinement
+
+Modern Monaco Piscine uses a saved public OSM map API extract in `data/monaco-piscine-map.json` (pool way 167625723, sports centre 197170037, harbour coastline/piers 166624054), © OpenStreetMap contributors, ODbL-1.0. `data/monaco-piscine.json` is the editable derived scenery shared by both renderers. Two user reference photos guide original approximate kerbs, Armco/fences, temporary bleachers, pool finish and yacht models; no photo pixels are redistributed. Full source URL, IDs, scope and uncertainty: `data/MONACO-REFERENCE-NOTICE.md`. No scans or new car assets are introduced.

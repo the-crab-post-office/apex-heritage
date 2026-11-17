@@ -35,3 +35,14 @@ Regenerate offline:
 python3 scripts/monaco_reference.py
 python3 scripts/build-corner-details.py
 ```
+
+
+## Swimming Pool / Piscine reference update (0.12)
+
+Two user-supplied reference photographs (wide pool/harbour aerial and close chicane/Armco view; date and authorship not established) guide the modern Piscine treatment in **all four eras**. They are not included in the game, source ZIP or textures. This is an authored approximation, not a scan or calibrated photographic reconstruction.
+
+`monaco-piscine-map.json` retains the saved public OSM API extract from `https://www.openstreetmap.org/api/0.6/map?bbox=7.4195,43.7325,7.4255,43.7365`. Relevant ways: pool **167625723**, Stade Nautique Rainier III **197170037**, coastline/piers **166624054**, plus named Route de la Piscine ways. Geographic coordinates use the existing Monaco origin; mapped pool footprint is approximately 50 × 19 m. The inconsistent OSM length tag is not used as a scale calibration. **© OpenStreetMap contributors, ODbL-1.0**, https://www.openstreetmap.org/copyright.
+
+`scripts/piscine_reference.py`, invoked by the offline corner-details generator, produces `monaco-piscine.json` and modern shared kerbs/barriers/stands in `corner-details.json`. Both editable Piscine databases are exposed at `/licenses/` in the web release. Native and browser use the same authored scenic facets/objects; water is deliberately excluded from drivable corner overlays. Terrain is geometrically cut beneath the mapped water/paved enclosure, avoiding grassy water intersections. Shared collision capsules and stand footprints clear both race and pit corridors.
+
+Kerb widths/heights and short stripe spacing, rail offsets, five temporary bleacher modules, crowd density, pool coping/lanes, twenty yacht models, and marshal shelters are original estimated detail. No claim is made about the exact yacht inventory, grandstand seating plan or race-year fence locations. Existing mapped centreline, elevations, simplified pit route and distant city scenery are unchanged, limiting photographic fidelity. Boat meshes have no race collision; water is cosmetic beyond the track barriers. The modern treatment does not reconstruct historical Monaco.

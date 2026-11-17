@@ -282,7 +282,10 @@ export function buildVenue(world) {
           0.08,
           color,
         );
-        if ((j + row * 3 + id) % 3 === 0) {
+        if (
+          (world.track.code === "MC" && s.index >= 497 && s.index <= 555) ||
+          (j + row * 3 + id) % 3 === 0
+        ) {
           put(
             "spectators",
             box,

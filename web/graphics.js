@@ -1,3 +1,4 @@
+import piscine from "../data/monaco-piscine.json";
 import { cameraRig } from "./cameras.js";
 import { makeCar } from "./car.js";
 export { makeCar } from "./car.js";
@@ -165,6 +166,7 @@ export class World {
     this.buildPits();
     this.buildScenery();
     this.buildLandmarks();
+    this.buildPiscine();
     this.buildTunnel();
     buildVenue(this);
     this.photoReady = Promise.all(this.surfaces.pending);
@@ -269,10 +271,19 @@ export class World {
           return [pos.getX(j), pos.getY(j), pos.getZ(j)];
         }),
       );
+    const scenicMask =
+      this.track.code === "MC"
+        ? new RoadMask(
+            null,
+            0,
+            piscine.terrain_mask.map((t) => t.map(([x, z]) => [x, 0, z])),
+          )
+        : null;
+    const dryTriangles = scenicMask ? scenicMask.cutAll(triangles) : triangles;
     const ground = this.surfaceMesh(
       this.pitMask
-        ? this.pitMask.cutAll(terrainMask.cutAll(triangles))
-        : terrainMask.cutAll(triangles),
+        ? this.pitMask.cutAll(terrainMask.cutAll(dryTriangles))
+        : terrainMask.cutAll(dryTriangles),
       groundMat,
       4,
     );
@@ -703,6 +714,11 @@ export class World {
         radius = h * 0.35;
       // Reject, never shove a failed candidate somewhere else without rechecking.
       if (
+        (this.track.code === "MC" &&
+          x > -330 &&
+          x < 550 &&
+          z > 100 &&
+          z < 650) ||
         (!forestAt(this.photoArea, x, z) &&
           !(this.track.code === "BE" && i < 300)) ||
         !this.clearance.circleClear(x, z, radius) ||
@@ -778,6 +794,51 @@ export class World {
       this.scene.add(board);
     }
   }
+  buildPiscine() {
+    if (this.track.code !== "MC") return;
+    const group = new THREE.Group();
+    group.name = "modern-piscine-reference";
+    const colors = new Map();
+    for (const f of piscine.facets) {
+      if (!colors.has(f.color)) colors.set(f.color, []);
+      // Winding faces upwards for both water and coping, independently of GIS orientation.
+      let p = f.p;
+      if (
+        (p[1][0] - p[0][0]) * (p[2][2] - p[0][2]) -
+          (p[1][2] - p[0][2]) * (p[2][0] - p[0][0]) >
+        0
+      )
+        p = [p[0], p[2], p[1]];
+      colors.get(f.color).push(...p.flat());
+    }
+    for (const [color, points] of colors) {
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(points, 3),
+      );
+      geometry.computeVertexNormals();
+      const mesh = new THREE.Mesh(geometry, material(color, 0.55, 0.05));
+      mesh.receiveShadow = true;
+      group.add(mesh);
+    }
+    for (const o of piscine.objects) {
+      const mesh = new THREE.Mesh(boxGeo, material(o.color));
+      mesh.position.set(o.x, o.y, o.z);
+      mesh.scale.set(o.sx, o.sy, o.sz);
+      mesh.rotation.y = o.yaw;
+      mesh.castShadow = true;
+      group.add(mesh);
+    }
+    this.scene.add(group);
+    this.piscineGroup = group;
+    this.piscineAudit = {
+      yachts: piscine.yachts,
+      facets: piscine.facets.length,
+      objects: piscine.objects.length,
+      scope: piscine.scope,
+    };
+  }
   buildLandmarks() {
     const biome = this.track.biome;
     const makeBox = (x, y, z, w, h, d, color) => {
@@ -799,7 +860,7 @@ export class World {
       sea.position.y =
         (this.track.water_level ?? this.track.sea_level ?? -1.4) + 0.1;
       this.scene.add(sea);
-      if (biome === "coast")
+      if (biome === "coast" && this.track.code !== "MC")
         for (let i = 0; i < 24; i++) {
           const x = 515 + (i % 4) * 70,
             z = -170 + Math.floor(i / 4) * 95;

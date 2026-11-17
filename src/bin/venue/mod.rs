@@ -83,6 +83,26 @@ fn transform(x: f32, y: f32, z: f32, yaw: f32) -> Mat4 {
 }
 pub fn build(t: &Track, v: &Venue, support: &Ground) -> Vec<Mesh> {
     let mut b = Builder::default();
+    if t.name == "Monaco" {
+        let color = |hex: &str| {
+            let n = u32::from_str_radix(hex.trim_start_matches('#'), 16).unwrap();
+            Color::from_rgba((n >> 16) as u8, (n >> 8) as u8, n as u8, 255)
+        };
+        for f in &apex_heritage::piscine::data().facets {
+            let mut p = f.p.map(|p| vec3(p[0], p[1], p[2]));
+            if (p[1] - p[0]).cross(p[2] - p[0]).y < 0. {
+                p.swap(1, 2);
+            }
+            b.triangle(p, color(&f.color));
+        }
+        for o in &apex_heritage::piscine::data().objects {
+            b.cube(
+                transform(o.x, o.y, o.z, o.yaw),
+                vec3(o.sx, o.sy, o.sz),
+                color(&o.color),
+            );
+        }
+    }
     let steel = Color::from_rgba(135, 150, 152, 255);
     let cement = Color::from_rgba(181, 187, 177, 255);
     let rubber = Color::from_rgba(29, 33, 34, 255);
@@ -267,7 +287,9 @@ pub fn build(t: &Track, v: &Venue, support: &Ground) -> Vec<Mesh> {
                     vec3(0.65, 0.44, 0.08),
                     color,
                 );
-                if (j + row as usize * 3 + id) % 3 == 0 {
+                if (t.name == "Monaco" && (497..=555).contains(&s.index))
+                    || (j + row as usize * 3 + id) % 3 == 0
+                {
                     b.cube(
                         m * Mat4::from_translation(vec3(0., 0.4, 0.)),
                         vec3(0.37, 0.52, 0.25),

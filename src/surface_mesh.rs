@@ -128,6 +128,9 @@ impl RoadMask {
             let d = section_point(t, j, w, 0., closed);
             triangles.extend([[a, b, c], [c, b, d]]);
         }
+        Self::from_triangles(triangles)
+    }
+    pub fn from_triangles(triangles: Vec<Triangle>) -> Self {
         let mut index: HashMap<(i32, i32), Vec<usize>> = HashMap::new();
         for (i, t) in triangles.iter().enumerate() {
             for key in cells(t) {

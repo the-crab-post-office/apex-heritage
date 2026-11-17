@@ -48,3 +48,12 @@ The cleanup command rejects tracked files and preserves source, licenses, refere
 Use `python3 scripts/serve-web.py --port 8080` from source. Web ZIPs include the same standalone server as `serve.py` and static-host `_headers` cache rules. The legacy caching server was retired; the current live preview is **Fixed game**, port 5186. HTML/CSS metadata use build-time tokens, not hand-edited version strings.
 
 Release-cache cleanup removes only Rust intermediates (`deps`, `build`, `incremental`, `.fingerprint`, `examples`); it keeps the finished native executable and WASM outputs. Rebuilding afterwards will recompile dependencies. Source/asset/previous-release/upload hashes are checked across cleanup.
+
+
+## Modern Monaco Piscine
+
+- `scripts/piscine_reference.py`: offline refinement invoked by `scripts/build-corner-details.py` (requires Shapely 2.1+ for constrained triangulation).
+- `data/monaco-piscine-map.json`: retained OSM geography/attribution; no network required to regenerate.
+- `data/monaco-piscine.json`: shared non-driving scenic facets, boxes and terrain cutouts; `src/piscine.rs` and `web/graphics.js` consume it.
+- `tests/test_piscine_reference.py`, `tests/piscine-visuals.spec.js`, Rust `piscine::tests`: mapped water/corridor/all-era/visual regressions.
+- `artifacts/piscine-{overhead,entry,exit}.png`: actual game captures, not AI-generated imagery.
