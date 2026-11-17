@@ -158,7 +158,7 @@ pub fn build(t: &Track, v: &Venue, support: &Ground) -> Vec<Mesh> {
                         );
                     }
                 }
-            } else if wall.kind == "concrete" {
+            } else if wall.kind == "concrete" || wall.kind.starts_with("spa-") {
                 let nx = dz / len.max(0.0001) * wall.radius;
                 let nz = -dx / len.max(0.0001) * wall.radius;
                 let base_points = [
@@ -193,7 +193,16 @@ pub fn build(t: &Track, v: &Venue, support: &Ground) -> Vec<Mesh> {
                     [2, 6, 7, 3],
                     [3, 7, 4, 0],
                 ] {
-                    b.quad(face.map(|i| c[i]), cement);
+                    b.quad(
+                        face.map(|i| c[i]),
+                        if wall.kind == "spa-red" {
+                            Color::from_rgba(181, 53, 44, 255)
+                        } else if wall.kind == "spa-yellow" {
+                            Color::from_rgba(223, 198, 68, 255)
+                        } else {
+                            cement
+                        },
+                    );
                 }
             } else {
                 for y in [0.35, 0.62, 0.89] {
@@ -476,4 +485,20 @@ pub fn corners(details: &apex_heritage::corner::Details) -> Vec<Mesh> {
     }
     b.flush();
     b.meshes
+}
+
+/// The same explicit overhead hotel and recent Spa paint used by WebGL.
+pub fn references(t: &Track, era: usize) -> Vec<Mesh> {
+    let mut builder = Builder::default();
+    if let Some(scene) = apex_heritage::reference_scene::for_track(&t.name, era) {
+        for f in &scene.facets {
+            let n = u32::from_str_radix(f.color.trim_start_matches('#'), 16).unwrap();
+            builder.triangle(
+                f.p.map(Vec3::from_array),
+                Color::from_rgba((n >> 16) as u8, (n >> 8) as u8, n as u8, 255),
+            );
+        }
+    }
+    builder.flush();
+    builder.meshes
 }

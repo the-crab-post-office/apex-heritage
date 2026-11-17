@@ -39,6 +39,10 @@ function buildIdentity() {
 // Keep redistributed databases editable and asset-specific licenses accessible,
 // without maintaining another checked-in copy of the same data.
 const notices = {
+  "spa-monaco-captures.json": "data/spa-monaco-captures.json",
+  "reference-scenes.json": "data/reference-scenes.json",
+  "spa-monaco-reference.json": "data/spa-monaco-reference.json",
+  "spa-monaco-reference.md": "data/SPA-MONACO-REFERENCE-NOTICE.md",
   "photo-audit-references.json": "data/photo-audit-references.json",
   "photo-audit-captures.json": "data/photo-audit-captures.json",
   "photo-audit.md": "data/PHOTO-AUDIT-NOTICE.md",

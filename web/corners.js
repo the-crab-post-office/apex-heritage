@@ -84,7 +84,10 @@ export function buildCornerSurfaces(world) {
           ? "#dfcfb1"
           : kind === 2
             ? color === 0x666e70
-              ? "#8b9193"
+              ? world.track.name === "Spa-Francorchamps" &&
+                world.config.era >= 3
+                ? "#b0b6b4"
+                : "#8b9193"
               : color
             : "#e0e5c9",
         0.28,

@@ -380,6 +380,7 @@ async fn main() {
         &safety,
         &venue::Ground::new(&[&landscape, &pit_mesh, &corner_mesh]),
     );
+    safety_mesh.extend(venue::references(&circuits[ti], era));
     let mut camera_controls = camera_controls::Controls::new(smoke);
     let mut camera_mode = std::env::var("APEX_SMOKE_CAMERA")
         .ok()
@@ -550,6 +551,7 @@ async fn main() {
                 &safety,
                 &venue::Ground::new(&[&landscape, &pit_mesh, &corner_mesh]),
             );
+            safety_mesh.extend(venue::references(&circuits[ti], era));
             buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
             for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
                 mesh.texture = Some(walls[i % walls.len()].clone());

@@ -61,6 +61,7 @@ common['licenses/PHOTO-REFERENCE-NOTICE.md'] = Path('data/PHOTO-REFERENCE-NOTICE
 common['licenses/DejaVu.txt'] = Path('scripts/fonts/LICENSE-DejaVu.txt').read_bytes()
 common['licenses/MONACO-REFERENCE-NOTICE.md'] = Path('data/MONACO-REFERENCE-NOTICE.md').read_bytes()
 common['licenses/PHOTO-AUDIT-NOTICE.md'] = Path('data/PHOTO-AUDIT-NOTICE.md').read_bytes()
+common['licenses/SPA-MONACO-REFERENCE-NOTICE.md'] = Path('data/SPA-MONACO-REFERENCE-NOTICE.md').read_bytes()
 common['licenses/CAR-REFERENCE-PHOTOS.md'] = Path('data/CAR-REFERENCE-PHOTOS.md').read_bytes()
 common['licenses/CAR-SCAN-STATUS.md'] = Path('data/CAR-SCAN-STATUS.md').read_bytes()
 common['WORKSPACE.md'] = Path('WORKSPACE.md').read_bytes()
@@ -80,6 +81,7 @@ web['START-HERE.txt'] = (f'APEX / HERITAGE {version} — web\n'
     'Keyboard: WASD/arrows, R recover, P pits, L limiter, C camera, Esc pause.\n'
     'Practice setup offers PIT ENTRY PRACTICE to try a stop without a full lap.\n').encode()
 native = dict(common)
+native["spa-monaco-update.html"] = Path("web/public/spa-monaco-update.html").read_bytes()
 native["photo-accuracy.html"] = Path("web/public/photo-accuracy.html").read_bytes()
 native["car-comparison.html"] = Path("web/public/car-comparison.html").read_bytes()
 native['apex-native-linux-x86_64'] = Path('target/release/apex-native').read_bytes()

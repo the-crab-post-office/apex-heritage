@@ -1,3 +1,57 @@
+# Validation — 0.15.0-preview.1
+
+Branch `feature/spa-corners-and-monaco-building`, based on published main `5426aa2` (0.14). User scope: recent Spa and labelled 2021 substitute only; modern Monaco building/tunnel for every era.
+
+## Completed offline/native checks
+
+- **85 Rust/native tests passed**: 76 shared library + 9 native renderer. New cases verify overhead hotel coverage/clearance and recent-only Spa collision walls while leaving all requested corner centrelines drivable. Optimized Linux executable built successfully.
+- **125 Node tests passed**, including seven embedded actual render hashes, fifteen-photo audit inputs/capture hashes, explicit hotel coverage, unchanged ground-building clearance filter, all-era Monaco/recent-only Spa and the wheel pivot regression.
+- **30 Python tests passed** in the final full run (with the five follow-up checks rerun after strengthening the protected Eau Rouge assertion). They cover offline deterministic generation, all unchanged historical profiles, all unchanged other-track profiles, non-overlapping new paint/paving with road/pit/building exclusion, individual corner apexes, hotel/ground-building connection and preserved courtyards. Baseline profile checksums live in the reference manifest, so source ZIP validation does not require Git history.
+- **62 car shape/layout/roster/atlas/native-mapping files remain byte-identical to 0.14**. No handling, car model, audio, camera-control or wheel-animation update is made in this release.
+- Production build verifies real WASM identity **0.15.0-preview.1 / d934b07c** and matching emitted binary bytes. The latter is the unchanged track-data identity, not a WASM checksum. Corner details, era-scoped walls and shared scene facets do change the binary.
+
+## Final render/browser regression
+
+- **17 unique browser tests passed**: seven new Spa/Monaco/report cases; independent wheel pivot support; both car/Spa reference checks; both offline comparison/mobile suites; full 2021 deep-link/mobile selection; and high-detail facade/tunnel/local-asset validation. Actual mesh raycasts cover at least 25 tunnel road samples with zero hotel obstruction inside the 4.65 m clearance envelope. Browser batch: 16 passed in 4.2 minutes plus the 25-second high-detail check.
+- **Optimized native all-eight-camera/render/physics smoke passed twice**: recent Spa/2023 and Monaco/1967. Exact results: `artifacts/015-native-smoke.log`. Native remains visually simpler; this is a software-renderer smoke test, not a hardware performance benchmark.
+
+## Render evidence and limits
+
+`spa-monaco-update.html` embeds **seven actual high-quality production views**, 1000 × 625: La Source, Les Combes, Malmedy, Bus Stop, finish straight, Monaco portal and hotel context. `data/spa-monaco-captures.json` records the exact images/cameras/version and input hashes. The broad fifteen-photo and ten-team 2021 pages were also recaptured and rebuilt for 0.15. No user reference image pixels are redistributed.
+
+Initial renders exposed a remaining La Source grass pocket, a blank hotel infill facade and an exposed grassy hillside at the portal. The final captures show a paved inner island, outward-facing facade windows and explicit podium cladding instead. No ordinary ground-building exclusion was disabled. The hotel floor is at y=11.0044 m, above the existing road plus at least 4.65 m; the existing tunnel ceiling, lighting, guardrails and vehicle path remain intact.
+
+Road/pit centrelines, legal racing width and timing-line position are unchanged. The historic Spa profiles remain byte-identical. Existing all-era Eau Rouge heights/kerbs/projected aprons are preserved; the latest surface can be retessellated without changing its footprint. Portal connection, hotel facade spacing/height, runoff widths, kerb extents, barrier offsets, garage architecture and materials remain authored estimates. Reference years/rights are not established; views are not camera-matched. No exact sponsor inventory, survey, scan, telemetry or real-device performance claim is made.
+
+Evidence: `artifacts/015-{rust-final,node-final,python-final,followup-python-final,browser,native-smoke,reference-captures-final,track-captures,car-captures,reports}.log`.
+
+## Reproduce
+
+```sh
+python3 scripts/build-corner-details.py
+python3 scripts/build-reference-scenes.py
+cargo test --features native
+python3 -m unittest discover -s tests -p 'test_*.py'
+bash scripts/build-web.sh
+python3 scripts/serve-web.py --port 5186
+# In another terminal; run GPU capture/validation jobs serially.
+node scripts/capture-spa-monaco-update.mjs
+python3 scripts/build-spa-monaco-report.py
+node scripts/capture-track-audit.mjs
+node scripts/capture-car-comparison.mjs
+python3 scripts/build-photo-audit.py
+python3 scripts/build-car-comparison.py
+npm run build
+npm test
+APEX_URL=http://127.0.0.1:5186 npx playwright test tests/spa-monaco-followup.spec.js tests/wheel-pivots.spec.js tests/photo-reference.spec.js tests/car-comparison.spec.js tests/2021-grid.spec.js
+APEX_URL=http://127.0.0.1:5186 npx playwright test tests/features.spec.js --grep 'high-detail materials'
+cargo build --release --features native --bin apex-native
+APEX_SMOKE=1 APEX_SMOKE_ALL_CAMERAS=1 APEX_SMOKE_TRACK=1 APEX_SMOKE_ERA=0 xvfb-run -a target/release/apex-native
+python3 scripts/workspace-budget.py
+```
+
+---
+
 # Validation — 0.14.0-preview.1
 
 Branch `fix/wheel-pivots-and-photo-accuracy`, based on main `8becfba`. Tyre-axis correction, fifteen-photo all-track/all-era audit, bounded recent-surface and period-car refinements.

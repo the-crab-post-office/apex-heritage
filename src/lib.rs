@@ -20,6 +20,7 @@ pub mod pit;
 pub mod powertrain;
 #[cfg(feature = "native")]
 pub mod recorded_audio;
+pub mod reference_scene;
 pub mod roster;
 pub mod scenery;
 pub mod surface_mesh;

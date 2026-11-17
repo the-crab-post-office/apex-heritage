@@ -22,6 +22,8 @@ pub struct Runoff {
     pub name: String,
     pub index: usize,
     pub kind: String,
+    #[serde(default)]
+    pub follow_road: bool,
     pub triangles: Vec<[[f32; 2]; 3]>,
 }
 #[derive(Clone, Deserialize)]
@@ -32,6 +34,8 @@ pub struct Profile {
     pub notes: String,
     pub kerbs: Vec<Kerb>,
     pub runoffs: Vec<Runoff>,
+    #[serde(default)]
+    pub barriers: Option<Vec<crate::venue::Barrier>>,
 }
 #[derive(Clone, Deserialize)]
 pub struct Record {
@@ -180,15 +184,30 @@ impl Details {
                 "asphalt" => (2, 0x666e70),
                 "red_paint" => (2, 0xb52b24),
                 "green_paint" => (2, 0x27814b),
+                "white_paint" => (2, 0xe3e2d5),
                 _ => (3, 0x91a366),
             };
             for tri in &r.triangles {
                 let points = tri.map(|p| {
+                    let nearest = if r.follow_road {
+                        track
+                            .points
+                            .iter()
+                            .enumerate()
+                            .min_by(|(_, a), (_, b)| {
+                                ((a[0] - p[0]).powi(2) + (a[1] - p[1]).powi(2))
+                                    .total_cmp(&((b[0] - p[0]).powi(2) + (b[1] - p[1]).powi(2)))
+                            })
+                            .map(|(i, _)| i)
+                            .unwrap_or(r.index)
+                    } else {
+                        r.index
+                    };
                     let ground =
                         if track.name == "Spa-Francorchamps" && r.name.contains("photo apron") {
                             track.surface_at(p[0], p[1], r.index, 0.)
                         } else {
-                            track.driving_surface(p[0], p[1], r.index, 0.)
+                            track.driving_surface(p[0], p[1], nearest, 0.)
                         };
                     [p[0], ground.height + 0.025, p[1]]
                 });

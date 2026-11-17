@@ -1,3 +1,4 @@
+import { addReferenceScene } from "./reference-scene.js";
 import { advanceWheel, steeringAngle } from "./wheel-motion.js";
 import piscine from "../data/monaco-piscine.json";
 import { cameraRig } from "./cameras.js";
@@ -170,6 +171,7 @@ export class World {
     this.buildLandmarks();
     this.buildPiscine();
     this.buildTunnel();
+    addReferenceScene(this);
     buildVenue(this);
     this.photoReady = Promise.all(this.surfaces.pending);
     this.player = makeCar(config.era, config.color, config.teamData);
@@ -304,7 +306,11 @@ export class World {
     // asphalt nearly black; keep it readable without pretending to be a mirror.
     const roadMat = this.surfaces.pbr(
       "Asphalt012",
-      wet ? "#879396" : "#7b8285",
+      wet
+        ? "#879396"
+        : this.track.name === "Spa-Francorchamps" && this.config.era >= 3
+          ? "#a7aeae"
+          : "#7b8285",
       wet ? 0.12 : 0.3,
     );
     roadMat.roughness = wet ? 0.43 : 0.96;

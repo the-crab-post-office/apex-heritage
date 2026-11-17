@@ -1,6 +1,6 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.14.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.15.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
 
@@ -12,6 +12,16 @@ Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Ma
 - GitHub Pages serves the built **`gh-pages` branch**, root folder. Source stays on `main`; release tags retain their original contents. The main branch includes the 0.13 full-grid car and tyre-force update, with project-subpath hosting support.
 - Rebuild with `npm ci && bash scripts/build-web.sh` (Rust/WASM tooling required); publish using `python3 scripts/deploy-pages.py` with your own Git credentials. No token is stored in source, deployed assets or Git remotes. GitHub Pages ignores `_headers`; the explicit no-store manifest fetch and bounded build compatibility checks are retained, but CDN propagation can briefly delay a new deployment.
 - Workspace budget: `python3 scripts/workspace-budget.py`. Rebuildable toolchains/caches can live outside `/home/user`; they are ephemeral and may need reinstalling after a sandbox restart. The project and active preview remain local; large release ZIPs are published to GitHub and indexed without keeping redundant copies in the workspace.
+
+## 0.15 — Spa corner references / Monaco building tunnel
+
+- **[Seven actual updated game views](https://the-crab-post-office.github.io/apex-heritage/spa-monaco-update.html)**: La Source, Les Combes T5/T6, Malmedy T7, Bus Stop, finish straight and Monaco's hotel/portal.
+- Recent Spa only: continuous La Source escape and paved pit island, separate right/left/right Les Combes–Malmedy apexes, individual right-left Bus Stop kerbs, green/gravel margins, diagonal hatch markings and staggered grid boxes. Red/yellow outside walls are selected by the same era-scoped Rust venue used for collision and both renderers.
+- Older Spa profiles remain byte-identical; existing all-era Eau Rouge is preserved. 2021 continues to use its explicitly labelled recent-surface substitute. Road/pit centrelines, legal width and timing line are unchanged.
+- Modern Monaco for every era: explicit upper hotel floors bridge the previously clipped Fairmont road corridor. Facade/window bands, portal connection and hillside podium cladding make the entrance part of a building. The original tunnel ceiling keeps 4.65 m clearance; ordinary ground-building road exclusion remains enabled. Shared original facets render in web and native.
+- User images are reference-only, with hashes and rights/accuracy limits recorded in `data/spa-monaco-reference.json` and `data/SPA-MONACO-REFERENCE-NOTICE.md`. No user image pixels are redistributed; the offline report embeds actual game captures only. Dimensions and architecture remain authored estimates, not scans or surveys.
+
+Rebuild: corner generator; `python3 scripts/build-reference-scenes.py`; build/serve; `node scripts/capture-spa-monaco-update.mjs`; `python3 scripts/build-spa-monaco-report.py`; rebuild distribution.
 
 ## 0.14 — wheel wobble fix / broad photograph audit
 

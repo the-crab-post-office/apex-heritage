@@ -55,7 +55,10 @@ impl Venue {
         let mut v = Self {
             id: record.id.clone(),
             name: record.name.clone(),
-            barriers: record.barriers.clone(),
+            barriers: record.profiles[era.min(3)]
+                .barriers
+                .clone()
+                .unwrap_or_else(|| record.barriers.clone()),
             grandstands: record.grandstands.clone(),
             cells: HashMap::new(),
         };
@@ -246,6 +249,26 @@ mod tests {
                 assert_eq!(a.a, b.a);
                 assert_eq!(a.b, b.b);
                 assert_eq!(a.fence, b.fence);
+            }
+        }
+    }
+    #[test]
+    fn recent_spa_barriers_are_era_scoped_and_leave_every_requested_corner_drivable() {
+        let t = crate::tracks().remove(0);
+        for era in 0..5 {
+            let v = Venue::for_era(&t.name, era);
+            assert_eq!(
+                v.barriers.iter().any(|b| b.kind.starts_with("spa-")),
+                era >= 3
+            );
+            for (a, b) in [(0, 75), (418, 520), (1285, 1394)] {
+                for i in a..b {
+                    assert!(
+                        v.collide(t.points[i], t.points[(i + 1) % t.points.len()], [0., 0.])
+                            .is_none(),
+                        "era {era} station {i}"
+                    );
+                }
             }
         }
     }

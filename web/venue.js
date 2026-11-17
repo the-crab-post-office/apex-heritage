@@ -24,7 +24,8 @@ export function buildVenue(world) {
     roof = mat("#454e53", 0.65, 0.25),
     clothes = mat("#ffffff"),
     skin = mat("#d0b591");
-  const wallFaces = [];
+  const wallFaces = [],
+    wallColors = [];
   const wires = [],
     counts = new Map();
   function put(
@@ -114,7 +115,7 @@ export function buildVenue(world) {
               j % 9 === 0 ? "#ddd9d0" : j % 9 === 1 ? "#b6392d" : "#161b1c",
             );
         }
-      } else if (b.kind === "concrete") {
+      } else if (b.kind === "concrete" || b.kind.startsWith("spa-")) {
         const nx = (dz / Math.max(len, 0.0001)) * b.radius,
           nz = (-dx / Math.max(len, 0.0001)) * b.radius;
         const base = [
@@ -157,8 +158,17 @@ export function buildVenue(world) {
             face[0],
             face[2],
             face[3],
-          ])
+          ]) {
             wallFaces.push(...corners[i]);
+            const color = new THREE.Color(
+              b.kind === "spa-red"
+                ? "#b5352c"
+                : b.kind === "spa-yellow"
+                  ? "#dfc644"
+                  : "#ffffff",
+            );
+            wallColors.push(color.r, color.g, color.b);
+          }
         put(
           "wall-caps",
           box,
@@ -397,7 +407,12 @@ export function buildVenue(world) {
       "position",
       new THREE.Float32BufferAttribute(wallFaces, 3),
     );
+    geometry.setAttribute(
+      "color",
+      new THREE.Float32BufferAttribute(wallColors, 3),
+    );
     geometry.computeVertexNormals();
+    concrete.vertexColors = true;
     const wall = new THREE.Mesh(geometry, concrete);
     wall.material.side = THREE.DoubleSide;
     wall.userData.venueKey = "concrete-walls";
