@@ -1,8 +1,9 @@
 {
   "version": "0.16.0-preview.1",
   "inputs": {
-    "web/racing-line.js": "aa2d4eeed8e1fa3a8839abcc270132596c835faab8910fe7a2584fa1dcd12119",
-    "web/racing-guide.js": "76e54da6cd4ddba75c5634f3a52812657da08a027bf42b84c004d9814baca59e",
+    "web/racing-path.js": "38acc10bca1953919d7c85553e8dc7890b9ddcb5d0c78b0c84513e5bbff189b3",
+    "web/racing-line.js": "4272cd9c926ff7a05af00f33fab74e1700685d2570ecf84cf591b9dc6e0d619c",
+    "web/racing-guide.js": "5d86824eee9fea8a7cbe3c7fbe186ace5449bc7bb95ab6365cc686a7a8313e1a",
     "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
     "data/building-photo-references.json": "9890212551061e2f1e9f9b6242311192c3f13e51fcd8f41c6e7413dbf273d4c9",
     "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
