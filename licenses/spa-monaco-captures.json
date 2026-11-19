@@ -1,16 +1,16 @@
 {
-  "version": "0.15.0-preview.1",
+  "version": "0.16.0-preview.1",
   "inputs": {
-    "data/corner-details.json": "5284823ddff7f15e6c817bf7e35d73bfb90f49bc8f56aa6529e7eceb95b38e7b",
-    "data/reference-scenes.json": "4d85fea474dd62712793751dca24678e031735420c04834ca1642825928093a4",
+    "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
+    "data/reference-scenes.json": "dd9075f8f476640f636c9379e05e68854847ff4de8818d3f4b343421bbb197f8",
     "data/spa-monaco-reference.json": "295c763fcd25204f0ca90e438f311f9d9e585441aaca308c16a803994beee161",
-    "web/graphics.js": "bcbf26d8fc296d495a8d06cc3c707a68db3a3a595af4d3ff66a36332f9a5c9f5",
+    "web/graphics.js": "8c266eed450f40d44bbb3ae983c1d7919479290a160bd39a44d20a13134ea636",
     "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
     "web/venue.js": "540094f9a0cf12a8eec0a5ce0cd5db47c4073c86916a66d7b872c4c284b26aa2",
-    "web/reference-scene.js": "b20f6425c18a1a00efda17618fd8ec6af14ba419a476a9e6da07d1b87fb4fad0",
-    "src/corner.rs": "f99b53bb2770baf1736b1028c0ec16a6789159cd67592b599b9417f93e980468",
+    "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
+    "src/corner.rs": "a3b0f6e563df73865ecd2d23e82db0d3b6f793d36cb66161ba266051d2ffa727",
     "src/venue.rs": "7cd83df4013c677c4291ac3509400a71d716d90e58bd3927505862e852d2e90f",
-    "src/reference_scene.rs": "2251e7b40abc2e1d67c516c8aa38ebf5fc24f4090086ce8ad0961a4cf9345f66"
+    "src/reference_scene.rs": "6740e241b0f7b41bd1dfad8b018b3d7f2b7050d3e4247cc866f58296ff7e0707"
   },
   "captures": [
     {
@@ -36,7 +36,7 @@
         ],
         "fov": 48
       },
-      "version": "0.15.0-preview.1",
+      "version": "0.16.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
@@ -71,7 +71,7 @@
         ],
         "fov": 48
       },
-      "version": "0.15.0-preview.1",
+      "version": "0.16.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
@@ -106,7 +106,7 @@
         ],
         "fov": 48
       },
-      "version": "0.15.0-preview.1",
+      "version": "0.16.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
@@ -141,7 +141,7 @@
         ],
         "fov": 48
       },
-      "version": "0.15.0-preview.1",
+      "version": "0.16.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
@@ -177,7 +177,7 @@
         ],
         "fov": 58
       },
-      "version": "0.15.0-preview.1",
+      "version": "0.16.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
@@ -211,7 +211,7 @@
         ],
         "fov": 66
       },
-      "version": "0.15.0-preview.1",
+      "version": "0.16.0-preview.1",
       "reference": {
         "facets": 5486,
         "scope": "Modern Monaco for every era, as requested. Over-road Fairmont infill on the original mapped hotel footprint, plus estimated portal connection. Not a survey; image-12.png reference only.",
@@ -257,7 +257,7 @@
         ],
         "fov": 48
       },
-      "version": "0.15.0-preview.1",
+      "version": "0.16.0-preview.1",
       "reference": {
         "facets": 5486,
         "scope": "Modern Monaco for every era, as requested. Over-road Fairmont infill on the original mapped hotel footprint, plus estimated portal connection. Not a survey; image-12.png reference only.",
