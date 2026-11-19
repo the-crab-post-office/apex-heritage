@@ -1,14 +1,17 @@
 {
   "version": "0.16.0-preview.1",
   "inputs": {
+    "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
+    "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
+    "web/materials.js": "1b0981fb7c650b5270651a4ebd6fed6d68629e78121f61f055da51c87e4abc27",
     "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
-    "data/reference-scenes.json": "dd9075f8f476640f636c9379e05e68854847ff4de8818d3f4b343421bbb197f8",
+    "data/reference-scenes.json": "51f94bee253ab437f1a499ccad82369b1734857986978b95942790ad578d898d",
     "data/spa-monaco-reference.json": "295c763fcd25204f0ca90e438f311f9d9e585441aaca308c16a803994beee161",
-    "web/graphics.js": "8c266eed450f40d44bbb3ae983c1d7919479290a160bd39a44d20a13134ea636",
+    "web/graphics.js": "0c20bfde0861059b9b0c91177b134608da334dbef60346c30411eb472321fe43",
     "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
     "web/venue.js": "540094f9a0cf12a8eec0a5ce0cd5db47c4073c86916a66d7b872c4c284b26aa2",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
-    "src/corner.rs": "a3b0f6e563df73865ecd2d23e82db0d3b6f793d36cb66161ba266051d2ffa727",
+    "src/corner.rs": "43acf9f1c3be1194f6ae54eb2e2dbe2bb5079caad92124f19129a9903c816855",
     "src/venue.rs": "7cd83df4013c677c4291ac3509400a71d716d90e58bd3927505862e852d2e90f",
     "src/reference_scene.rs": "6740e241b0f7b41bd1dfad8b018b3d7f2b7050d3e4247cc866f58296ff7e0707"
   },
@@ -45,8 +48,8 @@
           4
         ]
       },
-      "sha256": "a539ab6e9fad40db37294132b4842cbebbdf27a586d4795ff0211f0b6f6ace4f",
-      "bytes": 89653
+      "sha256": "6e9957e1e7908a7079ed3902eafc525251c34262cdfbb2198e1330b9c052467c",
+      "bytes": 88913
     },
     {
       "id": "les-combes",
@@ -80,8 +83,8 @@
           4
         ]
       },
-      "sha256": "3f3da72cf004d19a5d24bec061e0abd165927526ede07d3e3058aef829390be2",
-      "bytes": 93679
+      "sha256": "825a3f9b5050a28cf60734e75efd92f3c53a2ae974dfeaf854063d02d7eb3e5b",
+      "bytes": 93399
     },
     {
       "id": "malmedy",
@@ -115,8 +118,8 @@
           4
         ]
       },
-      "sha256": "fe31ee11efca5baa7626329524a573db677c2e4e242b376ea6976ff336098a76",
-      "bytes": 96756
+      "sha256": "048180f75b7e311d508c52e84ea94ffeb5561f921ed15dcd6de3a2c42d45ea91",
+      "bytes": 96417
     },
     {
       "id": "bus-stop",
@@ -150,8 +153,8 @@
           4
         ]
       },
-      "sha256": "ba1885560374e048e76292aa376d5018b25f08ab404ddc7027f9fb334d77dec9",
-      "bytes": 89143
+      "sha256": "fdf48b82f3311d83ec3d37a0e546ff9de471fca33b3eca47374a7baf0ac5e335",
+      "bytes": 88491
     },
     {
       "id": "finish-straight",
@@ -186,8 +189,8 @@
           4
         ]
       },
-      "sha256": "aa69b5062fc0808ad4dfb9383915ec3d6a35b0af7364ce4afd4404580e547b77",
-      "bytes": 105820
+      "sha256": "03a9bbcc8f9167ad7c50feb53c05e8d1d5813d60b1e746c4211a7968ca29d880",
+      "bytes": 105386
     },
     {
       "id": "monaco-portal",
@@ -231,8 +234,8 @@
           4
         ]
       },
-      "sha256": "8809a0273b0b1979e314e96bfb33d38b502cc26ca701b81a4c0efd14168e99c3",
-      "bytes": 79581
+      "sha256": "fb4efa0ad6e3c9850027993a74427329f09f97b23fd887890587627860eec42c",
+      "bytes": 79103
     },
     {
       "id": "monaco-hotel",
@@ -277,8 +280,8 @@
           4
         ]
       },
-      "sha256": "d76434593296194605ddd192164867e4020374798672c699a95b535fd617a1cf",
-      "bytes": 141147
+      "sha256": "d4a6e27bca971cc2a41519c889b9f855a677acb3b5e9b192120fb20a10bc69a6",
+      "bytes": 144048
     }
   ]
 }

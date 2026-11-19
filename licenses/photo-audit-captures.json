@@ -1,6 +1,9 @@
 {
   "version": "0.16.0-preview.1",
   "inputs": {
+    "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
+    "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
+    "web/materials.js": "1b0981fb7c650b5270651a4ebd6fed6d68629e78121f61f055da51c87e4abc27",
     "data/car-shapes.json": "1bd46d6324b6bb55ad58cbfb31b9d7a0c2a722536e08a9cc90eae1aeda25e81b",
     "data/car-layouts.json": "f0436dd41cd56dc6c39711e2cd39d9c2b7a7d2c82dc16aef6ccf1e6595e61455",
     "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
@@ -8,11 +11,11 @@
     "data/car-variants.json": "f75645be8cc6cd17d14f59a209f74a9dfe87da76ae9651d6e5f64fc394f07a0f",
     "web/assets/liveries/manifest.json": "f48689f898d8e8ead66bbb73f3d05b87c077ad9b87cb6fe1decde1d186573f61",
     "web/wheel-motion.js": "925d8daa761bff4c6f037c4a06a43178d3a996913798f23ba60a1c492721e3ba",
-    "web/graphics.js": "8c266eed450f40d44bbb3ae983c1d7919479290a160bd39a44d20a13134ea636",
+    "web/graphics.js": "0c20bfde0861059b9b0c91177b134608da334dbef60346c30411eb472321fe43",
     "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
-    "web/road-surface.js": "d1ad99e3ff2ea63b5621f5d875bbc1c521291ffc9bb8535f334a6ebf5b653a40",
-    "src/corner.rs": "a3b0f6e563df73865ecd2d23e82db0d3b6f793d36cb66161ba266051d2ffa727",
-    "data/reference-scenes.json": "dd9075f8f476640f636c9379e05e68854847ff4de8818d3f4b343421bbb197f8",
+    "web/road-surface.js": "01360ac1d7a81510a3cb804ef124d0a7a654fc80ef53e0733eb9085ce87f7e79",
+    "src/corner.rs": "43acf9f1c3be1194f6ae54eb2e2dbe2bb5079caad92124f19129a9903c816855",
+    "data/reference-scenes.json": "51f94bee253ab437f1a499ccad82369b1734857986978b95942790ad578d898d",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
     "web/venue.js": "540094f9a0cf12a8eec0a5ce0cd5db47c4073c86916a66d7b872c4c284b26aa2"
   },
@@ -20,8 +23,8 @@
     {
       "id": "spa",
       "category": "track",
-      "sha256": "df8c7fa45e8737965b856cb415bcbc55288d9abc07d226afef7e7703645d6992",
-      "bytes": 78629,
+      "sha256": "c92e3d53ffe14b2b09f728bd2647990cf20683ffc4f8d737350df6156d89159d",
+      "bytes": 78024,
       "camera": {
         "station": 31,
         "position": [
@@ -46,8 +49,8 @@
     {
       "id": "monaco",
       "category": "track",
-      "sha256": "e6b9bda643393a81d2d0cfcc098976a36dc5197464a9e22c8500b37d1ad752ce",
-      "bytes": 115938,
+      "sha256": "894f31102f4e6a6227abb047010f97420b702a3ca43a14b2123dddda1daa4435",
+      "bytes": 116456,
       "camera": {
         "station": 530,
         "position": [
@@ -98,8 +101,8 @@
     {
       "id": "silverstone",
       "category": "track",
-      "sha256": "bbcf4f9f03062315c2a547850f141d3315b50c6c3d35a906c358c2626b7a5fec",
-      "bytes": 80465,
+      "sha256": "3381a1cc886b80f9e30f854a9f9bcc51907d308c6b8430b29dce107e43e42755",
+      "bytes": 83411,
       "camera": {
         "station": 1080,
         "position": [
@@ -150,8 +153,8 @@
     {
       "id": "interlagos",
       "category": "track",
-      "sha256": "86665b588882571493116b0e2ea7035287dc55b07a1e3181128d10373c3f8d81",
-      "bytes": 88465,
+      "sha256": "6e9dc4454563b5543606ca3e2f5f837b56077da7f699320cbba425e419ee5111",
+      "bytes": 93680,
       "camera": {
         "station": 56,
         "position": [
@@ -176,8 +179,8 @@
     {
       "id": "imola",
       "category": "track",
-      "sha256": "245a8a896ff45687ad3df1dd860c56703f61382c3a7296284847de7d3d478e4f",
-      "bytes": 88562,
+      "sha256": "1d11a184a3aaf1dd6bb531080c9db2f17ad935134aaaff834481f4b21393da8b",
+      "bytes": 90818,
       "camera": {
         "station": 790,
         "position": [
@@ -228,8 +231,8 @@
     {
       "id": "montreal",
       "category": "track",
-      "sha256": "fc774b7111c6481b9128a29a2fbdbad36f526305a4af90cd76b554c11be6cb0c",
-      "bytes": 59417,
+      "sha256": "295ca10c130108b1c4a7ec46b1260b353e4fce39cbebb00a972879953c046ab3",
+      "bytes": 60372,
       "camera": {
         "station": 0,
         "position": [

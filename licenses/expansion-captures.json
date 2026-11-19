@@ -1,22 +1,104 @@
 {
   "version": "0.16.0-preview.1",
   "inputs": {
-    "data/tracks.json": "e6589ff87caba2edbbaee9bd4fcd40d3b4163644bae14f9d876d1264a4da9e4b",
+    "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
+    "data/building-photo-references.json": "9890212551061e2f1e9f9b6242311192c3f13e51fcd8f41c6e7413dbf273d4c9",
+    "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
+    "web/materials.js": "1b0981fb7c650b5270651a4ebd6fed6d68629e78121f61f055da51c87e4abc27",
+    "data/tracks.json": "aad2365f23deb20481ad8d8a8f02141005c3da07f5e29793e68eeac64f8749f4",
     "data/imagery.json": "3b2abdea562204811745a682c42fe3606ef3e3dfd893a344c5456ffc3e42bf27",
     "data/buildings.json": "bc5396a1e532bed1ad04fab38f224143910e906636559b7448f2d528df4216a5",
     "data/pit-lanes.json": "bdcc26edea7458c894b3a38c0480b53a3f0606285344cbd7cb2ff38cfb771f4a",
     "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
-    "data/reference-scenes.json": "dd9075f8f476640f636c9379e05e68854847ff4de8818d3f4b343421bbb197f8",
+    "data/reference-scenes.json": "51f94bee253ab437f1a499ccad82369b1734857986978b95942790ad578d898d",
     "data/expansion-references.json": "989ed3d070481b170a7f5c75ef23caad02a48992f9ce7040f7fd2c95101a794e",
-    "web/graphics.js": "8c266eed450f40d44bbb3ae983c1d7919479290a160bd39a44d20a13134ea636",
-    "web/road-surface.js": "d1ad99e3ff2ea63b5621f5d875bbc1c521291ffc9bb8535f334a6ebf5b653a40",
+    "web/graphics.js": "0c20bfde0861059b9b0c91177b134608da334dbef60346c30411eb472321fe43",
+    "web/road-surface.js": "01360ac1d7a81510a3cb804ef124d0a7a654fc80ef53e0733eb9085ce87f7e79",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
     "src/braking.rs": "a9c98051b1710a40c1ca41ad93b6bb91a4d623075847eeede5ae8bdf511d4b9e",
-    "src/lib.rs": "55a7b7addb3d60e840b40ca3b41545109549452733835c3094447051510dd2c3",
-    "src/corner.rs": "a3b0f6e563df73865ecd2d23e82db0d3b6f793d36cb66161ba266051d2ffa727",
-    "src/elevation.rs": "422ebc9733d66483c98fa5f893b7c184192aa0ec5bed82f6311f035c245a4115",
-    "src/surface_mesh.rs": "ba823ee4d8e3d5120ab2bcdae0ff0772f84f5d168083773fee5e8771ab351531",
-    "web/wasm/apex_bg.wasm": "80337b6a0d8fbbf7b84fe3899f030c9cde0efd232718621d48dbb1c5d90bef80"
+    "src/lib.rs": "2622ecef1ca9eec46ac35be02ae02f0914cd1acf279d562c1f6de099a3ad3eff",
+    "src/corner.rs": "43acf9f1c3be1194f6ae54eb2e2dbe2bb5079caad92124f19129a9903c816855",
+    "src/elevation.rs": "1f6dd3340826261d61bb6004bf3f95b3bbd0f24d3274dab8c2051765dd89c8f5",
+    "src/surface_mesh.rs": "35164b72ddc347be69834238ee5c2c0954765c1c0826877b2f32072196a585fe",
+    "web/wasm/apex_bg.wasm": "d830722f5ebfd0b80520cc6e4e946d7cefff31c508fe5408dcaf9e474277a418",
+    "web/assets/facades/ae-2009-brick.jpg": "77c26ab3cdaac5d0fa02dfb65ae3b58128e22367981353d42175cba7586bd427",
+    "web/assets/facades/ae-2009-glass.jpg": "389deea9e94bc21d3d15498d368b8932ec46d9f772ea81f67f9147fd12f613d6",
+    "web/assets/facades/ae-2009-hotel.jpg": "916e546a6a507b7866e610701a0603c1e81a8ecac75e28dbdb9eb6cc026d8e25",
+    "web/assets/facades/ae-2009-industrial.jpg": "7765a54d997d5f5ddbfc22f2e1964e687c49018f14d0e2b7efb65be1c0cb9a72",
+    "web/assets/facades/ae-2009-stone.jpg": "9170498e86ee122af1b6d9943e85453ce31fa5b195768cec4ba3c6671744bc71",
+    "web/assets/facades/ae-2009-stucco.jpg": "a81c807390162b21b3dd970f2c3ba56490f4bbb01bf07e7bd4fc0bd7927f18ff",
+    "web/assets/facades/az-2016-brick.jpg": "a499206d07e91231018cbc66727030645cac75ea0a542ef9efd58c07bf9b19b0",
+    "web/assets/facades/az-2016-glass.jpg": "43e26c2956338be424f88b28cf0cbdb4840f3847afde3ecdef40569a3d4ca1d3",
+    "web/assets/facades/az-2016-hotel.jpg": "655d2d5b03de76e974e66f58b048338fb070afb6cbed82fe20422aeba69a28ac",
+    "web/assets/facades/az-2016-industrial.jpg": "0aa43953f0305ec13faa2ee12c56050ae2e30c2eec881731d28ae288ed4a8f47",
+    "web/assets/facades/az-2016-stone.jpg": "5b9a28a1bd7b4f874ddad685179d4fcff6255edbf94c0a70b7466456fd982cbc",
+    "web/assets/facades/az-2016-stucco.jpg": "4a85497b27884eef2954a269f1be57c5e9135e0f1f8c7e3c2f9cffb6c80549b3",
+    "web/assets/facades/be-1925-brick.jpg": "d8481864a753e20a82f97e38fbc2981e30da97582ba091be27a91a7c38f9298c",
+    "web/assets/facades/be-1925-glass.jpg": "d3b7792ee78d441ff2a5b23d86552b83cadfe7e7d4c4c4fbe00a7f6144eae57c",
+    "web/assets/facades/be-1925-hotel.jpg": "d6bfd92dd3ead2b3f260b6a952fbef2a1b659ebf9ee03d66249bbbc40bcd2e1d",
+    "web/assets/facades/be-1925-industrial.jpg": "c23c881bacf476b257f2ba611c46bfdb9a4d56000e5ad0cfb2e35476c5ac8f99",
+    "web/assets/facades/be-1925-stone.jpg": "96d5c5941c7aa2ac83e529f7022f9c0798a443ec244ec3f24943020fcd56e3df",
+    "web/assets/facades/be-1925-stucco.jpg": "34cc366955f7d506dc8791667abbf01f1823f64df904d55633fda25593048fc2",
+    "web/assets/facades/br-1940-brick.jpg": "7ac2971c2cc308adf14337a1bd985a5fb59be4438e9c65264fec0b24e54a3cc8",
+    "web/assets/facades/br-1940-glass.jpg": "784986da89ae39ec7370bb5768154a2a8e79f741105775b179857109d9bfe61d",
+    "web/assets/facades/br-1940-hotel.jpg": "0b57a635c6eae00176ccd31ea54e1aa5e11fb0ab6f13292e7f603a9013fb3e23",
+    "web/assets/facades/br-1940-industrial.jpg": "81ef062ed1e1400db15b528b09b7234f039234af5a8734f225dcd741ad2a5fa9",
+    "web/assets/facades/br-1940-stone.jpg": "01f77c64b8b8a6d9cc36f3332215a841bd4b0454a3ea61d0fc740a1342f747d0",
+    "web/assets/facades/br-1940-stucco.jpg": "08bf62d08f4e060525351bf6f96391427cf4e740f23488063ce81a725d06999a",
+    "web/assets/facades/ca-1978-brick.jpg": "c58d03c619c1e865bd52a6751c7f28c627be2010c85cb5ef86eae5353e038a47",
+    "web/assets/facades/ca-1978-glass.jpg": "168bdd50eb037e25f88ee1e2df3c9121e615331519123be7d3d625867ca2eaba",
+    "web/assets/facades/ca-1978-hotel.jpg": "76e6a9f8e6c45030643908bd59adeccf7f9920b544c881cf3945687ddcd331a5",
+    "web/assets/facades/ca-1978-industrial.jpg": "b23f0f59e76f46b957fcb46172da736d21665d9d4fba8f44a20e1c78307cdde8",
+    "web/assets/facades/ca-1978-stone.jpg": "cf22c4a847a7bf85e1ae4284202c3c0d5a76060742981d96d5daa6c46754970d",
+    "web/assets/facades/ca-1978-stucco.jpg": "d46f663b82dbda4af9dd3c43b69b33cc0416723da8fa18843648d8d6aa7746eb",
+    "web/assets/facades/de-1927-brick.jpg": "3501d53bb33e14fe5082686cbbd9630dbce16ecec5fbba1d434c51144fa07213",
+    "web/assets/facades/de-1927-glass.jpg": "24dd0eab6f766498c8d258e1613d120c82a907bc0cd6f00e9164f4d3aee12af4",
+    "web/assets/facades/de-1927-hotel.jpg": "6e9054f33a049de435f478071197109b6493f539eb3da16600ea794a435a9e81",
+    "web/assets/facades/de-1927-industrial.jpg": "3b97e2ba90902f51ea8a5067cb116987949109c60f4ce2b6d5235e2f554ed868",
+    "web/assets/facades/de-1927-stone.jpg": "428bdb4224380bfb86f7dfd782c80ef69b5c936c685fb2915b9276ec7853b110",
+    "web/assets/facades/de-1927-stucco.jpg": "c0ed57c190103a2eb24cf432a1558e698096efcccb5fa573c8c69bbf9432c74a",
+    "web/assets/facades/de-1932-brick.jpg": "c87f4db627c32ce3a3d8fd4a15ea49c427eedd26296ea36db4e4ebdfdc510b90",
+    "web/assets/facades/de-1932-glass.jpg": "563208d6eefb50aa42620ee15e8d1c7ce4606fb391dc8544df0e7377f19281bf",
+    "web/assets/facades/de-1932-hotel.jpg": "2c3b16913127ebbf5c0b8bf17dfad29d34fce6995714afee232b093b749c7a0b",
+    "web/assets/facades/de-1932-industrial.jpg": "35ec8827d7646339e40b83242997a836bf232d71d1adb55490f85a32355e8d53",
+    "web/assets/facades/de-1932-stone.jpg": "8660c0f061c3059eabf8deefee88a67346101fbce2ad1e2dcf6dd6d2a46efd91",
+    "web/assets/facades/de-1932-stucco.jpg": "7616b5e656823086fa616c35ec0013725128b4fc3d2789be1d75d663b02814c7",
+    "web/assets/facades/gb-1948-brick.jpg": "dc2456b49730db074afaba9401c1ec7c25d3bb4946f1d9a9f0aca6f555d195e5",
+    "web/assets/facades/gb-1948-glass.jpg": "26ebbc522f626bf88a622d62805f0d15dfccf8db438aaef81caa5edcbf714047",
+    "web/assets/facades/gb-1948-hotel.jpg": "c94d093d061b0fb35879ce55947fdd0f97d41554e6926d4a6137abeb0f98dc30",
+    "web/assets/facades/gb-1948-industrial.jpg": "88e82cbaafba03e7fea2104879b022627ca8d440c76199bb93db7deb37c2df09",
+    "web/assets/facades/gb-1948-stone.jpg": "d5f09f80269098e2a3665f50d80dacd8dea9b4f5d16371283274552f9553d3c6",
+    "web/assets/facades/gb-1948-stucco.jpg": "51f102f57da3ea2bd1e0540e0183ab103a80012bd81b47a7fc1ed437b0cbfa30",
+    "web/assets/facades/it-1922-brick.jpg": "6171a71b3122bcc8b99d1222ed762b86105bed99686249e987b6cccf7b835312",
+    "web/assets/facades/it-1922-glass.jpg": "8370c32426589312c8c31cfd94129a0d088d248029b6bf56c484aa9abbeb9f6f",
+    "web/assets/facades/it-1922-hotel.jpg": "6b40dada816d8ad7cf3c76cbbf2a8c7f8c6ae992edb36ec0b161c338cf4f5082",
+    "web/assets/facades/it-1922-industrial.jpg": "b7f3357cdb6b83edf21d4d48c8e6d79fa9afc026226aadebfa42ca8c081c33f6",
+    "web/assets/facades/it-1922-stone.jpg": "59733c9b7330b2f6ec9260ad994d644c5db215739e90e3c132cd048163a8dfd2",
+    "web/assets/facades/it-1922-stucco.jpg": "b3082363f3164b6ce310c84b230e57911d4d2cffd5e856dc7edfa99d2e4f3ffb",
+    "web/assets/facades/it-1953-brick.jpg": "0f4ef11633fba32e9f1809cf39e5bd18b8fcc4e85491ecd8274416831e5d9456",
+    "web/assets/facades/it-1953-glass.jpg": "6783297c6cdbb0a0c245de1829b7e5c61f3af0cd6fe771d409c1a7d943c70a65",
+    "web/assets/facades/it-1953-hotel.jpg": "f02fbb7c4b67f9fa1ff78ef4d66a4f845e036d9e155161a983a5266bf2c08d33",
+    "web/assets/facades/it-1953-industrial.jpg": "6a74f871bf0d8771ca82421a5db2c6537bead081ea5e499b76489d6635e651b8",
+    "web/assets/facades/it-1953-stone.jpg": "01cc542f6e48276e67686cdf56d0cff8396c9f643a30fc811289c3d76b9d1bf4",
+    "web/assets/facades/it-1953-stucco.jpg": "851d6b8d1530b5f6a3b0c5d809f6a3060d254f760620131e01c733dab52d3614",
+    "web/assets/facades/jp-1962-brick.jpg": "9c78820d3990e8cc1fc4c0b8b7356a42db7de41303c1299989d58c9912074e29",
+    "web/assets/facades/jp-1962-glass.jpg": "0b2d38526e145f97fc081fbfd76db103e19007b48a6611e0704c90a30a6200a2",
+    "web/assets/facades/jp-1962-hotel.jpg": "9f56e47552c77dcc47bbd4681cecd1f43f1d1cd083da9884b50cae616a1da41c",
+    "web/assets/facades/jp-1962-industrial.jpg": "e5f764ce9c3a502062f10239d2c57677707d43a3d6e48787464615764eac0505",
+    "web/assets/facades/jp-1962-stone.jpg": "e13582ec44fb5988380841c0ce9ca26ea4e4ea7731ee6496f4e097a3e8e789ab",
+    "web/assets/facades/jp-1962-stucco.jpg": "73cafb5ad870efd36b5a34893842956a4c948a15fb2dd095d1238b74dfc79814",
+    "web/assets/facades/mc-1929-brick.jpg": "51362c90b488471a3e6b5596bd148266365af56dc22f0439d454f876238cd84c",
+    "web/assets/facades/mc-1929-glass.jpg": "f93b1749d3215f2bd1e98bdb2b0012166e9f76e855609795bcc77393a9007082",
+    "web/assets/facades/mc-1929-hotel.jpg": "2dd65c9f4d7698f3d396a1bf7e648889884eecd848e5a58b53e9aefbd155eba7",
+    "web/assets/facades/mc-1929-industrial.jpg": "f242218ce57b981a715db0fb52fc9c50d65c5f1e7c09eae1c7b3e84357854e30",
+    "web/assets/facades/mc-1929-stone.jpg": "df0fbcb7257301bd69ca5dcf4572299752499b5fecfc177458a77890cb4396ea",
+    "web/assets/facades/mc-1929-stucco.jpg": "1800a923b76b39b6ba038fd2c2cd20cc1dc8683836dca944ba73d97203789ca0",
+    "web/assets/facades/nl-1948-brick.jpg": "a918f5d5ef2455e75e161c741cd59757c1ccec941ab1ee40c3c0c6a8531eab2b",
+    "web/assets/facades/nl-1948-glass.jpg": "b5a9ee1e7dc4bcfc6b6349e9e0dd63a7b0dbb6b7471d05e7d401801e21955b5b",
+    "web/assets/facades/nl-1948-hotel.jpg": "bba8f96f0941be3e1fcf62807416857fca430cabf4b7646197516f06cb8de57b",
+    "web/assets/facades/nl-1948-industrial.jpg": "fd7a174c29f75a677d92abd247873d61a0ec24082adecdcdea59da31bff672d5",
+    "web/assets/facades/nl-1948-stone.jpg": "0ec8c94404aa4a4fc140bc5cfbed1db37868701cef251428b27b309a40fd88bf",
+    "web/assets/facades/nl-1948-stucco.jpg": "92d7710ff357a63c5d094e7ee2ddac26e48b14cb60f5c4954b41bfd4445b8122"
   },
   "captures": [
     {
@@ -45,7 +127,7 @@
       },
       "version": "0.16.0-preview.1",
       "reference": {
-        "facets": 16023,
+        "facets": 17931,
         "scope": "Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.",
         "clearance": {
           "minimum": 9,
@@ -59,8 +141,8 @@
           4
         ]
       },
-      "sha256": "28f10f6e0fdd984ab0832062ad2eb6dd2edd65e466bdc967db9ede5b0ff25e48",
-      "bytes": 88145
+      "sha256": "7296ff26a48b7010ae565b49d5068bcffe5a580ac24fbe3421e23020f89d53c3",
+      "bytes": 111862
     },
     {
       "id": "yas-marsa",
@@ -88,7 +170,7 @@
       },
       "version": "0.16.0-preview.1",
       "reference": {
-        "facets": 16023,
+        "facets": 17931,
         "scope": "Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.",
         "clearance": {
           "minimum": 9,
@@ -102,8 +184,8 @@
           4
         ]
       },
-      "sha256": "d4ce037a47549044b6aeaa20358de3ade4dda75b2893d8c8ebaa4c15b9ea8ab8",
-      "bytes": 62628
+      "sha256": "bbd3008f1421fe1a95daf9c1b07f6949e7381962918a799631e34372fbdd9f36",
+      "bytes": 62164
     },
     {
       "id": "zandvoort-hugenholtz",
@@ -141,13 +223,13 @@
           4
         ]
       },
-      "sha256": "52105276581a5d98eaee6d3f3947fc7e1354193d7af32da430f8661abca522b8",
-      "bytes": 136571
+      "sha256": "828947cfda2532d0a3c4e828c69a9b6591775026e52da199b2b042f44b56ae6c",
+      "bytes": 136671
     },
     {
       "id": "zandvoort-luyendyk",
       "track": 11,
-      "station": 780,
+      "station": 766,
       "offset": [
         -50,
         65,
@@ -157,14 +239,14 @@
       "title": "Zandvoort \u00b7 Arie Luyendyk banking",
       "camera": {
         "position": [
-          -525.5699999999999,
-          69.2874,
-          322.21299999999997
+          -535.7860000000001,
+          68.81,
+          390.803
         ],
         "target": [
-          -475.57,
-          4.2874,
-          227.213
+          -485.786,
+          3.81,
+          295.803
         ],
         "fov": 58
       },
@@ -180,8 +262,8 @@
           4
         ]
       },
-      "sha256": "6fbcfe96ad809b993ec73a267ceed0f2322f8ae7101334c1c3a42ced98948d0e",
-      "bytes": 132163
+      "sha256": "9be0e859f2ac307194e60a36b012e343187e7031cbec644ee4a34bf61ad06e16",
+      "bytes": 129359
     },
     {
       "id": "baku-castle",
@@ -217,8 +299,8 @@
           4
         ]
       },
-      "sha256": "4847a2daf4bbc1fa3f9a908b074dc5d34a0e2cffef0f821183ff1d231a4f4f56",
-      "bytes": 66993
+      "sha256": "6d0ba90910aee4b6158cf240ae69e8baf095f0b7425039e77fb02cca5f457271",
+      "bytes": 68819
     },
     {
       "id": "baku-waterfront",
@@ -256,8 +338,8 @@
           4
         ]
       },
-      "sha256": "d589aa1792be86cf019cd0cd8555d9e34eb639dee1536ee423e13bb22197f44c",
-      "bytes": 87520
+      "sha256": "f879310a0b7801e06bab027921abca6d46c4e645faca7f60213ee8dca7aa93e8",
+      "bytes": 91621
     }
   ]
 }
