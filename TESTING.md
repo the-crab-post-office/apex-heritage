@@ -22,6 +22,15 @@ The initial Baku capture mistakenly used the distant palace courtyard wall. Fina
 
 New layouts remain labelled modern substitutes for every car era. Original ten circuit/layout/surface records are checksum-preserved, including older Spa surfaces and the existing all-era Eau Rouge treatment. Road widths remain constant authored estimates; Baku's real wider straights and Zandvoort's variable banking bowl are not reconstructed. Baku elevation is explicitly 90 m DSM rather than mislabelled 30 m. Hardware controller handling and hardware-GPU/mobile performance are not certified by headless/software-renderer tests.
 
+## Published 0.16 verification
+
+- Release source **`6effba552d8f9399afacf7b7d7f69a2fa3c32ac2`**, tag **`v0.16.0-preview.1`**, Pages commit **`1b4c5c3c667a6eb11d0f44477e60e9fff92b2a80`**. Public manifest and browser returned **0.16.0-preview.1 / 4329d0cd**. This suffix is the track-data identity, not a WASM SHA256 checksum; the capture manifest separately hashes the exact WASM bytes.
+- Live browser displayed all **13 selectable circuits**. The real keyboard W+Space route stopped the released WASM model from 50.274353 m/s to zero during 3.5 seconds of fixed stepping while W stayed held; effective throttle was zero and brake one. This is a functional overlap regression, not a measured 100–0 rig or real-car stopping claim.
+- Live Monza and all three new venue road audits found **zero missing road, pit overlaps, terrain/overlay intrusions or centreline errors**. New venues remained explicitly modern-layout substitutes.
+- All four public reports decoded **63 embedded images total** and fitted a 390 px viewport; the new report's Baku filter showed exactly two views. **Zero page errors and zero failed HTTP responses** (`artifacts/016-public.json`, `artifacts/016-public-validation.log`, `artifacts/016-public-report.png`).
+- Source/browser/Linux ZIPs and SHA256SUMS.txt were uploaded to the tagged prerelease. All three archives passed CRC, source/build-identity, new-report inclusion and credential/cache exclusion checks. Every remote asset's SHA256 and size matched local bytes (`artifacts/016-archive-validation.json`, `artifacts/016-upload.log`). `RELEASE-ARCHIVES.json` now indexes **56** assets. Large ZIPs stay outside the size-limited workspace; the index preserves permanent download URLs/checksums.
+- These post-publication records intentionally follow the release-source commit; the release tag/archives retain the validated source snapshot rather than being silently rewritten.
+
 ---
 
 # Archived validation — 0.15.0-preview.1
