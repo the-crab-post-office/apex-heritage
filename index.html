@@ -1,179 +1,158 @@
 <!doctype html>
+
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="apex-build" content="0.16.0-preview.1" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#111413" />
+    <meta content="width=device-width,initial-scale=1" name="viewport" />
+    <meta content="#111413" name="theme-color" />
     <title>APEX / HERITAGE — The history of speed</title>
     <link
-      rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23f35c35' d='M2 32 18 6h8L12 32zm17 0 10-17 9 17z'/%3E%3C/svg%3E"
+      rel="icon"
     />
-    <script type="module" crossorigin src="./assets/index-DsIs7WSS.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Fn1hMa55.css">
+    <script type="module" crossorigin src="./assets/index-DOnIo2v7.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-B7hHWFeK.css">
   </head>
   <body>
-    <div id="app">
-      <header class="topbar">
-        <a class="brand" href="#" aria-label="Apex Heritage home"
-          ><svg viewBox="0 0 52 36" aria-hidden="true">
-            <path d="M1 31 19 4h10L11 31zm20 0 12-18 17 18H37l-5-6-4 6z" />
+    <div data-screen="home" id="app">
+      <aside class="menu-rail">
+        <a aria-label="Apex Heritage home" class="brand" href="#"
+          ><svg aria-hidden="true" viewbox="0 0 52 36">
+            <path d="M1 31 19 4h10L11 31zm20 0 12-18 17 18H37l-5-6-4 6z"></path>
           </svg>
           <div>APEX<span>/ HERITAGE</span></div></a
-        >
+        ><span class="rail-caption">THE HISTORY OF SPEED</span>
         <nav aria-label="Main navigation">
-          <button class="nav active" data-nav="drive">COLLECTION</button
-          ><button class="nav" data-nav="circuits">
-            CIRCUITS <sup>10</sup></button
-          ><button class="nav" data-nav="garage">GARAGE</button
-          ><button class="nav" data-nav="records">RECORDS</button>
+          <button class="nav active" data-nav="drive">
+            <span>01</span> PLAY <b>↗</b></button
+          ><button class="nav" data-nav="garage">
+            <span>02</span> GARAGE <b>↗</b></button
+          ><button class="nav" data-nav="records">
+            <span>03</span> PROFILE <b>↗</b></button
+          ><button class="nav" data-nav="cars">
+            <span>04</span> CARS <b>↗</b>
+          </button>
         </nav>
-        <div class="header-right">
-          <span class="engine-status"><i></i> RUST POWERED</span
-          ><button class="icon-btn" id="settings-button" aria-label="Settings">
-            <i data-lucide="sliders-horizontal"></i></button
-          ><span class="avatar">DR</span>
+        <div class="rail-foot">
+          <span class="engine-status"><i></i> RUST / WEBASSEMBLY</span
+          ><small>FIVE ERAS. ONE OBSESSION.</small
+          ><button id="credits-button">BUILD NOTES ↗</button>
         </div>
-      </header>
-      <main>
-        <div class="intro">
+      </aside>
+      <main class="menu-main">
+        <header class="menu-top">
+          <span>INDEPENDENT RACING / HERITAGE COLLECTION</span>
           <div>
-            <div class="eyebrow">
-              <span></span> CHOOSE YOUR ERA. FIND YOUR LIMIT.
-            </div>
-            <h1>History, <em>in your hands.</em></h1>
-            <p>57 season entries. Five generations. One place on the grid.</p>
-            <a href="./new-circuits.html" target="_blank" rel="noopener" style="color:inherit;font-size:12px">New: braking fix · Abu Dhabi, Zandvoort &amp; Baku ↗</a>
-            <a href="./spa-monaco-update.html" target="_blank" rel="noopener" style="color:inherit;font-size:12px">New: Spa corners &amp; Monaco tunnel ↗</a>
-            <a href="./photo-accuracy.html" target="_blank" rel="noopener" style="color:inherit;font-size:12px">Photo accuracy audit: all tracks &amp; eras ↗</a>
-            <a href="./car-comparison.html" target="_blank" rel="noopener" style="color:inherit;font-size:12px">2021 cars: game / reference comparison ↗</a>
+            <span class="avatar">DR</span
+            ><button
+              aria-label="Settings"
+              class="icon-btn"
+              id="settings-button"
+            >
+              <i data-lucide="sliders-horizontal"></i>
+            </button>
           </div>
-          <div class="platform-note">
-            <i data-lucide="monitor"></i>
-            <div>
-              BUILT TO RACE ANYWHERE<span>WebAssembly + native Rust</span>
-            </div>
-          </div>
+        </header>
+        <div hidden="" id="setup-navigation">
+          <button id="setup-back">← BACK</button>
+          <ol aria-label="Session setup progress">
+            <li data-step="mode"><span>01</span> MODE</li>
+            <li data-step="era"><span>02</span> ERA</li>
+            <li data-step="track"><span>03</span> TRACK</li>
+            <li data-step="team"><span>04</span> TEAM</li>
+          </ol>
+          <button id="setup-cancel">CANCEL ×</button>
         </div>
-        <section class="race-layout" aria-label="Race setup">
-          <article class="hero showroom" id="hero">
-            <div class="showroom-heading">
-              <span class="collection-kicker"
-                ><i></i> THE HERITAGE COLLECTION</span
-              ><span id="roster-count">57 SEASON ENTRIES / 5 ERAS</span>
-            </div>
-            <div class="showroom-nameplate">
-              <div id="showroom-team">SCUDERIA FERRARI</div>
-              <h2 id="showroom-model">F2004</h2>
-              <p id="showroom-engine">3.0L V10</p>
-            </div>
-            <div id="showroom-stage" class="showroom-stage">
-              <span class="showroom-loading">PREPARING THE SHOWROOM</span>
-            </div>
-            <div class="showroom-tools">
-              <span id="showroom-status">REFERENCE LIVERY / LIVE 3D</span>
-              <div role="group" aria-label="Showroom camera">
-                <button data-camera="front">FRONT</button
-                ><button data-camera="side">SIDE</button
-                ><button data-camera="rear">REAR</button
-                ><button data-camera="top">TOP</button
-                ><button data-camera="detail">DETAIL</button
-                ><button
-                  id="showroom-rotate"
-                  aria-pressed="true"
-                  aria-label="Toggle showroom rotation"
-                >
-                  ↻
+        <section data-screen="home" id="menu-home">
+          <div class="page-heading">
+            <p class="menu-kicker">57 CARS / 5 ERAS / 13 CIRCUITS</p>
+            <h1>Your next <em>chapter.</em></h1>
+            <p>Pick a generation. Take the wheel. Make your own history.</p>
+          </div>
+          <div id="home-preview">
+            <article class="hero showroom" id="hero">
+              <div class="showroom-heading">
+                <span class="collection-kicker"
+                  ><i></i> THE HERITAGE COLLECTION</span
+                ><span id="roster-count">57 SEASON ENTRIES / 5 ERAS</span>
+              </div>
+              <div class="showroom-nameplate">
+                <div id="showroom-team">SCUDERIA FERRARI</div>
+                <h2 id="showroom-model">F2004</h2>
+                <p id="showroom-engine">3.0L V10</p>
+              </div>
+              <div class="showroom-stage" id="showroom-stage">
+                <span class="showroom-loading">PREPARING THE SHOWROOM</span>
+              </div>
+              <div class="showroom-tools">
+                <span id="showroom-status">REFERENCE LIVERY / LIVE 3D</span>
+                <div aria-label="Showroom camera" role="group">
+                  <button data-camera="front">FRONT</button
+                  ><button data-camera="side">SIDE</button
+                  ><button data-camera="rear">REAR</button
+                  ><button data-camera="top">TOP</button
+                  ><button data-camera="detail">DETAIL</button
+                  ><button
+                    aria-label="Toggle showroom rotation"
+                    aria-pressed="true"
+                    id="showroom-rotate"
+                  >
+                    ↻
+                  </button>
+                </div>
+              </div>
+              <div class="showroom-specs">
+                <div>
+                  <span>POWER / APPROX.</span
+                  ><strong id="showroom-power">900 <small>hp</small></strong>
+                </div>
+                <div>
+                  <span>RACE NUMBER</span
+                  ><strong id="showroom-number">01</strong>
+                </div>
+                <div>
+                  <span>CHASSIS / PAINT</span
+                  ><strong class="spec-caption"
+                    >Original mesh <small>Reference markings</small></strong
+                  >
+                </div>
+                <button class="ghost-small" id="view-circuit">
+                  CIRCUIT DETAILS <i data-lucide="arrow-up-right"></i>
                 </button>
               </div>
-            </div>
-            <div class="showroom-specs">
-              <div>
-                <span>POWER / APPROX.</span
-                ><strong id="showroom-power">900 <small>hp</small></strong>
-              </div>
-              <div>
-                <span>RACE NUMBER</span><strong id="showroom-number">01</strong>
-              </div>
-              <div>
-                <span>CHASSIS / PAINT</span
-                ><strong class="spec-caption"
-                  >Original mesh <small>Reference markings</small></strong
-                >
-              </div>
-              <button id="view-circuit" class="ghost-small">
-                CIRCUIT DETAILS <i data-lucide="arrow-up-right"></i>
-              </button>
-            </div>
-            <div class="team-collection">
-              <div class="collection-label">
-                CHOOSE YOUR CONSTRUCTOR <span id="team-counter"></span>
-              </div>
-              <div
-                id="team-collection"
-                role="group"
-                aria-label="Season constructors"
-              ></div>
-            </div>
-            <div class="destination">
-              <div id="hero-map" class="hero-map"></div>
-              <div class="destination-name">
-                <div id="hero-country"></div>
-                <h3 id="hero-title"></h3>
-                <p id="hero-tagline" hidden></p>
-                <p id="layout-note" class="layout-note"></p>
-              </div>
-              <div class="destination-stats">
-                <strong id="hero-length"></strong
-                ><span><b id="hero-turns"></b> CORNERS</span
-                ><span id="hero-type" hidden></span>
-              </div>
-            </div>
-          </article>
-          <aside class="setup">
-            <div class="setup-title">
-              <div>
-                <span class="section-num">01 /</span>
-                <h2>Build your session.</h2>
-              </div>
-              <i data-lucide="flag"></i>
-            </div>
-            <div class="mode-switch" role="group" aria-label="Session mode">
-              <button class="selected" data-mode="time">Time trial</button
-              ><button data-mode="race">Quick race</button
-              ><button data-mode="practice">Practice</button>
-            </div>
-            <div class="field-label">
-              <span>YOUR ERA</span
-              ><button id="era-help" aria-label="About car eras">
-                <i data-lucide="info"></i>
-              </button>
-            </div>
-            <div class="era-choices" id="era-choices"></div>
-            <label class="field-label" for="team-select"
-              ><span>YOUR CONSTRUCTOR</span
-              ><span id="team-engine">3.0L V10</span></label
-            >
-            <div class="team-select-wrap">
-              <span id="team-color"></span
-              ><select
-                id="team-select"
-                aria-label="Choose team and car"
-              ></select
-              ><i data-lucide="chevron-down"></i>
-            </div>
-            <div class="car-traits">
-              <span id="car-trait">High downforce</span
-              ><span id="car-power">900 hp</span
-              ><button id="car-detail">
-                CAR DETAILS <i data-lucide="arrow-up-right"></i>
-              </button>
-            </div>
+            </article>
+          </div>
+          <div class="home-bottom">
+            <span>THE CAR IS REAL-TIME 3D · DRAG TO LOOK AROUND</span
+            ><button class="menu-primary" id="play-button">
+              PLAY <span>→</span>
+            </button>
+          </div>
+        </section>
+        <section data-screen="mode" hidden="">
+          <div class="page-heading">
+            <p class="menu-kicker">01 / THE SESSION</p>
+            <h1>How do you <em>race?</em></h1>
+            <p>Choose the challenge. The rest is yours.</p>
+          </div>
+          <div aria-label="Session mode" class="mode-switch" role="group">
+            <button class="selected" data-mode="time">
+              <span class="mode-icon">↗</span><strong>Time trial</strong
+              ><small>An empty circuit. You against the clock.</small></button
+            ><button data-mode="race">
+              <span class="mode-icon">↗</span><strong>Quick race</strong
+              ><small>Three laps. Five AI rivals. One podium.</small></button
+            ><button data-mode="practice">
+              <span class="mode-icon">↗</span><strong>Practice</strong
+              ><small>Find your rhythm. No pressure.</small>
+            </button>
+          </div>
+          <div class="session-options">
             <div class="config-row">
               <div>
                 <span class="field-label">CONDITIONS</span>
-                <div class="weather-choices" role="group" aria-label="Weather">
+                <div aria-label="Weather" class="weather-choices" role="group">
                   <button class="selected" data-weather="dry">
                     <i data-lucide="sun"></i> Dry</button
                   ><button data-weather="wet">
@@ -184,75 +163,239 @@
               <div class="assist-field">
                 <span class="field-label">DRIVING ASSISTS</span
                 ><button
-                  id="assist-toggle"
-                  class="toggle on"
-                  role="switch"
                   aria-checked="true"
+                  class="toggle on"
+                  id="assist-toggle"
+                  role="switch"
                 >
                   <span></span><b>ON</b>
                 </button>
               </div>
             </div>
-            <button id="start-race" class="start-race">
-              <i data-lucide="flag"></i><span>LET’S RACE</span
-              ><i data-lucide="arrow-right"></i>
-            </button>
-            <div class="setup-foot">
-              <i data-lucide="keyboard"></i> Keyboard & gamepad
-              <span>•</span> No download needed
-            </div>
-          </aside>
+            <label class="line-setting" for="racing-line"
+              ><span
+                >RACING LINE<small
+                  >Green: build speed · amber: lift · red: brake</small
+                ></span
+              ><input checked="" id="racing-line" type="checkbox"
+            /></label>
+          </div>
         </section>
-        <section class="circuits-section" id="circuits-section">
-          <div class="section-heading">
-            <div>
-              <span class="section-num">02 /</span>
-              <h2>The world is your racetrack.</h2>
-              <span class="count-chip">13 CIRCUITS</span>
+        <section data-screen="era" hidden="">
+          <div class="page-heading">
+            <p class="menu-kicker">02 / THE GENERATION</p>
+            <h1>Choose your <em>era.</em></h1>
+            <p>Five ways to feel the limit. Not just a different livery.</p>
+          </div>
+          <div id="era-picker-host">
+            <div class="era-choices" id="era-choices"></div>
+          </div>
+          <button class="menu-link" id="era-help">ABOUT THESE ERAS ↗</button>
+        </section>
+        <section data-screen="track" hidden="">
+          <div class="page-heading">
+            <p class="menu-kicker">03 / THE DESTINATION</p>
+            <h1>Find your <em>circuit.</em></h1>
+            <p>Thirteen mapped circuits. One place on the grid.</p>
+          </div>
+          <div class="destination">
+            <div class="hero-map" id="hero-map"></div>
+            <div class="destination-name">
+              <div id="hero-country"></div>
+              <h3 id="hero-title"></h3>
+              <p hidden="" id="hero-tagline"></p>
+              <p class="layout-note" id="layout-note"></p>
             </div>
-            <div class="track-filters" role="group" aria-label="Circuit filter">
-              <button class="active" data-filter="all">All circuits</button
-              ><button data-filter="Europe">Europe</button
-              ><button data-filter="World">Rest of the world</button>
+            <div class="destination-stats">
+              <strong id="hero-length"></strong
+              ><span><b id="hero-turns"></b> CORNERS</span
+              ><span hidden="" id="hero-type"></span>
             </div>
           </div>
-          <div id="track-grid" class="track-grid"></div>
+          <section class="circuits-section" id="circuits-section">
+            <div class="section-heading">
+              <div>
+                <span class="section-num">02 /</span>
+                <h2>The world is your racetrack.</h2>
+                <span class="count-chip">13 CIRCUITS</span>
+              </div>
+              <div
+                aria-label="Circuit filter"
+                class="track-filters"
+                role="group"
+              >
+                <button class="active" data-filter="all">All circuits</button
+                ><button data-filter="Europe">Europe</button
+                ><button data-filter="World">Rest of the world</button>
+              </div>
+            </div>
+            <div class="track-grid" id="track-grid"></div>
+          </section>
         </section>
-        <div class="bottom-strip">
-          <div>
-            <i data-lucide="gauge"></i
-            ><span
-              >Not just a different livery.<strong
-                >A different way to drive.</strong
-              ></span
+        <section data-screen="team" hidden="">
+          <div class="page-heading">
+            <p class="menu-kicker">04 / THE CONSTRUCTOR</p>
+            <h1>Make it <em>yours.</em></h1>
+            <p id="session-summary"></p>
+          </div>
+          <div class="team-layout">
+            <div id="team-preview"></div>
+            <div class="team-picker">
+              <label class="field-label" for="team-select"
+                >YOUR CONSTRUCTOR <span id="team-engine"></span
+              ></label>
+              <div class="team-select-wrap">
+                <span id="team-color"></span
+                ><select
+                  aria-label="Choose team and car"
+                  id="team-select"
+                ></select
+                ><i data-lucide="chevron-down"></i>
+              </div>
+              <div class="car-traits">
+                <span id="car-trait">High downforce</span
+                ><span id="car-power">900 hp</span
+                ><button id="car-detail">
+                  CAR DETAILS <i data-lucide="arrow-up-right"></i>
+                </button>
+              </div>
+              <div id="team-picker-host">
+                <div class="team-collection">
+                  <div class="collection-label">
+                    CHOOSE YOUR CONSTRUCTOR <span id="team-counter"></span>
+                  </div>
+                  <div
+                    aria-label="Season constructors"
+                    id="team-collection"
+                    role="group"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section data-screen="garage" hidden="">
+          <div class="page-heading">
+            <p class="menu-kicker">YOUR GARAGE</p>
+            <h1>Set for <em>you.</em></h1>
+            <p>The little details make the difference.</p>
+          </div>
+          <div class="garage-grid">
+            <article>
+              <span>01 / PREFERENCES</span>
+              <h2>Your machine. Your setup.</h2>
+              <p>
+                Graphics, recorded engine audio, volume and driving controls.
+              </p>
+              <button class="menu-primary" id="garage-settings">
+                OPEN SETTINGS ↗
+              </button>
+            </article>
+            <article>
+              <span>02 / THE COLLECTION</span>
+              <h2>Know your car.</h2>
+              <p>
+                Explore all five eras and compare the original car models and
+                driving presets.
+              </p>
+              <button class="menu-link" id="compare-eras">
+                EXPLORE THE ERAS ↗
+              </button>
+            </article>
+          </div>
+          <div class="report-links">
+            <a href="./new-circuits.html" rel="noopener" target="_blank"
+              >Circuit / building update ↗</a
+            ><a href="./photo-accuracy.html" rel="noopener" target="_blank"
+              >Photo accuracy audit ↗</a
+            ><a href="./car-comparison.html" rel="noopener" target="_blank"
+              >Car comparisons ↗</a
             >
           </div>
-          <p>Feel the evolution. From mechanical grip to ground effect.</p>
-          <button id="compare-eras">
-            EXPLORE THE ERAS <i data-lucide="arrow-right"></i>
+        </section>
+        <section data-screen="profile" hidden="">
+          <div class="page-heading">
+            <p class="menu-kicker">THE DRIVER</p>
+            <h1>Leave your <em>mark.</em></h1>
+            <p>
+              Your profile and valid laps are saved on this device. No account
+              required.
+            </p>
+          </div>
+          <div class="profile-card">
+            <span class="profile-monogram">DR</span
+            ><label for="driver-name"
+              >DRIVER NAME<input
+                id="driver-name"
+                maxlength="28"
+                placeholder="Driver"
+            /></label>
+            <div>
+              <strong id="profile-laps">0</strong><span>PERSONAL BESTS</span>
+            </div>
+            <button class="menu-primary" id="profile-records">
+              LAP RECORDS ↗
+            </button>
+          </div>
+        </section>
+        <section data-screen="cars" hidden="">
+          <div class="page-heading">
+            <p class="menu-kicker">THE COLLECTION</p>
+            <h1>Icons, not <em>skins.</em></h1>
+            <p>
+              Browse every constructor. Your chosen car carries into session
+              setup.
+            </p>
+          </div>
+          <div id="cars-eras"></div>
+          <div id="cars-preview"></div>
+          <div id="cars-teams"></div>
+        </section>
+        <div hidden="" id="setup-actions">
+          <p id="setup-selection"></p>
+          <button class="menu-primary" id="setup-next">
+            CONTINUE <span>→</span></button
+          ><button class="start-race" id="start-race">
+            <i data-lucide="flag"></i><span>LET’S RACE</span
+            ><i data-lucide="arrow-right"></i>
           </button>
         </div>
-        <footer>
-          <span>APEX / HERITAGE <b>PREVIEW 0.16.0-preview.1</b></span>
-          <p>
-            An independent tribute to racing. Not affiliated with Formula 1 or
-            its teams.
-          </p>
-          <button id="credits-button">
-            BUILD NOTES & CREDITS <i data-lucide="arrow-up-right"></i>
-          </button>
+        <footer class="menu-footer">
+          <span>APEX / HERITAGE <b>PREVIEW 0.16.0-preview.1</b></span
+          ><small
+            >Independent racing prototype. Not affiliated with Formula 1 or its
+            teams.</small
+          >
         </footer>
       </main>
     </div>
-    <div id="build-error" role="alert" hidden></div>
-    <div id="race-view" hidden>
+    <div hidden="" id="build-error" role="alert"></div>
+    <section
+      aria-label="Loading session"
+      aria-live="polite"
+      hidden=""
+      id="session-loading"
+      role="status"
+    >
+      <div class="loading-wordmark">APEX <span>/ HERITAGE</span></div>
+      <div class="loading-content">
+        <p>YOUR PLACE ON THE GRID</p>
+        <h1 id="loading-track">Preparing session</h1>
+        <div id="loading-car"></div>
+        <div class="loading-track-bar"><i></i></div>
+        <p id="loading-stage">Loading the racing engine…</p>
+        <small>No need to rush. The lights will wait for you.</small>
+      </div>
+      <span class="loading-note">ORIGINAL CARS / SHARED RUST PHYSICS</span>
+    </section>
+    <div hidden="" id="race-view">
       <aside class="pit-panel">
         <div id="pit-status">P / X · REQUEST PIT STOP</div>
         <small id="pit-resources"></small>
         <div class="pit-actions">
           <button id="pit-practice">PIT ENTRY PRACTICE · RESET LAP</button>
           <button id="request-pit">REQUEST PIT · P / X</button
-          ><button id="pit-limiter" aria-pressed="false">
+          ><button aria-pressed="false" id="pit-limiter">
             80 km/h LIMITER OFF · L / Y
           </button>
         </div>
@@ -261,14 +404,14 @@
           estimated widths/heights</small
         >
       </aside>
-      <div id="controller-status" class="controller-status">
+      <div class="controller-status" id="controller-status">
         KEYBOARD / TOUCH · Connect a standard gamepad
       </div>
-      <div id="hud-layout" class="hud-layout"></div>
-      <div id="hud-build" class="hud-build">
+      <div class="hud-layout" id="hud-layout"></div>
+      <div class="hud-build" id="hud-build">
         v0.16.0-preview.1 · checking build
       </div>
-      <canvas id="race-canvas" aria-label="3D racing game"></canvas>
+      <canvas aria-label="3D racing game" id="race-canvas"></canvas>
       <div class="race-vignette"></div>
       <div class="hud-top">
         <div class="hud-brand">APEX <span>/ LIVE</span></div>
@@ -294,26 +437,34 @@
           <div><span>ELEVATION</span><b id="hud-elevation">—</b></div>
           <div><span>GRADE</span><b id="hud-grade">—</b></div>
         </div>
-        <div class="invalid-label" id="invalid-label" hidden>
+        <div class="invalid-label" hidden="" id="invalid-label">
           LAP INVALID · TRACK LIMITS
         </div>
       </div>
       <div class="minimap-wrap">
-        <canvas id="minimap" width="240" height="190"></canvas>
+        <canvas height="190" id="minimap" width="240"></canvas>
         <div id="map-caption">SPA-FRANCORCHAMPS</div>
         <div style="font-size: 9px; margin-top: 4px; color: #c3ccb8">
           Buildings ©
           <a
             href="https://www.openstreetmap.org/copyright"
-            target="_blank"
             rel="noopener"
             style="color: inherit"
+            target="_blank"
             >OpenStreetMap</a
           >
           · ODbL<br />Contains modified Copernicus Sentinel data 2025
         </div>
       </div>
-      <div id="race-message" class="race-message"></div>
+      <div aria-label="Starting lights" hidden="" id="start-lights">
+        <div aria-hidden="true" class="lights-housing">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <span aria-live="polite" id="start-lights-status" role="status"
+          >WAIT FOR LIGHTS OUT</span
+        >
+      </div>
+      <div class="race-message" id="race-message"></div>
       <div class="telemetry">
         <div class="rpm-leds" id="rpm-leds"></div>
         <div class="speed-block">
@@ -331,66 +482,69 @@
         ><span><kbd>SPACE</kbd> BRAKE</span
         ><label class="camera-control"
           ><kbd>C</kbd>
-          <select id="camera-picker" aria-label="Race camera"></select>
+          <select aria-label="Race camera" id="camera-picker"></select>
           <button
-            id="camera-settings-toggle"
-            aria-expanded="false"
             aria-controls="camera-settings"
+            aria-expanded="false"
             aria-label="Adjust camera"
+            id="camera-settings-toggle"
           >
             ⚙
           </button></label
         ><span><kbd>R</kbd> RECOVER</span
         ><button id="audio-toggle"><i data-lucide="volume-2"></i> AUDIO</button>
+        <button aria-pressed="true" id="racing-line-toggle">
+          RACING LINE ON
+        </button>
       </div>
       <section
-        id="camera-settings"
-        class="camera-settings"
         aria-labelledby="camera-settings-title"
-        hidden
+        class="camera-settings"
+        hidden=""
+        id="camera-settings"
       >
         <header>
           <strong id="camera-settings-title">Camera settings</strong
           ><button
-            id="camera-settings-close"
             aria-label="Close camera settings"
+            id="camera-settings-close"
           >
             ×
           </button>
         </header>
         <label for="camera-fov"
-          >Field of view <output id="camera-fov-value" for="camera-fov"></output
+          >Field of view <output for="camera-fov" id="camera-fov-value"></output
         ></label>
         <input
           id="camera-fov"
-          type="range"
-          min="45"
           max="100"
+          min="45"
           step="1"
+          type="range"
           value="58"
         />
         <label for="camera-distance"
           >Exterior distance
-          <output id="camera-distance-value" for="camera-distance"></output
+          <output for="camera-distance" id="camera-distance-value"></output
         ></label>
         <input
           id="camera-distance"
-          type="range"
-          min="0.6"
           max="1.8"
+          min="0.6"
           step="0.05"
+          type="range"
           value="1"
         />
         <p>
           Right-drag to look · Alt + wheel for exterior distance.<br />Or use
           the look buttons below.
         </p>
-        <div class="camera-look" role="group" aria-label="Free-look controls">
-          <button data-look="0.26,0" aria-label="Look left">←</button>
-          <button data-look="0,0.17" aria-label="Look up">↑</button>
+        <div aria-label="Free-look controls" class="camera-look" role="group">
+          <button aria-label="Look left" data-look="0.26,0">←</button>
+          <button aria-label="Look up" data-look="0,0.17">↑</button>
           <button id="camera-center">Center view</button>
-          <button data-look="0,-0.17" aria-label="Look down">↓</button>
-          <button data-look="-0.26,0" aria-label="Look right">→</button>
+          <button aria-label="Look down" data-look="0,-0.17">↓</button>
+          <button aria-label="Look right" data-look="-0.26,0">→</button>
         </div>
         <div class="camera-settings-footer">
           <button id="camera-defaults">Reset this camera</button
@@ -401,12 +555,12 @@
       </section>
       <div class="race-weather" id="race-weather"></div>
       <div id="touch-controls">
-        <button data-touch="left" aria-label="Steer left">◀</button
-        ><button data-touch="right" aria-label="Steer right">▶</button
-        ><button data-touch="brake" aria-label="Brake">BRAKE</button
-        ><button data-touch="throttle" aria-label="Accelerate">GAS</button>
+        <button aria-label="Steer left" data-touch="left">◀</button
+        ><button aria-label="Steer right" data-touch="right">▶</button
+        ><button aria-label="Brake" data-touch="brake">BRAKE</button
+        ><button aria-label="Accelerate" data-touch="throttle">GAS</button>
       </div>
-      <div class="pause-overlay" id="pause-overlay" hidden>
+      <div class="pause-overlay" hidden="" id="pause-overlay">
         <div class="pause-card">
           <div class="eyebrow">TAKE A BREATHER</div>
           <h2>Race paused.</h2>
@@ -421,7 +575,7 @@
       </div>
     </div>
     <dialog id="info-dialog">
-      <button class="dialog-close icon-btn" aria-label="Close dialog">
+      <button aria-label="Close dialog" class="dialog-close icon-btn">
         <i data-lucide="x"></i>
       </button>
       <div id="dialog-content"></div>

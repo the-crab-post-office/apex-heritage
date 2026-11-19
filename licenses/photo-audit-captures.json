@@ -1,6 +1,9 @@
 {
   "version": "0.16.0-preview.1",
   "inputs": {
+    "web/showroom.js": "6ae0899b09e208427698d45b1a2ebad32e6c56d59dfca31ec5b926ae65f700ad",
+    "web/racing-line.js": "aa2d4eeed8e1fa3a8839abcc270132596c835faab8910fe7a2584fa1dcd12119",
+    "web/racing-guide.js": "76e54da6cd4ddba75c5634f3a52812657da08a027bf42b84c004d9814baca59e",
     "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
     "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
     "web/materials.js": "1b0981fb7c650b5270651a4ebd6fed6d68629e78121f61f055da51c87e4abc27",
@@ -11,7 +14,7 @@
     "data/car-variants.json": "f75645be8cc6cd17d14f59a209f74a9dfe87da76ae9651d6e5f64fc394f07a0f",
     "web/assets/liveries/manifest.json": "f48689f898d8e8ead66bbb73f3d05b87c077ad9b87cb6fe1decde1d186573f61",
     "web/wheel-motion.js": "925d8daa761bff4c6f037c4a06a43178d3a996913798f23ba60a1c492721e3ba",
-    "web/graphics.js": "0c20bfde0861059b9b0c91177b134608da334dbef60346c30411eb472321fe43",
+    "web/graphics.js": "c8ddc9a27168ca12c4ab792b27b9354b21316278f782f8cfbcfd350db7f5d73e",
     "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
     "web/road-surface.js": "01360ac1d7a81510a3cb804ef124d0a7a654fc80ef53e0733eb9085ce87f7e79",
     "src/corner.rs": "43acf9f1c3be1194f6ae54eb2e2dbe2bb5079caad92124f19129a9903c816855",
@@ -283,8 +286,8 @@
     {
       "id": "1967",
       "category": "car",
-      "sha256": "17ca1876dc0d67089ecd0146985305dc38c44d1a9dbeed7eb7dc147c688745d2",
-      "bytes": 48638,
+      "sha256": "10b9df67c37987a38f827e3e55c571248513c1b8bc0a5cc6e516acac24de9e46",
+      "bytes": 51199,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },
@@ -293,8 +296,8 @@
     {
       "id": "1988",
       "category": "car",
-      "sha256": "e318c4e48df24e670a91803fe99e11413f707ce6fbbe79947d33898882c5c5ba",
-      "bytes": 56081,
+      "sha256": "3e22271504ae656a9a33ac76f941a760f9801e49a70f2ea7f647e17997f5b656",
+      "bytes": 57955,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },
@@ -303,8 +306,8 @@
     {
       "id": "2004",
       "category": "car",
-      "sha256": "2e6c5f2ed2f9a2e5946f40e0a4bb43ab9b2d322b5f554934a6e678be8fd7e1da",
-      "bytes": 59844,
+      "sha256": "e0edeab4b9b883efe677c8752ffaefdc9cb96679ff64a5f110e9473a0af3c292",
+      "bytes": 62419,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },
@@ -313,8 +316,8 @@
     {
       "id": "2023",
       "category": "car",
-      "sha256": "9f9b3016c641b065225f203c5541fee8b97bebeab9cb84453d89950d561fc2ce",
-      "bytes": 61970,
+      "sha256": "c21ddf94c26e5112f1f0918725c6c8207be29a24a956a3296872ff61bfd5c6f0",
+      "bytes": 64971,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },
@@ -323,8 +326,8 @@
     {
       "id": "2021",
       "category": "car",
-      "sha256": "3d644e492790b90d65faaae8446586f33360dee8e5d63c441b48739132a41a03",
-      "bytes": 59566,
+      "sha256": "dc1ad661ff075b9adc913d9769c8ccbdae339baad46c37f573f41f6105ed1bb3",
+      "bytes": 62726,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },

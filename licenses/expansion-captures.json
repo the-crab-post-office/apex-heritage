@@ -1,6 +1,8 @@
 {
   "version": "0.16.0-preview.1",
   "inputs": {
+    "web/racing-line.js": "aa2d4eeed8e1fa3a8839abcc270132596c835faab8910fe7a2584fa1dcd12119",
+    "web/racing-guide.js": "76e54da6cd4ddba75c5634f3a52812657da08a027bf42b84c004d9814baca59e",
     "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
     "data/building-photo-references.json": "9890212551061e2f1e9f9b6242311192c3f13e51fcd8f41c6e7413dbf273d4c9",
     "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
@@ -12,7 +14,7 @@
     "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
     "data/reference-scenes.json": "51f94bee253ab437f1a499ccad82369b1734857986978b95942790ad578d898d",
     "data/expansion-references.json": "989ed3d070481b170a7f5c75ef23caad02a48992f9ce7040f7fd2c95101a794e",
-    "web/graphics.js": "0c20bfde0861059b9b0c91177b134608da334dbef60346c30411eb472321fe43",
+    "web/graphics.js": "c8ddc9a27168ca12c4ab792b27b9354b21316278f782f8cfbcfd350db7f5d73e",
     "web/road-surface.js": "01360ac1d7a81510a3cb804ef124d0a7a654fc80ef53e0733eb9085ce87f7e79",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
     "src/braking.rs": "a9c98051b1710a40c1ca41ad93b6bb91a4d623075847eeede5ae8bdf511d4b9e",
