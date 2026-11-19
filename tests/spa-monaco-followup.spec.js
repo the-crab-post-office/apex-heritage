@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 async function start(page, track, era) {
   await page.addInitScript(
@@ -12,7 +13,7 @@ async function start(page, track, era) {
     },
   );
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race?.world?.player, null, {
     timeout: 90000,
   });

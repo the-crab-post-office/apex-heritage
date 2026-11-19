@@ -66,7 +66,7 @@ export class Showroom {
     const ground = new THREE.Mesh(
       new THREE.CircleGeometry(3.7, 96),
       new THREE.MeshStandardMaterial({
-        color: "#111619",
+        color: "#deded6",
         envMapIntensity: 0.15,
         roughness: 0.5,
         metalness: 0.25,
@@ -79,7 +79,7 @@ export class Showroom {
     const ring = new THREE.Mesh(
       new THREE.RingGeometry(3.48, 3.49, 120),
       new THREE.MeshBasicMaterial({
-        color: "#696d60",
+        color: "#d92332",
         transparent: true,
         opacity: 0.36,
       }),
@@ -110,6 +110,7 @@ export class Showroom {
       const { width, height } = container.getBoundingClientRect();
       if (!width || !height) return;
       this.camera.aspect = width / height;
+      this.camera.zoom = width / height < 1.2 ? 1.05 : 1.6;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(width, height, false);
       this.dirty = true;

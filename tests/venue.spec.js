@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 for (const [track, name] of [
   [0, "Spa"],
@@ -21,7 +22,7 @@ for (const [track, name] of [
       },
     );
     await page.goto("/");
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(
       () => window.__apex?.race?.world?.venueAudit,
       null,

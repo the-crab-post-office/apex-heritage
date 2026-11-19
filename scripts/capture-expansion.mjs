@@ -1,3 +1,4 @@
+import { launchSession } from "./menu-navigation.mjs";
 import { chromium } from "playwright";
 import fs from "node:fs";
 const browser = await chromium.launch({
@@ -14,6 +15,7 @@ await page.addInitScript(() =>
     JSON.stringify({
       era: 3,
       quality: "high",
+      racingLine: false,
       sound: false,
       weather: "dry",
       mode: "practice",
@@ -85,7 +87,7 @@ try {
       (track) => document.querySelector(`[data-track="${track}"]`).click(),
       view.track,
     );
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(() => window.__apex?.race?.world?.player);
     const result = await page.evaluate(async (view) => {
       const race = window.__apex.race,

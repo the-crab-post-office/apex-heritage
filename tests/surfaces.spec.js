@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 test("wet Spa actual road triangles are not covered by terrain or shoulder meshes", async ({
   page,
@@ -18,7 +19,7 @@ test("wet Spa actual road triangles are not covered by terrain or shoulder meshe
     ),
   );
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
   const result = await page.evaluate(() => {
     const r = window.__apex.race;
@@ -54,10 +55,11 @@ for (const name of [
       ),
     );
     await page.goto("/");
+    await openSetup(page, "track");
     await page
       .getByRole("button", { name: `Select ${name}`, exact: true })
       .click();
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
     const result = await page.evaluate(() => {
       const r = window.__apex.race;
@@ -78,7 +80,7 @@ test("mixed builds are rejected visibly before starting WebGL", async ({
     route.fulfill({ json: { version: "0.0.0", hash: "outdated" } }),
   );
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await expect(page.locator("#build-error")).toBeVisible();
   await expect(page.locator("#build-error")).toContainText("Build mismatch");
   expect(await page.evaluate(() => window.__apex?.race)).toBeFalsy();
@@ -109,10 +111,11 @@ for (const [name, landmarks] of [
       ),
     );
     await page.goto("/");
+    await openSetup(page, "track");
     await page
       .getByRole("button", { name: `Select ${name}`, exact: true })
       .click();
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
     await page.evaluate(() => {
       const r = window.__apex.race;

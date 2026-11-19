@@ -1,3 +1,4 @@
+import { RacingLine } from "./racing-line.js";
 import { addBuildingRoofs } from "./building-roofs.js";
 import appearanceData from "../data/building-appearance.json";
 import { bankedGround } from "./road-surface.js";
@@ -176,6 +177,7 @@ export class World {
     this.buildTunnel();
     addReferenceScene(this);
     buildVenue(this);
+    this.racingLine = new RacingLine(this);
     this.photoReady = Promise.all(this.surfaces.pending);
     this.player = makeCar(config.era, config.color, config.teamData);
     this.scene.add(this.player);
@@ -1187,6 +1189,7 @@ export class World {
     return c;
   }
   update(state, dt) {
+    this.racingLine.update(state);
     if (this.tunnelLights) {
       const nearest = [...this.tunnelFixtures].sort(
         (a, b) =>

@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 test("2021 deep link selects the right team, drives through Rust and supports race cameras/audio", async ({
   page,
@@ -28,7 +29,7 @@ test("2021 deep link selects the right team, drives through Rust and supports ra
     "data-ready",
     "true",
   );
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race?.world?.player, null, {
     timeout: 90000,
   });

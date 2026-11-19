@@ -1,3 +1,4 @@
+import { startSequence, startDuration } from "./start-sequence.js";
 import { advanceWheel } from "./wheel-motion.js";
 import { RaceCameraControls } from "./race-camera-controls.js";
 import { CAMERAS } from "./cameras.js";
@@ -11,6 +12,7 @@ const $ = (s) => document.querySelector(s);
 let wasmReady;
 export class Race {
   static async create(track, config, callbacks) {
+    callbacks.onProgress?.("Loading the shared Rust racing engine…");
     wasmReady ??= Core.default();
     await wasmReady;
     let coreVersion, coreHash;
@@ -44,9 +46,32 @@ export class Race {
     });
     $("#hud-build").textContent =
       `v${verified.version} · data ${verified.hash}`;
+    callbacks.onProgress?.("Building the circuit, cars and trackside scene…");
+    await new Promise((resolve) => requestAnimationFrame(resolve));
     const r = new Race(track, config, callbacks);
-    await Promise.all([r.audio.ready, r.world.photoReady]);
-    return r;
+    try {
+      callbacks.onProgress?.(
+        "Loading local surface textures and engine audio…",
+      );
+      const [, textures, liveries] = await Promise.all([
+        r.audio.ready,
+        r.world.photoReady,
+        Promise.all(
+          [r.world.player, ...r.world.ai].map(
+            (car) => car.userData.liveryReady,
+          ),
+        ),
+      ]);
+      if (textures.some((ok) => !ok) || liveries.some((ok) => ok === false))
+        throw new Error(
+          "A circuit texture could not be loaded. Check the connection and retry.",
+        );
+      callbacks.onProgress?.("Preparing the first frame…");
+      return r;
+    } catch (error) {
+      r.dispose();
+      throw error;
+    }
   }
   constructor(track, config, callbacks) {
     this.track = track;
@@ -84,7 +109,9 @@ export class Race {
     this.running = true;
     this.paused = false;
     this.finished = false;
-    this.countdown = 3;
+    this.startDuration = startDuration();
+    this.countdown = this.startDuration;
+    this.lastLightCount = -1;
     this.accumulator = 0;
     this.lastTime = 0;
     this.lastHud = 0;
@@ -223,11 +250,19 @@ export class Race {
     };
     $("#pit-limiter").onclick = () => this.toggleLimiter();
     this.updateAudioButton();
+    $("#racing-line-toggle").onclick = () => {
+      this.config.racingLine = !this.world.racingLine.mesh.visible;
+      this.world.racingLine.setVisible(this.config.racingLine);
+      this.updateRacingLineButton();
+      this.callbacks.onRacingLine?.(this.config.racingLine);
+    };
+    this.updateRacingLineButton();
     this.frame = this.frame.bind(this);
     this.updateHud(0);
   }
   start() {
     this.world.update(this.state, 1 / 60);
+    this.updateStartLights();
     this.animation = requestAnimationFrame(this.frame);
   }
   input() {
@@ -282,14 +317,14 @@ export class Race {
     if (!this.running) return;
     if (!this.paused && !this.finished) {
       if (this.countdown > 0) {
-        this.countdown -= this.wallDelta || dt;
-        const m = $("#race-message");
-        m.classList.add("countdown");
-        m.textContent = this.countdown > 0.1 ? Math.ceil(this.countdown) : "GO";
+        // Fixed visible time: a long loading/GPU stall or hidden tab must not
+        // consume the complete five-light sequence in one update.
+        this.countdown -= dt;
+        this.updateStartLights();
         if (this.countdown <= 0) {
-          m.classList.remove("countdown");
-          m.textContent = "FIND YOUR RHYTHM.";
-          this.messageUntil = time + 2000;
+          $("#race-message").textContent = "LIGHTS OUT. GO!";
+          this.messageUntil = time + 1300;
+          this.lightsOutAt = time;
         }
       } else {
         this.accumulator += dt;
@@ -302,6 +337,11 @@ export class Race {
         this.checkLaps(time);
       }
     }
+    if (
+      this.countdown <= 0 &&
+      (!this.lightsOutAt || time - this.lightsOutAt > 900)
+    )
+      $("#start-lights").hidden = true;
     if (time - this.lastHud > 70) {
       this.updateHud(time);
       this.lastHud = time;
@@ -314,6 +354,24 @@ export class Race {
       this.world.cameraMode,
     );
     this.animation = requestAnimationFrame(this.frame);
+  }
+  updateRacingLineButton() {
+    const on = this.world.racingLine.mesh.visible;
+    $("#racing-line-toggle").textContent = `RACING LINE ${on ? "ON" : "OFF"}`;
+    $("#racing-line-toggle").setAttribute("aria-pressed", String(on));
+  }
+  updateStartLights() {
+    const state = startSequence(this.countdown, this.startDuration);
+    $("#start-lights").hidden = false;
+    document
+      .querySelectorAll(".lights-housing i")
+      .forEach((light, i) => light.classList.toggle("on", i < state.lit));
+    if (state.lit !== this.lastLightCount || state.released) {
+      $("#start-lights-status").textContent = state.released
+        ? state.label
+        : `${state.lit} / 5 RED LIGHTS · WAIT`;
+      this.lastLightCount = state.lit;
+    }
   }
   updateAI(dt) {
     const n = this.track.points.length;
@@ -571,6 +629,8 @@ export class Race {
     if (!this.running) return;
     this.running = false;
     cancelAnimationFrame(this.animation);
+    $("#start-lights").hidden = true;
+    $("#racing-line-toggle").onclick = null;
     this.audio.dispose();
     this.cameraControls.dispose();
     this.cameraPicker.removeEventListener("change", this.onCameraChange);

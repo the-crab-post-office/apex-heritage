@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 for (const [track, era, quality] of [
   [0, 3, "low"],
@@ -15,7 +16,7 @@ for (const [track, era, quality] of [
       { track, era, quality, sound: false, weather: "dry", mode: "practice" },
     );
     await page.goto("/");
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(
       () => window.__apex?.race?.world?.venueAudit,
       null,

@@ -1,5 +1,18 @@
 # Validation — 0.16.0-preview.1
 
+## Current browser menu / racing-line / five-light follow-up
+
+Branch `feature/menu-flow-racing-line`, based on `f5644bf`. Browser-only presentation/session-start changes; Rust driving code, circuit data and the verified WASM bytes are unchanged.
+
+- **149 Node tests passed** (`artifacts/018-node-tests.log`). Five new cases cover reversible mode/era/track/team ordering, exactly five sequential lights plus all-out release, all 13 circuits/all 5 eras' finite braking envelopes (wet not faster than dry), colour states and authored road heights/clearance at crossings/tunnels/banks.
+- **36 Python tests passed** (`artifacts/018-python.log`). Existing deterministic context/geometry builders remain unchanged.
+- **Three new production browser cases passed** (`018-menu-browser.log`): sketch sidebar/interactive preview, complete setup/back/cancel/selection persistence, local Profile/Garage/Cars, loading visibility under a deliberately blocked WASM request, car immobility through every light count, release through actual Rust input/frame stepping, live guide toggle/storage and all five mobile screens at 390 px without horizontal overflow.
+- **Focused integration run: 12 passed initially**, with one stale-HTML fixture failing because an HTML formatter reordered the build meta tag attributes; no compatibility guard was bypassed. Restored the canonical tag order and the **stale-HTML recovery recheck passed** (`018-regression-browser.log`, `018-recovery-recheck.log`). Other passed cases include bounded stale-server/chunk/mixed-build recovery, all three new venues and both real keyboard braking/steering regressions. Automation now uses the visible four-step route via `scripts/menu-navigation.mjs`, not a hidden instant-start button.
+- **Two additional game regressions passed** (`018-game-browser.log`): all 13 circuits/geographic filters and persistent car/weather/assist selections; real WASM acceleration, braking, steering, pause/recovery/exit. This is focused coverage, not a claim that the full historical browser suite ran.
+- Genuine real-time screenshot smoke observed all five illuminated lights, then lights out and keyboard acceleration (`018-loading.png`, `018-lights.png`, `018-line.png`). Separate desktop/home/mode/era/track/team and mobile screenshots were visually inspected. A first ad-hoc smoke used a 30 s default timeout and timed out on software GPU startup; the rerun with an explicit 180 s timeout passed. No fabricated venue/menu pictures were used.
+- Architectural reports were genuinely refreshed with the **optional guide disabled** for unobstructed evidence: six expansion views, seven Spa/Monaco views, ten circuit photo-audit views and fifteen standardized car views (ten 2021 comparisons plus five car-era views). Scene and showroom source hashes/line-module inputs are recorded; source photo licensing remains unchanged. See `018-*-captures.log`.
+- Remaining limits: conservative centre-road chevrons are **not a fastest-lap optimized racing path**, and suggested speeds are gameplay estimates. Browser loading waits for required scene resources/first frame, but cannot guarantee zero later GPU/OS stalls. Profile/records remain device-local. Native menu/start/guide are not changed by this browser pass.
+
 ## Current building / banked-ground follow-up
 
 Branch `feature/photo-buildings-and-banked-ground`, based on `93f3972`. The existing 0.16 preview label is retained; immutable release archives are not replaced.

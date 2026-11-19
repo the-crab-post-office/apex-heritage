@@ -1,3 +1,4 @@
+import { launchSession } from "./menu-navigation.mjs";
 import { chromium } from "playwright";
 import fs from "node:fs";
 const url = process.env.APEX_URL || "http://127.0.0.1:5186/";
@@ -16,6 +17,7 @@ await page.addInitScript(() =>
       era: 3,
       team: 0,
       quality: "high",
+      racingLine: false,
       sound: false,
       mode: "practice",
       weather: "dry",
@@ -48,7 +50,7 @@ try {
       (track) => document.querySelector(`[data-track="${track}"]`).click(),
       track,
     );
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(() => window.__apex?.race?.world?.player, null, {
       timeout: 180000,
     });

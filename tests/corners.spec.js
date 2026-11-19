@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 for (const era of [0, 3])
   test(`Monza era ${era}: shared physical kerbs, varied widths, correct tyre support and honest layout labels`, async ({
@@ -23,7 +24,7 @@ for (const era of [0, 3])
     await expect(page.locator("#layout-note")).toContainText(
       era === 0 ? "SUBSTITUTE" : "RECENT MAPPED",
     );
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(
       () => window.__apex?.race?.world?.cornerAudit,
       null,

@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 const configure = async (page) => {
   await page.addInitScript(() =>
@@ -18,7 +19,7 @@ const configure = async (page) => {
 };
 const start = async (page) => {
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, null, {
     timeout: 90000,
   });
@@ -158,7 +159,7 @@ test("race exit and re-entry remove old camera listeners", async ({ page }) => {
   await page.locator("#pause-race").click(); // race.paused was set by test: toggle to running
   await page.locator("#pause-race").click();
   await page.locator("#exit-race").click();
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, null, {
     timeout: 90000,
   });

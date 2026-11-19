@@ -1,6 +1,7 @@
 {
   "version": "0.16.0-preview.1",
   "inputs": {
+    "web/showroom.js": "6ae0899b09e208427698d45b1a2ebad32e6c56d59dfca31ec5b926ae65f700ad",
     "data/car-shapes.json": "1bd46d6324b6bb55ad58cbfb31b9d7a0c2a722536e08a9cc90eae1aeda25e81b",
     "data/car-variants.json": "f75645be8cc6cd17d14f59a209f74a9dfe87da76ae9651d6e5f64fc394f07a0f",
     "data/roster.json": "53db7010f62b83b67cbcbffd67fe6288a3861a2af783c2d3e281f34850157f90",
@@ -10,62 +11,62 @@
   "captures": [
     {
       "id": "2021-mercedes",
-      "sha256": "50353188dfe3a78863d5eab8a384fe89f83e4ce0591967f22e773af5540cf8ea",
-      "bytes": 58454,
+      "sha256": "ec6c35eb66a897eb37223dac91b3a9019dee379388d7ed8b8022bcd89137b6be",
+      "bytes": 61630,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-red-bull",
-      "sha256": "3d644e492790b90d65faaae8446586f33360dee8e5d63c441b48739132a41a03",
-      "bytes": 59566,
+      "sha256": "dc1ad661ff075b9adc913d9769c8ccbdae339baad46c37f573f41f6105ed1bb3",
+      "bytes": 62726,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-ferrari",
-      "sha256": "9ab97521ace3dc659c385c28936543a3adcd6bf895749237c083775ad81d09ad",
-      "bytes": 60049,
+      "sha256": "7759d8ef948924aa3ecc125f07064688c1b508e1dc0d3f88234c587cfa9b8718",
+      "bytes": 63345,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-aston-martin",
-      "sha256": "2623fca09f418a593bac208384e4d19ddee1c877924843f085a4d445e607693e",
-      "bytes": 59736,
+      "sha256": "3567c807c239eb885e45e7428e013dfc4db7c2858d35310cb07c95c0afa8c025",
+      "bytes": 62890,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-mclaren",
-      "sha256": "8d5376f9b97aec5ad2abb2bed2cd657d6681c6f32f7736e915dcaf2342bea090",
-      "bytes": 61413,
+      "sha256": "80579dee2d48995829229b3ce331266d5fe903ae68695c752e676a57e0c063ae",
+      "bytes": 64236,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-alpine",
-      "sha256": "ee4336d52704519bd4c7e908eea1ecd629b0c5792d78d1a7cdfca5dcb3f8efb6",
-      "bytes": 60718,
+      "sha256": "15929e14c0eb0bdbbefc857fbdbe48b536d1d7b191214c1867447aca0f9c7f9d",
+      "bytes": 63640,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-williams",
-      "sha256": "353a8d0010cc230008856fd9fc5cf42fafade819b7cb3a983f707e4dcd6de4a6",
-      "bytes": 61611,
+      "sha256": "dd47de89acb42919fd6930549eb3e03279c510eeff4c363e8b8382ad28429c76",
+      "bytes": 64192,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-alphatauri",
-      "sha256": "986d09b10ed1fe4a2bdfac66c2e5eb1a8e6eab39ab96b8deb50dca756574d224",
-      "bytes": 56558,
+      "sha256": "7c4e195bbae3013929de98d0627ea3ddd9eab6ee868a2b230d47b9cf734595ff",
+      "bytes": 59024,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-alfa-romeo",
-      "sha256": "883e980392a6e275938ca9c7b6a8a6ffa4e37024e1617dbfac2c92de5afbf571",
-      "bytes": 59786,
+      "sha256": "069589cbfe44cadab748cb7277f939994ce528a9a2018d31c1f11655bc26b0d8",
+      "bytes": 61904,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     },
     {
       "id": "2021-haas",
-      "sha256": "a9c3931969457ccdbb3ca8871bba5364d12855672db4b5619809e04e34615a99",
-      "bytes": 60381,
+      "sha256": "64552273de67ceac3cc0b1fb72e4e01c3b89314855a0346fcba60667b1804219",
+      "bytes": 62495,
       "source": "Actual production showroom: same car meshes/materials used in races; standardized side camera, not AI imagery."
     }
   ]

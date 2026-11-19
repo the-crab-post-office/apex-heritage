@@ -1,3 +1,4 @@
+import { MenuFlow } from "./menu-flow.js";
 import {
   freshBuildURL,
   shouldResumeRace,
@@ -68,6 +69,7 @@ let config = {
   team: 0,
   weather: "dry",
   assists: true,
+  racingLine: true,
   mode: "time",
   quality: "high",
   sound: true,
@@ -86,6 +88,7 @@ if (linkedEra >= 0) {
   );
   config.team = linkedTeam >= 0 ? linkedTeam : 0;
 }
+// Circuit navigation is bounded by tracks.length - 1, never a fixed roster.
 config.track = Math.min(
   tracks.length - 1,
   Math.max(0, Number(config.track) || 0),
@@ -127,6 +130,7 @@ $("#info-dialog").addEventListener("click", (e) => {
   }
 });
 let showroom = null;
+let menuFlow = null;
 function updateShowroom() {
   const era = eras[config.era],
     t = era.teams[config.team];
@@ -161,6 +165,7 @@ function updateShowroom() {
       chip.offsetLeft - strip.clientWidth / 2 + chip.clientWidth / 2,
     );
   if (showroom) showroom.select(config.era, config.team);
+  menuFlow?.sync();
 }
 function updateMachine() {
   const era = eras[config.era];
@@ -226,6 +231,7 @@ function updateTrack() {
   $("#hero-type").textContent = `${t.elevation} m`;
   $("#hero-map").innerHTML = mapSVG(t, "#afbf98", 2);
   renderTracks();
+  menuFlow?.sync();
   save();
 }
 function renderTracks() {
@@ -255,6 +261,7 @@ function renderTracks() {
   refreshIcons();
 }
 function updateControls() {
+  menuFlow?.sync();
   $$("[data-mode]").forEach((b) =>
     b.classList.toggle("selected", config.mode === b.dataset.mode),
   );
@@ -323,7 +330,9 @@ $(".brand").onclick = (e) => {
   setNav("drive");
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
-$("#info-dialog").addEventListener("close", () => setNav("drive"));
+$("#info-dialog").addEventListener("close", () =>
+  menuFlow ? menuFlow.show(menuFlow.screen, false) : setNav("drive"),
+);
 function showGarage() {
   showDialog(
     `<div class="dialog-kicker">FIVE GENERATIONS. FIVE PERSONALITIES.</div><h2 class="dialog-heading">The evolution of speed.</h2><p class="dialog-subtitle">Not skins. Five era-specific driving presets, with 57 constructor-season entries across five seasons.</p><div class="era-grid">${eras.map((e, i) => `<article class="era-info ${config.era === i ? "chosen" : ""}"><h3>${e.year}</h3><h4>${e.name}</h4><p>${e.description}</p><button data-pick-era="${i}">${config.era === i ? "SELECTED" : "DRIVE THIS ERA"}</button></article>`).join("")}</div><p class="dialog-note">Handling is inspired by each generation, not a validated reproduction of real vehicle telemetry. Original car silhouettes with reference-guided colours, period sponsor lettering and stylised markings; not licensed scans or exact race-specific replicas.</p>`,
@@ -423,6 +432,14 @@ window.addEventListener("vite:preloadError", (event) => {
 async function startRace() {
   if (starting) return;
   starting = true;
+  menuFlow?.sync();
+  $("#session-loading").hidden = false;
+  $("#loading-stage").textContent = "Loading the racing engine…";
+  $("#app").inert = true;
+  // Paint the opaque loading screen BEFORE synchronous scene construction.
+  await new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve)),
+  );
   document.querySelector("#build-error").hidden = true;
   const button = $("#start-race");
   button.disabled = true;
@@ -439,13 +456,36 @@ async function startRace() {
     race = await Race.create(
       tracks[config.track],
       { ...config },
-      { onExit: exitRace, onRecord: saveRecord, toast },
+      {
+        onExit: exitRace,
+        onRecord: saveRecord,
+        toast,
+        onRacingLine: (on) => {
+          config.racingLine = on;
+          $("#racing-line").checked = on;
+          save();
+          menuFlow.sync();
+        },
+        onProgress: (text) => {
+          $("#loading-stage").textContent = text;
+        },
+      },
     );
     window.__apex = { race, config, getState: () => race?.state };
+    // Submit a fully textured frame behind the loading screen. Countdown has
+    // not started yet, so slow downloads/GPU compilation cannot consume lights.
+    race.world.update(race.state, 0);
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve)),
+    );
+    $("#session-loading").hidden = true;
     race.start();
+    $("#race-canvas").tabIndex = -1;
+    $("#race-canvas").focus({ preventScroll: true });
     history.replaceState(null, "", cleanBuildURL(location.href));
   } catch (e) {
     console.error(e);
+    window.__apex = null;
     $("#race-view").hidden = true;
     document.body.style.overflow = "";
     if (e.code === "APEX_BUILD_MISMATCH") {
@@ -458,6 +498,8 @@ async function startRace() {
     race = null;
   } finally {
     starting = false;
+    $("#session-loading").hidden = true;
+    $("#app").inert = Boolean(race);
     button.disabled = false;
     button.innerHTML =
       '<i data-lucide="flag"></i><span>LET’S RACE</span><i data-lucide="arrow-right"></i>';
@@ -485,7 +527,9 @@ function exitRace() {
   $("#pause-overlay").hidden = true;
   document.body.style.overflow = "";
   window.__apex = null;
+  $("#app").inert = false;
   setNav("drive");
+  menuFlow?.show("home");
 }
 $("#start-race").onclick = startRace;
 $("#exit-race").onclick = exitRace;
@@ -501,34 +545,61 @@ $("#audio-toggle").onclick = () => race?.toggleAudio();
 updateMachine();
 updateTrack();
 updateControls();
+menuFlow = new MenuFlow({
+  getConfig: () => config,
+  eras,
+  tracks,
+  onProfile: showRecords,
+});
+$("#racing-line").checked = config.racingLine !== false;
+$("#racing-line").onchange = (e) => {
+  config.racingLine = e.target.checked;
+  save();
+  menuFlow.sync();
+};
 refreshIcons();
 
-// Controller-only menu: D-pad chooses circuit; bumpers choose era; A starts.
+// Controller-only setup: D-pad chooses within the active step, A continues,
+// B goes back. It cannot launch from a half-completed setup screen.
 const menuController = new Controller();
 setInterval(() => {
-  if (race || document.hidden || starting) return;
-  const p = menuController.poll();
-  if (p.pressed.has(14) || p.pressed.has(15)) {
-    const delta = p.pressed.has(15) ? 1 : -1;
-    document
-      .querySelector(
-        `[data-track="${(config.track + delta + tracks.length) % tracks.length}"]`,
-      )
-      ?.click();
+  if (race || document.hidden || starting || $("#info-dialog").open) return;
+  const p = menuController.poll(),
+    screen = menuFlow.screen,
+    c =
+      screen === "mode"
+        ? [...$$("[data-mode]")]
+        : screen === "era"
+          ? $$("[data-era]")
+          : screen === "track"
+            ? $$("[data-track]")
+            : screen === "team"
+              ? $$("[data-team]")
+              : [];
+  const delta =
+    p.pressed.has(15) || p.pressed.has(13)
+      ? 1
+      : p.pressed.has(14) || p.pressed.has(12)
+        ? -1
+        : 0;
+  if (delta && c.length) {
+    const i = Math.max(
+      0,
+      c.findIndex((b) => b.classList.contains("selected")),
+    );
+    c[(i + delta + c.length) % c.length].click();
   }
-  if (p.pressed.has(4) || p.pressed.has(5))
-    document
-      .querySelector(
-        `[data-era="${(config.era + (p.pressed.has(5) ? 1 : eras.length - 1)) % eras.length}"]`,
-      )
-      ?.click();
-  if (p.pressed.has(12) || p.pressed.has(13)) {
-    const el = document.querySelector("#team-select");
-    const n = eras[config.era].teams.length;
-    el.value = String((config.team + (p.pressed.has(13) ? 1 : n - 1)) % n);
-    el.dispatchEvent(new Event("change"));
+  if (p.pressed.has(1)) {
+    if (["mode", "era", "track", "team"].includes(screen))
+      $("#setup-back").click();
+    else menuFlow.show("home");
   }
-  if (p.pressed.has(0)) document.querySelector("#start-race")?.click();
+  if (p.pressed.has(0)) {
+    if (screen === "home") $("#play-button").click();
+    else if (screen === "team") $("#start-race").click();
+    else if (["mode", "era", "track"].includes(screen))
+      $("#setup-next").click();
+  }
 }, 80);
 
 import("./showroom.js")

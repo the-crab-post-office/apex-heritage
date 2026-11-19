@@ -1,13 +1,15 @@
 {
   "version": "0.16.0-preview.1",
   "inputs": {
+    "web/racing-line.js": "aa2d4eeed8e1fa3a8839abcc270132596c835faab8910fe7a2584fa1dcd12119",
+    "web/racing-guide.js": "76e54da6cd4ddba75c5634f3a52812657da08a027bf42b84c004d9814baca59e",
     "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
     "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
     "web/materials.js": "1b0981fb7c650b5270651a4ebd6fed6d68629e78121f61f055da51c87e4abc27",
     "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
     "data/reference-scenes.json": "51f94bee253ab437f1a499ccad82369b1734857986978b95942790ad578d898d",
     "data/spa-monaco-reference.json": "295c763fcd25204f0ca90e438f311f9d9e585441aaca308c16a803994beee161",
-    "web/graphics.js": "0c20bfde0861059b9b0c91177b134608da334dbef60346c30411eb472321fe43",
+    "web/graphics.js": "c8ddc9a27168ca12c4ab792b27b9354b21316278f782f8cfbcfd350db7f5d73e",
     "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
     "web/venue.js": "540094f9a0cf12a8eec0a5ce0cd5db47c4073c86916a66d7b872c4c284b26aa2",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",

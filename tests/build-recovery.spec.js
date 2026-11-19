@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 import fs from "node:fs";
 const version = JSON.parse(fs.readFileSync("package.json")).version;
@@ -49,7 +50,7 @@ test("stale server identity refreshes once, resumes racing and preserves setting
     else await route.continue();
   });
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await running(page);
   expect(checks).toBe(2);
   expect(await page.evaluate(() => window.__apex.race.world.cameraMode)).toBe(
@@ -90,7 +91,7 @@ test("stale HTML is recovered without disabling the compatibility check", async 
     } else await route.continue();
   });
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await running(page);
   expect(documents).toBe(2);
 });
@@ -107,7 +108,7 @@ test("a permanently mixed deployment stops after one reload and offers a working
     });
   });
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   const retry = page.getByRole("button", {
     name: "Reload latest build",
     exact: true,
@@ -131,7 +132,7 @@ test("missing old hashed race chunks trigger bounded refresh and recover", async
     else await route.continue();
   });
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await running(page);
   expect(attempts).toBe(2);
 });

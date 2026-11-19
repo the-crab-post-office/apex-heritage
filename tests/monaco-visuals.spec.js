@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 for (const [era, quality] of [
   [0, "high"],
@@ -25,7 +26,7 @@ for (const [era, quality] of [
     await expect(page.locator("#layout-note")).toContainText(
       "MODERN MONACO SCENERY (ALL ERAS)",
     );
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(
       () => window.__apex?.race?.world?.architectureAudit,
       null,

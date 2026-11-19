@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 test("Piscine has mapped pool, harbour, dense stands and clear driving views", async ({
   page,
@@ -20,7 +21,7 @@ test("Piscine has mapped pool, harbour, dense stands and clear driving views", a
   );
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(
     () => window.__apex?.race?.world?.piscineAudit,
     null,

@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 test("production tyre spin cannot tilt the steered axle, and all four tyres stay on their supports", async ({
   page,
@@ -15,7 +16,7 @@ test("production tyre spin cannot tilt the steered axle, and all four tyres stay
     ),
   );
   await page.goto("/?season=2021&constructor=2021-red-bull");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race?.world?.player, null, {
     timeout: 90000,
   });

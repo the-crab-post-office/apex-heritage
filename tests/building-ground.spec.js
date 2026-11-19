@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 for (let track = 0; track < 13; track++)
   test(`venue ${track}: explicit architecture and rendered ground coverage`, async ({
@@ -21,7 +22,7 @@ for (let track = 0; track < 13; track++)
     await page.waitForFunction(
       () => window.__showroom?.container.dataset.ready === "true",
     );
-    await page.locator("#start-race").click();
+    await launchSession(page);
     await page.waitForFunction(() => window.__apex?.race?.world?.player);
     const result = await page.evaluate(async () => {
       const r = window.__apex.race,

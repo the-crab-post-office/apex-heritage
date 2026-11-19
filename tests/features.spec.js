@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 const setup = async (page, extra = {}) => {
   await page.addInitScript(
@@ -93,7 +94,7 @@ test("actual WASM pit entry, marked-box stop, timed service and exit", async ({
   page,
 }) => {
   await setup(page);
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, null, {
     timeout: 90000,
   });
@@ -186,7 +187,7 @@ test("high-detail materials, varied facades and enclosed tunnel load without ext
       external.push(r.url());
   });
   await setup(page, { track: 1 });
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, null, {
     timeout: 90000,
   });

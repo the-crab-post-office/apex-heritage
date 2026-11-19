@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 test("reference chassis have distinct silhouettes and matching physical wheel layouts", async ({
   page,
@@ -5,7 +6,9 @@ test("reference chassis have distinct silhouettes and matching physical wheel la
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.goto("/");
   for (const era of [0, 3]) {
+    await openSetup(page, "era");
     await page.locator(`[data-era="${era}"]`).click();
+    await openSetup(page, "team");
     await expect(page.locator("#showroom-stage")).toHaveAttribute(
       "data-ready",
       "true",
@@ -59,7 +62,7 @@ test("Spa photo complex is steep, covered, clear of road intrusions and explicit
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.goto("/");
   await expect(page.locator("#layout-note")).toContainText("ALL ERAS");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, null, {
     timeout: 90000,
   });

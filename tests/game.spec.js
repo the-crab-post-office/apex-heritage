@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -21,6 +22,7 @@ test("thirteen circuits, geographic filters, car selection and persistent setup"
   // 114-switch showroom test renders every car and checks GPU disposal.
   await page.evaluate(() => cancelAnimationFrame(window.__showroom.animation));
   await expect(page.locator(".track-card")).toHaveCount(13);
+  await openSetup(page, "track");
   await page
     .getByRole("button", { name: "Select Monaco", exact: true })
     .click();
@@ -30,17 +32,20 @@ test("thirteen circuits, geographic filters, car selection and persistent setup"
   await page.locator('[data-filter="Europe"]').click();
   await expect(page.locator(".track-card")).toHaveCount(8);
   for (let era = 0; era < 5; era++) {
+    await openSetup(page, "era");
     await page.locator(`[data-era="${era}"]`).click();
     await expect(page.locator("#team-select option")).toHaveCount(
       [9, 18, 10, 10, 10][era],
     );
   }
+  await openSetup(page, "team");
   await page.locator("#team-select").selectOption("2");
   await expect(page.locator("#team-select")).toHaveValue("2");
   await page.locator("#car-detail").click();
   await expect(page.locator("#info-dialog")).toBeVisible();
   await expect(page.locator(".team-comparison tbody tr")).toHaveCount(10);
   await page.locator(".dialog-close").click();
+  await openSetup(page, "mode");
   await page.locator('[data-weather="wet"]').click();
   await page.locator("#assist-toggle").click();
   await expect(page.locator("#assist-toggle")).toHaveAttribute(
@@ -61,9 +66,11 @@ test("thirteen circuits, geographic filters, car selection and persistent setup"
     "false",
   );
   await page.locator('[data-nav="garage"]').click();
+  await page.locator("#compare-eras").click();
   await expect(page.locator(".era-info")).toHaveCount(5);
   await page.locator(".dialog-close").click();
   await page.locator('[data-nav="records"]').click();
+  await page.locator("#profile-records").click();
   await expect(page.locator(".records-empty")).toBeVisible();
 });
 test("Rust WASM drives, brakes, steers, pauses, recovers and exits", async ({
@@ -72,7 +79,7 @@ test("Rust WASM drives, brakes, steers, pauses, recovers and exits", async ({
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
   await page.evaluate(() => {
     window.__apex.race.countdown = -1;
@@ -161,13 +168,17 @@ test("Rust WASM drives, brakes, steers, pauses, recovers and exits", async ({
 });
 test("wet turbo quick race creates five AI cars and rain", async ({ page }) => {
   await page.goto("/");
+  await openSetup(page, "mode");
   await page.locator('[data-mode="race"]').click();
+  await openSetup(page, "era");
   await page.locator('[data-era="1"]').click();
+  await openSetup(page, "mode");
   await page.locator('[data-weather="wet"]').click();
+  await openSetup(page, "track");
   await page
     .getByRole("button", { name: "Select Suzuka", exact: true })
     .click();
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
   expect(await page.evaluate(() => window.__apex.race.ai.length)).toBe(5);
   expect(
@@ -246,11 +257,13 @@ test("Monaco start, real recording loading and generated scenery all clear the r
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
+  await openSetup(page, "track");
   await page
     .getByRole("button", { name: "Select Monaco", exact: true })
     .click();
+  await openSetup(page, "era");
   await page.locator('[data-era="2"]').click();
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
   await page.waitForFunction(
     () => window.__apex.race.audio.recordingAcknowledged,
@@ -305,8 +318,9 @@ test("Monaco start, real recording loading and generated scenery all clear the r
 
 test("modern V6 explicitly retains procedural fallback", async ({ page }) => {
   await page.goto("/");
+  await openSetup(page, "era");
   await page.locator('[data-era="3"]').click();
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
   expect(
     await page.evaluate(() => window.__apex.race.audio.recordingStatus),
@@ -320,8 +334,9 @@ test("missing recorded assets retain working procedural audio", async ({
 }) => {
   await page.route("**/*.pcm", (route) => route.abort());
   await page.goto("/");
+  await openSetup(page, "era");
   await page.locator('[data-era="2"]').click();
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, { timeout: 90000 });
   const status = await page.evaluate(() => ({
     status: window.__apex.race.audio.recordingStatus,

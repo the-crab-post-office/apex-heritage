@@ -1,3 +1,4 @@
+import { launchSession, openSetup } from "../scripts/menu-navigation.mjs";
 import { test, expect } from "@playwright/test";
 test("all four detailed era cars render with isolated heads and additional showroom views", async ({
   page,
@@ -11,7 +12,9 @@ test("all four detailed era cars render with isolated heads and additional showr
     "true",
   );
   for (let era = 0; era < 4; era++) {
+    await openSetup(page, "era");
     await page.locator(`[data-era="${era}"]`).click();
+    await openSetup(page, "team");
     await page.locator("#team-select").selectOption("0");
     const result = await page.evaluate(async (e) => {
       const s = window.__showroom;
@@ -63,7 +66,7 @@ test("eight race cameras support direct selection, keyboard cycling, head restor
   );
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
-  await page.locator("#start-race").click();
+  await launchSession(page);
   await page.waitForFunction(() => window.__apex?.race, null, {
     timeout: 90000,
   });
