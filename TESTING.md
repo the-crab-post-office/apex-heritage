@@ -1,5 +1,17 @@
 # Validation — 0.16.0-preview.1
 
+## Live steering-response hotfix
+
+Follow-up branch `feature/brake-steering-response`, based on `6cf86c5`. Removes the extra brake-induced steering-budget cut introduced by the original 0.16 allocator. At its 96% longitudinal-grip cap the old friction-circle remainder left only 28% lateral capacity, then the rear dynamics also evaluated combined braking demand. Brake priority still suppresses engine thrust, and the strong braking force, wet/partial-pedal progression, steering input filtering and combined-input rear-slip model remain intact. This is a simplified playable handling model, not a strict 3D friction-circle solver.
+
+- A new matched-speed/station Rust regression explicitly fails against the old allocator: 1967 dry coast yaw rate 0.37561285 versus 0.10562117 under full braking. The corrected model preserves at least 95% of matched-speed turn-in across all five eras, dry and wet, while still decelerating more than coasting.
+- **83 shared Rust tests passed with native features**, and the optimized native executable rebuilt (`artifacts/016-steering-rust.log`). All five original dry 100–0 stopping distances/times are unchanged (`artifacts/016-steering-tests.log`).
+- New tests exercise the actual released WASM, comparing coasting and full-brake turn-in over an unmodified moving trajectory in all five eras, wet/dry. Brake-held curvature must remain at least 90% of the coast case and speed must fall more than coasting (`tests/brake-steering.test.mjs`).
+- **140 Node tests and both focused keyboard browser tests passed** (`artifacts/016-steering-node.log`, `artifacts/016-steering-browser.log`): real ArrowLeft+Space input retains turning, while the separate W+Space test still reaches a complete stop. The six new-circuit views have been genuinely recaptured against the hotfixed WASM, with updated hashes and corrected handling description. Geometry/layouts are unchanged; existing photographic report capture inputs remain valid.
+- This is a **live-preview/main-source hotfix under the existing 0.16 preview label**, not a rewrite of the immutable v0.16.0-preview.1 release tag or its archived ZIPs. Those downloadable archives remain the original snapshot. Refresh an already-open game page to load the hotfix.
+
+## Original 0.16 validation and publication
+
 Branch `feature/braking-and-three-circuits`, based on main `e92c53d` (0.15). Scope: brake authority/pedal overlap and three photograph/map-guided modern circuits, preserving the earlier Spa/Monaco work.
 
 ## Shared model and native renderer

@@ -124,3 +124,40 @@ test("new circuit report embeds six actual renders and filters offline at mobile
     390,
   );
 });
+
+test("keyboard steering stays effective while the brake is held", async ({
+  page,
+}) => {
+  test.setTimeout(180000);
+  await start(page, 2);
+  await page.keyboard.down("ArrowLeft");
+  await page.keyboard.down("Space");
+  const result = await page.evaluate(() => {
+    const r = window.__apex.race;
+    const input = r.input();
+    const Sim = r.sim.constructor;
+    const run = (brake) => {
+      const sim = new Sim(2, 3, 0, false, true);
+      try {
+        for (let k = 0; k < 300; k++) sim.step(1, 0, 0, 1 / 120);
+        for (let k = 0; k < 18; k++) sim.step(0, brake, input.steer, 1 / 120);
+        return JSON.parse(sim.state_json());
+      } finally {
+        sim.free();
+      }
+    };
+    return {
+      input: { brake: input.brake, steer: input.steer },
+      coast: run(0),
+      braking: run(input.brake),
+    };
+  });
+  expect(result.input).toEqual({ brake: 1, steer: 1 });
+  expect(result.braking.speed).toBeLessThan(result.coast.speed);
+  const curvature = (s) => Math.abs(s.yaw_rate) / s.speed;
+  expect(curvature(result.braking)).toBeGreaterThanOrEqual(
+    curvature(result.coast) * 0.9,
+  );
+  await page.keyboard.up("Space");
+  await page.keyboard.up("ArrowLeft");
+});

@@ -11,12 +11,12 @@
     "web/graphics.js": "8c266eed450f40d44bbb3ae983c1d7919479290a160bd39a44d20a13134ea636",
     "web/road-surface.js": "d1ad99e3ff2ea63b5621f5d875bbc1c521291ffc9bb8535f334a6ebf5b653a40",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
-    "src/braking.rs": "3b33927d963265a79b5ac25198056fc5e12535eda89950232f8a6c8bc335ddb0",
+    "src/braking.rs": "a9c98051b1710a40c1ca41ad93b6bb91a4d623075847eeede5ae8bdf511d4b9e",
     "src/lib.rs": "55a7b7addb3d60e840b40ca3b41545109549452733835c3094447051510dd2c3",
     "src/corner.rs": "a3b0f6e563df73865ecd2d23e82db0d3b6f793d36cb66161ba266051d2ffa727",
     "src/elevation.rs": "422ebc9733d66483c98fa5f893b7c184192aa0ec5bed82f6311f035c245a4115",
     "src/surface_mesh.rs": "ba823ee4d8e3d5120ab2bcdae0ff0772f84f5d168083773fee5e8771ab351531",
-    "web/wasm/apex_bg.wasm": "139a647f27c63d51579b6024fae562ec0bb24ec2ef36a13b0336c430d3d2252b"
+    "web/wasm/apex_bg.wasm": "80337b6a0d8fbbf7b84fe3899f030c9cde0efd232718621d48dbb1c5d90bef80"
   },
   "captures": [
     {

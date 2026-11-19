@@ -88,3 +88,41 @@ fn banked_road_support_matches_the_rendered_cross_slope_and_rolls_the_car() {
         assert_eq!(sim.state.wheels_on_track, 4);
     }
 }
+
+#[test]
+fn full_brake_preserves_matched_speed_turn_in_across_all_eras() {
+    // Hold station/speed/heading to measure steering authority, not the natural
+    // reduction in yaw rate as the car slows, or collisions on a tight road.
+    for era in 0..5 {
+        for wet in [false, true] {
+            let turn = |brake| {
+                let mut sim = Simulation::new(2, era, 0, wet, true);
+                let p = sim.track.points[0];
+                let yaw = sim.state.yaw;
+                for _ in 0..60 {
+                    sim.state.x = p[0];
+                    sim.state.z = p[1];
+                    sim.state.yaw = yaw;
+                    sim.state.travel_yaw = yaw;
+                    sim.state.speed = 30.;
+                    sim.step(0., brake, 1., 1. / 120.);
+                    assert!(sim.state.steering > 0.);
+                }
+                (sim.state.yaw_rate.abs(), sim.state.speed)
+            };
+            let coast = turn(0.);
+            let brake = turn(1.);
+            assert!(coast.0 > 0.1);
+            assert!(
+                brake.0 >= coast.0 * 0.95,
+                "era {era}, wet {wet}: coast {}, brake {}",
+                coast.0,
+                brake.0
+            );
+            assert!(
+                brake.1 < coast.1,
+                "steering fix must not weaken deceleration"
+            );
+        }
+    }
+}
