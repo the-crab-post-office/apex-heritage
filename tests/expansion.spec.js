@@ -56,8 +56,8 @@ for (const [track, name] of [
     expect(result.road.overlayIntrusions).toBe(0);
     expect(result.road.centerErrors).toBe(0);
     if (track === 11) {
-      expect(result.bank[166]).toBeLessThan(-0.32);
-      expect(result.bank[780]).toBeGreaterThan(0.32);
+      expect(result.bank[166]).toBeLessThan(-0.17);
+      expect(result.bank[766]).toBeGreaterThan(0.32);
     } else expect(result.reference.facets).toBeGreaterThan(1000);
     expect(errors).toEqual([]);
   });

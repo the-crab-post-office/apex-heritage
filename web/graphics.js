@@ -1,3 +1,6 @@
+import { addBuildingRoofs } from "./building-roofs.js";
+import appearanceData from "../data/building-appearance.json";
+import { bankedGround } from "./road-surface.js";
 import { addReferenceScene, referenceGroundMask } from "./reference-scene.js";
 import { advanceWheel, steeringAngle } from "./wheel-motion.js";
 import piscine from "../data/monaco-piscine.json";
@@ -299,10 +302,14 @@ export class World {
             piscine.terrain_mask.map((t) => t.map(([x, z]) => [x, 0, z])),
           )
         : null;
+    const bankedEarth = bankedGround(this.track, (x, z) => this.height(x, z));
+    const bankedMask = new RoadMask(null, 0, bankedEarth);
     const referenceMask = referenceGroundMask(this.track);
     const baseTriangles = scenicMask ? scenicMask.cutAll(triangles) : triangles;
-    const dryTriangles = cornerMask.cutAll(
-      referenceMask ? referenceMask.cutAll(baseTriangles) : baseTriangles,
+    const dryTriangles = bankedMask.cutAll(
+      cornerMask.cutAll(
+        referenceMask ? referenceMask.cutAll(baseTriangles) : baseTriangles,
+      ),
     );
     const ground = this.surfaceMesh(
       this.pitMask
@@ -317,6 +324,35 @@ export class World {
     unmerged.dispose();
     ground.geometry.computeVertexNormals();
     this.terrainMesh = ground;
+    if (bankedEarth.length) {
+      // Keep earth beneath kerbs: cutting coincident Float32 kerb boundaries
+      // can leave hairline sky cracks. Raised runoffs still own their footprint.
+      const apronMask = cornerFootprintMask(
+        (this.config.details?.facets || []).filter((f) => f.kind !== 0),
+      );
+      const triangles = apronMask.cutAll(
+        this.pitMask
+          ? this.pitMask.cutAll(roadMask.cutAll(bankedEarth))
+          : roadMask.cutAll(bankedEarth),
+      );
+      groundMat.side = THREE.DoubleSide;
+      // Continuous lower bed also spans sub-millimetre Float32 seams between
+      // independently clipped aprons. It is below, never above, the finish layer.
+      const bed = bankedEarth.map((tri) =>
+        tri.map(([x, y, z]) => [x, y - 0.3, z]),
+      );
+      const bedMesh = this.surfaceMesh(
+        this.pitMask
+          ? this.pitMask.cutAll(roadMask.cutAll(bed))
+          : roadMask.cutAll(bed),
+        groundMat,
+        4,
+      );
+      bedMesh.name = "continuous-banked-earth-bed";
+      this.surfaceOverlays.push(bedMesh);
+      this.bankedGroundMesh = this.surfaceMesh(triangles, groundMat, 4);
+      this.surfaceOverlays.push(this.bankedGroundMesh);
+    }
     const wet = this.config.weather === "wet";
     // Multiplying a dark road texture by a dark metallic material made wet
     // asphalt nearly black; keep it readable without pretending to be a mirror.
@@ -382,7 +418,7 @@ export class World {
       );
       roadMat.vertexColors = true;
     }
-    for (const side of [-1, 1]) {
+    for (const side of bankedEarth.length ? [] : [-1, 1]) {
       for (const [a, b, h, color] of [
         [w, w + 2, 0.01, "#8c9270"],
         [w + 2, w + 14, -0.18, "#758253"],
@@ -552,21 +588,37 @@ export class World {
   }
   buildMappedBuildings() {
     const layer = mappedScenery.tracks.find((t) => t.id === this.track.id);
-    this.mappedBuildings = (layer?.buildings || []).filter((b) => {
-      const replaced = this.config.venue?.grandstands.some(
-        (s) => s.osm_id && s.osm_id === b.osm_id,
-      );
-      const safe =
-        !replaced &&
-        this.clearance.polygonClear(b.footprint) &&
-        (!this.pitClearance || this.pitClearance.polygonClear(b.footprint));
-      if (!safe) this.sceneryAudit.omittedBuildings++;
-      return safe;
-    });
+    const appearances = new Map(
+      appearanceData.tracks
+        .find((t) => t.id === this.track.id)
+        .buildings.map((b) => [b.osm_id, b]),
+    );
+    this.mappedBuildings = (layer?.buildings || [])
+      .flatMap((b) => {
+        const parts = appearances.get(b.osm_id)?.safe_footprints;
+        return parts ? parts.map((footprint) => ({ ...b, footprint })) : [b];
+      })
+      .filter((b) => {
+        const replaced = this.config.venue?.grandstands.some(
+          (s) => s.osm_id && s.osm_id === b.osm_id,
+        );
+        const safe =
+          !replaced &&
+          this.clearance.polygonClear(b.footprint) &&
+          (!this.pitClearance || this.pitClearance.polygonClear(b.footprint));
+        if (!safe) this.sceneryAudit.omittedBuildings++;
+        return safe;
+      })
+      .map((b) => ({
+        ...b,
+        appearance: appearances.get(b.osm_id),
+        height: appearances.get(b.osm_id)?.height ?? b.height,
+      }));
     const group = new THREE.Group();
-    const mats = this.surfaces.facades();
+    const mats = this.surfaces.facades(this.track.id);
     this.buildingMaterials = mats;
-    const roofMat = this.surfaces.pbr("Concrete023", "#999b91", 0.3);
+    const profile = appearanceData.tracks.find((t) => t.id === this.track.id);
+    const roofMat = this.surfaces.pbr("Concrete023", profile.palette[6], 0.3);
     for (const b of this.mappedBuildings) {
       const shape = new THREE.Shape(
         b.footprint.map(([x, z]) => new THREE.Vector2(x, -z)),
@@ -586,14 +638,17 @@ export class World {
         if (Math.abs(normal.getY(i)) > 0.5) uv.setXY(i, 0.02, 0.02);
         else {
           const casino = b.name?.includes("Casino");
-          const scaleY = casino
-            ? b.height * 2
-            : ["belle-epoque", "fairmont"].includes(b.style)
-              ? (b.height / 7) * 4
-              : 12;
+          const scaleY =
+            b.appearance?.facade === 4
+              ? b.height
+              : casino
+                ? b.height * 2
+                : ["belle-epoque", "fairmont"].includes(b.style)
+                  ? (b.height / 7) * 4
+                  : 12;
           uv.setXY(
             i,
-            uv.getX(i) / (casino ? 20 : 10),
+            uv.getX(i) / (b.appearance?.facade === 4 ? 16 : casino ? 20 : 12),
             (uv.getY(i) + y - (roofY - b.height)) / scaleY,
           );
         }
@@ -602,18 +657,7 @@ export class World {
       // Keep the whole floor embedded in sloping terrain, not floating off one edge.
       b.renderBase = y;
       b.detailBase = roofY - b.height;
-      const facade =
-        this.track.code === "MC"
-          ? mats[
-              b.style === "belle-epoque"
-                ? 5
-                : b.style === "tower"
-                  ? 2
-                  : b.style === "fairmont"
-                    ? 5
-                    : 0
-            ]
-          : mats[b.osm_id % mats.length];
+      const facade = mats[b.appearance?.facade ?? 0];
       const mesh = new THREE.Mesh(geo, [roofMat, facade]);
       mesh.position.y = y;
       mesh.castShadow = true;
@@ -624,15 +668,16 @@ export class World {
     mergeBody(group);
     this.scene.add(group);
     this.buildingGroup = group;
+    addBuildingRoofs(this, this.mappedBuildings, roofMat);
     addArchitecture(this, this.mappedBuildings);
   }
-  auditBuildingMeshes() {
+  auditBuildingMeshes(all = false) {
     this.scene.updateMatrixWorld(true);
     const ray = new THREE.Raycaster();
     let checked = 0,
       hits = 0;
     for (const b of this.mappedBuildings.filter(
-      (b) => b.monaco_reference_part,
+      (b) => all || b.monaco_reference_part,
     )) {
       const p = b.footprint;
       let area = 0;
@@ -1287,6 +1332,41 @@ export class World {
           intrusions++;
       }
     return { samples, intrusions, missing };
+  }
+  // Ray-test actual rendered coverage, including bank/terrain seams. Buildings
+  // and trees deliberately cannot hide a missing terrain triangle in this audit.
+  auditGroundCoverage(stride = 10) {
+    this.scene.updateMatrixWorld(true);
+    const ray = new THREE.Raycaster(),
+      meshes = [
+        this.terrainMesh,
+        ...this.surfaceOverlays,
+        this.roadMesh,
+        this.pitMesh,
+        this.referenceScene,
+      ].filter(Boolean);
+    const n = this.track.points.length,
+      missing = [];
+    let samples = 0;
+    for (let i = 0; i < n; i += stride)
+      for (const side of [-1, 1])
+        for (const band of [0.3, 1, 3, 7, 13, 21, 31, 37.9, 38.1, 43]) {
+          const off = side * (this.track.width / 2 + band),
+            a = roadPoint(this.track, i, off),
+            b = roadPoint(this.track, (i + 1) % n, off);
+          ray.set(
+            new THREE.Vector3(
+              (a[0] + b[0]) / 2,
+              Math.max(...this.track.heights) + 200,
+              (a[2] + b[2]) / 2,
+            ),
+            new THREE.Vector3(0, -1, 0),
+          );
+          samples++;
+          if (!ray.intersectObjects(meshes).length)
+            missing.push({ station: i, offset: off });
+        }
+    return { samples, missing };
   }
   auditRoadSurface(stride = 10) {
     this.scene.updateMatrixWorld(true);

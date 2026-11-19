@@ -48,7 +48,7 @@ const views = [
   {
     id: "zandvoort-luyendyk",
     track: 11,
-    station: 780,
+    station: 766,
     offset: [-50, 65, 95],
     fov: 58,
     title: "Zandvoort \u00b7 Arie Luyendyk banking",

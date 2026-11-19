@@ -1,6 +1,7 @@
 //! Shared deterministic-ish, fixed-step single-seater driving model.
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+pub mod architecture;
 pub mod braking;
 #[cfg(test)]
 mod braking_tests;
@@ -12,6 +13,7 @@ pub mod controller;
 pub mod corner;
 mod dynamics;
 pub mod elevation;
+pub mod facade_assets;
 #[cfg(feature = "native")]
 pub mod imagery;
 #[cfg(feature = "native")]

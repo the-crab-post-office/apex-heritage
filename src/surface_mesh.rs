@@ -4,6 +4,47 @@ use crate::Track;
 use std::collections::{HashMap, HashSet};
 pub type Point = [f64; 3];
 pub type Triangle = [Point; 3];
+/// Banking belongs to the pavement and narrow shoulder, not an infinitely
+/// extruded tilted plane. Fade into the dune bed outside the kerb.
+pub fn bank_offset(width: f64, offset: f64) -> (f64, f64) {
+    let start = width / 2. + 1.5;
+    let t = ((offset.abs() - start) / 12.).clamp(0., 1.);
+    let fade = 1. - t * t * (3. - 2. * t);
+    let derivative = if t > 0. && t < 1. {
+        -6. * t * (1. - t) / 12.
+    } else {
+        0.
+    };
+    (offset * fade, fade + offset.abs() * derivative)
+}
+/// Continuous, tessellated earth shoulders for banked circuits. At the outer
+/// boundary this rejoins the unbanked geographic terrain, never a vertical lip.
+pub fn banked_ground(t: &Track) -> Vec<Triangle> {
+    if !t.banking.iter().any(|b| b.abs() > 0.1) {
+        return vec![];
+    }
+    let mut out = vec![];
+    for side in [-1., 1.] {
+        for band in [0., 2., 5., 8., 12., 16., 20., 26., 32., 38.].windows(2) {
+            for i in 0..t.points.len() {
+                let j = (i + 1) % t.points.len();
+                let at = |k, off| {
+                    let mut p = road_point(t, k, side * (t.width as f64 / 2. + off), 0.);
+                    p[1] = t.driving_surface(p[0] as f32, p[2] as f32, k, 0.).height as f64 + 0.01;
+                    p
+                };
+                let (a, b, c, d) = (
+                    at(i, band[0]),
+                    at(j, band[0]),
+                    at(i, band[1]),
+                    at(j, band[1]),
+                );
+                out.extend([[a, b, c], [c, b, d]]);
+            }
+        }
+    }
+    out
+}
 pub fn road_point_open(t: &Track, i: usize, offset: f64, height: f64) -> Point {
     section_point(t, i, offset, height, false)
 }
@@ -28,7 +69,10 @@ fn section_point(t: &Track, i: usize, offset: f64, height: f64, closed: bool) ->
     let len = dx.hypot(dz).max(0.000001);
     [
         a[0] as f64 + dz / len * offset,
-        t.heights[i] as f64 + height + offset * t.banking.get(i).copied().unwrap_or(0.) as f64,
+        t.heights[i] as f64
+            + height
+            + bank_offset(t.width as f64, offset).0
+                * t.banking.get(i).copied().unwrap_or(0.) as f64,
         a[1] as f64 - dx / len * offset,
     ]
 }
@@ -194,6 +238,35 @@ impl RoadMask {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn bank_fade_derivative_and_earth_stations_are_continuous() {
+        for x in [-25., -18., -10., -7.5, 0., 7.5, 10., 18., 25.] {
+            let e = 0.00001;
+            let numerical = (bank_offset(12., x + e).0 - bank_offset(12., x - e).0) / (2. * e);
+            assert!((bank_offset(12., x).1 - numerical).abs() < 0.00001);
+        }
+        let t = crate::tracks().remove(11);
+        let tris = banked_ground(&t);
+        assert_eq!(tris.len(), 36 * t.points.len());
+        for tri in &tris {
+            assert!(tri.iter().flatten().all(|v| v.is_finite()));
+        }
+        // Adjacent cells use exactly the same vertices, not separately rounded
+        // offsets; outer stations rejoin the sampled geographic bed.
+        for (i, tri) in tris
+            .iter()
+            .enumerate()
+            .take(t.points.len() * 2 - 2)
+            .step_by(2)
+        {
+            assert_eq!(tri[1], tris[i + 2][0]);
+        }
+        for i in (0..t.points.len()).step_by(31) {
+            let p = road_point(&t, i, t.width as f64 / 2. + 38., 0.);
+            let y = t.driving_surface(p[0] as f32, p[2] as f32, i, 0.).height;
+            assert!((y - (t.terrain_height(p[0] as f32, p[2] as f32) - 1.25)).abs() < 0.0001);
+        }
+    }
     #[test]
     fn subtracts_interiors_and_interpolates_height() {
         let poly = [[-10., 0., -10.], [10., 20., -10.], [0., 10., 10.]];

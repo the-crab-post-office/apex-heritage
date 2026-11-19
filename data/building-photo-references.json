@@ -1,0 +1,108 @@
+{
+  "research_date": "2026-11-08",
+  "scope": "Photo-guided appearance applied to every mapped building, not an individual photograph/survey for each of 4419 buildings. Mapped footprints and heights are retained; uncertain small-building heights, roofs, material assignment and unseen facades remain labelled estimates.",
+  "photos": [
+    {
+      "track": "be-1925",
+      "source_page": "https://spa-francorchamps.be/en/directory/rooms/215_tour-endurance",
+      "preview_sha256": "322d225f487106f4f4c03b918d6cc1f0c15770dacb53bffe695c037f35f54465",
+      "observation": "Pale pit structure, red rails/doors and dark continuous hospitality glass.",
+      "redistributed": false
+    },
+    {
+      "track": "mc-1929",
+      "source_page": "https://shutterstock.com/search/monte-carlo-fairmont-hotel",
+      "preview_sha256": "fdd654c300d14cfb58794bca2f3564a6736339886daf4fb0c03c7147a9aa238f",
+      "observation": "Fairmont: recessed full-width balcony bays, pale concrete slabs and slender rails, not brick wallpaper.",
+      "redistributed": false
+    },
+    {
+      "track": "it-1922",
+      "source_page": "https://thehospitalitybroker.com/monza-italian-f1-grand-prix-vip-paddock-club-pit-walk-hospitality-2019/",
+      "preview_sha256": "0a245258a3d680ea6f47905e5fe69156957b777ec7cf20cea4a77f999528e23c",
+      "observation": "Low linear pit complex with long pale roof and horizontal hospitality band. Roof event coverings vary.",
+      "redistributed": false
+    },
+    {
+      "track": "gb-1948",
+      "source_page": "https://www.gettyimages.com/photos/opening-of-the-silverstone-wing",
+      "preview_sha256": "3e4b9fceeb30b559238c9588a4267e5c9183876ece0969c2bd5d05749e374f11",
+      "observation": "Wing: angular dark/silver roof, long glazed bands, low service bays. Exact Wing roof topology is not inferred for every footprint.",
+      "redistributed": false
+    },
+    {
+      "track": "jp-1962",
+      "source_page": "https://www.dreamstime.com/photos-images/suzuka-circuit.html",
+      "preview_sha256": "9a571ca3c97407f446979d10029a43bca3f0884f2e1c52abb10698d60d129c59",
+      "observation": "White horizontal pit fascia, recessed dark bays/glazing and roof cantilever; observed from the stock-preview photograph.",
+      "redistributed": false
+    },
+    {
+      "track": "br-1940",
+      "source_page": "https://esportividade.com.br/vidros-chamam-a-atencao-em-novos-predios-de-interlagos-veja-novas-fotos",
+      "preview_sha256": "0a88f49edafb569e40f35fa21c2e5b7fc365fc4c14e854a49850a4ab99ccfbfa",
+      "observation": "Construction-era photograph: concrete open bays and glass frontage. Not proof of current temporary fit-out.",
+      "redistributed": false
+    },
+    {
+      "track": "it-1953",
+      "source_page": "https://motorvalley.it/en/experiences/tour-guided-autodrome-of-imola",
+      "preview_sha256": "b544e8d42738a23a5de5517c976f9dc11d71d6667be4b6ceae9202d1452ff590",
+      "observation": "Pit tower has white floor slabs, dark windows and red upright crown; low adjacent buildings use angled pale roofs.",
+      "redistributed": false
+    },
+    {
+      "track": "de-1927",
+      "source_page": "https://gettyimages.com/photos/nurburgring-and-aerial",
+      "preview_sha256": "9990a1721afc79824def14b554bac48657bb7c5a5ec20edb02f455f6179cc2a4",
+      "observation": "2009 aerial: linear white pit fascia, dark horizontal glass band and curved glazed end volume. Not exact present-day facade survey.",
+      "redistributed": false
+    },
+    {
+      "track": "ca-1978",
+      "source_page": "https://www.archdaily.com/958600/canada-f1-grand-prix-new-paddock-fabg",
+      "preview_sha256": "6ebdd3d501ba71eb099a85c5d875a9502cd238efb88817b68654da9335329941",
+      "observation": "Completed-building photograph: exposed blond timber roof/cross-bracing, slender grey columns and glass balustrade. Original generated canopy artwork uses this palette.",
+      "redistributed": false
+    },
+    {
+      "track": "de-1932",
+      "source_page": "https://www.istockphoto.com/photo/pit-lane-in-hockenheim-gm97751672-6538155",
+      "preview_sha256": "534f66e440ddd940702ca4940cf83797fb5967e226b66f41003e24d69c265e10",
+      "observation": "White two-storey pit fascia, dark garage openings and long upper gallery/roof, not apartment windows.",
+      "redistributed": false
+    },
+    {
+      "track": "ae-2009",
+      "source_page": "https://front.global/project/yas-island-marina-hotel/",
+      "preview_sha256": "2d78d30392f59c2abe3b5ca8d1b34c5da7436fc66e7ae02ec548654a32d83de9",
+      "observation": "Photographed hotel shell: metal diagrid, separated glazing panels with open gaps, dark horizontal floor glazing and connector. Night light colour is not baked into the daytime scene.",
+      "redistributed": false
+    },
+    {
+      "track": "nl-1948",
+      "source_page": "https://studiodromo.it/portfolio/zandvoort/",
+      "preview_sha256": "cd0284ff58574dd1c0627ae24794f1c415fddd343a5bb65de4952675974d2ad5",
+      "observation": "Redevelopment aerial photograph: low linear pit building, glazed control end, low outbuildings and sandy dune grades. Nearby small holiday/utility footprints must not all be default 9m towers.",
+      "redistributed": false
+    },
+    {
+      "track": "az-2016",
+      "source_page": "https://www.tripadvisor.com/Attraction_Review-g293934-d459847-Reviews-Baku_Old_City-Baku_Absheron_Region.html",
+      "preview_sha256": "48f6699142ca8ea130a400881db0d11f1edf4b470c0abe2325c94b1f6f279ec9",
+      "observation": "Old City: warm coursed stone, carved window surrounds/cornices and recessed glazing; existing footprint shapes are retained, not replaced by invented photo-exact replicas.",
+      "redistributed": false
+    }
+  ],
+  "banking": {
+    "t3": "User-requested gentler 10-degree peak; intentionally not the maximum real variable outer-bank angle.",
+    "t14": "18-degree peak retained, shifted/blended to the curved station window; straight beyond station 801 is unbanked.",
+    "photo_page": "https://www.the-race.com/formula-1/first-images-of-zandvoorts-banked-corners-revealed/",
+    "inspected_preview_sha256": "55dbefce683cce83497b4ca6b190822748ee355e8aa12b54dab5230a8f04f1d3"
+  },
+  "excluded_references": [
+    "Montreal ConstructConnect and Parc Jean-Drapeau 2019 promotional perspective is a render, not a completed-building photograph. It was not used as photographic evidence.",
+    "Tiny 120px Suzuka thumbnail was supplemented by a larger trackside photograph.",
+    "Monza pit-entrance photo establishes track/stand context, not the garage facade."
+  ]
+}

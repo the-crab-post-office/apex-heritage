@@ -83,8 +83,8 @@ fn banked_road_support_matches_the_rendered_cross_slope_and_rolls_the_car() {
         for _ in 0..60 {
             crate::corner::update_contact(&t, &sim.details, &mut sim.state, i, 3, 1. / 120.);
         }
-        assert!(sim.state.body_roll.abs() > 0.25);
-        assert!((sim.state.wheel_heights[0] - sim.state.wheel_heights[2]).abs() > 0.4);
+        assert!(sim.state.body_roll.abs() > t.banking[i].atan().abs() * 0.8);
+        assert!((sim.state.wheel_heights[0] - sim.state.wheel_heights[2]).abs() > 0.2);
         assert_eq!(sim.state.wheels_on_track, 4);
     }
 }

@@ -41,7 +41,7 @@ def append_scenes(R,tracks,scenes):
   if id=='ae-2009':
    for wayid in [520940413,1228229328]:
     e=next(e for e in src['elements']if e['id']==wayid);poly=Polygon([project(t,p)for p in e['geometry']]).buffer(0);centre=poly.centroid;ii=nearest(t,[centre.x,centre.y]);base=t['heights'][ii];height=float(e['tags']['height']);clearpoly=poly.difference(protected)
-    extrude(s,clearpoly,base,base+height-9,'#6c969d','yas-hotel-facade')
+    extrude(s,clearpoly,base,base+height-9,'#385963','yas-hotel-facade')
     rect=list(poly.minimum_rotated_rectangle.exterior.coords)[:4];a,b,c=rect[:3];ll=math.dist(a,b);dd=math.dist(b,c)
     if ll<dd:a,b,c=b,c,rect[3];ll,dd=dd,ll
     ux,uz=(b[0]-a[0])/ll,(b[1]-a[1])/ll;vx,vz=-uz,ux
@@ -52,12 +52,14 @@ def append_scenes(R,tracks,scenes):
      u=-1+j/10;v=u+.1
      for k in range(12):
       aa=-math.pi/2+k*math.pi/12;bb=aa+math.pi/12;pp=[shell(u,aa),shell(v,aa),shell(v,bb),shell(u,bb)]
-      quad(s,pp,'#aec6c8'if(j+k)%2 else'#c3d5d4','yas-hotel-shell');beam(s,pp[0],pp[2],.13,'#edf0e8','yas-hotel-lattice');beam(s,pp[1],pp[3],.13,'#edf0e8','yas-hotel-lattice')
+      panel=[[v*.88+sum(p[axis]for p in pp)/4*.12 for axis,v in enumerate(q)]for q in pp];quad(s,panel,'#9aafb6'if(j+k)%2 else'#c2d0d0','yas-hotel-shell');beam(s,pp[0],pp[2],.13,'#edf0e8','yas-hotel-lattice');beam(s,pp[1],pp[3],.13,'#edf0e8','yas-hotel-lattice')
     for level in range(2,int(height-9),3):
      band=poly.buffer(.025).difference(poly.buffer(-.24));extrude(s,band,base+level,base+level+.6,'#e6e8dd','yas-hotel-balconies')
     s['objects'].append(dict(name=e['tags'].get('name'),osm_way=wayid,height=height))
    walkway=next(e for e in src['elements']if e['id']==1387292013);poly=Polygon([project(t,p)for p in walkway['geometry']]).buffer(0);ii=nearest(t,[poly.centroid.x,poly.centroid.y]);floor=max(t['heights'][i]for i in range(max(0,ii-8),min(len(t['heights']),ii+9)))+9
-   extrude(s,poly,floor,floor+8,'#8ea7ab','yas-hotel-walkway');flat(s,poly,floor,'#7e9093','yas-hotel-walkway-floor');s['clearance']=dict(minimum=9.,kind='estimated connecting walkway floor above local road')
+   extrude(s,poly,floor,floor+8,'#526f7c','yas-hotel-walkway');
+   for level in [0,1.2,6.7,7.8]:extrude(s,poly.buffer(.04).difference(poly.buffer(-.18)),floor+level,floor+level+.18,'#d8e0dc','yas-hotel-bridge-frames');
+   flat(s,poly,floor,'#7e9093','yas-hotel-walkway-floor');s['clearance']=dict(minimum=9.,kind='estimated connecting walkway floor above local road')
    # T1 pit exit is a mapped underground route. A modest explicit bridge/portal
    # cue makes that role legible; the actual main road remains above the lane.
    for tag in ['YAS MARINA','ABU DHABI']:s['objects'].append(dict(name=tag,source='original scene cue, not sponsor signage'))

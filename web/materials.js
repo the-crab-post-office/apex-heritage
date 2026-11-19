@@ -41,7 +41,41 @@ export class SurfaceLibrary {
       metalness: 0,
     });
   }
-  facades() {
+  facades(trackId) {
+    if (trackId) {
+      const urls = import.meta.glob("./assets/facades/*.jpg", {
+        eager: true,
+        query: "?url",
+        import: "default",
+      });
+      return ["stucco", "brick", "glass", "stone", "industrial", "hotel"].map(
+        (type) => {
+          let done;
+          this.pending.push(new Promise((r) => (done = r)));
+          const map = new THREE.TextureLoader().load(
+            urls[`./assets/facades/${trackId}-${type}.jpg`],
+            () => done(true),
+            undefined,
+            () => done(false),
+          );
+          map.name = `facade-${type}`;
+          map.wrapS = map.wrapT = THREE.RepeatWrapping;
+          map.colorSpace = THREE.SRGBColorSpace;
+          map.anisotropy = Math.min(
+            8,
+            this.renderer.capabilities.getMaxAnisotropy(),
+          );
+          const m = new THREE.MeshStandardMaterial({
+            map,
+            roughness: type === "glass" ? 0.4 : 0.9,
+            metalness: type === "glass" ? 0.15 : 0,
+          });
+          m.name = `building-${type}`;
+          return m;
+        },
+      );
+    }
+
     const types = ["stucco", "brick", "glass", "stone", "industrial", "hotel"];
     const materials = types.map((type, index) => {
       const canvas = document.createElement("canvas");

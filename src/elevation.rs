@@ -61,13 +61,17 @@ impl Track {
                 let bank = bank_a + (bank_b - bank_a) * t;
                 let offset =
                     ((x - a[0] - dx * t) * dz - (z - a[1] - dz * t) * dx) / d2.sqrt().max(0.001);
-                let dh = self.heights[j] - self.heights[i] + (bank_b - bank_a) * offset;
+                let (bank_offset, bank_grade) =
+                    crate::surface_mesh::bank_offset(self.width as f64, offset as f64);
+                let bank_offset = bank_offset as f32;
+                let dh = self.heights[j] - self.heights[i] + (bank_b - bank_a) * bank_offset;
                 result = Surface {
                     height: self.heights[i]
                         + (self.heights[j] - self.heights[i]) * t
-                        + bank * offset,
+                        + bank * bank_offset,
                     grade: dh * (yaw.sin() * dx + yaw.cos() * dz) / d2.max(0.0001)
-                        + bank * (yaw.sin() * dz - yaw.cos() * dx) / d2.sqrt().max(0.001),
+                        + bank * bank_grade as f32 * (yaw.sin() * dz - yaw.cos() * dx)
+                            / d2.sqrt().max(0.001),
                     progress: ((i as f32 + t) / n as f32) % 1.,
                 };
             }

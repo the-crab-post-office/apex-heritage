@@ -1,5 +1,17 @@
 # Validation — 0.16.0-preview.1
 
+## Current building / banked-ground follow-up
+
+Branch `feature/photo-buildings-and-banked-ground`, based on `93f3972`. The existing 0.16 preview label is retained; immutable release archives are not replaced.
+
+- **94 optimized Rust/native tests passed**: 85 shared + 9 native (`artifacts/017-rust-final.log`). Includes explicit appearance coverage, bank-fade derivative/earth seam regressions, existing five-era brake/steering cases and native rendered road/pit exclusion. Release native executable rebuilt.
+- **144 Node tests passed** (`artifacts/017-node-tests.log`), including four new appearance/banked-earth tests and real WASM brake-held steering regressions. **36 Python tests passed** (`artifacts/017-python-tests.log`).
+- All **13 venues** rendered with explicit appearance assignments and all texture loads successful. Actual wall-ray audits found no missing tested facades; sampled actual road triangles had no terrain/overlay intrusions. First pass: 12 passed and Zandvoort exposed kerb-boundary precision cracks (`017-building-browser.log`). After keeping earth below kerbs and adding a continuous 0.3 m lower bed, the Zandvoort recheck passed **3,420 ground probes, zero missing surfaces** (`017-ground-recheck.log`). This is sampled coverage, not proof of every possible camera/pixel.
+- **15 production browser regressions passed** (`artifacts/017-regression-browser.log`): all three new circuits, keyboard brake priority, brake-held steering, both modern-Monaco architecture qualities, recent Spa eras 3/4, old Spa preservation, Monaco building headroom in eras 0/3 and both offline reports/mobile layout. These are focused checks, not the entire historical browser suite.
+- **Native Zandvoort all-eight-camera render/physics smoke passed**, 118.7 km/h (`artifacts/017-native-smoke.log`). Browser/native GPU workloads ran serially. Native facades use cumulative wall-distance UVs and the corrected vertical texture orientation; native is not a full browser-detail replica.
+- Genuine production captures refreshed: six expansion views, seven Spa/Monaco follow-up views and all ten track views in the photo audit (`017-captures.log`, `017-spa-monaco-captures.log`, `017-track-captures.log`). No old screenshot pixels were relabelled as new renders. Five unchanged car-only photo-audit views are retained. New appearance inputs/textures are included in the relevant capture provenance.
+- T3 peak is 10°; T14 is 18° over the retimed 731–801 station window. These remain authored linear banks, not surveyed variable bowls or calibrated 3D tyre dynamics. Buildings are venue/photo-guided estimates across 4,419 mapped parts, not individual photo surveys; known mapped height envelopes and road exclusion remain authoritative.
+
 ## Live steering-response hotfix
 
 Follow-up branch `feature/brake-steering-response`, based on `6cf86c5`. Removes the extra brake-induced steering-budget cut introduced by the original 0.16 allocator. At its 96% longitudinal-grip cap the old friction-circle remainder left only 28% lateral capacity, then the rear dynamics also evaluated combined braking demand. Brake priority still suppresses engine thrust, and the strong braking force, wet/partial-pedal progression, steering input filtering and combined-input rear-slip model remain intact. This is a simplified playable handling model, not a strict 3D friction-circle solver.

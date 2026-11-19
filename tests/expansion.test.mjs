@@ -21,7 +21,7 @@ test("three new circuit IDs retain geographic maps, source context and physical 
   for (const i of [166, 780]) {
     const left = roadPoint(t, i, -4, 0),
       right = roadPoint(t, i, 4, 0);
-    assert.ok(Math.abs(right[1] - left[1]) > 2.5);
+    assert.ok(Math.abs(right[1] - left[1]) > (i === 166 ? 1.3 : 1.8));
     assert.ok(Math.abs(right[1] - left[1] - 8 * t.banking[i]) < 1e-8);
   }
   const main = fs.readFileSync("web/main.js", "utf8");

@@ -31,7 +31,7 @@ class ExpansionTests(unittest.TestCase):
    for p in v['profiles']:
     self.assertIn('modern-layout substitute',p['label']);self.assertEqual(p['kerbs'],v['profiles'][3]['kerbs'])
  def test_banking_is_explicit_and_preserves_old_flat_cross_sections(self):
-  ts=read('data/tracks.json');t=ts[11];self.assertLess(t['banking'][166],-.32);self.assertGreater(t['banking'][780],.32);self.assertEqual(t['banking'][0],0)
+  ts=read('data/tracks.json');t=ts[11];self.assertLess(t['banking'][166],-.17);self.assertGreater(t['banking'][766],.32);self.assertEqual(t['banking'][0],0)
   self.assertLess(max(abs(a-b)for a,b in zip(t['banking'],t['banking'][1:]+[t['banking'][0]])),.05)
   self.assertTrue(all(not t.get('banking')for t in ts[:10]));self.assertLess(ts[10]['banking'][720],-.049)
  def test_reference_rights_and_landmark_scenes_are_explicit(self):

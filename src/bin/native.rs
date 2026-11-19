@@ -108,7 +108,18 @@ fn tunnel(t: &Track, range: Option<(usize, usize)>, player: Vec3, texture: &Text
     }
 }
 fn terrain_mesh(t: &Track, details: &apex_heritage::corner::Details) -> Vec<Mesh> {
-    let corner_mask = details.cover_mask();
+    let corner_mask = if t.banking.iter().any(|b| b.abs() > 0.1) {
+        apex_heritage::surface_mesh::RoadMask::from_triangles(
+            details
+                .facets
+                .iter()
+                .filter(|f| f.kind == 1 || f.kind == 2)
+                .map(|f| f.p.map(|p| p.map(|v| v as f64)))
+                .collect(),
+        )
+    } else {
+        details.cover_mask()
+    };
     let min_x = t.points.iter().map(|p| p[0]).fold(f32::INFINITY, f32::min) - 300.;
     let max_x = t
         .points
@@ -138,9 +149,9 @@ fn terrain_mesh(t: &Track, details: &apex_heritage::corner::Details) -> Vec<Mesh
     let mask = apex_heritage::surface_mesh::RoadMask::new(t);
     let pit_track = apex_heritage::pit::PitLane::new(t).as_track();
     let pit_mask = apex_heritage::surface_mesh::RoadMask::new_open(&pit_track);
-    let mut meshes = Vec::new();
-    let mut vertices = Vec::new();
-    let mut indices = Vec::new();
+    let banked = apex_heritage::surface_mesh::banked_ground(t);
+    let bank_mask = apex_heritage::surface_mesh::RoadMask::from_triangles(banked.clone());
+    let mut terrain = vec![];
     for z in 0..nz {
         for x in 0..nx {
             let a = z * (nx + 1) + x;
@@ -149,30 +160,51 @@ fn terrain_mesh(t: &Track, details: &apex_heritage::corner::Details) -> Vec<Mesh
                 [points[a], points[b], points[a + 1]],
                 [points[a + 1], points[b], points[b + 1]],
             ] {
-                for piece in scenic_mask
-                    .cut(tri)
-                    .into_iter()
-                    .flat_map(|p| reference_mask.cut(p))
-                    .flat_map(|p| mask.cut(p))
-                    .flat_map(|p| pit_mask.cut(p))
-                    .flat_map(|p| corner_mask.cut(p))
-                {
-                    if vertices.len() + 3 > 3996 {
-                        meshes.push(Mesh {
-                            vertices: std::mem::take(&mut vertices),
-                            indices: std::mem::take(&mut indices),
-                            texture: None,
-                        });
-                    }
-                    for p in piece {
-                        indices.push(vertices.len() as u16);
-                        vertices.push(Vertex::new2(
-                            vec3(p[0] as f32, p[1] as f32, p[2] as f32),
-                            vec2(p[0] as f32 / 4., p[2] as f32 / 4.),
-                            WHITE,
-                        ));
-                    }
+                terrain.extend(bank_mask.cut(tri));
+            }
+        }
+    }
+    let banked_bed = banked
+        .iter()
+        .map(|tri| tri.map(|[x, y, z]| [x, y - 0.3, z]))
+        .collect::<Vec<_>>();
+    terrain.extend(banked);
+    let mut meshes = Vec::new();
+    let mut vertices = Vec::new();
+    let mut indices = Vec::new();
+    for (tri, apron_cut) in terrain
+        .into_iter()
+        .map(|tri| (tri, true))
+        .chain(banked_bed.into_iter().map(|tri| (tri, false)))
+    {
+        for piece in scenic_mask
+            .cut(tri)
+            .into_iter()
+            .flat_map(|p| reference_mask.cut(p))
+            .flat_map(|p| mask.cut(p))
+            .flat_map(|p| pit_mask.cut(p))
+            .flat_map(|p| {
+                if apron_cut {
+                    corner_mask.cut(p)
+                } else {
+                    vec![p]
                 }
+            })
+        {
+            if vertices.len() + 3 > 3996 {
+                meshes.push(Mesh {
+                    vertices: std::mem::take(&mut vertices),
+                    indices: std::mem::take(&mut indices),
+                    texture: None,
+                });
+            }
+            for p in piece {
+                indices.push(vertices.len() as u16);
+                vertices.push(Vertex::new2(
+                    vec3(p[0] as f32, p[1] as f32, p[2] as f32),
+                    vec2(p[0] as f32 / 4., p[2] as f32 / 4.),
+                    WHITE,
+                ));
             }
         }
     }
@@ -230,12 +262,29 @@ fn pit_mesh_build(pit: &apex_heritage::pit::PitLane, road: &Track) -> Vec<Mesh> 
 fn mapped_buildings(
     t: &Track,
     buildings: &[apex_heritage::scenery::Building],
+    facades: &[Texture2D; 6],
 ) -> Vec<(Vec3, Mesh)> {
     let pit = apex_heritage::pit::PitLane::new(t).as_track();
     buildings
         .iter()
+        .flat_map(|b| {
+            let app = apex_heritage::architecture::appearance(&t.name, b.osm_id);
+            if let Some(parts) = &app.safe_footprints {
+                parts
+                    .iter()
+                    .map(|p| {
+                        let mut b = b.clone();
+                        b.footprint = p.clone();
+                        b
+                    })
+                    .collect::<Vec<_>>()
+            } else {
+                vec![b.clone()]
+            }
+        })
         .filter(|b| t.polygon_clear(&b.footprint) && pit.polygon_clear(&b.footprint))
         .map(|b| {
+            let look = apex_heritage::architecture::appearance(&t.name, b.osm_id);
             let n = b.footprint.len();
             let center = vec3(
                 b.footprint.iter().map(|p| p[0]).sum::<f32>() / n as f32,
@@ -250,39 +299,85 @@ fn mapped_buildings(
                 - 0.2;
             let mut vs = Vec::new();
             let mut ids = Vec::new();
-            let color = [
-                Color::from_rgba(181, 176, 156, 255),
-                Color::from_rgba(208, 198, 178, 255),
-                Color::from_rgba(155, 159, 148, 255),
-            ][b.osm_id as usize % 3];
-            for p in &b.footprint {
+            let color = WHITE;
+            let mut along = 0.;
+            for (i, p) in b
+                .footprint
+                .iter()
+                .chain(std::iter::once(&b.footprint[0]))
+                .enumerate()
+            {
+                if i > 0 {
+                    let q = b.footprint[i - 1];
+                    along += (p[0] - q[0]).hypot(p[1] - q[1]);
+                }
                 for h in [
                     base,
                     b.roof_height
-                        .unwrap_or(base + b.height)
-                        .max(base + b.height),
+                        .unwrap_or(base + look.height)
+                        .max(base + look.height),
                 ] {
                     vs.push(Vertex::new2(
                         vec3(p[0], h, p[1]),
-                        vec2((p[0] + p[1]) / 6., (h - base) / 4.),
+                        vec2(
+                            along / if look.facade == 4 { 16. } else { 12. },
+                            1. - (h - base) / if look.facade == 4 { look.height } else { 12. },
+                        ),
                         color,
                     ));
                 }
             }
             for i in 0..n {
                 let a = (i * 2) as u16;
-                let c = (((i + 1) % n) * 2) as u16;
+                let c = ((i + 1) * 2) as u16;
                 ids.extend_from_slice(&[a, c, a + 1, a + 1, c, c + 1]);
             }
+            let top = b
+                .roof_height
+                .unwrap_or(base + look.height)
+                .max(base + look.height);
+            let roof_start = vs.len() as u16;
+            for p in &b.footprint {
+                vs.push(Vertex::new2(
+                    vec3(p[0], top, p[1]),
+                    vec2(0.005, 0.005),
+                    WHITE,
+                ));
+            }
             for tri in apex_heritage::scenery::triangulate(&b.footprint) {
-                ids.extend(tri.iter().map(|i| (i * 2 + 1) as u16));
+                ids.extend(tri.iter().map(|i| roof_start + *i as u16));
+            }
+            for tri in &look.roof_facets {
+                for p in tri {
+                    ids.push(vs.len() as u16);
+                    vs.push(Vertex::new2(
+                        vec3(p[0], top + p[1], p[2]),
+                        vec2(0.005, 0.005),
+                        WHITE,
+                    ));
+                }
+            }
+            if look.roof == 1 {
+                let peak = vs.len() as u16;
+                vs.push(Vertex::new2(
+                    vec3(center.x, top + look.roof_rise, center.z),
+                    vec2(0.005, 0.005),
+                    WHITE,
+                ));
+                for i in 0..n {
+                    ids.extend([
+                        roof_start + i as u16,
+                        roof_start + ((i + 1) % n) as u16,
+                        peak,
+                    ]);
+                }
             }
             (
                 center,
                 Mesh {
                     vertices: vs,
                     indices: ids,
-                    texture: None,
+                    texture: Some(facades[look.facade].clone()),
                 },
             )
         })
@@ -367,6 +462,23 @@ async fn main() {
         tex
     })
     .collect();
+    let facades: Vec<[Texture2D; 6]> = circuits
+        .iter()
+        .map(|t| {
+            apex_heritage::facade_assets::textures(&t.name).map(|bytes| {
+                let tex = Texture2D::from_file_with_format(bytes, Some(ImageFormat::Jpeg));
+                tex.set_filter(FilterMode::Linear);
+                unsafe {
+                    get_internal_gl().quad_context.texture_set_wrap(
+                        tex.raw_miniquad_id(),
+                        macroquad::miniquad::TextureWrap::Repeat,
+                        macroquad::miniquad::TextureWrap::Repeat,
+                    );
+                }
+                tex
+            })
+        })
+        .collect();
     let mut ti = std::env::var("APEX_SMOKE_TRACK")
         .ok()
         .and_then(|s| s.parse::<usize>().ok())
@@ -418,10 +530,8 @@ async fn main() {
         apex_heritage::livery_assets::png(&apex_heritage::roster::team(era, team).id),
         None,
     );
-    let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
-    for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
-        mesh.texture = Some(walls[i % walls.len()].clone());
-    }
+    let mut buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings, &facades[ti]);
+
     loop {
         let pad = controller.poll();
         if pad.pressed.contains(&gilrs::Button::Select) && !menu {
@@ -581,10 +691,8 @@ async fn main() {
                 &venue::Ground::new(&[&landscape, &pit_mesh, &corner_mesh]),
             );
             safety_mesh.extend(venue::references(&circuits[ti], era));
-            buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings);
-            for (i, (_, mesh)) in buildings.iter_mut().enumerate() {
-                mesh.texture = Some(walls[i % walls.len()].clone());
-            }
+            buildings = mapped_buildings(&circuits[ti], &mapped[ti].buildings, &facades[ti]);
+
             terrain_track = ti;
             terrain_era = era;
         }

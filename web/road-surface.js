@@ -1,5 +1,66 @@
 // Actual geometric exclusion: lowering terrain vertices does NOT prevent the
 // interior of a large triangle from cutting through a curved/sloping road.
+export function bankOffset(width, offset) {
+  const t = Math.max(0, Math.min(1, (Math.abs(offset) - width / 2 - 1.5) / 12));
+  return offset * (1 - t * t * (3 - 2 * t));
+}
+// Same station/segment projection and earth transition as Rust driving_surface.
+export function bankedGround(track, terrainHeight) {
+  if (!track.banking?.some((b) => Math.abs(b) > 0.1)) return [];
+  const n = track.points.length,
+    out = [];
+  const at = (i, offset) => {
+    const p = roadPoint(track, i, offset, 0);
+    let best = Infinity,
+      h = 0;
+    for (const k of [(i + n - 1) % n, i]) {
+      const j = (k + 1) % n,
+        a = track.points[k],
+        b = track.points[j],
+        dx = b[0] - a[0],
+        dz = b[1] - a[1],
+        d2 = dx * dx + dz * dz;
+      const t = Math.max(
+        0,
+        Math.min(
+          1,
+          ((p[0] - a[0]) * dx + (p[2] - a[1]) * dz) / Math.max(d2, 0.0001),
+        ),
+      );
+      const xx = p[0] - a[0] - t * dx,
+        zz = p[2] - a[1] - t * dz,
+        d = xx * xx + zz * zz;
+      if (d < best) {
+        best = d;
+        const off = (xx * dz - zz * dx) / Math.max(Math.sqrt(d2), 0.001),
+          bank = track.banking[k] + (track.banking[j] - track.banking[k]) * t;
+        h =
+          track.heights[k] +
+          (track.heights[j] - track.heights[k]) * t +
+          bank * bankOffset(track.width, off);
+      }
+    }
+    let f = Math.max(
+      0,
+      Math.min(1, (Math.sqrt(best) - track.width / 2 - 14) / 10),
+    );
+    f = f * f * (3 - 2 * f);
+    p[1] = h + (terrainHeight(p[0], p[2]) - 1.25 - h) * f + 0.01;
+    return p;
+  };
+  const bands = [0, 2, 5, 8, 12, 16, 20, 26, 32, 38];
+  for (const side of [-1, 1])
+    for (let b = 0; b < bands.length - 1; b++)
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n,
+          a = at(i, side * (track.width / 2 + bands[b])),
+          c = at(i, side * (track.width / 2 + bands[b + 1])),
+          bb = at(j, side * (track.width / 2 + bands[b])),
+          d = at(j, side * (track.width / 2 + bands[b + 1]));
+        out.push([a, bb, c], [c, bb, d]);
+      }
+  return out;
+}
 export function roadPoint(track, i, offset = 0, height = 0.05) {
   const n = track.points.length,
     a = track.points[i],
@@ -16,7 +77,9 @@ export function roadPoint(track, i, offset = 0, height = 0.05) {
     len = Math.hypot(dx, dz) || 1;
   return [
     a[0] + (dz / len) * offset,
-    track.heights[i] + height + offset * (track.banking?.[i] || 0),
+    track.heights[i] +
+      height +
+      bankOffset(track.width, offset) * (track.banking?.[i] || 0),
     a[1] - (dx / len) * offset,
   ];
 }

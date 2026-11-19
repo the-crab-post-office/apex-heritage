@@ -24,7 +24,7 @@ def section(t,i,off):
  return [t['points'][i][0]+dz/ll*off,t['points'][i][1]-dx/ll*off]
 def banks(t):
  n=len(t['points']);bank=[0.]*n
- windows=([(150,163,172,185,-math.tan(math.radians(18))), (744,766,799,825,math.tan(math.radians(18)))]if t['id']=='nl-1948'else [(685,702,739,757,-.05)]if t['id']=='ae-2009'else [])
+ windows=([(147,160,170,189,-math.tan(math.radians(10))), (731,751,772,801,math.tan(math.radians(18)))]if t['id']=='nl-1948'else [(685,702,739,757,-.05)]if t['id']=='ae-2009'else [])
  for a,b,c,d,slope in windows:
   for i in range(a,d+1):
    f=min(1,(i-a)/max(1,b-a),(d-i)/max(1,d-c));f=f*f*(3-2*f);bank[i]=round(slope*f,6)
