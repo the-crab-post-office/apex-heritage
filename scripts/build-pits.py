@@ -18,6 +18,10 @@ selected={'be-1925':[323851541],'mc-1929':[850261588,1388331347],
 output=[]
 for t,source in zip(tracks,raw['tracks']):
     assert t['id']==source['id']
+    if t['id'] in ['ae-2009','nl-1948','az-2016']:
+        from expansion_context import pit_record
+        context=next(s for s in json.loads((ROOT/'data/expansion-map-source.json').read_text())['tracks']if s['id']==t['id'])
+        output.append(pit_record(t,context));continue
     ways=[next(w for w in source['ways'] if w['id']==i) for i in selected[t['id']]]
     coords=list(ways[0]['coordinates'])
     if len(ways)>1:

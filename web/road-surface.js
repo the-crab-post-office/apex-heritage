@@ -16,7 +16,7 @@ export function roadPoint(track, i, offset = 0, height = 0.05) {
     len = Math.hypot(dx, dz) || 1;
   return [
     a[0] + (dz / len) * offset,
-    track.heights[i] + height,
+    track.heights[i] + height + offset * (track.banking?.[i] || 0),
     a[1] - (dx / len) * offset,
   ];
 }

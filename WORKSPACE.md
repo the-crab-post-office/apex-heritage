@@ -88,3 +88,11 @@ New `web/wheel-motion.js` creates an independent steering hub and spin child. Do
 ## 0.15 reference-scene pipeline
 
 `spa_corner_reference.py` applies only the latest Spa profile, including optional profile-specific collision barriers consumed by `Venue::for_era`; never move recent walls into the global historical barrier array. `build-reference-scenes.py` emits shared original `reference-scenes.json` facets: explicit Monaco overhead hotel infill/podium cladding and recent Spa grid paint. Both renderers use that geometry. Keep the ordinary at-ground building exclusion enabled. `capture-spa-monaco-update.mjs` and `build-spa-monaco-report.py` produce the standalone seven-view report and input/capture hash manifest. Source uploads stay outside the project and are not bundled.
+
+## Braking / expanded circuit library (0.16)
+
+- `src/braking.rs`, `src/braking_tests.rs`: brake-priority friction allocation, absolute stopping/overlap/wet/progressive checks, banked road/tyre/body support checks.
+- `scripts/import-expansion.py` fetches bounded source snapshots; `scripts/build-expansion.py` / `expansion_context.py` rebuild only the three added circuit records offline. Source snapshots and notice are retained under `data/expansion-*`. Optional map-import cache is external and ephemeral; it is not required to regenerate releases.
+- `expansion_scenes.py` is called by the reference-scene generator: original Yas lattice/bridge, Baku castle-side masonry, explicit approximate water masks shared by both clients.
+- Banking is per-station signed cross-slope in `tracks.json`; `surface_mesh::road_point`, `web/road-surface.js`, driving surfaces and wheel support consume the same array. Old tracks omit it and remain flat across their road sections.
+- `new-circuits.html`, `expansion-captures.json`: six actual production views with input/camera/image hashes. Capture with `scripts/capture-expansion.mjs`, build report offline with `scripts/build-expansion-report.py`.

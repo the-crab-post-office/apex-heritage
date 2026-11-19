@@ -11,6 +11,9 @@ export const cities = [
   "NÜRBURG",
   "MONTRÉAL",
   "HOCKENHEIM",
+  "ABU DHABI",
+  "ZANDVOORT",
+  "BAKU",
 ];
 export function mapSVG(track, color = "#c1cfb0", stroke = 4) {
   const p = track.points;

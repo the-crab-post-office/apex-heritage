@@ -134,6 +134,7 @@ fn terrain_mesh(t: &Track, details: &apex_heritage::corner::Details) -> Vec<Mesh
         }
     }
     let scenic_mask = apex_heritage::piscine::terrain_mask(t);
+    let reference_mask = apex_heritage::reference_scene::ground_mask(t);
     let mask = apex_heritage::surface_mesh::RoadMask::new(t);
     let pit_track = apex_heritage::pit::PitLane::new(t).as_track();
     let pit_mask = apex_heritage::surface_mesh::RoadMask::new_open(&pit_track);
@@ -151,6 +152,7 @@ fn terrain_mesh(t: &Track, details: &apex_heritage::corner::Details) -> Vec<Mesh
                 for piece in scenic_mask
                     .cut(tri)
                     .into_iter()
+                    .flat_map(|p| reference_mask.cut(p))
                     .flat_map(|p| mask.cut(p))
                     .flat_map(|p| pit_mask.cut(p))
                     .flat_map(|p| corner_mask.cut(p))
@@ -321,6 +323,25 @@ async fn main() {
         Some(ImageFormat::Jpeg),
     );
     grass.set_filter(FilterMode::Linear);
+    let sand = Texture2D::from_file_with_format(
+        include_bytes!("../../web/assets/materials/Gravel001_1K-JPG_Color.jpg"),
+        None,
+    );
+    let paving = Texture2D::from_file_with_format(
+        include_bytes!("../../web/assets/materials/Concrete023_1K-JPG_Color.jpg"),
+        None,
+    );
+    for texture in [&sand, &paving] {
+        texture.set_filter(FilterMode::Linear);
+        unsafe {
+            get_internal_gl().quad_context.texture_set_wrap(
+                texture.raw_miniquad_id(),
+                macroquad::miniquad::TextureWrap::Repeat,
+                macroquad::miniquad::TextureWrap::Repeat,
+            );
+        }
+    }
+
     unsafe {
         get_internal_gl().quad_context.texture_set_wrap(
             grass.raw_miniquad_id(),
@@ -350,7 +371,7 @@ async fn main() {
         .ok()
         .and_then(|s| s.parse::<usize>().ok())
         .unwrap_or(0)
-        .min(9);
+        .min(circuits.len() - 1);
     let mut era = std::env::var("APEX_SMOKE_ERA")
         .ok()
         .and_then(|s| s.parse::<usize>().ok())
@@ -368,7 +389,11 @@ async fn main() {
     let mut details = apex_heritage::corner::Details::new(&circuits[ti], era);
     let mut landscape = terrain_mesh(&circuits[ti], &details);
     for mesh in &mut landscape {
-        mesh.texture = Some(grass.clone());
+        mesh.texture = Some(match circuits[ti].name.as_str() {
+            "Yas Marina" | "Zandvoort" => sand.clone(),
+            "Baku" => paving.clone(),
+            _ => grass.clone(),
+        });
     }
     let mut pit_lane = apex_heritage::pit::PitLane::new(&circuits[ti]);
     let mut pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
@@ -430,10 +455,10 @@ async fn main() {
         }
         if menu {
             if is_key_pressed(KeyCode::Right) || pad.pressed.contains(&gilrs::Button::DPadRight) {
-                ti = (ti + 1) % 10;
+                ti = (ti + 1) % circuits.len();
             }
             if is_key_pressed(KeyCode::Left) || pad.pressed.contains(&gilrs::Button::DPadLeft) {
-                ti = (ti + 9) % 10;
+                ti = (ti + circuits.len() - 1) % circuits.len();
             }
             if is_key_pressed(KeyCode::E) || pad.pressed.contains(&gilrs::Button::LeftTrigger) {
                 era = (era + 1) % 5;
@@ -544,7 +569,11 @@ async fn main() {
             pit_mesh = pit_mesh_build(&pit_lane, &circuits[ti]);
             landscape = terrain_mesh(&circuits[ti], &details);
             for mesh in &mut landscape {
-                mesh.texture = Some(grass.clone());
+                mesh.texture = Some(match circuits[ti].name.as_str() {
+                    "Yas Marina" | "Zandvoort" => sand.clone(),
+                    "Baku" => paving.clone(),
+                    _ => grass.clone(),
+                });
             }
             safety_mesh = venue::build(
                 &circuits[ti],

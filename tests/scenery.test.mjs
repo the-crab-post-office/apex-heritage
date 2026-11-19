@@ -74,7 +74,7 @@ test("corrected markers retain height alignment, direction and shared browser/na
   const corrected = tracks.filter(
     (t) => t.start_reference.status === "snapped to mapped marker",
   );
-  assert.equal(corrected.length, 5);
+  assert.equal(corrected.length, 6);
   for (const t of corrected) {
     assert.ok(t.start_reference.snap_distance < 2);
     assert.equal(t.heights.length, t.points.length);

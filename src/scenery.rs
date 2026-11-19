@@ -136,7 +136,7 @@ mod tests {
     fn all_mapped_buildings_clear_the_entire_road() {
         let ts = crate::tracks();
         let bs = buildings();
-        assert_eq!(bs.len(), 10);
+        assert_eq!(bs.len(), crate::tracks().len());
         for (t, b) in ts.iter().zip(bs.iter()) {
             assert!(!b.buildings.is_empty(), "{}", t.name);
             for building in &b.buildings {
@@ -158,6 +158,7 @@ mod tests {
             points: vec![[0., 0.], [100., 0.], [100., 100.], [0., 100.]],
             heights: vec![0.; 4],
             ground_heights: vec![0.; 4],
+            banking: vec![],
             terrain: None,
         };
         assert!(!t.circle_clear(50., 1., 0.));

@@ -28,7 +28,7 @@ fn section_point(t: &Track, i: usize, offset: f64, height: f64, closed: bool) ->
     let len = dx.hypot(dz).max(0.000001);
     [
         a[0] as f64 + dz / len * offset,
-        t.heights[i] as f64 + height,
+        t.heights[i] as f64 + height + offset * t.banking.get(i).copied().unwrap_or(0.) as f64,
         a[1] as f64 - dx / len * offset,
     ]
 }

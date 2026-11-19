@@ -1,6 +1,9 @@
 //! Shared deterministic-ish, fixed-step single-seater driving model.
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+pub mod braking;
+#[cfg(test)]
+mod braking_tests;
 pub mod cameras;
 pub mod car_shapes;
 pub mod contact;
@@ -48,6 +51,9 @@ pub struct Track {
     pub points: Vec<[f32; 2]>,
     pub heights: Vec<f32>,
     pub ground_heights: Vec<f32>,
+    /// Signed cross-slope (rise per metre along road_point positive offset).
+    #[serde(default)]
+    pub banking: Vec<f32>,
     #[serde(default)]
     pub terrain: Option<elevation::TerrainGrid>,
 }
@@ -338,8 +344,10 @@ impl Simulation {
             return;
         }
         let dt = dt.clamp(0., 0.05);
-        let throttle = throttle.clamp(0., 1.);
         let brake = brake.clamp(0., 1.);
+        // Pedal overlap is common with keyboard/touch. Brake takes priority,
+        // including in the pit lane; full brake must never fight full power.
+        let throttle = throttle.clamp(0., 1.) * (1. - brake);
         let steer = steer.clamp(-1., 1.);
         if self.state.pit_requested && !self.state.pit_active {
             let e = self.pit.points[0];
@@ -410,15 +418,21 @@ impl Simulation {
             } else {
                 1.
             });
-        let traction = grip * (if self.assists { 0.97 } else { 1.15 });
         let raw_accel = throttle * power * (if self.shift_timer > 0. { 0.16 } else { 1. })
             / (spec.mass * (s.speed + 20.));
-        let lateral_use = (s.yaw_rate.abs() * s.speed / grip.max(0.1)).min(0.98);
-        let combined = tyres::combined_budget(lateral_use * grip, grip);
+        let forces = braking::allocate(
+            raw_accel,
+            brake,
+            spec.brake,
+            grip,
+            aero,
+            s.yaw_rate.abs() * s.speed,
+            if self.assists { 0.97 } else { 1.15 },
+        );
         let acceleration = if s.pit_limiter && s.speed >= self.pit.limit {
             0.
         } else {
-            raw_accel.min(traction * combined)
+            forces.drive
         };
         let resistance = spec.drag * s.speed * s.speed / spec.mass
             + 0.30
@@ -429,13 +443,8 @@ impl Simulation {
             } else {
                 0.
             };
-        s.speed = (s.speed
-            + (acceleration
-                - brake * spec.brake.min(grip * 1.15) * combined
-                - resistance
-                - grade_gravity)
-                * dt)
-            .max(0.);
+        s.speed =
+            (s.speed + (acceleration - forces.brake - resistance - grade_gravity) * dt).max(0.);
         let max_angle = spec.steer / (1. + s.speed * if classic { 0.045 } else { 0.038 });
         let desired_yaw = s.speed
             / crate::car_shapes::layout(self.era).map_or(3.1, |l| l.front - l.rear)
@@ -444,7 +453,7 @@ impl Simulation {
             s,
             &mut self.rear_memory,
             dynamics::RearInput {
-                grip,
+                grip: forces.lateral_grip,
                 desired_yaw,
                 raw_accel,
                 throttle,
@@ -661,7 +670,7 @@ mod tests {
     }
     #[test]
     fn pit_stops_enter_service_and_exit_in_all_eras() {
-        for circuit in 0..10 {
+        for circuit in 0..tracks().len() {
             for era in 0..5 {
                 let mut sim = Simulation::new(circuit, era, 0, false, true);
                 let e = sim.pit.points[0];
@@ -739,7 +748,7 @@ mod tests {
     #[test]
     fn ten_tracks_are_closed_and_sensible() {
         let t = tracks();
-        assert_eq!(t.len(), 10);
+        assert_eq!(t.len(), 13);
         for x in t {
             assert!(x.points.len() > 400);
             assert!(x.length > 3000.);
@@ -782,7 +791,7 @@ mod tests {
     }
     #[test]
     fn actual_simulation_hits_barriers_instead_of_crossing_them() {
-        for track in 0..10 {
+        for track in 0..tracks().len() {
             let mut sim = Simulation::new(track, 2, 0, false, true);
             let b = sim.venue.barriers[0].clone();
             let dx = b.b[0] - b.a[0];
@@ -902,6 +911,7 @@ mod tests {
         sim.track = Track {
             name: "straight test".into(),
             ground_heights: vec![0.; 7],
+            banking: vec![],
             length: 600.,
             width: 10.,
             points: vec![

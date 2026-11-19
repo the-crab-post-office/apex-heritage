@@ -367,6 +367,17 @@ p {
 .flag-de {
   background: linear-gradient(#202020 33%, #c95042 33% 66%, #e6bd45 66%);
 }
+.flag-ae {
+  background:
+    linear-gradient(90deg, #d63b37 25%, transparent 25%),
+    linear-gradient(#328361 33%, #eee 33% 66%, #222 66%);
+}
+.flag-nl {
+  background: linear-gradient(#b73f39 33%, #eee 33% 66%, #334e8a 66%);
+}
+.flag-az {
+  background: linear-gradient(#48a6c5 33%, #d04b4d 33% 66%, #419269 66%);
+}
 .flag-ca {
   background: linear-gradient(90deg, #d9443d 25%, #eee 25% 75%, #d9443d 75%);
 }

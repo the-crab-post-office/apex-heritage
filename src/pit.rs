@@ -108,6 +108,7 @@ impl PitLane {
             points: self.points.iter().map(|p| [p[0], p[2]]).collect(),
             heights: self.points.iter().map(|p| p[1]).collect(),
             ground_heights: self.points.iter().map(|p| p[1]).collect(),
+            banking: vec![],
             terrain: None,
         }
     }

@@ -3,7 +3,7 @@
 Requires requests, rasterio, numpy, Pillow. No runtime network calls or API keys.
 Source metadata + projection are retained; full 100 km tiles are never downloaded.
 """
-import json,math,concurrent.futures
+import json,math,concurrent.futures,sys
 from pathlib import Path
 import requests,numpy as np,rasterio
 from rasterio.vrt import WarpedVRT
@@ -12,7 +12,8 @@ from rasterio.transform import from_bounds
 from PIL import Image
 ROOT=Path(__file__).resolve().parent.parent
 OUT=ROOT/'web/assets/imagery';OUT.mkdir(parents=True,exist_ok=True)
-tracks=json.loads((ROOT/'data/tracks.json').read_text())
+tracks=json.loads((ROOT/'data/tracks.json').read_text());selected=set(sys.argv[1:])
+if selected:tracks=[t for t in tracks if t['id']in selected]
 def fetch(t):
  o=t['origin'];lon=o['longitude'];lat=o['latitude'];xs=[p[0]for p in t['points']];zs=[p[1]for p in t['points']];pad=480
  x0=min(xs)-pad;x1=max(xs)+pad;z0=min(zs)-pad;z1=max(zs)+pad
@@ -40,5 +41,6 @@ def fetch(t):
  result={'id':t['id'],'file':name,'bounds':[x0,z0,x1,z1],'width':512,'height':512,'source_resolution_m':10,'scene':f['id'],'datetime':f['properties']['datetime'],'source_url':f['assets']['visual']['href'],'catalog_url':f'https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/{f["id"]}','tile_cloud_cover_percent':f['properties'].get('eo:cloud_cover'),'bright_pixel_fraction':round(float(cloud),5),'forest_grid_size':64,'forest_mask':''.join('1'if x else'0'for x in forest.flat)}
  print(t['name'],f['id'],'cloud/bright',round(float(cloud),4),'forest',int(forest.sum()),flush=True);return result
 with concurrent.futures.ThreadPoolExecutor(max_workers=3)as pool:results=list(pool.map(fetch,tracks))
+if selected:results=[t for t in json.loads((ROOT/'data/imagery.json').read_text())['tracks']if t['id']not in selected]+results
 manifest={'attribution':'Contains modified Copernicus Sentinel data 2025; processed by APEX / HERITAGE. COG distribution: Element 84 Earth Search / AWS.','license':'https://sentinels.copernicus.eu/documents/247904/690755/Sentinel_Data_Legal_Notice','processing':'Georeferenced 10 m Sentinel-2 Level-2A true-colour COG crops; reprojected to local track metres, bilinear resampling, JPEG compression. Dark-green threshold is only an approximate vegetation guide. Not drone photography, photogrammetry, LiDAR, road surveys or historical-period imagery.','tracks':results}
 (ROOT/'data/imagery.json').write_text(json.dumps(manifest,separators=(',',':'),ensure_ascii=False))

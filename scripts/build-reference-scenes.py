@@ -92,5 +92,7 @@ for row,side in enumerate([-1,1]):
                 quad(s,[p,q,[q[k]+delta[k]for k in range(3)],[p[k]+delta[k]for k in range(3)]],'#e3e2d5','grid-paint')
             else:quad(s,[section(t,a,lo,.088),section(t,b,lo,.088),section(t,b,hi,.088),section(t,a,hi,.088)],'#e3e2d5','grid-paint')
 s['scope']='Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.'
+from expansion_scenes import append_scenes
+append_scenes(R,tracks,scenes)
 (R/'data/reference-scenes.json').write_text(json.dumps(dict(schema=1,scenes=scenes),separators=(',',':'))+'\n')
 print('Shared reference scenes:',[(s['track'],len(s['facets']))for s in scenes])

@@ -1,5 +1,5 @@
 {
-  "version": "0.15.0-preview.1",
+  "version": "0.16.0-preview.1",
   "inputs": {
     "data/car-shapes.json": "1bd46d6324b6bb55ad58cbfb31b9d7a0c2a722536e08a9cc90eae1aeda25e81b",
     "data/car-variants.json": "f75645be8cc6cd17d14f59a209f74a9dfe87da76ae9651d6e5f64fc394f07a0f",

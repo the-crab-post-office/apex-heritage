@@ -1,6 +1,6 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.15.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.16.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
 
@@ -12,6 +12,18 @@ Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Ma
 - GitHub Pages serves the built **`gh-pages` branch**, root folder. Source stays on `main`; release tags retain their original contents. The main branch includes the 0.13 full-grid car and tyre-force update, with project-subpath hosting support.
 - Rebuild with `npm ci && bash scripts/build-web.sh` (Rust/WASM tooling required); publish using `python3 scripts/deploy-pages.py` with your own Git credentials. No token is stored in source, deployed assets or Git remotes. GitHub Pages ignores `_headers`; the explicit no-store manifest fetch and bounded build compatibility checks are retained, but CDN propagation can briefly delay a new deployment.
 - Workspace budget: `python3 scripts/workspace-budget.py`. Rebuildable toolchains/caches can live outside `/home/user`; they are ephemeral and may need reinstalling after a sandbox restart. The project and active preview remain local; large release ZIPs are published to GitHub and indexed without keeping redundant copies in the workspace.
+
+## 0.16 — braking authority / Abu Dhabi, Zandvoort and Baku
+
+- **Brake priority:** full braking suppresses engine thrust even if W/RT/touch throttle stays held. Brakes no longer lose nearly all authority at the cornering limit: tyre force goes to braking first, reducing available cornering grip and widening the line. Aero-supported load improves high-speed braking; wet and partial-pedal stops remain longer. Shared Rust model in web/WASM and native. Fresh lap-record namespace preserves, rather than deletes, old records.
+- **13 selectable circuits**, including modern **Yas Marina (Abu Dhabi)**, **Zandvoort** and **Baku**. Both clients and geographic menu filters use the full roster, not a hard-coded ten-track limit. New venues are explicitly modern-layout substitutes for all five car eras; existing ten circuit/layout/surface records remain unchanged.
+- **Yas Marina:** post-2021 T5/T9/hotel layout, turquoise margins, estimated 5% T9 camber, mapped pit route/underpass, twin hotel wings from OSM building-part outlines with original rounded lattice skins and raised connecting walkway, approximate marina.
+- **Zandvoort:** dune context, separate corner kerbs/gravel, smoothly blended ~18° T3/T14 cross-slopes shared by actual road/kerb meshes, wheel support and car body roll. Linear cross-slopes approximate—not reproduce—the real variable bowl. Raised apron edges use simplified earth retaining faces, not surveyed dune transitions. Not calibrated 3D banked-corner physics.
+- **Baku:** mapped street layout and buildings, rising Old City corridor, mapped thin castle-side wall footprint with original turret/crenellations, long shoreline straight and approximate Caspian context. Constant 8 m playable road does **not** reproduce the real much wider straights.
+- Real photographic research and retained map/height/satellite sources: `data/expansion-references.json`, `data/expansion-map-source.json`, `data/expansion-hotel-source.json`, `data/EXPANSION-NOTICE.md`. GLO-30 is unavailable for Baku in the public bucket; its elevation is explicitly **GLO-90**, not mislabeled 30 m. No stock-photo pixels are redistributed, no scans/surveys or exact architecture claimed.
+- **[Six actual new-circuit views and measured in-game stopping rigs](https://the-crab-post-office.github.io/apex-heritage/new-circuits.html)**. Existing photo/car/Spa–Monaco report pages are refreshed for the current build.
+
+Offline reproduction: `python3 scripts/build-expansion.py`; elevation/corner/reference-scene generators; `bash scripts/build-web.sh`; serve; `node scripts/capture-expansion.mjs`; `python3 scripts/build-expansion-report.py`; rebuild distribution. Network import tools are optional, not runtime dependencies.
 
 ## 0.15 — Spa corner references / Monaco building tunnel
 

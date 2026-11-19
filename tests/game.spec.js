@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
       );
   });
 });
-test("ten circuits, geographic filters, car selection and persistent setup", async ({
+test("thirteen circuits, geographic filters, car selection and persistent setup", async ({
   page,
 }) => {
   test.setTimeout(240000);
@@ -20,15 +20,15 @@ test("ten circuits, geographic filters, car selection and persistent setup", asy
   // This test exercises setup DOM/storage, not 3D throughput. The separate
   // 114-switch showroom test renders every car and checks GPU disposal.
   await page.evaluate(() => cancelAnimationFrame(window.__showroom.animation));
-  await expect(page.locator(".track-card")).toHaveCount(10);
+  await expect(page.locator(".track-card")).toHaveCount(13);
   await page
     .getByRole("button", { name: "Select Monaco", exact: true })
     .click();
   await expect(page.locator("#hero-title")).toContainText("Monaco");
   await page.locator('[data-filter="World"]').click();
-  await expect(page.locator(".track-card")).toHaveCount(3);
+  await expect(page.locator(".track-card")).toHaveCount(5);
   await page.locator('[data-filter="Europe"]').click();
-  await expect(page.locator(".track-card")).toHaveCount(7);
+  await expect(page.locator(".track-card")).toHaveCount(8);
   for (let era = 0; era < 5; era++) {
     await page.locator(`[data-era="${era}"]`).click();
     await expect(page.locator("#team-select option")).toHaveCount(
@@ -210,7 +210,7 @@ test("mobile layout has touch controls and no horizontal overflow", async ({
   // This test exercises setup DOM/storage, not 3D throughput. The separate
   // 114-switch showroom test renders every car and checks GPU disposal.
   await page.evaluate(() => cancelAnimationFrame(window.__showroom.animation));
-  await expect(page.locator(".track-card")).toHaveCount(10);
+  await expect(page.locator(".track-card")).toHaveCount(13);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

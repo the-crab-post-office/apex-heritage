@@ -37,7 +37,7 @@ refs=[
  ('https://en.wikipedia.org/wiki/Circuit_Gilles_Villeneuve','Circuit Gilles-Villeneuve, May 29, 2018 SkySat (cropped).jpg',2018,'Island confines walls; stands cluster at Senna S and hairpin, with narrow escape strips. Circuit opened 1978.'),
  ('https://en.wikipedia.org/wiki/Hockenheimring','Hockenheimring, Hockenheim (P1100587).jpg',2023,'Motodrom stands form the stadium perimeter; current outside runoff differs from the former forest course.')]
 output=[]
-for ti,(t,pit,build,osm)in enumerate(zip(T,P,B,O)):
+for ti,(t,pit,build,osm)in enumerate(zip(T[:10],P[:10],B[:10],O[:10])):
  pts=t['points'];n=len(pts);w=t['width']/2;o=t['origin'];co=math.cos(math.radians(o['latitude']))
  project=lambda p:[round((p[0]-o['longitude'])*111320*co,3),round(-(p[1]-o['latitude'])*111320,3)]
  roadline=LineString(pts+[pts[0]]);road=roadline.buffer(w+.12);pitpoly=LineString([(p[0],p[2])for p in pit['points']]).buffer(pit['width']/2+.6)
@@ -138,4 +138,6 @@ from photo_track_refine import refine as refine_photo_audit
 refine_photo_audit(T,output)
 from spa_corner_reference import refine as refine_spa_corners
 refine_spa_corners(T,output)
+from expansion_context import append_details
+append_details(T,output,ROOT)
 (ROOT/'data/corner-details.json').write_text(json.dumps({'source':'Map/photo-referenced corner details. Historical SURFACING presets, not full historical road alignments. Every recent-layout substitution is labelled in-game. Geometry/kerb heights are approximate. OSM data © OpenStreetMap contributors, ODbL-1.0; Original scenery references are not redistributed; separately credited audit photos retain their individual licenses.','tracks':output},separators=(',',':')))

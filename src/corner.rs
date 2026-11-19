@@ -184,6 +184,7 @@ impl Details {
                 "asphalt" => (2, 0x666e70),
                 "red_paint" => (2, 0xb52b24),
                 "green_paint" => (2, 0x27814b),
+                "turquoise_paint" => (2, 0x25aaa8),
                 "white_paint" => (2, 0xe3e2d5),
                 _ => (3, 0x91a366),
             };
@@ -220,6 +221,45 @@ impl Details {
                         p: piece.map(|p| p.map(|v| v as f32)),
                         kind,
                         color,
+                    });
+                }
+            }
+        }
+        // Banked aprons may sit metres above the coarse unbanked terrain bed.
+        // Close exposed boundary edges with earth faces; otherwise the footprint
+        // cut reveals the sky through the space below the elevated apron.
+        if track.banking.iter().any(|b| b.abs() > 0.1) {
+            let mut edges: HashMap<([i32; 3], [i32; 3]), ([f32; 3], [f32; 3], usize)> =
+                HashMap::new();
+            for f in d.facets.iter().filter(|f| f.kind == 1 || f.kind == 2) {
+                for i in 0..3 {
+                    let (a, b) = (f.p[i], f.p[(i + 1) % 3]);
+                    let key = |p: [f32; 3]| p.map(|v| (v * 1000.).round() as i32);
+                    let (ka, kb) = (key(a), key(b));
+                    let k = if ka < kb { (ka, kb) } else { (kb, ka) };
+                    edges.entry(k).and_modify(|e| e.2 += 1).or_insert((a, b, 1));
+                }
+            }
+            for (a, b, count) in edges.into_values() {
+                if count != 1 {
+                    continue;
+                }
+                let lower = |p: [f32; 3]| {
+                    [
+                        p[0],
+                        (track.terrain_height(p[0], p[2]) - 2.).min(p[1]),
+                        p[2],
+                    ]
+                };
+                let (c, e) = (lower(a), lower(b));
+                if (a[1] - c[1]).max(b[1] - e[1]) < 0.1 {
+                    continue;
+                }
+                for p in [[a, b, c], [c, b, e]] {
+                    d.facets.push(Facet {
+                        p,
+                        kind: 1,
+                        color: 0xc1ad84,
                     });
                 }
             }
@@ -366,7 +406,12 @@ pub fn update_contact(t: &Track, d: &Details, s: &mut State, nearest: usize, era
     let right = (lifts[2] + lifts[3]) / 2.;
     let front = (lifts[0] + lifts[2]) / 2.;
     let rear = (lifts[1] + lifts[3]) / 2.;
-    let roll = ((right - left) / (2. * wheels[0].lateral.abs())).atan();
+    let bank = t.banking.get(nearest).copied().unwrap_or(0.);
+    let a = t.points[nearest];
+    let b = t.points[(nearest + 1) % t.points.len()];
+    let heading = (b[0] - a[0]).atan2(b[1] - a[1]);
+    let roll = ((right - left) / (2. * wheels[0].lateral.abs())).atan()
+        + bank.atan() * (s.yaw - heading).cos();
     let pitch = (-(front - rear) / (wheels[0].longitudinal - wheels[1].longitudinal)).atan();
     s.body_roll += (roll - s.body_roll) * (1. - (-dt * 18.).exp());
     s.kerb_pitch += (pitch - s.kerb_pitch) * (1. - (-dt * 18.).exp());
@@ -460,7 +505,9 @@ mod tests {
                     .kerbs
                     .iter()
                     .any(|k| (k.width - d.kerbs[0].width).abs() > 0.1));
-                if era > 0 && t.name != "Monaco" {
+                if era > 0
+                    && !["Monaco", "Yas Marina", "Zandvoort", "Baku"].contains(&t.name.as_str())
+                {
                     assert!(d.kerbs.iter().any(|k| k.height >= 0.13));
                 }
                 assert!(d
@@ -489,6 +536,7 @@ mod tests {
             ],
             heights: vec![0.; 7],
             ground_heights: vec![0.; 7],
+            banking: vec![],
             terrain: None,
         };
         for (high, expected) in [(0.075, false), (0.25, true)] {

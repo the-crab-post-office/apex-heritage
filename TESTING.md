@@ -1,4 +1,30 @@
-# Validation — 0.15.0-preview.1
+# Validation — 0.16.0-preview.1
+
+Branch `feature/braking-and-three-circuits`, based on main `e92c53d` (0.15). Scope: brake authority/pedal overlap and three photograph/map-guided modern circuits, preserving the earlier Spa/Monaco work.
+
+## Shared model and native renderer
+
+- **91 Rust/native tests passed**: 82 shared-library + 9 native-renderer tests (`artifacts/016-rust-final2.log`). Optimized native executable and release WASM compile successfully. Native suites verify every venue's finite/bounded batches, concrete foundations, exact corner-contact triangles and rendered terrain/pit exclusion for all 13 circuits.
+- Dedicated brake rigs check all five eras: absolute dry stops, 250 km/h high-speed authority, wet versus dry, half-pedal progression, full-throttle overlap and braking at the cornering limit. Rigs hold the fixed Monza start station/grade and reset position to isolate collisions/runoff. They are gameplay measurements, not real-car telemetry. 100–0 km/h dry values: 1967 32.48 m/2.37 s; 1988 23.98 m/1.78 s; 2004 20.32 m/1.52 s; 2023 18.85 m/1.41 s; 2021 18.53 m/1.38 s. Full throttle plus full brake matches brake alone.
+- Zandvoort's bank tests compare actual mesh cross-slopes with physical support, check tyre-height separation and body roll. Exposed banked apron edges now have earth retaining faces, not sky holes. These are simplified terrain closures, not surveyed dune transitions.
+
+## Offline geographic and browser evidence
+
+- **36 Python tests passed** (`artifacts/016-python-final2.log`): independent retained-source contracts, byte-identical original ten circuit/layout/surface records, deterministic offline rebuilding, road/pit/building exclusions, explicit 90 m Baku provenance and correct nearby castle-wall ID.
+- **139 Node tests passed** (`artifacts/016-node-final2.log`): full suite, with current-build checksums for all four self-contained report pages. The three older report pages were genuinely recaptured at 0.16 rather than relabelled historical images.
+- **Five new browser tests passed** (`artifacts/016-expansion-browser-final.log`): each new track selectable with actual rendered road audits, zero missing road/pit-overlap/terrain/overlay intrusions, modern substitution labels and trackside batches; real W+Space input into the released WASM model accelerates then fully stops with throttle suppressed; all six embedded images decode and filter without overflow at 390 px.
+- **Three optimized-native all-eight-camera/render/physics smokes passed**, one for each added venue (`artifacts/016-native-smoke-final.log`). Software rendering and shared physics remain finite and accelerate beyond the smoke threshold. This is not a hardware-GPU performance benchmark.
+- **24 preserved-feature browser cases passed**: 23 passed in the main batch, and the mobile menu case passed separately after its obsolete ten-track assertion was updated to thirteen (`artifacts/016-browser-regression.log`, `artifacts/016-mobile-final.log`). Together with the five new cases, **29 unique browser cases passed**. Coverage includes actual driving/braking/steering/pause/recovery, wet five-car AI, recording fallback, all 13 menu cards and geographic filters, mobile overflow, 2021 deep links, four offline report pages, all-era tyre pivots, historical/recent Spa surface isolation, all-era Eau Rouge and the Monaco over-road hotel with vehicle headroom. This was a focused regression batch, not a claim that every browser test in the repository was run.
+
+Six actual 1000 × 625 production views, not generated promotional artwork: Yas hotel/marina and Marsa; Zandvoort Hugenholtz and Luyendyk; Baku castle corridor and shoreline straight. `data/expansion-captures.json` retains camera/input/image hashes; `new-circuits.html` embeds all six without external dependencies. References/rights and important accuracy limits are recorded in `data/EXPANSION-NOTICE.md` and `data/expansion-references.json`.
+
+The initial Baku capture mistakenly used the distant palace courtyard wall. Final castle geometry instead uses thin mapped way 1502989778 at the actual T8/T9 corridor; the regression checks the mapped ID and proximity. No ordinary ground-building corridor filter was disabled. Reference photographs are not redistributed.
+
+New layouts remain labelled modern substitutes for every car era. Original ten circuit/layout/surface records are checksum-preserved, including older Spa surfaces and the existing all-era Eau Rouge treatment. Road widths remain constant authored estimates; Baku's real wider straights and Zandvoort's variable banking bowl are not reconstructed. Baku elevation is explicitly 90 m DSM rather than mislabelled 30 m. Hardware controller handling and hardware-GPU/mobile performance are not certified by headless/software-renderer tests.
+
+---
+
+# Archived validation — 0.15.0-preview.1
 
 Branch `feature/spa-corners-and-monaco-building`, based on published main `5426aa2` (0.14). User scope: recent Spa and labelled 2021 substitute only; modern Monaco building/tunnel for every era.
 

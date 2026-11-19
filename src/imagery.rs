@@ -26,7 +26,7 @@ pub fn forest_at(a: &Area, x: f32, z: f32) -> bool {
     let n = a.forest_grid_size;
     a.forest_mask.as_bytes()[(v * n as f32) as usize * n + (u * n as f32) as usize] == b'1'
 }
-pub const PHOTOS: [&[u8]; 10] = [
+pub const PHOTOS: [&[u8]; 13] = [
     include_bytes!("../web/assets/imagery/be-1925.jpg"),
     include_bytes!("../web/assets/imagery/mc-1929.jpg"),
     include_bytes!("../web/assets/imagery/it-1922.jpg"),
@@ -37,6 +37,9 @@ pub const PHOTOS: [&[u8]; 10] = [
     include_bytes!("../web/assets/imagery/de-1927.jpg"),
     include_bytes!("../web/assets/imagery/ca-1978.jpg"),
     include_bytes!("../web/assets/imagery/de-1932.jpg"),
+    include_bytes!("../web/assets/imagery/ae-2009.jpg"),
+    include_bytes!("../web/assets/imagery/nl-1948.jpg"),
+    include_bytes!("../web/assets/imagery/az-2016.jpg"),
 ];
 #[cfg(test)]
 mod tests {
@@ -44,7 +47,7 @@ mod tests {
     #[test]
     fn source_masks_and_images_cover_all_ten_tracks() {
         let a = areas();
-        assert_eq!(a.len(), 10);
+        assert_eq!(a.len(), crate::tracks().len());
         for (i, area) in a.iter().enumerate() {
             assert_eq!(area.forest_mask.len(), 64 * 64);
             assert!(PHOTOS[i].starts_with(&[255, 216]));

@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def read(path):return json.loads((ROOT/path).read_text())
 class VenueTests(unittest.TestCase):
  def test_all_ten_have_individually_mapped_facilities_and_labelled_era_presets(self):
-  venue=read('data/corner-details.json')['tracks'];self.assertEqual(len(venue),10);counts=[]
+  venue=read('data/corner-details.json')['tracks'];self.assertEqual(len(venue),len(read('data/tracks.json')));counts=[]
   for t,v in zip(read('data/tracks.json'),venue):
    self.assertEqual(t['id'],v['id']);self.assertGreaterEqual(len(v['grandstands']),2);self.assertGreater(len(v['barriers']),50);counts.append(len(v['grandstands']))
    self.assertTrue(v['inspected_photo']['url'].startswith('https://'))
@@ -24,7 +24,7 @@ class VenueTests(unittest.TestCase):
    for wall in v['barriers']:
     self.assertFalse(LineString([wall['a'],wall['b']]).buffer(wall['radius']).intersects(protected),t['name'])
    for stand in v['grandstands']:
-    self.assertFalse(Polygon(stand['footprint']).intersects(protected),t['name']);self.assertTrue(stand['osm_id']or v['name']=='Monaco')
+    self.assertFalse(Polygon(stand['footprint']).intersects(protected),t['name']);self.assertTrue(stand['osm_id']or v['name']in ['Monaco','Yas Marina','Zandvoort','Baku'])
  def test_stands_face_toward_track_and_use_the_mapped_rectangle_instead_of_equal_lap_spacing(self):
   for t,v in zip(read('data/tracks.json'),read('data/corner-details.json')['tracks']):
    for s in v['grandstands']:

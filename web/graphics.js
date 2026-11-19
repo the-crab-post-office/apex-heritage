@@ -1,4 +1,4 @@
-import { addReferenceScene } from "./reference-scene.js";
+import { addReferenceScene, referenceGroundMask } from "./reference-scene.js";
 import { advanceWheel, steeringAngle } from "./wheel-motion.js";
 import piscine from "../data/monaco-piscine.json";
 import { cameraRig } from "./cameras.js";
@@ -240,7 +240,21 @@ export class World {
     return mesh;
   }
   buildTrack() {
-    const groundMat = this.surfaces.pbr("Grass004", "#d5dcba", 0.38);
+    const groundMat = this.surfaces.pbr(
+      ["AE", "NL"].includes(this.track.code)
+        ? "Gravel001"
+        : this.track.code === "AZ"
+          ? "Concrete023"
+          : "Grass004",
+      this.track.code === "AE"
+        ? "#e9dbb3"
+        : this.track.code === "NL"
+          ? "#d4c79c"
+          : this.track.code === "AZ"
+            ? "#d1c8b5"
+            : "#d5dcba",
+      0.38,
+    );
     groundMat.name = "metre-scale-grass-not-satellite";
     const xs = this.track.points.map((p) => p[0]),
       zs = this.track.points.map((p) => p[1]);
@@ -285,8 +299,10 @@ export class World {
             piscine.terrain_mask.map((t) => t.map(([x, z]) => [x, 0, z])),
           )
         : null;
+    const referenceMask = referenceGroundMask(this.track);
+    const baseTriangles = scenicMask ? scenicMask.cutAll(triangles) : triangles;
     const dryTriangles = cornerMask.cutAll(
-      scenicMask ? scenicMask.cutAll(triangles) : triangles,
+      referenceMask ? referenceMask.cutAll(baseTriangles) : baseTriangles,
     );
     const ground = this.surfaceMesh(
       this.pitMask
@@ -379,7 +395,11 @@ export class World {
               : roadMask.cutAll(triangles),
           ),
           this.surfaces.pbr(
-            this.track.code === "MC" ? "Concrete023" : "Grass004",
+            ["MC", "AZ"].includes(this.track.code)
+              ? "Concrete023"
+              : ["AE", "NL"].includes(this.track.code)
+                ? "Gravel001"
+                : "Grass004",
             "#e0e0ce",
             0.3,
           ),
@@ -689,7 +709,7 @@ export class World {
       this.config.quality === "high"
         ? forest
           ? 1500
-          : this.track.biome === "coast"
+          : ["coast", "dunes", "desert"].includes(this.track.biome)
             ? 120
             : 500
         : 180;
@@ -1298,7 +1318,11 @@ export class World {
           x = (a[0] + b[0]) / 2,
           z = (a[1] + b[1]) / 2;
         const expected =
-          (this.track.heights[i] + this.track.heights[j]) / 2 + 0.05;
+          (this.track.heights[i] + this.track.heights[j]) / 2 +
+          0.05 +
+          (((f * this.track.width) / 2) *
+            ((this.track.banking?.[i] || 0) + (this.track.banking?.[j] || 0))) /
+            2;
         ray.set(
           new THREE.Vector3(x, Math.max(...this.track.heights) + 100, z),
           new THREE.Vector3(0, -1, 0),

@@ -1,0 +1,112 @@
+{
+  "research_date": "2026-11-08",
+  "scope": "Modern layouts for every car; not historic reconstruction, surveyed widths, scans or telemetry",
+  "notice": "data/EXPANSION-NOTICE.md",
+  "photos": [
+    {
+      "track": "ae-2009",
+      "subject": "hotel",
+      "page": "https://www.dreamstime.com/royalty-free-stock-photos-yas-marina-formula-1-racetrack-image18037338",
+      "inspected_preview_sha256": "edb17302d529a8e3faae096603362d139c93f122d2078db4b3c8b58ccc482f90",
+      "observation": "Twin rounded glass/lattice wings and raised connection; pre/post-2021 date not established.",
+      "redistributed": false
+    },
+    {
+      "track": "ae-2009",
+      "subject": "pit straight",
+      "page": "https://www.gettyimages.com/photos/yas-island-aerial",
+      "inspected_preview_sha256": "7bc220e31a568a33844d1be4b4773f1438254cfde7293a89cf5c3d1235577f7f",
+      "observation": "Covered stands facing pit garages; dated 12 December 2021. Search title was not an aerial.",
+      "redistributed": false
+    },
+    {
+      "track": "nl-1948",
+      "subject": "Hugenholtz banking",
+      "page": "https://nl.motorsport.com/f1/news/in-beeld-nieuwe-hugenholtzbocht-circuit-zandvoort/4697858/",
+      "inspected_preview_sha256": "e0e2d0f74cf7d8a5e19b929c11e1d2e378b95874c0c6bff791584d4a52e950ba",
+      "observation": "Steep bank, short inside green strip, outside aggregate/gravel and catch fencing.",
+      "redistributed": false
+    },
+    {
+      "track": "az-2016",
+      "subject": "castle",
+      "page": "https://www.reddit.com/r/formula1/comments/4myxci/castle_wall_will_be_bakus_curve_9_apex/",
+      "inspected_preview_sha256": "fe1375bc0d51f50a716d223251d683380f6530ebf1d829426662861f16dec1c4",
+      "observation": "Crenellated pale wall/turret at rising narrow corridor; F1Fanatic credit visible. Original rights unresolved.",
+      "redistributed": false
+    }
+  ],
+  "engineering_sources": [
+    {
+      "track": "ae-2009",
+      "url": "https://driven-international.com/yas-marina-circuit-redesign",
+      "observations": "2021 T5/T9/hotel layout changes; 5% T9 camber; embedded image fetch blocked, not claimed inspected"
+    },
+    {
+      "track": "nl-1948",
+      "url": "https://studiodromo.it/portfolio/zandvoort/",
+      "observations": "T3/T14 banked corners; real variable bowl approximated with smoothly blended linear cross-slope"
+    },
+    {
+      "track": "az-2016",
+      "url": "https://www.redbull.com/in-en/baku-city-circuit-formula-racing-jehan-daruvala",
+      "observations": "Old City climb/narrow corridor and long shoreline straight"
+    }
+  ],
+  "excluded": [
+    "TrackTitan simulated Baku screenshot",
+    "Yas full-circuit rendering from PlanetF1",
+    "Blocked image URLs not treated as inspected photography"
+  ],
+  "baseline_release": "v0.15.0-preview.1 / 0bbf459",
+  "preserved_records_sha256": {
+    "data/tracks.json": {
+      "be-1925": "d47bb0057a1a50a30498ab0f2aa5608f5c7850c8742ec4da4de6e21af8356d75",
+      "mc-1929": "bd7b0ecf872aa903a9c2934f5d561d3ed31c9b379b04b52acfcf9fe94135c247",
+      "it-1922": "9de0b3a234607db6cacafb78010c8e492aa16afc2508ab3a80be95d4f7d8902e",
+      "gb-1948": "e47e3534b2eb6cbdb8e11b5f7f41fc60c19949b134485e87f2ee05d2d8855bd4",
+      "jp-1962": "4279fd61362248f78cdfd1b5c4d6a2c82f20d53a1d8f3e4889073d2ee6d5fae6",
+      "br-1940": "fb3f0365412548325e172694af55d5d3ea60fab7e0eb13ee302d7e59ea5dbae9",
+      "it-1953": "bc1f4da1d60fe379e719f090c33e1d2c94ca129d3ad27909b626165287449eb8",
+      "de-1927": "ff93fc7be95177178a1a1cba4f81aab95ac4e0520743b0ccfff69e263b195700",
+      "ca-1978": "7648e5f5e82ba74adc97c091a47d4528cb0d387d8ba7829351b94440d4d044d8",
+      "de-1932": "3d542b8e2a62672e955461156a124136056b22fb8f3e6f1c0fbcd49611af869b"
+    },
+    "data/corner-details.json": {
+      "be-1925": "47e0fa3d1eb6f0f1a4e6c8f1d05a52abb30cd079bff3fe337f5ae8720cbd0ac7",
+      "mc-1929": "f54f4f3e33b856b24e317e857660089c720c955467d3aa1ce09e598b99443e9c",
+      "it-1922": "1b9df9aa77c490dff40a403c8dfef19cb3541b5cfbed6033b2d5b770a39080ac",
+      "gb-1948": "8698714e4b7efb1126810ea7d03bd49c52c18b96337116065cf840712b47c12f",
+      "jp-1962": "e37eb4f08708f7fcac03148e883a22969d4901bec2521c3640699137ec6e263f",
+      "br-1940": "c762410d87e25a3bf300f3f30bc643b71dac49e050a43fa3667b7cb6981c0de4",
+      "it-1953": "42d4f979ba520294d7e75db66e8d4c80730a81267eb0fed1151fc2fe983f6be0",
+      "de-1927": "644d2f5042868b96373af06aa7174a1038b7aa7b582c3b3e77b3a851542358ba",
+      "ca-1978": "f769a2cc65347da5838c90eb1e658bb404f7e9f3b1f89e8122c7c845a3a4502e",
+      "de-1932": "011ad59182d2b2c557f8d9939ef6c21234daeffa19a56477d9aa0497ee9cb848"
+    },
+    "data/buildings.json": {
+      "be-1925": "bb56bbec28af20fc6a78d086fcc569271667cecdaa2bd0785ecfd8f9ed3ab224",
+      "mc-1929": "85755a949ad7cae9333c97ea8a1ee12e804c9fdfcc3031cd245c1550d4e27fc8",
+      "it-1922": "c780b29bb8e6d73dbd8aecef0aa5064f9b9ccb3c573ae062f525d7ef1ed798c1",
+      "gb-1948": "9e11088ac589e6cd99e1911ea6fbdf5ff6328b84013a7a945d991c5af288d6ad",
+      "jp-1962": "351e7d195cf6ddaa58c07c378ab334545fdeb06686dab7774828c00e5db7d102",
+      "br-1940": "c5d6be7eafd0ee768a06dd2c59e188b2b6e7ef1b9d6e1527b6e8944f97017944",
+      "it-1953": "11c3f910a7228818de5df9330d53399c025b8aa9c339b155f6d2c0f5e8271466",
+      "de-1927": "851374a49971ebcfdb986cfd3f01cde92f5efc7a9ba28c59f09846b961bd021f",
+      "ca-1978": "e48b6f701c3b2a2c39d0a74e7300ec7eb431160b2b3dcc851ba791694ef02c20",
+      "de-1932": "6654ff160b023164299c97d0ff21954e15b16d187dfbb1254f46d6174b15a5fb"
+    },
+    "data/pit-lanes.json": {
+      "be-1925": "d03c00abb255ac1775ce231b0e08f75313cdf9abce4bc004624add3ebdf870e5",
+      "mc-1929": "710bf72a95d5d0ceb586876e7dd264d9853da46ca167f43ee33aa4c30f71391f",
+      "it-1922": "43d4000ec1399bffcc5ddf6a7c48de24e53a119d4e850839b5cfad7894ab8d82",
+      "gb-1948": "97d04095516a14627723972b9213da2e9be84398222e4b5cf20cb4b5f0dfba1e",
+      "jp-1962": "725d54a5833118052cb3ce35746fd78bf6735eff0df46b9d3271d7603ffcdcb2",
+      "br-1940": "f5bf008c6f7127edf951968e1010c75240d3cd7e46bf5fbde60a4f024d397d55",
+      "it-1953": "2fbd356ea7d3a609c7a5fb56c9864174a62c90a5abcfe9640b100b4a69d83766",
+      "de-1927": "f6b369dae58150a407ea4bf0327f7af5745d40c0febfebe9f52b8bf28148ca5d",
+      "ca-1978": "7b4b345bbc699ec37e674639ff9777c9ccc7a8461dbf35e0664196e44c174033",
+      "de-1932": "ff5dcd7cb2276fa1229a04e7193becf270ec9322d5af99a95093e71187ca4f3c"
+    }
+  }
+}

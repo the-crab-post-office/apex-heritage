@@ -159,3 +159,9 @@ Modern Monaco Piscine uses a saved public OSM map API extract in `data/monaco-pi
 ## Spa / Monaco follow-up (0.15)
 
 Five user-provided images are reference-only; unknown original dates/rights, not redistributed. Filenames and SHA256: `data/spa-monaco-reference.json`. Original surface/paint/hotel/podium geometry: `scripts/spa_corner_reference.py`, `scripts/build-reference-scenes.py`, `data/reference-scenes.json`. Underlying mapped features remain © OpenStreetMap contributors, ODbL 1.0; Fairmont outline/courtyards and their provenance remain in `data/monaco-reference.json`. Scope, estimates and reproduction: `data/SPA-MONACO-REFERENCE-NOTICE.md`. The new HTML embeds game renders only.
+
+## Braking and three modern circuits (0.16)
+
+Source/rights/processing details: [EXPANSION-NOTICE.md](data/EXPANSION-NOTICE.md), [photo/engineering references](data/expansion-references.json) and retained compact geographic snapshots. New MIT source IDs: `ae-2009`, `nl-1948`, `az-2016`. Existing ten circuit records are unchanged. Real reference previews were inspected for the Yas hotel/pit roofs, Zandvoort Hugenholtz bank and Baku castle corridor; search-generated/simulator images and blocked image downloads were not treated as photographs. No stock images are redistributed. The separate licensed Sentinel crops remain georeferenced context/vegetation sources.
+
+Baku uses public GLO-90 because the GLO-30 tile is unavailable; exact COG URL/resolution are in its DEM record. New bank/camber/road widths, pit tunnel height, wall/turret dimensions, roof lattice, water outlines and temporary stand extents remain authored approximations. Modern layouts/facilities serve all car years with substitute labels. Brake allocation/era hardware/aero response are gameplay tuning, not measured or certified real-car brake performance.

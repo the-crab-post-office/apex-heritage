@@ -56,10 +56,18 @@ impl Track {
             let distance = (x - a[0] - dx * t).powi(2) + (z - a[1] - dz * t).powi(2);
             if distance < best {
                 best = distance;
-                let dh = self.heights[j] - self.heights[i];
+                let bank_a = self.banking.get(i).copied().unwrap_or(0.);
+                let bank_b = self.banking.get(j).copied().unwrap_or(0.);
+                let bank = bank_a + (bank_b - bank_a) * t;
+                let offset =
+                    ((x - a[0] - dx * t) * dz - (z - a[1] - dz * t) * dx) / d2.sqrt().max(0.001);
+                let dh = self.heights[j] - self.heights[i] + (bank_b - bank_a) * offset;
                 result = Surface {
-                    height: self.heights[i] + dh * t,
-                    grade: dh * (yaw.sin() * dx + yaw.cos() * dz) / d2.max(0.0001),
+                    height: self.heights[i]
+                        + (self.heights[j] - self.heights[i]) * t
+                        + bank * offset,
+                    grade: dh * (yaw.sin() * dx + yaw.cos() * dz) / d2.max(0.0001)
+                        + bank * (yaw.sin() * dz - yaw.cos() * dx) / d2.sqrt().max(0.001),
                     progress: ((i as f32 + t) / n as f32) % 1.,
                 };
             }

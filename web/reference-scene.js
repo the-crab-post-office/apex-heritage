@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { RoadMask } from "./road-surface.js";
 import data from "../data/reference-scenes.json";
 // These explicit overhead facets bypass no ordinary building exclusion. The
 // complete hotel floor stays above the existing tunnel's 4.65 m clear ceiling.
@@ -66,4 +67,12 @@ export function addReferenceScene(world) {
     clearance: source.clearance,
     eras: source.eras,
   };
+}
+
+export function referenceGroundMask(track) {
+  const scene = data.scenes.find((s) => s.track === track.name);
+  const triangles = (scene?.facets || [])
+    .filter((f) => f.tag === "water")
+    .map((f) => f.p.map(([x, y, z]) => [x, 0, z]));
+  return triangles.length ? new RoadMask(null, 0, triangles) : null;
 }

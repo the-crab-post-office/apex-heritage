@@ -7,7 +7,7 @@ TRACKS=json.loads((ROOT/'data/tracks.json').read_text());DEM=json.loads((ROOT/'d
 def index(track,lon,lat):return builder.nearest(track,builder.project(track,lon,lat))
 class GeographicElevationTests(unittest.TestCase):
  def test_every_circuit_is_sourced_and_regenerates_offline(self):
-  self.assertEqual(len(DEM['tracks']),10)
+  self.assertEqual(len(DEM['tracks']),len(TRACKS))
   for t in TRACKS:
    with self.subTest(track=t['name']):
     self.assertIn('Copernicus',t['elevation_source']);self.assertNotIn('profile_offset',t);self.assertNotIn('elevation_keys',t)

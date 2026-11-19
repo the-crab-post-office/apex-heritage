@@ -119,6 +119,7 @@ mod tests {
             ],
             heights: vec![0.; 7],
             ground_heights: vec![0.; 7],
+            banking: vec![],
             terrain: None,
         }
     }

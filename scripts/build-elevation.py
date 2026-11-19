@@ -58,7 +58,7 @@ def build(track,source,structures):
   corrections.append({'type':'photo-guided-climb','name':'Eau Rouge / Raidillon','start_index':ids[0],'compression_index':foot,'crest_index':ids[9],'end_index':ids[-1],'rise_metres':40.,'scope':'modern photo-guided complex for all eras, not a survey','source':'data/spa-reference.json'})
  heights=ground+lift;datum=float(ground.min())
  terrain={k:v for k,v in grid.items()if k!='array'};terrain['heights']=[round(float(v)-datum,3)for v in grid['array'].ravel()]
- track.update(heights=[round(float(v)-datum,4)for v in heights],ground_heights=[round(float(v)-datum,4)for v in ground],terrain=terrain,elevation=round(float(heights.max()-heights.min()),1),elevation_datum=round(datum,4),sea_level=round(-datum,4),water_level=round((float(np.percentile(source['altitudes'],5)) if track['code']=='CA' else 0)-datum,4),elevation_source='Georeferenced Copernicus GLO-30 DSM; filtered/road-corrected approximation, not surveyed road heights',road_corrections=corrections)
+ track.update(heights=[round(float(v)-datum,4)for v in heights],ground_heights=[round(float(v)-datum,4)for v in ground],terrain=terrain,elevation=round(float(heights.max()-heights.min()),1),elevation_datum=round(datum,4),sea_level=round(-datum,4),water_level=round((float(np.percentile(source['altitudes'],5)) if track['code']in ['CA','AZ'] else 0)-datum,4),elevation_source=f'Georeferenced Copernicus GLO-{source.get("resolution_m",30)} DSM; filtered/road-corrected approximation, not surveyed road heights',road_corrections=corrections)
  for key in ['profile_offset','elevation_keys']:track.pop(key,None)
  grade=float(np.max(np.abs(np.roll(heights,-1)-heights)/segment))
  if grade>.25:raise ValueError(f'{track["name"]}: implausible grade {grade}')

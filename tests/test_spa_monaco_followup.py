@@ -10,7 +10,7 @@ class FollowupTests(unittest.TestCase):
   hashes=read('data/spa-monaco-reference.json')['unchanged_profile_sha256'];after=read('data/corner-details.json')['tracks']
   for t in after:
    for profile in t['profiles']:
-    expected=hashes[t['id']].get(str(profile['year']))
+    expected=hashes.get(t['id'],{}).get(str(profile['year']))
     if expected:self.assertEqual(hashlib.sha256(json.dumps(profile,sort_keys=True,separators=(',',':')).encode()).hexdigest(),expected,(t['id'],profile['year']))
   self.assertIn('barriers',after[0]['profiles'][3]);self.assertNotIn('barriers',after[0]['profiles'][2])
   # A harmless latest-profile retessellation must not alter the user-selected

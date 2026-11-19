@@ -71,3 +71,15 @@ mod tests {
         assert!(for_track("Spa-Francorchamps", 4).is_some());
     }
 }
+
+/// Remove terrain beneath the explicit approximate water polygons in both clients.
+pub fn ground_mask(track: &crate::Track) -> crate::surface_mesh::RoadMask {
+    let triangles = scenes()
+        .iter()
+        .filter(|s| s.track == track.name)
+        .flat_map(|s| s.facets.iter())
+        .filter(|f| f.tag == "water")
+        .map(|f| f.p.map(|p| [p[0] as f64, 0., p[2] as f64]))
+        .collect();
+    crate::surface_mesh::RoadMask::from_triangles(triangles)
+}

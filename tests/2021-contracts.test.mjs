@@ -97,6 +97,9 @@ test("comparison embeds all licensed photos and actual captures with matching ch
 
 test("changed contact layouts separate lap records without deleting old setup or record data", () => {
   const main = fs.readFileSync("web/main.js", "utf8");
-  assert.equal((main.match(/apex-records-v14-wheel-layout/g) || []).length, 3);
+  assert.equal(
+    (main.match(/apex-records-v16-brake-priority/g) || []).length,
+    3,
+  );
   assert.ok(!main.includes('removeItem("apex-records-v8-full-grid")'));
 });
