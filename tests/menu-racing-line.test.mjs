@@ -62,26 +62,28 @@ test("all circuits and eras have finite, closed-loop braking envelopes; wet guid
 });
 test("line colours distinguish acceleration, lifting and braking without automatic steering", () => {
   assert.deepEqual(guideColour(20, 40, 40), [0.16, 0.95, 0.34]);
-  assert.deepEqual(guideColour(40, 40, 40), [1, 0.64, 0.04]);
+  assert.deepEqual(guideColour(42, 40, 40), [1, 0.64, 0.04]);
   assert.deepEqual(guideColour(50, 40, 40), [1, 0.1, 0.12]);
-  assert.deepEqual(guideColour(15, 40, 38), [1, 0.1, 0.12]);
+  assert.deepEqual(guideColour(15, 40, 38), [0.16, 0.95, 0.34]);
 });
 test("racing guide remains within pavement and follows authored bridge/tunnel/bank heights", () => {
   for (const t of tracks)
     for (let i = 0; i < t.points.length; i += 13)
       for (const offset of [-0.2, 0.2]) {
-        const p = roadPoint(t, i, offset, 0.095);
+        const lateral = racingGuide(t).path.offsets[i] + offset;
+        const p = roadPoint(t, i, lateral, 0.095);
         assert.ok(p.every(Number.isFinite));
         assert.ok(
           Math.abs(
-            Math.hypot(p[0] - t.points[i][0], p[2] - t.points[i][1]) - 0.2,
+            Math.hypot(p[0] - t.points[i][0], p[2] - t.points[i][1]) -
+              Math.abs(lateral),
           ) < 1e-8,
         );
         assert.ok(
           Math.abs(
-            p[1] - (t.heights[i] + 0.095 + offset * (t.banking?.[i] || 0)),
+            p[1] - (t.heights[i] + 0.095 + lateral * (t.banking?.[i] || 0)),
           ) < 1e-8,
         );
-        assert.ok(0.2 < t.width / 2);
+        assert.ok(Math.abs(lateral) < t.width / 2 - 1.1);
       }
 });

@@ -8,19 +8,25 @@ export class RacingLine {
       world.track,
       world.config.era,
       world.config.weather === "wet",
+      world.config.carSpec,
     );
     this.n = world.track.points.length;
     const positions = [],
       colours = [];
-    // A narrow centre-road ribbon stays within every circuit's legal width;
+    // An optimized bounded path uses the whole legal corridor;
     // road heights preserve the Suzuka crossing and Monaco tunnel branches.
     for (let k = 0; k < this.n * 2; k++) {
       const i = k % this.n,
         j = (i + 1) % this.n;
-      const a = roadPoint(world.track, i, -0.2, 0.095),
-        b = roadPoint(world.track, j, -0.2, 0.095),
-        c = roadPoint(world.track, i, 0.2, 0.095),
-        d = roadPoint(world.track, j, 0.2, 0.095);
+      const a = roadPoint(
+          world.track,
+          i,
+          this.guide.path.offsets[i] - 0.2,
+          0.095,
+        ),
+        b = roadPoint(world.track, j, this.guide.path.offsets[j] - 0.2, 0.095),
+        c = roadPoint(world.track, i, this.guide.path.offsets[i] + 0.2, 0.095),
+        d = roadPoint(world.track, j, this.guide.path.offsets[j] + 0.2, 0.095);
       // Taper the arrow head and leave a small gap between successive chevrons.
       const mid = (p, q, f) => p.map((v, k) => v + (q[k] - v) * f);
       const left = mid(a, b, 0.12),
@@ -50,6 +56,35 @@ export class RacingLine {
     world.scene.add(this.mesh);
     this.setVisible(world.config.racingLine !== false);
   }
+  auditSurface(stride = 11) {
+    this.world.scene.updateMatrixWorld(true);
+    const ray = new THREE.Raycaster(),
+      positions = this.mesh.geometry.attributes.position;
+    let samples = 0,
+      missing = 0,
+      minClearance = Infinity,
+      maxClearance = -Infinity;
+    for (let i = 0; i < this.n; i += stride)
+      for (let v = 0; v < 3; v++) {
+        const k = i * 3 + v,
+          x = positions.getX(k),
+          y = positions.getY(k),
+          z = positions.getZ(k);
+        ray.set(new THREE.Vector3(x, y + 0.5, z), new THREE.Vector3(0, -1, 0));
+        const hit = ray
+          .intersectObject(this.world.roadMesh)
+          .find((h) => Math.abs(y - h.point.y) < 0.4);
+        samples++;
+        if (!hit) {
+          missing++;
+          continue;
+        }
+        const clearance = y - hit.point.y;
+        minClearance = Math.min(minClearance, clearance);
+        maxClearance = Math.max(maxClearance, clearance);
+      }
+    return { samples, missing, minClearance, maxClearance };
+  }
   setVisible(on) {
     this.mesh.visible = Boolean(on);
   }
@@ -65,14 +100,22 @@ export class RacingLine {
       );
     this.mesh.geometry.setDrawRange(i * 3, count * 3);
     const c = this.mesh.geometry.attributes.color;
+    let distance = 0;
     for (let k = i; k < i + count; k++) {
       const idx = k % this.n,
         rgb = guideColour(
           Math.abs(state.speed),
           this.guide.targets[idx],
           this.guide.targets[(idx + 1) % this.n],
+          {
+            distance,
+            ds: this.guide.distances[idx],
+            decel: this.guide.brakeAt(this.guide.targets[idx]),
+            accel: this.guide.accelAt(Math.abs(state.speed)),
+          },
         );
       for (let v = 0; v < 3; v++) c.setXYZ(k * 3 + v, ...rgb);
+      distance += this.guide.distances[idx];
     }
     c.needsUpdate = true;
   }

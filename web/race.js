@@ -90,6 +90,7 @@ export class Race {
     this.pit = JSON.parse(this.sim.pit_geometry_json());
     this.world = new World($("#race-canvas"), track, {
       ...this.config,
+      carSpec: JSON.parse(this.sim.spec_json()),
       pit: this.pit,
       venue: JSON.parse(this.sim.venue_geometry_json()),
       details: JSON.parse(this.sim.corner_geometry_json()),
