@@ -11,8 +11,8 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23f35c35' d='M2 32 18 6h8L12 32zm17 0 10-17 9 17z'/%3E%3C/svg%3E"
       rel="icon"
     />
-    <script type="module" crossorigin src="./assets/index-Cwgk9NJB.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-B7hHWFeK.css">
+    <script type="module" crossorigin src="./assets/index-bEarXPK5.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BHsqVVhf.css">
   </head>
   <body>
     <div data-screen="home" id="app">
@@ -198,18 +198,39 @@
             <h1>Find your <em>circuit.</em></h1>
             <p>Thirteen mapped circuits. One place on the grid.</p>
           </div>
-          <div class="destination">
-            <div class="hero-map" id="hero-map"></div>
-            <div class="destination-name">
-              <div id="hero-country"></div>
-              <h3 id="hero-title"></h3>
-              <p hidden="" id="hero-tagline"></p>
-              <p class="layout-note" id="layout-note"></p>
+          <div class="track-stage" aria-label="Selected circuit photograph">
+            <img id="track-photo" alt="" />
+            <div class="track-stage-shade"></div>
+            <button id="track-details" class="stage-details">
+              CIRCUIT DETAILS ↗
+            </button>
+            <span class="stage-caption"
+              >THE WORLD TOUR / <b id="track-photo-count"></b
+            ></span>
+            <div class="destination">
+              <div class="hero-map" id="hero-map"></div>
+              <div class="destination-name">
+                <div id="hero-country"></div>
+                <h3 id="hero-title"></h3>
+                <p hidden="" id="hero-tagline"></p>
+                <p class="layout-note" id="layout-note"></p>
+              </div>
+              <div class="destination-stats">
+                <strong id="hero-length"></strong
+                ><span><b id="hero-turns"></b> CORNERS</span
+                ><span hidden="" id="hero-type"></span>
+              </div>
             </div>
-            <div class="destination-stats">
-              <strong id="hero-length"></strong
-              ><span><b id="hero-turns"></b> CORNERS</span
-              ><span hidden="" id="hero-type"></span>
+            <div class="track-photo-attribution">
+              <a id="track-photo-credit" target="_blank" rel="noopener"
+                >Photo credits ↗</a
+              >
+              <a id="track-photo-license" target="_blank" rel="noopener"
+                >License</a
+              >
+              <a href="./track-photos.html" target="_blank" rel="noopener"
+                >All credits ↗</a
+              >
             </div>
           </div>
           <section class="circuits-section" id="circuits-section">
@@ -229,7 +250,27 @@
                 ><button data-filter="World">Rest of the world</button>
               </div>
             </div>
-            <div class="track-grid" id="track-grid"></div>
+            <div class="selector-carousel">
+              <button
+                class="carousel-arrow"
+                id="track-previous"
+                aria-label="Previous circuit"
+              >
+                ‹
+              </button>
+              <div
+                class="track-grid"
+                id="track-grid"
+                aria-label="Circuit selection strip"
+              ></div>
+              <button
+                class="carousel-arrow"
+                id="track-next"
+                aria-label="Next circuit"
+              >
+                ›
+              </button>
+            </div>
           </section>
         </section>
         <section data-screen="team" hidden="">
@@ -264,11 +305,27 @@
                   <div class="collection-label">
                     CHOOSE YOUR CONSTRUCTOR <span id="team-counter"></span>
                   </div>
-                  <div
-                    aria-label="Season constructors"
-                    id="team-collection"
-                    role="group"
-                  ></div>
+                  <div class="selector-carousel">
+                    <button
+                      class="carousel-arrow"
+                      id="team-previous"
+                      aria-label="Previous team"
+                    >
+                      ‹
+                    </button>
+                    <div
+                      aria-label="Season constructors"
+                      id="team-collection"
+                      role="group"
+                    ></div>
+                    <button
+                      class="carousel-arrow"
+                      id="team-next"
+                      aria-label="Next team"
+                    >
+                      ›
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

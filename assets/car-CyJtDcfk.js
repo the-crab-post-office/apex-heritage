@@ -1,4 +1,4 @@
-import{e as F6}from"./index-Cwgk9NJB.js";/**
+import{e as F6}from"./index-bEarXPK5.js";/**
  * @license
  * Copyright 2010-2025 Three.js Authors
  * SPDX-License-Identifier: MIT
