@@ -1,3 +1,4 @@
+import { LapDelta, gaugeTelemetry, formatDelta } from "./driving-hud.js";
 import { startSequence, startDuration } from "./start-sequence.js";
 import { advanceWheel } from "./wheel-motion.js";
 import { RaceCameraControls } from "./race-camera-controls.js";
@@ -116,6 +117,8 @@ export class Race {
     this.accumulator = 0;
     this.lastTime = 0;
     this.lastHud = 0;
+    this.lapDelta = new LapDelta();
+    this.lapDelta.observe(this.state);
     this.lastBest = 0;
     this.lastLap = 1;
     this.messageUntil = 0;
@@ -186,7 +189,8 @@ export class Race {
         this.togglePause();
         return;
       }
-      if (e.target?.closest?.("select, input, textarea, button")) return;
+      if (e.target?.closest?.("select, input, textarea, button, summary"))
+        return;
       if (
         [
           "ArrowUp",
@@ -334,6 +338,7 @@ export class Race {
           this.accumulator -= 1 / 120;
         }
         this.state = JSON.parse(this.sim.state_json());
+        this.lapDelta.observe(this.state);
         this.updateAI(dt);
         this.checkLaps(time);
       }
@@ -471,6 +476,40 @@ export class Race {
     $("#hud-time").textContent = formatTime(s.lap_time || 0.001);
     $("#hud-best").textContent = formatTime(s.best);
     $("#hud-last").textContent = formatTime(s.last);
+    const delta = this.lapDelta.value(s),
+      gauge = gaugeTelemetry(s, this.config.era);
+    $("#hud-delta").textContent = formatDelta(delta);
+    $("#hud-delta").dataset.trend =
+      delta === null
+        ? "none"
+        : delta < -0.0005
+          ? "ahead"
+          : delta > 0.0005
+            ? "behind"
+            : "even";
+    $("#hud-delta-status").textContent =
+      s.invalid || !this.lapDelta.valid
+        ? "LAP INVALID"
+        : this.lapDelta.reference
+          ? "SESSION BEST"
+          : "SET A VALID LAP";
+    $("#hud-rpm").textContent = Math.round(gauge.rpm).toLocaleString("en-US");
+    $("#hud-gauge-speed").textContent = Math.round(gauge.speed);
+    $(".rpm-dial").style.setProperty("--needle", `${gauge.rpmAngle}deg`);
+    $(".rpm-dial").style.setProperty("--gauge-fill", gauge.rpmFraction * 100);
+    $(".speed-dial").style.setProperty("--needle", `${gauge.speedAngle}deg`);
+    $(".speed-dial").style.setProperty(
+      "--gauge-fill",
+      Math.min(100, gauge.speed / 4),
+    );
+    $("#hud-drs").textContent = gauge.drsLabel;
+    $("#hud-drs").dataset.active = String(gauge.drsActive);
+    $("#hud-drs").title =
+      gauge.drsLabel === "DRS N/A"
+        ? "DRS is not simulated in this build"
+        : gauge.drsLabel === "NO DRS"
+          ? "This era has no DRS"
+          : "DRS state from simulation";
     $("#throttle-bar").style.height = `${s.throttle * 100}%`;
     $("#brake-bar").style.height = `${s.brake * 100}%`;
     $("#invalid-label").hidden = !s.invalid;
@@ -592,6 +631,7 @@ export class Race {
     this.setCamera((this.world.cameraMode + 1) % CAMERAS.length);
   }
   recover() {
+    this.lapDelta.invalidate();
     this.sim.recover();
     this.state = JSON.parse(this.sim.state_json());
     this.world.cameraInitialized = false;

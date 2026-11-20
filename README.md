@@ -4,6 +4,16 @@
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
 
+## Sketch-led driving HUD (browser)
+
+- **Bottom centre:** steering-wheel-shaped instrument pod with live RPM and speed dials, digital km/h, gear, shift lights and pedal bars.
+- **Bottom left:** circuit map with player/opponent positions; map/data attribution remains visible.
+- **Top right:** two-part lap-time / delta-to-best timing box. The live delta compares time at the same track progress against the best complete valid lap trace from **this session**. It remains unavailable until a valid reference exists, and is suppressed on invalid/recovered/pit laps. Previously saved scalar lap times cannot supply a live distance-based comparison.
+- **DRS:** the strip is wired for an explicit active-state signal, but the current simulation does not implement DRS. Modern cars honestly show **DRS N/A**, older eras **NO DRS**; no fake activation, drag reduction or key binding is added.
+- **Pit & Session:** expandable secondary readouts keep pit practice/request/limiter, best/last times, elevation, build information and car details accessible without covering the road. Keyboard Space can expand the panel without braking. Mobile layouts retain touch controls in portrait and wider phone landscape.
+
+This is a browser HUD change, not a new driving/DRS physics model or native-client redesign. The menu, five-light launch and optional racing guide remain available.
+
 ## Cinematic menu selectors
 
 Menus now enter with short directional slide/fade transitions. Team selection uses a large, interactive rotating 3D car stage with a bottom constructor carousel; track selection uses a matching photographic stage and a bottom circuit carousel. Use the side arrows, Left/Right/Home/End keys while a selection tile is focused, or native touch/trackpad scrolling. The selected tile is centered smoothly and saved as before. Reduced-motion preferences disable entrance/selection motion and initial automatic rotation; manual camera/rotation controls remain available.

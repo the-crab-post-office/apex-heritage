@@ -23,6 +23,10 @@ const start = async (page) => {
   await page.waitForFunction(() => window.__apex?.race, null, {
     timeout: 90000,
   });
+  await expect(page.locator("#session-loading")).toBeHidden({ timeout: 90000 });
+  await page.waitForFunction(
+    () => window.__apex?.race?.animation !== undefined,
+  );
   await page.evaluate(() => {
     const r = window.__apex.race;
     r.paused = true;
@@ -51,7 +55,7 @@ const snapshot = async (page) =>
 test("FOV/distance, right-drag free-look, per-camera persistence, centering and mobile adjustments", async ({
   page,
 }) => {
-  test.setTimeout(180000);
+  test.setTimeout(process.env.APEX_SLOW_GPU ? 420000 : 180000);
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await configure(page);

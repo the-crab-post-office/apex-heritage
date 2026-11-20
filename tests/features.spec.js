@@ -98,6 +98,7 @@ test("actual WASM pit entry, marked-box stop, timed service and exit", async ({
   await page.waitForFunction(() => window.__apex?.race, null, {
     timeout: 90000,
   });
+  await page.locator("#hud-tools summary").click();
   await page.locator("#pit-practice").click();
   const entry = await page.evaluate(() => {
     const r = window.__apex.race;
