@@ -4,6 +4,12 @@
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
 
+## Cinematic menu selectors
+
+Menus now enter with short directional slide/fade transitions. Team selection uses a large, interactive rotating 3D car stage with a bottom constructor carousel; track selection uses a matching photographic stage and a bottom circuit carousel. Use the side arrows, Left/Right/Home/End keys while a selection tile is focused, or native touch/trackpad scrolling. The selected tile is centered smoothly and saved as before. Reduced-motion preferences disable entrance/selection motion and initial automatic rotation; manual camera/rotation controls remain available.
+
+All thirteen circuit photographs are bundled locally, with on-screen author/source/license links and an offline [photograph credits page](https://the-crab-post-office.github.io/apex-heritage/track-photos.html). Photos have varying capture dates and show venues, not necessarily the selected historical layout. No race HUD or driving physics changes are included in this menu update.
+
 ## Play / download / deploy
 
 - **Play:** https://the-crab-post-office.github.io/apex-heritage/

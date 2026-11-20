@@ -1,3 +1,4 @@
+import { revealMenu, wireCarousel, centerSelection } from "./menu-motion.js";
 export const SETUP_STEPS = ["mode", "era", "track", "team"];
 export function nextSetupScreen(screen) {
   const i = SETUP_STEPS.indexOf(screen);
@@ -13,6 +14,7 @@ export class MenuFlow {
     this.screen = "home";
     const $ = (s) => document.querySelector(s);
     this.$ = $;
+    $("#track-details").onclick = () => $("#view-circuit").click();
     $("#play-button").onclick = () => this.show("mode");
     $("#setup-next").onclick = () => this.show(nextSetupScreen(this.screen));
     $("#setup-back").onclick = () =>
@@ -20,20 +22,18 @@ export class MenuFlow {
     $("#setup-cancel").onclick = () => this.show("home");
     $("#garage-settings").onclick = () => $("#settings-button").click();
     $("#profile-records").onclick = onProfile;
-    document
-      .querySelectorAll("[data-nav]")
-      .forEach(
-        (b) =>
-          (b.onclick = () =>
-            this.show(
-              {
-                drive: "mode",
-                garage: "garage",
-                records: "profile",
-                cars: "cars",
-              }[b.dataset.nav],
-            )),
-      );
+    document.querySelectorAll("[data-nav]").forEach(
+      (b) =>
+        (b.onclick = () =>
+          this.show(
+            {
+              drive: "mode",
+              garage: "garage",
+              records: "profile",
+              cars: "cars",
+            }[b.dataset.nav],
+          )),
+    );
     $(".brand").onclick = (e) => {
       e.preventDefault();
       this.show("home");
@@ -47,11 +47,22 @@ export class MenuFlow {
         localStorage.setItem("apex-driver-name", e.target.value.trim());
       } catch {}
     };
+    this.syncTeamCarousel = wireCarousel(
+      $("#team-collection"),
+      $("#team-previous"),
+      $("#team-next"),
+    );
+    this.syncTrackCarousel = wireCarousel(
+      $("#track-grid"),
+      $("#track-previous"),
+      $("#track-next"),
+    );
     this.show("home", false);
   }
   show(screen, focus = true) {
     if (!["home", "garage", "profile", "cars", ...SETUP_STEPS].includes(screen))
       return;
+    const previous = this.screen;
     this.screen = screen;
     const $ = this.$,
       setup = SETUP_STEPS.includes(screen);
@@ -98,6 +109,25 @@ export class MenuFlow {
       else b.removeAttribute("aria-current");
     });
     this.sync();
+    if (previous !== screen) {
+      const direction =
+        SETUP_STEPS.indexOf(screen) >= SETUP_STEPS.indexOf(previous) ? 1 : -1;
+      revealMenu($(`section[data-screen="${screen}"]`), direction);
+      if (screen === "team") {
+        const rotate = $("#showroom-rotate");
+        if (
+          rotate.getAttribute("aria-pressed") === "false" &&
+          !matchMedia("(prefers-reduced-motion: reduce)").matches
+        )
+          rotate.click();
+      }
+    }
+    requestAnimationFrame(() =>
+      centerSelection(
+        screen === "track" ? $("#track-grid") : $("#team-collection"),
+        false,
+      ),
+    );
     if (focus) {
       window.scrollTo({ top: 0, behavior: "instant" });
       const heading = $(`section[data-screen="${screen}"] h1`);
@@ -126,6 +156,8 @@ export class MenuFlow {
           : this.screen === "track"
             ? `${track.name} · ${(track.length / 1000).toFixed(3)} km`
             : `${team.name} ${team.car} · ${track.name}`;
+    this.syncTeamCarousel?.();
+    this.syncTrackCarousel?.();
     $("#loading-track").textContent = track.name;
     $("#loading-car").textContent =
       `${era.year} / ${team.name} ${team.car} / ${mode}`;

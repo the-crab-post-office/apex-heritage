@@ -235,7 +235,8 @@ test("mobile layout has touch controls and no horizontal overflow", async ({
 
 test("elevation preview and master volume setting", async ({ page }) => {
   await page.goto("/");
-  await page.locator("#view-circuit").click();
+  await openSetup(page, "track");
+  await page.locator("#track-details").click();
   await expect(page.locator(".elevation-chart")).toContainText("103 m");
   await expect(page.locator(".elevation-chart svg")).toHaveAttribute(
     "aria-label",

@@ -1,0 +1,573 @@
+/* Cinematic selection stages. Shared race UI and light home rail stay isolated. */
+#app[data-screen="team"],
+#app[data-screen="track"] {
+  --text: #f2f3f8;
+  --line: #ffffff20;
+  background: #101119;
+  color: #f2f3f8;
+}
+#app:is([data-screen="team"], [data-screen="track"]) .menu-main {
+  background: radial-gradient(ellipse at 75% 32%, #20283d 0%, #101119 60%);
+}
+#app:is([data-screen="team"], [data-screen="track"]) .menu-top,
+#app:is([data-screen="team"], [data-screen="track"]) #setup-navigation {
+  border-color: #ffffff18;
+  color: #9b9eaf;
+}
+#app:is([data-screen="team"], [data-screen="track"]) #setup-back,
+#app:is([data-screen="team"], [data-screen="track"]) #setup-cancel {
+  color: #d4d7e3;
+}
+#app:is([data-screen="team"], [data-screen="track"]) .page-heading {
+  padding: 22px 0 18px;
+}
+#app:is([data-screen="team"], [data-screen="track"]) .page-heading h1 {
+  color: #fff;
+  font-size: clamp(30px, 3.3vw, 49px);
+  letter-spacing: -1.8px;
+}
+#app:is([data-screen="team"], [data-screen="track"]) .page-heading h1 em {
+  color: #ed3d4c;
+}
+#app:is([data-screen="team"], [data-screen="track"])
+  .page-heading
+  > p:last-child {
+  color: #a3a8ba;
+}
+#app:is([data-screen="team"], [data-screen="track"]) #setup-actions {
+  border-color: #ffffff20;
+  background: #101119ef;
+  padding: 16px 0;
+}
+#app:is([data-screen="team"], [data-screen="track"]) #setup-selection {
+  color: #b3b7c6;
+}
+#app:is([data-screen="team"], [data-screen="track"]) .menu-footer {
+  border-color: #ffffff18;
+  color: #8f95a9;
+  margin-top: 12px;
+}
+#app[data-screen="team"] .team-layout {
+  display: block;
+  position: relative;
+}
+#app[data-screen="team"] #hero {
+  padding: 20px 24px 0;
+  border: 1px solid #ffffff16;
+  border-bottom: 2px solid var(--team-accent);
+  background: radial-gradient(
+    ellipse at 68% 80%,
+    color-mix(in srgb, var(--team-accent) 20%, #171c2b),
+    #11131d 70%
+  );
+  overflow: hidden;
+}
+#app[data-screen="team"] .showroom-nameplate {
+  top: 65px;
+  left: 24px;
+}
+#app[data-screen="team"] #showroom-team {
+  color: #c7cbd9;
+  font-size: 12px;
+}
+#app[data-screen="team"] #showroom-model {
+  font-size: clamp(36px, 5vw, 70px);
+  color: #fff;
+  letter-spacing: -3px;
+}
+#app[data-screen="team"] #showroom-engine {
+  color: #a1a8bc;
+}
+#app[data-screen="team"] .collection-kicker,
+#app[data-screen="team"] #roster-count {
+  color: #99a3b7;
+}
+#app[data-screen="team"] .showroom-stage {
+  height: clamp(300px, 40vh, 460px);
+  min-height: 300px;
+}
+#app[data-screen="team"] .showroom-tools {
+  border-color: #ffffff20;
+  color: #949cb1;
+}
+#app[data-screen="team"] .showroom-tools button {
+  color: #c2c7d5;
+  border-color: #ffffff25;
+}
+#app[data-screen="team"] .team-picker {
+  padding: 16px 0 0;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 1fr;
+  gap: 8px 22px;
+  align-items: center;
+}
+#app[data-screen="team"] .team-picker > .field-label {
+  grid-column: 1/-1;
+  margin: 0;
+  color: #9fa6ba;
+}
+#app[data-screen="team"] .team-select-wrap {
+  background: #1c2030;
+  border-color: #34394d;
+  margin: 0;
+}
+#app[data-screen="team"] #team-select {
+  background: transparent;
+  color: #f2f3f8;
+}
+#app[data-screen="team"] .car-traits {
+  margin: 0;
+  justify-content: flex-end;
+}
+#app[data-screen="team"] .car-traits > span {
+  background: #24293b;
+  color: #c2c8d8;
+}
+#app[data-screen="team"] #team-picker-host {
+  grid-column: 1/-1;
+  min-width: 0;
+}
+#app[data-screen="team"] .team-collection {
+  padding-top: 4px;
+}
+#app[data-screen="team"] .collection-label {
+  color: #9da5bc;
+  letter-spacing: 1.5px;
+}
+.selector-carousel {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  gap: 10px;
+  align-items: stretch;
+  min-width: 0;
+}
+#app .carousel-arrow {
+  background: #242a3e;
+  color: #f1f3ff;
+  border: 1px solid #ffffff20;
+  font-size: 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    opacity 0.2s;
+}
+#app .carousel-arrow:hover:not(:disabled) {
+  background: #a51a2c;
+}
+#app .carousel-arrow:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+#app #team-collection,
+#app [data-screen="cars"] #team-collection {
+  display: flex;
+  gap: 10px;
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 12px;
+  padding: 6px 0 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #626d8d #171c2c;
+}
+#app .team-chip {
+  flex: 0 0 145px;
+  min-width: 0;
+  min-height: 87px;
+  scroll-snap-align: center;
+  padding: 17px 14px;
+  background: linear-gradient(135deg, #252b40, #171b29);
+  border: 1px solid #454b60;
+  border-top: 3px solid var(--paint);
+  border-left: 1px solid #454b60;
+  color: #f1f2f8;
+  position: relative;
+  transition:
+    background 0.25s,
+    border-color 0.25s,
+    transform 0.25s;
+}
+#app .team-chip::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 25px;
+  height: 25px;
+  background: var(--paint);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  opacity: 0.6;
+}
+#app .team-chip span {
+  font-size: 13px;
+  font-weight: 750;
+  display: block;
+}
+#app .team-chip small {
+  color: #a9b0c5;
+  font-size: 10px;
+  display: block;
+  margin-top: 7px;
+}
+#app .team-chip.selected {
+  background: linear-gradient(135deg, #7b1727, #2c1422);
+  border-color: #ff3b52;
+  box-shadow: inset 0 0 0 1px #ff3b52;
+}
+#app .team-chip.selected::before {
+  content: "✓";
+  position: absolute;
+  right: 7px;
+  top: 4px;
+  color: white;
+  font-size: 11px;
+}
+#app .team-chip:hover {
+  transform: translateY(-3px);
+  border-color: #e5e8f3;
+}
+#app button:focus-visible,
+#app a:focus-visible {
+  outline: 2px solid #5ce0f0;
+  outline-offset: 3px;
+}
+.track-stage {
+  height: clamp(300px, 43vh, 500px);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ffffff24;
+  background: #1a2030;
+  isolation: isolate;
+}
+#track-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+  display: block;
+}
+.track-stage-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, #090e1a 0%, #090e1a55 48%, transparent 80%);
+  pointer-events: none;
+}
+.stage-caption {
+  position: absolute;
+  top: 22px;
+  left: 24px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: white;
+  text-shadow: 0 1px 5px #000;
+}
+#app .track-stage .destination {
+  position: absolute;
+  bottom: 30px;
+  left: 24px;
+  right: 24px;
+  background: none;
+  border: 0;
+  padding: 0;
+  gap: 24px;
+  margin: 0;
+  align-items: center;
+}
+#app .track-stage .hero-map {
+  width: 120px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px #0008);
+}
+#app .track-stage #hero-country {
+  color: #e8ebf4;
+  font-size: 10px;
+}
+#app .track-stage #hero-title {
+  color: white;
+  font-size: clamp(23px, 3vw, 42px);
+  letter-spacing: -1px;
+  line-height: 1.12;
+}
+#app .track-stage #hero-title span {
+  color: #aab4c9;
+  font-size: 8px;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+#app .track-stage .layout-note {
+  color: #929fb8;
+  max-width: 580px;
+  font-size: 8px;
+  line-height: 1.4;
+}
+#app .track-stage .destination-stats {
+  color: #c1c8db;
+  border-color: #ffffff30;
+}
+#app .track-stage #hero-length {
+  color: white;
+}
+#track-photo-credit {
+  position: absolute;
+  bottom: 9px;
+  right: 16px;
+  left: 16px;
+  text-align: right;
+  font-size: 8px;
+  color: #b5bfd3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#app[data-screen="track"] .circuits-section {
+  padding-top: 15px;
+  margin: 0;
+}
+#app[data-screen="track"] .section-heading {
+  margin: 0 0 10px;
+}
+#app[data-screen="track"] .section-heading h2 {
+  font-size: 14px;
+  color: #c6cce0;
+  letter-spacing: 0;
+}
+#app[data-screen="track"] .section-num,
+#app[data-screen="track"] .count-chip {
+  display: none;
+}
+#app[data-screen="track"] .track-filters button {
+  color: #aab1c5;
+  border-color: #454c64;
+  background: #1e2333;
+}
+#app[data-screen="track"] .track-filters button.active {
+  background: #992239;
+  color: white;
+  border-color: #dc3850;
+}
+#app[data-screen="track"] #track-grid {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  max-width: 100%;
+  padding: 3px 0 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #626d8d #171c2c;
+}
+#app[data-screen="track"] .track-card {
+  flex: 0 0 180px;
+  scroll-snap-align: center;
+  background: #1e2436;
+  border: 1px solid #3c435a;
+  border-radius: 0;
+  color: white;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+#app[data-screen="track"] .track-card.selected {
+  border-color: #ff3b52;
+  box-shadow: inset 0 0 0 1px #ff3b52;
+  background: #3c1b2d;
+}
+#app[data-screen="track"] .track-card:hover {
+  transform: translateY(-2px);
+}
+#app[data-screen="track"] .track-art {
+  height: 65px;
+  background: linear-gradient(140deg, #ffffff06, #ffffff00);
+  padding: 7px;
+}
+#app[data-screen="track"] .track-art svg {
+  height: 56px;
+}
+#app[data-screen="track"] .track-art > span {
+  font-size: 8px;
+  color: #8f9ab5;
+}
+#app[data-screen="track"] .track-info {
+  padding: 9px 12px;
+}
+#app[data-screen="track"] .track-card h3 {
+  color: #f3f5fb;
+  font-size: 13px;
+  margin: 4px 0 6px;
+}
+#app[data-screen="track"] .track-location,
+#app[data-screen="track"] .track-meta {
+  color: #99a4c0;
+  font-size: 8px;
+}
+@media (min-width: 1101px) {
+  #app:is([data-screen="team"], [data-screen="track"]) {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+  #app:is([data-screen="team"], [data-screen="track"]) .menu-rail {
+    padding-left: 20px;
+    padding-right: 15px;
+  }
+  #app:is([data-screen="team"], [data-screen="track"]) .nav {
+    font-size: 21px;
+  }
+}
+@media (max-width: 700px) {
+  #app:is([data-screen="team"], [data-screen="track"]) {
+    display: block;
+  }
+  #app[data-screen="team"] #hero {
+    padding: 14px 12px 0;
+  }
+  #app[data-screen="team"] .showroom-nameplate {
+    top: 47px;
+    left: 12px;
+  }
+  #app[data-screen="team"] #showroom-model {
+    font-size: 35px;
+    letter-spacing: -1px;
+  }
+  #app[data-screen="team"] #showroom-team {
+    font-size: 9px;
+  }
+  #app[data-screen="team"] .showroom-stage {
+    height: 290px;
+    min-height: 290px;
+  }
+  #app[data-screen="team"] .showroom-tools {
+    gap: 8px;
+  }
+  #app[data-screen="team"] #showroom-status {
+    display: none;
+  }
+  #app[data-screen="team"] .team-picker {
+    grid-template-columns: 1fr;
+  }
+  #app[data-screen="team"] .car-traits {
+    justify-content: flex-start;
+  }
+  #app .team-chip {
+    flex-basis: 136px;
+    min-height: 80px;
+  }
+  .selector-carousel {
+    grid-template-columns: 27px minmax(0, 1fr) 27px;
+    gap: 6px;
+  }
+  #app .carousel-arrow {
+    font-size: 24px;
+  }
+  .track-stage {
+    height: 330px;
+  }
+  .stage-caption {
+    left: 15px;
+    top: 15px;
+    font-size: 8px;
+  }
+  #app .track-stage .destination {
+    left: 15px;
+    right: 15px;
+    bottom: 36px;
+    gap: 10px;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+  }
+  #app .track-stage .hero-map {
+    width: 65px;
+  }
+  #app .track-stage #hero-title {
+    font-size: 25px;
+  }
+  #app .track-stage .layout-note {
+    font-size: 7px;
+  }
+  #app[data-screen="track"] .section-heading {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  #app[data-screen="track"] .track-card {
+    flex-basis: 160px;
+  }
+  #app[data-screen="track"] #setup-actions,
+  #app[data-screen="team"] #setup-actions {
+    z-index: 7;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app *,
+  #app *::before,
+  #app *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Entrance translations must never widen the viewport, even mid-transition. */
+#app .menu-main {
+  overflow-x: clip;
+}
+#app .menu-rail .brand > div {
+  color: #202125;
+}
+.track-photo-attribution {
+  position: absolute;
+  bottom: 9px;
+  right: 16px;
+  left: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 8px;
+  color: #b5bfd3;
+  min-width: 0;
+}
+.track-photo-attribution a {
+  color: inherit;
+  white-space: nowrap;
+}
+.track-photo-attribution #track-photo-credit {
+  position: static;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 700px) {
+  .track-photo-attribution {
+    font-size: 7px;
+    gap: 7px;
+  }
+}
+#app .stage-details {
+  position: absolute;
+  right: 18px;
+  top: 15px;
+  background: #101524d9;
+  border: 1px solid #ffffff40;
+  color: white;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 10px;
+  cursor: pointer;
+}
+#app .stage-details:hover {
+  background: #a51c35;
+}
+#app:is([data-screen="team"], [data-screen="track"]) #setup-navigation li {
+  color: #858fa8;
+}
+#app:is([data-screen="team"], [data-screen="track"])
+  #setup-navigation
+  li.complete {
+  color: #bac3d7;
+}
+#app:is([data-screen="team"], [data-screen="track"])
+  #setup-navigation
+  li.current {
+  color: #ff4d64;
+}
+#app:is([data-screen="team"], [data-screen="track"]) #settings-button {
+  color: #bbc5db;
+}

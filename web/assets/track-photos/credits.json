@@ -1,0 +1,119 @@
+[
+  {
+    "id": "spa",
+    "source_page": "https://commons.wikimedia.org/wiki/File:2022_4_Hours_of_Spa-Francorchamps_-_Circuit.jpg",
+    "author": "United Autosports",
+    "license": "CC BY-SA 2.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "95de9f374a4c3d16b9ddfe05974a82bfe9358f7aca14ceae4b52997c639a6858"
+  },
+  {
+    "id": "monaco",
+    "source_page": "https://commons.wikimedia.org/wiki/File:Circuit_de_Monaco_-_Virage_de_la_Piscine_(54799391051).jpg",
+    "author": "crash71100",
+    "license": "CC0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "bbe80a443cbed9e91b98e39b08fd89f71cfb0e682122724bf87e55970fbccbc1"
+  },
+  {
+    "id": "monza",
+    "source_page": "https://commons.wikimedia.org/wiki/File:A_Sutil_Monza_2011.jpg",
+    "author": "Luca Barni",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "2153d1b90471de1c45466e573e6feb817f5279ba3526d2e3922325677a9783b3"
+  },
+  {
+    "id": "silverstone",
+    "source_page": "https://commons.wikimedia.org/wiki/File:Dempsey-Proton_Racing_Porsche_911_RSR_and_AMR_Vantage_GTE_Silverstone_2018.jpg",
+    "author": "John Chapman",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "eee82532d3fe44e2c4b476fd9a9ca6fe6c9b27ba118af84acbe0d645e38bb8e8"
+  },
+  {
+    "id": "suzuka",
+    "source_page": "https://commons.wikimedia.org/wiki/File:Suzuka_Circuit_(from_Hitachi_Automotive_Systems_Chicane_to_final_corner).jpg",
+    "author": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "b0f1eb1534e4da16af158d58ee2e8d4b1fb74211f0d35a804888496aab07a727"
+  },
+  {
+    "id": "interlagos",
+    "source_page": "https://commons.wikimedia.org/wiki/File:S_do_Senna,_Interlagos.jpg",
+    "author": "Audi do Brasil",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "d37cb6d1c99f24a55031da541e313575968b1630d9d9d49406b4573c84944fa4"
+  },
+  {
+    "id": "imola",
+    "source_page": "https://commons.wikimedia.org/wiki/File:WTCC08_Dino_ed_Enzo_Ferrari_Circuit_Imola.jpg",
+    "author": "by Grantuking",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "74d32021e02615abb87698094844087108f7bd7dca9259e25db598324e15d86e"
+  },
+  {
+    "id": "nurburgring",
+    "source_page": "https://commons.wikimedia.org/wiki/File:Mercedes-Arena_N%C3%BCrburgring.jpg",
+    "author": "No machine-readable author provided. AndyMcG assumed (based on copyright claims).",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "b1a92428b2883d5ae3f316cb8471db33e921c789315a4c298dacddb63ba4e427"
+  },
+  {
+    "id": "montreal",
+    "source_page": "https://commons.wikimedia.org/wiki/File:Circuit_Gilles_Villeneuve,_Montreal.jpg",
+    "author": "Maela Ohana",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "ebe68c9fbe8dd0e96318f46b610d5283ce273801b199582e2108535e349b307c"
+  },
+  {
+    "id": "hockenheim",
+    "source_page": "https://commons.wikimedia.org/wiki/File:2023-10-21_Motorsport,_Porsche_Carrera_Cup_Deutschland,_Hockenheimring_2023_1DX_3828.jpg",
+    "author": "Steffen Pr\u00f6\u00dfdorf",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "81252c483fe60799df46eb79771baac8016762b729ebefd047a5f54c6599774d"
+  },
+  {
+    "id": "yas",
+    "source_page": "https://commons.wikimedia.org/wiki/File:North_Grandstand_at_the_Yas_Marina_circuit_in_Abu_Dhabi.jpg",
+    "author": "TravelPhotosNL",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "89718ae8e3276bf095612fa87d15c81cc666a2f13149a2f3567190bfe8bfe207"
+  },
+  {
+    "id": "zandvoort",
+    "source_page": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Motorsport_race_track_Circuit_Zandvoort_Formula_one_(40889997713).jpg",
+    "author": "dronepicr",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "d03af31a71572fe9c79d5c539daa4751a02e802eebb3f91fb0e2d4481ca82798"
+  },
+  {
+    "id": "baku",
+    "source_page": "https://commons.wikimedia.org/wiki/File:Baku_City_Circuit,_April_9,_2018_SkySat.jpg",
+    "author": "Planet Labs, Inc.",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Resized and JPEG recompressed; displayed with responsive CSS cropping. Circuit selection photo, not an era-specific layout reference.",
+    "sha256": "600e8e2d4fbc3ddb534129f806e788e0969e6d2d56d049ebe1b27c5e2d02644e"
+  }
+]

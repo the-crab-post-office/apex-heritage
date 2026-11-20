@@ -1,3 +1,29 @@
+import { centerSelection, revealMenu } from "./menu-motion.js";
+import trackPhotoCredits from "./assets/track-photos/credits.json";
+const trackPhotoIds = [
+  "spa",
+  "monaco",
+  "monza",
+  "silverstone",
+  "suzuka",
+  "interlagos",
+  "imola",
+  "nurburgring",
+  "montreal",
+  "hockenheim",
+  "yas",
+  "zandvoort",
+  "baku",
+];
+const trackPhotos = Object.fromEntries(
+  Object.entries(
+    import.meta.glob("./assets/track-photos/*.jpg", {
+      eager: true,
+      query: "?url",
+      import: "default",
+    }),
+  ).map(([p, u]) => [p.split("/").pop().replace(".jpg", ""), u]),
+);
 import { MenuFlow } from "./menu-flow.js";
 import {
   freshBuildURL,
@@ -144,12 +170,20 @@ function updateShowroom() {
   $("#roster-count").textContent =
     `${era.year} / ${era.teams.length} CONSTRUCTORS`;
   $("#team-counter").textContent = `${config.team + 1} / ${era.teams.length}`;
-  $("#team-collection").innerHTML = era.teams
-    .map(
-      (t, i) =>
-        `<button class="team-chip ${i === config.team ? "selected" : ""}" data-team="${i}" aria-label="Select ${t.name} ${t.car}" aria-pressed="${i === config.team}" style="--paint:${t.color};--secondary:${t.secondary};--accent:${t.accent}"><span>${t.name}</span><small>${t.car}</small></button>`,
-    )
-    .join("");
+  if ($("#team-collection").dataset.rosterKey !== String(config.era)) {
+    $("#team-collection").dataset.rosterKey = String(config.era);
+    $("#team-collection").innerHTML = era.teams
+      .map(
+        (t, i) =>
+          `<button class="team-chip ${i === config.team ? "selected" : ""}" data-team="${i}" aria-label="Select ${t.name} ${t.car}" aria-pressed="${i === config.team}" style="--paint:${t.color};--secondary:${t.secondary};--accent:${t.accent}"><span>${t.name}</span><small>${t.car}</small></button>`,
+      )
+      .join("");
+  }
+  $$("[data-team]").forEach((b) => {
+    const selected = +b.dataset.team === config.team;
+    b.classList.toggle("selected", selected);
+    b.setAttribute("aria-pressed", String(selected));
+  });
   $$("[data-team]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -157,14 +191,16 @@ function updateShowroom() {
         $("#team-select").dispatchEvent(new Event("change"));
       }),
   );
-  const strip = $("#team-collection"),
-    chip = strip.querySelector(".selected");
-  if (chip)
-    strip.scrollLeft = Math.max(
-      0,
-      chip.offsetLeft - strip.clientWidth / 2 + chip.clientWidth / 2,
-    );
-  if (showroom) showroom.select(config.era, config.team);
+  centerSelection($("#team-collection"));
+  if (
+    document.activeElement === document.body &&
+    document.querySelector("#app").dataset.screen === "team"
+  )
+    $("#team-collection .selected")?.focus({ preventScroll: true });
+  if (showroom) {
+    showroom.select(config.era, config.team);
+    revealMenu($("#showroom-stage"));
+  }
   menuFlow?.sync();
 }
 function updateMachine() {
@@ -217,6 +253,27 @@ function updateLayoutNote() {
 function updateTrack() {
   updateLayoutNote();
   const t = tracks[config.track];
+  const photo = $("#track-photo"),
+    id = trackPhotoIds[config.track],
+    credit = trackPhotoCredits.find((c) => c.id === id);
+  if (photo.dataset.photoKey !== id) {
+    photo.dataset.photoKey = id;
+    photo.src = trackPhotos[id];
+    photo.alt = `${t.name} — circuit photograph`;
+    photo.onload = () => {
+      photo.dataset.loaded = "true";
+      revealMenu(photo);
+    };
+    photo.dataset.loaded = "false";
+    const link = $("#track-photo-credit");
+    link.href = credit.source_page;
+    link.textContent = `Photo: ${credit.author} ↗`;
+    link.title = credit.changes;
+    $("#track-photo-license").href = credit.license_url;
+    $("#track-photo-license").textContent = credit.license;
+  }
+  $("#track-photo-count").textContent =
+    `${String(config.track + 1).padStart(2, "0")} / 13`;
   $("#hero-country").innerHTML =
     `<span class="flag flag-${t.code.toLowerCase()}"></span> ${cities[config.track]}, ${t.country}`;
   $("#hero-title").innerHTML =
@@ -244,12 +301,31 @@ function renderTracks() {
           ? ["BE", "MC", "IT", "GB", "DE", "NL"].includes(t.code)
           : !["BE", "MC", "IT", "GB", "DE", "NL"].includes(t.code)),
     );
-  $("#track-grid").innerHTML = visible
-    .map(
-      (t) =>
-        `<button class="track-card ${t.index === config.track ? "selected" : ""}" data-track="${t.index}" data-biome="${t.biome}" aria-pressed="${t.index === config.track}" aria-label="Select ${t.name}"><div class="track-art"><span>${String(t.index + 1).padStart(2, "0")} /</span>${mapSVG(t, t.index === config.track ? "#f0b58f" : "#afc09b", 2.3)}${t.index === config.track ? '<b class="selected-check">✓</b>' : ""}</div><div class="track-info"><div class="track-location">${t.country}<span class="flag flag-${t.code.toLowerCase()}"></span></div><h3>${t.name}</h3><div class="track-meta">${(t.length / 1000).toFixed(3)} km<span></span>${t.turns} corners<i data-lucide="arrow-up-right"></i></div></div></button>`,
-    )
-    .join("");
+  if ($("#track-grid").dataset.filterKey !== filter) {
+    $("#track-grid").dataset.filterKey = filter;
+    $("#track-grid").innerHTML = visible
+      .map(
+        (t) =>
+          `<button class="track-card ${t.index === config.track ? "selected" : ""}" data-track="${t.index}" data-biome="${t.biome}" aria-pressed="${t.index === config.track}" aria-label="Select ${t.name}"><div class="track-art"><span>${String(t.index + 1).padStart(2, "0")} /</span>${mapSVG(t, t.index === config.track ? "#f0b58f" : "#afc09b", 2.3)}${t.index === config.track ? '<b class="selected-check">✓</b>' : ""}</div><div class="track-info"><div class="track-location">${t.country}<span class="flag flag-${t.code.toLowerCase()}"></span></div><h3>${t.name}</h3><div class="track-meta">${(t.length / 1000).toFixed(3)} km<span></span>${t.turns} corners<i data-lucide="arrow-up-right"></i></div></div></button>`,
+      )
+      .join("");
+  }
+  $$("[data-track]").forEach((b) => {
+    const selected = +b.dataset.track === config.track;
+    b.classList.toggle("selected", selected);
+    b.setAttribute("aria-pressed", String(selected));
+    b.querySelectorAll("svg path,svg polyline,svg polygon").forEach((p) =>
+      p.setAttribute("stroke", selected ? "#f0b58f" : "#afc09b"),
+    );
+    b.querySelector(".selected-check")?.remove();
+    if (selected) {
+      const check = document.createElement("b");
+      check.className = "selected-check";
+      check.textContent = "✓";
+      b.querySelector(".track-art").append(check);
+    }
+  });
+  centerSelection($("#track-grid"));
   $$("[data-track]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -606,6 +682,10 @@ import("./showroom.js")
   .then(({ Showroom }) => {
     showroom = new Showroom($("#showroom-stage"));
     window.__showroom = showroom;
+    $("#showroom-rotate").setAttribute(
+      "aria-pressed",
+      String(showroom.controls.autoRotate),
+    );
     updateShowroom();
   })
   .catch((error) => {
