@@ -1,0 +1,798 @@
+{
+  "version": "0.17.0-preview.1",
+  "scope": "Real released-WASM era-5 construction/finite driving, all eleven launch atlases and twenty-two specials; all thirteen race worlds. Sampled audits, not full driven laps or exhaustive hardware certification.",
+  "wasm_sha256": "7823e6307ddc8e763817c8c9e3f5c445b318b2c6ee3b549b9aea3fc28f33cec8",
+  "cars": 11,
+  "specials": 22,
+  "tracks": [
+    {
+      "name": "Spa-Francorchamps",
+      "finish": {
+        "track": "Spa-Francorchamps",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 23,
+        "posts": 200,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.844196,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 350,
+        "maxIntrusion": 0,
+        "maxCenterError": 3.002674432650565e-06
+      },
+      "pit": {
+        "samples": 36,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 1400,
+        "missing": []
+      },
+      "reference": {
+        "facets": 174,
+        "eras": [
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "name": "Monaco",
+      "finish": {
+        "track": "Monaco",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 20,
+        "posts": 86,
+        "drawCalls": 4,
+        "streetDrainage": true
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.782759,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 170,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.471806360342498e-06
+      },
+      "pit": {
+        "samples": 30,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 680,
+        "missing": [
+          {
+            "station": 500,
+            "offset": 26
+          },
+          {
+            "station": 500,
+            "offset": 36
+          },
+          {
+            "station": 500,
+            "offset": 42.9
+          },
+          {
+            "station": 500,
+            "offset": 43.1
+          },
+          {
+            "station": 500,
+            "offset": 48
+          },
+          {
+            "station": 520,
+            "offset": -26
+          },
+          {
+            "station": 520,
+            "offset": -36
+          },
+          {
+            "station": 520,
+            "offset": -42.9
+          },
+          {
+            "station": 520,
+            "offset": -43.1
+          },
+          {
+            "station": 520,
+            "offset": 26
+          },
+          {
+            "station": 520,
+            "offset": 36
+          },
+          {
+            "station": 520,
+            "offset": 42.9
+          },
+          {
+            "station": 520,
+            "offset": 43.1
+          },
+          {
+            "station": 520,
+            "offset": 48
+          },
+          {
+            "station": 540,
+            "offset": -36
+          },
+          {
+            "station": 540,
+            "offset": -42.9
+          },
+          {
+            "station": 540,
+            "offset": -43.1
+          },
+          {
+            "station": 540,
+            "offset": -48
+          },
+          {
+            "station": 540,
+            "offset": 36
+          },
+          {
+            "station": 540,
+            "offset": 42.9
+          },
+          {
+            "station": 540,
+            "offset": 43.1
+          },
+          {
+            "station": 540,
+            "offset": 48
+          },
+          {
+            "station": 560,
+            "offset": 36
+          },
+          {
+            "station": 560,
+            "offset": 42.9
+          },
+          {
+            "station": 560,
+            "offset": 43.1
+          },
+          {
+            "station": 560,
+            "offset": 48
+          },
+          {
+            "station": 640,
+            "offset": -36
+          },
+          {
+            "station": 660,
+            "offset": -42.9
+          },
+          {
+            "station": 660,
+            "offset": -43.1
+          },
+          {
+            "station": 660,
+            "offset": -48
+          }
+        ]
+      },
+      "reference": {
+        "covered": 32,
+        "blocked": 0,
+        "minClearance": 4.761200253295899
+      }
+    },
+    {
+      "name": "Monza",
+      "finish": {
+        "track": "Monza",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 13,
+        "posts": 155,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.73922,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 290,
+        "maxIntrusion": 0,
+        "maxCenterError": 9.394697570996868e-07
+      },
+      "pit": {
+        "samples": 39,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 1160,
+        "missing": []
+      }
+    },
+    {
+      "name": "Silverstone",
+      "finish": {
+        "track": "Silverstone",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 24,
+        "posts": 173,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.73147,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 295,
+        "maxIntrusion": 0,
+        "maxCenterError": 4.514069544825361e-07
+      },
+      "pit": {
+        "samples": 57,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 1180,
+        "missing": []
+      }
+    },
+    {
+      "name": "Suzuka",
+      "finish": {
+        "track": "Suzuka",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 24,
+        "posts": 154,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 18.52677,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 295,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.6018922508465039e-06
+      },
+      "pit": {
+        "samples": 45,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 1180,
+        "missing": [
+          {
+            "station": 380,
+            "offset": 8
+          }
+        ]
+      }
+    },
+    {
+      "name": "Interlagos",
+      "finish": {
+        "track": "Interlagos",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 22,
+        "posts": 117,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.779482,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 215,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.3758024763887988e-06
+      },
+      "pit": {
+        "samples": 72,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 860,
+        "missing": []
+      }
+    },
+    {
+      "name": "Imola",
+      "finish": {
+        "track": "Imola",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 16,
+        "posts": 127,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.879883,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 245,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.6192127247904864e-06
+      },
+      "pit": {
+        "samples": 54,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 980,
+        "missing": []
+      }
+    },
+    {
+      "name": "N\u00fcrburgring GP",
+      "finish": {
+        "track": "N\u00fcrburgring GP",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 20,
+        "posts": 132,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 18.026419,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 260,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.7755435735011815e-06
+      },
+      "pit": {
+        "samples": 48,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 1040,
+        "missing": []
+      }
+    },
+    {
+      "name": "Montr\u00e9al",
+      "finish": {
+        "track": "Montr\u00e9al",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 16,
+        "posts": 125,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.845592,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 220,
+        "maxIntrusion": 0,
+        "maxCenterError": 3.6313673490440124e-07
+      },
+      "pit": {
+        "samples": 42,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 880,
+        "missing": []
+      }
+    },
+    {
+      "name": "Hockenheim",
+      "finish": {
+        "track": "Hockenheim",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 17,
+        "posts": 132,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.815676,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 230,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.0248685899938437e-07
+      },
+      "pit": {
+        "samples": 45,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 920,
+        "missing": []
+      }
+    },
+    {
+      "name": "Yas Marina",
+      "finish": {
+        "track": "Yas Marina",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 17,
+        "posts": 140,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.694662,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 265,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.3759968080506724e-06
+      },
+      "pit": {
+        "samples": 57,
+        "intrusions": 0,
+        "missing": 0
+      },
+      "terrain": {
+        "samples": 1060,
+        "missing": []
+      },
+      "reference": {
+        "facets": 17931,
+        "eras": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "name": "Zandvoort",
+      "finish": {
+        "track": "Zandvoort",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 25,
+        "posts": 111,
+        "drawCalls": 3,
+        "streetDrainage": false
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.799122,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 215,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.3874564208649076e-06
+      },
+      "pit": {
+        "samples": 39,
+        "intrusions": 0,
+        "missing": 1
+      },
+      "terrain": {
+        "samples": 860,
+        "missing": []
+      },
+      "reference": {
+        "facets": 60,
+        "eras": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "name": "Baku",
+      "finish": {
+        "track": "Baku",
+        "era": 5,
+        "bankConforming": true,
+        "collisionChanges": false,
+        "corners": 17,
+        "posts": 149,
+        "drawCalls": 4,
+        "streetDrainage": true
+      },
+      "livery": "2026-ferrari-austin",
+      "loaded": true,
+      "spec": {
+        "mass": 770,
+        "power": 735000,
+        "grip": 1.88,
+        "aero": 3.4,
+        "brake": 32,
+        "steer": 0.29,
+        "drag": 0.78,
+        "lag": 0.16,
+        "gears": 8
+      },
+      "speed": 17.915428,
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 300,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.422467960310314e-06
+      },
+      "pit": {
+        "samples": 39,
+        "intrusions": 0,
+        "missing": 1
+      },
+      "terrain": {
+        "samples": 1200,
+        "missing": []
+      },
+      "reference": {
+        "facets": 1483,
+        "eras": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "All thirteen racing-road audits: zero missing triangles, zero terrain/overlay intrusions and zero centre-height errors at stride 20.",
+    "Zandvoort and Baku each retain one pre-existing pit-edge no-hit at stride 12, independently checked against the previous 0.16.0 production build. Zero pit intrusions.",
+    "Outside-road ground no-hit probes are recorded, not suppressed. No claim of surveyed track reconstruction."
+  ],
+  "inputs": {
+    "web/track-finish.js": "27246fe7a1b9f0027e652c00d28c3bcd9e0a6046089f686f7eb6cf93bd214ef8",
+    "web/car-finish.js": "19c016a1c8f84f5dcec0061e522066d6a5878c5d8b6df3dfc68c2ac6497718a5",
+    "web/season-liveries.js": "f770dce4aff85c47bb2efa7459e547feb4478277db926b1ec8d162445fa941c3",
+    "web/graphics.js": "fabe8c08c204f621ecf9f64cd4caa15eb37098b26c03343a6d971700ea4cc6e5",
+    "web/reference-car.js": "c79482e514360e6a89686397cfcce6472077b5d3305d5ba8752d97860f92a6a0",
+    "web/livery.js": "f024eeddaf0c0a739744ca8c59128edcd60711c38c1f7e01eb8747637355611d",
+    "data/car-shapes.json": "5dac29ae7e1f0459fd35b7c0fb45857f1c0b1b020431ab5e67494dc22a37b7b7",
+    "data/car-layouts.json": "24f2aa75817d41a7aadf198841380a7435a61a2cbad8006322b7bc56b38981fb",
+    "data/car-variants.json": "5f1b6c29cc634269835d21197c989372a5d564dd84486c3f320f8a3af1bd10f6",
+    "data/roster.json": "c385f6cb13be4711521a2f68202dc037fca5a43752a269d1e92ef813eff4cd13",
+    "data/liveries-2026.json": "070383a5892c98b2dc595640264cdef640bbad79348aaf180723304f814d2090",
+    "data/graphics-2026-baseline.json": "4a397c388611f55fb064c020312f33b6ff39573cc6679364ec4d2b748cf57ea4"
+  }
+}

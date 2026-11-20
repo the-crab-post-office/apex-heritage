@@ -1,22 +1,26 @@
 {
-  "version": "0.16.0-preview.1",
+  "version": "0.17.0-preview.1",
   "inputs": {
+    "web/track-finish.js": "27246fe7a1b9f0027e652c00d28c3bcd9e0a6046089f686f7eb6cf93bd214ef8",
+    "web/car-finish.js": "19c016a1c8f84f5dcec0061e522066d6a5878c5d8b6df3dfc68c2ac6497718a5",
+    "web/season-liveries.js": "f770dce4aff85c47bb2efa7459e547feb4478277db926b1ec8d162445fa941c3",
+    "data/liveries-2026.json": "070383a5892c98b2dc595640264cdef640bbad79348aaf180723304f814d2090",
     "web/racing-path.js": "38acc10bca1953919d7c85553e8dc7890b9ddcb5d0c78b0c84513e5bbff189b3",
     "web/racing-line.js": "4272cd9c926ff7a05af00f33fab74e1700685d2570ecf84cf591b9dc6e0d619c",
-    "web/racing-guide.js": "5d86824eee9fea8a7cbe3c7fbe186ace5449bc7bb95ab6365cc686a7a8313e1a",
+    "web/racing-guide.js": "5bb06873414e5da56c6068ed58458e9581e9e067a0197bbeaf6b2c15a8b57d99",
     "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
     "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
     "web/materials.js": "1b0981fb7c650b5270651a4ebd6fed6d68629e78121f61f055da51c87e4abc27",
     "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
-    "data/reference-scenes.json": "51f94bee253ab437f1a499ccad82369b1734857986978b95942790ad578d898d",
+    "data/reference-scenes.json": "a42b1f659fc27f10dd242f53fc710968f012a2109c04f12b1cde39dd2c9d08f8",
     "data/spa-monaco-reference.json": "295c763fcd25204f0ca90e438f311f9d9e585441aaca308c16a803994beee161",
-    "web/graphics.js": "c8ddc9a27168ca12c4ab792b27b9354b21316278f782f8cfbcfd350db7f5d73e",
+    "web/graphics.js": "fabe8c08c204f621ecf9f64cd4caa15eb37098b26c03343a6d971700ea4cc6e5",
     "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
     "web/venue.js": "540094f9a0cf12a8eec0a5ce0cd5db47c4073c86916a66d7b872c4c284b26aa2",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
-    "src/corner.rs": "43acf9f1c3be1194f6ae54eb2e2dbe2bb5079caad92124f19129a9903c816855",
-    "src/venue.rs": "7cd83df4013c677c4291ac3509400a71d716d90e58bd3927505862e852d2e90f",
-    "src/reference_scene.rs": "6740e241b0f7b41bd1dfad8b018b3d7f2b7050d3e4247cc866f58296ff7e0707"
+    "src/corner.rs": "a63fb39381f79147a551f13656cc54ca9048423108ce2704df0a09084e4bb306",
+    "src/venue.rs": "7907fbc57b61dbde07fdd5ffaecb93ff7cbd61d7b6b493abbb23168b067817b8",
+    "src/reference_scene.rs": "dab1190954d8a49f4a03c7083a18dd72f35eeedbd4fcab68883a36e4171fc1f6"
   },
   "captures": [
     {
@@ -42,17 +46,18 @@
         ],
         "fov": 48
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
         "eras": [
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "6e9957e1e7908a7079ed3902eafc525251c34262cdfbb2198e1330b9c052467c",
-      "bytes": 88913
+      "sha256": "9b3696d1afd304345430b1e3225ead1777def59e646816b548e170a83c8013ef",
+      "bytes": 89335
     },
     {
       "id": "les-combes",
@@ -77,17 +82,18 @@
         ],
         "fov": 48
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
         "eras": [
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "825a3f9b5050a28cf60734e75efd92f3c53a2ae974dfeaf854063d02d7eb3e5b",
-      "bytes": 93399
+      "sha256": "42ef95b607a0c53a61c249c36d45d686aa32119c07eb1de366f1455f4b9cffdb",
+      "bytes": 91917
     },
     {
       "id": "malmedy",
@@ -112,17 +118,18 @@
         ],
         "fov": 48
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
         "eras": [
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "048180f75b7e311d508c52e84ea94ffeb5561f921ed15dcd6de3a2c42d45ea91",
-      "bytes": 96417
+      "sha256": "e3ab8cedd5b29636baf31ad6d9f8cf6d9b0dcf1dcda1de2b7b2cae7a6310772b",
+      "bytes": 96106
     },
     {
       "id": "bus-stop",
@@ -147,17 +154,18 @@
         ],
         "fov": 48
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
         "eras": [
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "fdf48b82f3311d83ec3d37a0e546ff9de471fca33b3eca47374a7baf0ac5e335",
-      "bytes": 88491
+      "sha256": "c145c06aba9911a8b83cf660dbbd223b1ac786a1353fe3bc0b37142d2279cad2",
+      "bytes": 89722
     },
     {
       "id": "finish-straight",
@@ -183,17 +191,18 @@
         ],
         "fov": 58
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 174,
         "scope": "Recent Spa and labelled 2021 substitute only. Estimated grid paint/escape hatching from user image-10..11.png; original markings, no photographic pixels.",
         "eras": [
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "03a9bbcc8f9167ad7c50feb53c05e8d1d5813d60b1e746c4211a7968ca29d880",
-      "bytes": 105386
+      "sha256": "58e41a432684bc5b7ec3f279ac63cba98b3c21c71451c65a011077a0b2ad73b8",
+      "bytes": 106088
     },
     {
       "id": "monaco-portal",
@@ -217,7 +226,7 @@
         ],
         "fov": 66
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 5486,
         "scope": "Modern Monaco for every era, as requested. Over-road Fairmont infill on the original mapped hotel footprint, plus estimated portal connection. Not a survey; image-12.png reference only.",
@@ -234,11 +243,12 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "fb4efa0ad6e3c9850027993a74427329f09f97b23fd887890587627860eec42c",
-      "bytes": 79103
+      "sha256": "333f959f82eea3719213330b2d5a18f19177987653d6219c8d5032c66bf34bfe",
+      "bytes": 80261
     },
     {
       "id": "monaco-hotel",
@@ -263,7 +273,7 @@
         ],
         "fov": 48
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 5486,
         "scope": "Modern Monaco for every era, as requested. Over-road Fairmont infill on the original mapped hotel footprint, plus estimated portal connection. Not a survey; image-12.png reference only.",
@@ -280,11 +290,12 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "d4a6e27bca971cc2a41519c889b9f855a677acb3b5e9b192120fb20a10bc69a6",
-      "bytes": 144048
+      "sha256": "791e8d5e82ebe5c44f505afabd817f10f22caddddd65a99c46aac8591ccaa8ca",
+      "bytes": 142855
     }
   ]
 }

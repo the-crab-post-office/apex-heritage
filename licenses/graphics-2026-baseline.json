@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "source_commit": "349b3f7",
+  "unchanged_inputs": {
+    "data/tracks.json": "aad2365f23deb20481ad8d8a8f02141005c3da07f5e29793e68eeac64f8749f4",
+    "data/pit-lanes.json": "bdcc26edea7458c894b3a38c0480b53a3f0606285344cbd7cb2ff38cfb771f4a",
+    "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83"
+  },
+  "tracks": [
+    {
+      "version": "0.16.0-preview.1",
+      "pit": {
+        "samples": 39,
+        "intrusions": 0,
+        "missing": 1
+      },
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 215,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.3874564208649076e-06
+      },
+      "track": "Zandvoort",
+      "method": "Previous 0.16.0 production build, era 3, low quality, World.auditPitSurface(12) / World.auditRoadSurface(20). One pre-existing pit-edge raycast no-hit, zero intrusions, racing road complete."
+    },
+    {
+      "version": "0.16.0-preview.1",
+      "pit": {
+        "samples": 39,
+        "intrusions": 0,
+        "missing": 1
+      },
+      "road": {
+        "missingRoad": 0,
+        "pitOverlayHits": 0,
+        "terrainIntrusions": 0,
+        "overlayIntrusions": 0,
+        "centerErrors": 0,
+        "samples": 300,
+        "maxIntrusion": 0,
+        "maxCenterError": 1.422467960310314e-06
+      },
+      "track": "Baku",
+      "method": "Previous 0.16.0 production build, era 3, low quality, World.auditPitSurface(12) / World.auditRoadSurface(20)."
+    }
+  ]
+}

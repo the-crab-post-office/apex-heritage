@@ -1,9 +1,13 @@
 {
-  "version": "0.16.0-preview.1",
+  "version": "0.17.0-preview.1",
   "inputs": {
+    "web/track-finish.js": "27246fe7a1b9f0027e652c00d28c3bcd9e0a6046089f686f7eb6cf93bd214ef8",
+    "web/car-finish.js": "19c016a1c8f84f5dcec0061e522066d6a5878c5d8b6df3dfc68c2ac6497718a5",
+    "web/season-liveries.js": "f770dce4aff85c47bb2efa7459e547feb4478277db926b1ec8d162445fa941c3",
+    "data/liveries-2026.json": "070383a5892c98b2dc595640264cdef640bbad79348aaf180723304f814d2090",
     "web/racing-path.js": "38acc10bca1953919d7c85553e8dc7890b9ddcb5d0c78b0c84513e5bbff189b3",
     "web/racing-line.js": "4272cd9c926ff7a05af00f33fab74e1700685d2570ecf84cf591b9dc6e0d619c",
-    "web/racing-guide.js": "5d86824eee9fea8a7cbe3c7fbe186ace5449bc7bb95ab6365cc686a7a8313e1a",
+    "web/racing-guide.js": "5bb06873414e5da56c6068ed58458e9581e9e067a0197bbeaf6b2c15a8b57d99",
     "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
     "data/building-photo-references.json": "9890212551061e2f1e9f9b6242311192c3f13e51fcd8f41c6e7413dbf273d4c9",
     "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
@@ -13,17 +17,17 @@
     "data/buildings.json": "bc5396a1e532bed1ad04fab38f224143910e906636559b7448f2d528df4216a5",
     "data/pit-lanes.json": "bdcc26edea7458c894b3a38c0480b53a3f0606285344cbd7cb2ff38cfb771f4a",
     "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
-    "data/reference-scenes.json": "51f94bee253ab437f1a499ccad82369b1734857986978b95942790ad578d898d",
+    "data/reference-scenes.json": "a42b1f659fc27f10dd242f53fc710968f012a2109c04f12b1cde39dd2c9d08f8",
     "data/expansion-references.json": "989ed3d070481b170a7f5c75ef23caad02a48992f9ce7040f7fd2c95101a794e",
-    "web/graphics.js": "c8ddc9a27168ca12c4ab792b27b9354b21316278f782f8cfbcfd350db7f5d73e",
+    "web/graphics.js": "fabe8c08c204f621ecf9f64cd4caa15eb37098b26c03343a6d971700ea4cc6e5",
     "web/road-surface.js": "01360ac1d7a81510a3cb804ef124d0a7a654fc80ef53e0733eb9085ce87f7e79",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
     "src/braking.rs": "a9c98051b1710a40c1ca41ad93b6bb91a4d623075847eeede5ae8bdf511d4b9e",
-    "src/lib.rs": "2622ecef1ca9eec46ac35be02ae02f0914cd1acf279d562c1f6de099a3ad3eff",
-    "src/corner.rs": "43acf9f1c3be1194f6ae54eb2e2dbe2bb5079caad92124f19129a9903c816855",
+    "src/lib.rs": "156c6ad6b0d4fc47923400efcab920e57f2e6c16d929c8d8b93af7199c6f3043",
+    "src/corner.rs": "a63fb39381f79147a551f13656cc54ca9048423108ce2704df0a09084e4bb306",
     "src/elevation.rs": "1f6dd3340826261d61bb6004bf3f95b3bbd0f24d3274dab8c2051765dd89c8f5",
     "src/surface_mesh.rs": "35164b72ddc347be69834238ee5c2c0954765c1c0826877b2f32072196a585fe",
-    "web/wasm/apex_bg.wasm": "d830722f5ebfd0b80520cc6e4e946d7cefff31c508fe5408dcaf9e474277a418",
+    "web/wasm/apex_bg.wasm": "7823e6307ddc8e763817c8c9e3f5c445b318b2c6ee3b549b9aea3fc28f33cec8",
     "web/assets/facades/ae-2009-brick.jpg": "77c26ab3cdaac5d0fa02dfb65ae3b58128e22367981353d42175cba7586bd427",
     "web/assets/facades/ae-2009-glass.jpg": "389deea9e94bc21d3d15498d368b8932ec46d9f772ea81f67f9147fd12f613d6",
     "web/assets/facades/ae-2009-hotel.jpg": "916e546a6a507b7866e610701a0603c1e81a8ecac75e28dbdb9eb6cc026d8e25",
@@ -128,7 +132,7 @@
         ],
         "fov": 57
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 17931,
         "scope": "Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.",
@@ -141,11 +145,12 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "7296ff26a48b7010ae565b49d5068bcffe5a580ac24fbe3421e23020f89d53c3",
-      "bytes": 111862
+      "sha256": "caf4ee7bc82ffb973bedb3f37b1162ad10813c9a28cf6a54acda9316d05f308f",
+      "bytes": 110119
     },
     {
       "id": "yas-marsa",
@@ -171,7 +176,7 @@
         ],
         "fov": 55
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 17931,
         "scope": "Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.",
@@ -184,11 +189,12 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "bbd3008f1421fe1a95daf9c1b07f6949e7381962918a799631e34372fbdd9f36",
-      "bytes": 62164
+      "sha256": "0ababec79654f6ea47eac81ecf2bd73fc9464cd08edfe5a77d877c0cdb9e572c",
+      "bytes": 62386
     },
     {
       "id": "zandvoort-hugenholtz",
@@ -214,7 +220,7 @@
         ],
         "fov": 56
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 60,
         "scope": "Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.",
@@ -223,11 +229,12 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "828947cfda2532d0a3c4e828c69a9b6591775026e52da199b2b042f44b56ae6c",
-      "bytes": 136671
+      "sha256": "32ca13a84a4c51bcf772899adb83c4744528be2f926f6c7b10225252640fe21a",
+      "bytes": 137925
     },
     {
       "id": "zandvoort-luyendyk",
@@ -253,7 +260,7 @@
         ],
         "fov": 58
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 60,
         "scope": "Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.",
@@ -262,11 +269,12 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "9be0e859f2ac307194e60a36b012e343187e7031cbec644ee4a34bf61ad06e16",
-      "bytes": 129359
+      "sha256": "9a72e149573e7e33f4c3ee884dfabb81b788a6436fce24e1ec1cb332fc1b2e33",
+      "bytes": 129938
     },
     {
       "id": "baku-castle",
@@ -290,7 +298,7 @@
         ],
         "fov": 65
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 1483,
         "scope": "Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.",
@@ -299,11 +307,12 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "6d0ba90910aee4b6158cf240ae69e8baf095f0b7425039e77fb02cca5f457271",
-      "bytes": 68819
+      "sha256": "bdc42cf0479a9265a93b7b494a9d62cd362c78e6fbec4372fde003911734a4c8",
+      "bytes": 70403
     },
     {
       "id": "baku-waterfront",
@@ -329,7 +338,7 @@
         ],
         "fov": 62
       },
-      "version": "0.16.0-preview.1",
+      "version": "0.17.0-preview.1",
       "reference": {
         "facets": 1483,
         "scope": "Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.",
@@ -338,11 +347,12 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ]
       },
-      "sha256": "f879310a0b7801e06bab027921abca6d46c4e645faca7f60213ee8dca7aa93e8",
-      "bytes": 91621
+      "sha256": "a0fb53b0e7d8d384a50dd3f48ebe2c16543b44732e63402c57bd30a77dc38fb2",
+      "bytes": 91986
     }
   ]
 }

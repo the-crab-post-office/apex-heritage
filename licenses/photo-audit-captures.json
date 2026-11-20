@@ -1,25 +1,29 @@
 {
-  "version": "0.16.0-preview.1",
+  "version": "0.17.0-preview.1",
   "inputs": {
     "web/racing-path.js": "38acc10bca1953919d7c85553e8dc7890b9ddcb5d0c78b0c84513e5bbff189b3",
-    "web/showroom.js": "6ae0899b09e208427698d45b1a2ebad32e6c56d59dfca31ec5b926ae65f700ad",
+    "web/track-finish.js": "27246fe7a1b9f0027e652c00d28c3bcd9e0a6046089f686f7eb6cf93bd214ef8",
+    "web/car-finish.js": "19c016a1c8f84f5dcec0061e522066d6a5878c5d8b6df3dfc68c2ac6497718a5",
+    "web/season-liveries.js": "f770dce4aff85c47bb2efa7459e547feb4478277db926b1ec8d162445fa941c3",
+    "data/liveries-2026.json": "070383a5892c98b2dc595640264cdef640bbad79348aaf180723304f814d2090",
+    "web/showroom.js": "1aef6182b4dc623f48fc57ff6891093f782aad665382f90f22f8517c8ae4db9e",
     "web/racing-line.js": "4272cd9c926ff7a05af00f33fab74e1700685d2570ecf84cf591b9dc6e0d619c",
-    "web/racing-guide.js": "5d86824eee9fea8a7cbe3c7fbe186ace5449bc7bb95ab6365cc686a7a8313e1a",
+    "web/racing-guide.js": "5bb06873414e5da56c6068ed58458e9581e9e067a0197bbeaf6b2c15a8b57d99",
     "data/building-appearance.json": "1b5d3ed5ffc793e23c90a5051837777d293b39b7a5525a8ca809b10e6c4dff38",
     "web/building-roofs.js": "3edadf7b8410dd20d876839bf16e06b35e2082c01422e505d575ad5693202de4",
     "web/materials.js": "1b0981fb7c650b5270651a4ebd6fed6d68629e78121f61f055da51c87e4abc27",
-    "data/car-shapes.json": "1bd46d6324b6bb55ad58cbfb31b9d7a0c2a722536e08a9cc90eae1aeda25e81b",
-    "data/car-layouts.json": "f0436dd41cd56dc6c39711e2cd39d9c2b7a7d2c82dc16aef6ccf1e6595e61455",
+    "data/car-shapes.json": "5dac29ae7e1f0459fd35b7c0fb45857f1c0b1b020431ab5e67494dc22a37b7b7",
+    "data/car-layouts.json": "24f2aa75817d41a7aadf198841380a7435a61a2cbad8006322b7bc56b38981fb",
     "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
-    "data/roster.json": "53db7010f62b83b67cbcbffd67fe6288a3861a2af783c2d3e281f34850157f90",
-    "data/car-variants.json": "f75645be8cc6cd17d14f59a209f74a9dfe87da76ae9651d6e5f64fc394f07a0f",
-    "web/assets/liveries/manifest.json": "f48689f898d8e8ead66bbb73f3d05b87c077ad9b87cb6fe1decde1d186573f61",
+    "data/roster.json": "c385f6cb13be4711521a2f68202dc037fca5a43752a269d1e92ef813eff4cd13",
+    "data/car-variants.json": "5f1b6c29cc634269835d21197c989372a5d564dd84486c3f320f8a3af1bd10f6",
+    "web/assets/liveries/manifest.json": "0bd04487bc1d260659cf6e777a065224acf94821a33196d7075bebc42bb80aa6",
     "web/wheel-motion.js": "925d8daa761bff4c6f037c4a06a43178d3a996913798f23ba60a1c492721e3ba",
-    "web/graphics.js": "c8ddc9a27168ca12c4ab792b27b9354b21316278f782f8cfbcfd350db7f5d73e",
+    "web/graphics.js": "fabe8c08c204f621ecf9f64cd4caa15eb37098b26c03343a6d971700ea4cc6e5",
     "web/corners.js": "6ff0f8efb5dd20cb57bd38392808aaa2f51c68a7a0500c19075da58ea160a033",
     "web/road-surface.js": "01360ac1d7a81510a3cb804ef124d0a7a654fc80ef53e0733eb9085ce87f7e79",
-    "src/corner.rs": "43acf9f1c3be1194f6ae54eb2e2dbe2bb5079caad92124f19129a9903c816855",
-    "data/reference-scenes.json": "51f94bee253ab437f1a499ccad82369b1734857986978b95942790ad578d898d",
+    "src/corner.rs": "a63fb39381f79147a551f13656cc54ca9048423108ce2704df0a09084e4bb306",
+    "data/reference-scenes.json": "a42b1f659fc27f10dd242f53fc710968f012a2109c04f12b1cde39dd2c9d08f8",
     "web/reference-scene.js": "9a89968cd3670a868c5f6631fc31873a19a40b00b87e8855968bf2b9c314d4d4",
     "web/venue.js": "540094f9a0cf12a8eec0a5ce0cd5db47c4073c86916a66d7b872c4c284b26aa2"
   },
@@ -27,8 +31,8 @@
     {
       "id": "spa",
       "category": "track",
-      "sha256": "c92e3d53ffe14b2b09f728bd2647990cf20683ffc4f8d737350df6156d89159d",
-      "bytes": 78024,
+      "sha256": "cdfbd76fa727accb6b888f2886e44545f1ff57749e5072a513355b2128a40c46",
+      "bytes": 78515,
       "camera": {
         "station": 31,
         "position": [
@@ -53,8 +57,8 @@
     {
       "id": "monaco",
       "category": "track",
-      "sha256": "894f31102f4e6a6227abb047010f97420b702a3ca43a14b2123dddda1daa4435",
-      "bytes": 116456,
+      "sha256": "31e2e55fa28462500f99797ac29e35bb0b53a19b751f49520cf7068f9197c205",
+      "bytes": 116055,
       "camera": {
         "station": 530,
         "position": [
@@ -79,8 +83,8 @@
     {
       "id": "monza",
       "category": "track",
-      "sha256": "57e6d152624f2793354ec0c012ca733d5615e014e6c24762ea52a19cf2f52d1a",
-      "bytes": 90154,
+      "sha256": "2cbdda9a5f84fc1b7201fde4cb53bc5a9b955434369106a40729fb49c7b8976b",
+      "bytes": 90805,
       "camera": {
         "station": 98,
         "position": [
@@ -105,8 +109,8 @@
     {
       "id": "silverstone",
       "category": "track",
-      "sha256": "3381a1cc886b80f9e30f854a9f9bcc51907d308c6b8430b29dce107e43e42755",
-      "bytes": 83411,
+      "sha256": "e6d164d5e0ca64f148390cec8d283f01861257031e3ce39d15b287d0c6807d72",
+      "bytes": 83507,
       "camera": {
         "station": 1080,
         "position": [
@@ -131,8 +135,8 @@
     {
       "id": "suzuka",
       "category": "track",
-      "sha256": "fe46fe94e4470e75c16098dc3acb474ef57fdaaa03c8b87f545040a80839723a",
-      "bytes": 104544,
+      "sha256": "19f6e145fe0ae3e02001be9b264c2d09a645d401f908ce12a012874a0fd9057c",
+      "bytes": 104997,
       "camera": {
         "station": 1045,
         "position": [
@@ -157,8 +161,8 @@
     {
       "id": "interlagos",
       "category": "track",
-      "sha256": "6e9dc4454563b5543606ca3e2f5f837b56077da7f699320cbba425e419ee5111",
-      "bytes": 93680,
+      "sha256": "eea78e8b4c9e3617cb83f85ba9e42bf61705ca730d29090769a01f60741847e3",
+      "bytes": 93814,
       "camera": {
         "station": 56,
         "position": [
@@ -183,8 +187,8 @@
     {
       "id": "imola",
       "category": "track",
-      "sha256": "1d11a184a3aaf1dd6bb531080c9db2f17ad935134aaaff834481f4b21393da8b",
-      "bytes": 90818,
+      "sha256": "2e765a9596fe254aa438c1be12cc067a9692f8273c7135cd503da3abbf8ca6a3",
+      "bytes": 91065,
       "camera": {
         "station": 790,
         "position": [
@@ -209,8 +213,8 @@
     {
       "id": "nurburgring",
       "category": "track",
-      "sha256": "24f58e0f743c613149ef78536aa5970e7b88c765e938b3947583c09ccb962a0b",
-      "bytes": 75062,
+      "sha256": "3c04c83c57cb033e44ef85b29bc1cbc6f9081827f68231993bfca842c2050750",
+      "bytes": 75636,
       "camera": {
         "station": 130,
         "position": [
@@ -235,8 +239,8 @@
     {
       "id": "montreal",
       "category": "track",
-      "sha256": "295ca10c130108b1c4a7ec46b1260b353e4fce39cbebb00a972879953c046ab3",
-      "bytes": 60372,
+      "sha256": "8c8814fa972c535f0e6029de779657da3ad7d0e390a7fef81791fdf9afe62403",
+      "bytes": 61273,
       "camera": {
         "station": 0,
         "position": [
@@ -261,8 +265,8 @@
     {
       "id": "hockenheim",
       "category": "track",
-      "sha256": "4b971dd8b50316cb4313da0132e37f2cfa3e46f772e2afac86cc9ec4db21545d",
-      "bytes": 79457,
+      "sha256": "59ee6b32467f3b54c5274aa95c0d1eb536b0af1d24084d31b60532f28389dc33",
+      "bytes": 79465,
       "camera": {
         "station": 419,
         "position": [
@@ -287,8 +291,8 @@
     {
       "id": "1967",
       "category": "car",
-      "sha256": "10b9df67c37987a38f827e3e55c571248513c1b8bc0a5cc6e516acac24de9e46",
-      "bytes": 51199,
+      "sha256": "784c0c114c71a0ac9c7d0ef732a66a9e5518dcfe0e72bc822a13bb0f997461a3",
+      "bytes": 51236,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },
@@ -297,8 +301,8 @@
     {
       "id": "1988",
       "category": "car",
-      "sha256": "3e22271504ae656a9a33ac76f941a760f9801e49a70f2ea7f647e17997f5b656",
-      "bytes": 57955,
+      "sha256": "0ad26890870c08d9aa94b3112dd11847947b218eb4b977cabd4a4497a94b9e4b",
+      "bytes": 57946,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },
@@ -307,8 +311,8 @@
     {
       "id": "2004",
       "category": "car",
-      "sha256": "e0edeab4b9b883efe677c8752ffaefdc9cb96679ff64a5f110e9473a0af3c292",
-      "bytes": 62419,
+      "sha256": "ddcc0144c36454762fc9738baa99e5198e531a650cf4d391a7b1da036b7db8f4",
+      "bytes": 62427,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },
@@ -317,8 +321,8 @@
     {
       "id": "2023",
       "category": "car",
-      "sha256": "c21ddf94c26e5112f1f0918725c6c8207be29a24a956a3296872ff61bfd5c6f0",
-      "bytes": 64971,
+      "sha256": "fa03f87f92dc2239ca12d1aebf48883ca9496af6b05c1d6760ab9c998b8e005d",
+      "bytes": 65117,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },
@@ -327,8 +331,8 @@
     {
       "id": "2021",
       "category": "car",
-      "sha256": "dc1ad661ff075b9adc913d9769c8ccbdae339baad46c37f573f41f6105ed1bb3",
-      "bytes": 62726,
+      "sha256": "515967570c999aa122dd119ff5b42d140458c031748f8721ab23e147c1a97ccb",
+      "bytes": 62821,
       "camera": {
         "view": "Standardized 1200 \u00d7 675 showroom side view; shared race geometry/materials, not calibrated to reference camera."
       },

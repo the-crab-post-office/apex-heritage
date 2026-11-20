@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "cutoff": "2026-11-08",
+  "scope": "All eleven launch schemes plus a curated set of twenty-two officially documented race liveries announced before the cutoff. Not an exhaustive season archive; no post-cutoff Vegas reveals.",
+  "artwork": "Original photo-guided interpretations, not official digital assets or exact sponsor/decal replicas. No reference photo pixels.",
+  "specials": [
+    {
+      "id": "2026-racing-bulls-japan",
+      "team_id": "2026-racing-bulls",
+      "label": "Japan \u00b7 Shodo",
+      "motif": "brush",
+      "source": "https://www.formula1.com/en/latest/article/gallery-check-out-racing-bulls-special-livery-for-the-japanese-grand-prix.3xzvEGBKo1rfFJhCEkbOCh",
+      "notes": "Red, white and silver calligraphic strokes.",
+      "color": "#f5f1e9",
+      "secondary": "#d12839"
+    },
+    {
+      "id": "2026-racing-bulls-miami",
+      "team_id": "2026-racing-bulls",
+      "label": "Miami \u00b7 Summer Edition",
+      "motif": "citrus",
+      "source": "https://www.formula1.com/en/latest/article/gallery-racing-bulls-reveal-vibrant-yellow-livery-for-miami-grand-prix-weekend.3qkktjcjeVnMY6j9hZLPYR",
+      "notes": "Yellow citrus-inspired pattern.",
+      "color": "#e7ee31",
+      "secondary": "#edf3b3"
+    },
+    {
+      "id": "2026-racing-bulls-barcelona",
+      "team_id": "2026-racing-bulls",
+      "label": "Barcelona \u00b7 VCARB FC",
+      "motif": "football",
+      "source": "https://www.formula1.com/en/latest/article/gallery-racing-bulls-show-off-football-inspired-special-livery-for-barcelona.3ijlEuQv361CqHhvYMJgMe",
+      "notes": "Angular football-culture graphics and three-star crest.",
+      "accent": "#24b69d"
+    },
+    {
+      "id": "2026-mercedes-japan",
+      "team_id": "2026-mercedes",
+      "label": "Japan \u00b7 Y-3 wolf",
+      "motif": "wolf",
+      "source": "https://www.formula1.com/en/latest/article/9-moments-you-might-have-missed-from-the-2026-japanese-grand-prix.4q3PrCagqD8LdJSvAbLtUX",
+      "notes": "Grey-and-black wolf treatment on the front wing only."
+    },
+    {
+      "id": "2026-haas-japan",
+      "team_id": "2026-haas",
+      "label": "Japan \u00b7 Godzilla",
+      "motif": "monster",
+      "source": "https://www.formula1.com/en/latest/article/9-moments-you-might-have-missed-from-the-2026-japanese-grand-prix.4q3PrCagqD8LdJSvAbLtUX",
+      "notes": "White, black and red with original stylised monster graphic."
+    },
+    {
+      "id": "2026-mclaren-monaco",
+      "team_id": "2026-mclaren",
+      "label": "Monaco / Barcelona \u00b7 1000",
+      "motif": "milestone",
+      "source": "https://www.mclaren.com/racing/formula-1/2026/monaco-grand-prix/monaco-1000th-gp-livery-and-grid-moment/",
+      "notes": "Metallic papaya and anthracite; commemorative 1000 graphic.",
+      "color": "#ed852b",
+      "secondary": "#383c3d",
+      "paint_metalness": 0.44
+    },
+    {
+      "id": "2026-audi-monaco",
+      "team_id": "2026-audi",
+      "label": "Monaco \u00b7 Nuvolari",
+      "motif": "nuvolari",
+      "source": "https://www.formula1.com/en/latest/article/all-the-liveries-special-helmet-designs-and-eye-catching-looks-for-monaco.B2w22A5AjE8qtqhuIvqnL",
+      "notes": "Yellow tribute replaces the red accent.",
+      "accent": "#edcc2d"
+    },
+    {
+      "id": "2026-aston-martin-monaco",
+      "team_id": "2026-aston-martin",
+      "label": "Monaco \u00b7 Maaden",
+      "motif": "copper",
+      "source": "https://www.formula1.com/en/latest/article/gallery-aston-martin-reveal-special-livery-for-the-monaco-grand-prix.5cFPFnHMs4SfUK0B0QO4VA",
+      "notes": "Copper front fading into green; iridescence approximated.",
+      "paint_metalness": 0.65
+    },
+    {
+      "id": "2026-mclaren-silverstone",
+      "team_id": "2026-mclaren",
+      "label": "Silverstone \u00b7 M2B tribute",
+      "motif": "heritage",
+      "source": "https://www.formula1.com/en/latest/article/all-the-liveries-special-helmet-designs-and-eye-catching-looks-for-silverstone.4fczG4euu9xrz4esyymc3T",
+      "notes": "White and dark green tribute to the 1966 M2B.",
+      "color": "#edece4",
+      "secondary": "#214538"
+    },
+    {
+      "id": "2026-williams-silverstone",
+      "team_id": "2026-williams",
+      "label": "Silverstone \u00b7 Union Jack",
+      "motif": "union",
+      "source": "https://www.formula1.com/en/latest/article/all-the-liveries-special-helmet-designs-and-eye-catching-looks-for-silverstone.4fczG4euu9xrz4esyymc3T",
+      "notes": "Red, white and blue nose and chassis-side accents."
+    },
+    {
+      "id": "2026-cadillac-miami",
+      "team_id": "2026-cadillac",
+      "label": "Miami \u00b7 50 stars",
+      "motif": "stars-mono",
+      "source": "https://www.formula1.com/en/latest/article/how-cadillacs-first-home-race-in-f1-panned-out-at-the-miami-grand-prix.45YDvMWTXacrSx01e8RI3H",
+      "notes": "Stars and stripes remain black and white, not US-flag colours."
+    },
+    {
+      "id": "2026-cadillac-silverstone",
+      "team_id": "2026-cadillac",
+      "label": "Silverstone \u00b7 Independence",
+      "motif": "stars-usa",
+      "source": "https://www.formula1.com/en/latest/article/all-the-liveries-special-helmet-designs-and-eye-catching-looks-for-silverstone.4fczG4euu9xrz4esyymc3T",
+      "notes": "American red, white and blue stars and stripes.",
+      "secondary": "#183c7c",
+      "accent": "#cf293b"
+    },
+    {
+      "id": "2026-ferrari-monza",
+      "team_id": "2026-ferrari",
+      "label": "Monza \u00b7 Schumacher tribute",
+      "motif": "seven-stars",
+      "source": "https://www.formula1.com/en/latest/article/gallery-ferrari-reveal-schumacher-inspired-livery-for-home-grand-prix-at-monza.5burkVG8etBZzPdZrIN7bX",
+      "notes": "Red cockpit and engine cover, white wings, seven stars.",
+      "secondary": "#e32330",
+      "wing_color": "#f1eee5",
+      "rim_color": "#bca262"
+    },
+    {
+      "id": "2026-audi-singapore",
+      "team_id": "2026-audi",
+      "label": "Singapore \u00b7 Peranakan",
+      "motif": "peranakan",
+      "source": "https://www.formula1.com/en/latest/article/gallery-audi-unveil-special-livery-for-singapore-grand-prix.5Z07QWFA7vVqCPC1jb6AIq",
+      "notes": "Titanium-grey base with geometric sidepod/rear-wing pattern.",
+      "secondary": "#7975a7",
+      "wing_color": "#6f6a9d",
+      "accent": "#ed6645"
+    },
+    {
+      "id": "2026-ferrari-austin",
+      "team_id": "2026-ferrari",
+      "label": "Austin \u00b7 Engineering sketches",
+      "motif": "blueprint",
+      "source": "https://www.formula1.com/en/latest/article/gallery-ferrari-become-latest-team-to-unveil-special-livery-for-united-states-grand-prix.4EbG3ECmHt6RxHQYeFPkvD",
+      "notes": "Original sketch-like linework inspired by the HP engineering tribute."
+    },
+    {
+      "id": "2026-mercedes-austin",
+      "team_id": "2026-mercedes",
+      "label": "Austin \u00b7 MANUFAKTUR",
+      "motif": "manufaktur",
+      "source": "https://www.formula1.com/en/latest/article/gallery-mercedes-show-off-special-livery-for-united-states-grand-prix-weekend.56I955QMPnrmCAzO1hQdpu",
+      "notes": "Blue flashes over the regular silver, black and mint scheme."
+    },
+    {
+      "id": "2026-haas-austin",
+      "team_id": "2026-haas",
+      "label": "Austin \u00b7 Godzilla Minus Zero",
+      "motif": "monster-blue",
+      "source": "https://www.formula1.com/en/latest/article/gallery-haas-reveal-striking-godzilla-themed-livery-for-united-states-grand-prix-in-austin.37aecsdQPx4DOh7q1qrYTX",
+      "notes": "Light blue accents and original stylised monster graphic.",
+      "accent": "#91cadd"
+    },
+    {
+      "id": "2026-cadillac-austin",
+      "team_id": "2026-cadillac",
+      "label": "Austin \u00b7 Western wear",
+      "motif": "western",
+      "source": "https://news.cadillac.com/newsroom.detail.html/Pages/news/us/en/2026/oct/1020-cadillac-formula-1-grand-prix.html",
+      "notes": "Fine saddle-scroll and chain-stitch-inspired linework, monochrome."
+    },
+    {
+      "id": "2026-alpine-miami",
+      "team_id": "2026-alpine",
+      "label": "Miami / Montreal \u00b7 Mercado Libre",
+      "motif": "mercado",
+      "source": "https://media.alpinecars.com/la-livree-jaune-emblematique-de-mercado-libre-fait-son-retour-avec-bwt-alpine-formula-one-team-au-grand-prix-de-miami/?lang=fra",
+      "notes": "Yellow engine-cover and rear-wing treatment; blue/pink base retained.",
+      "wing_color": "#f4dc26"
+    },
+    {
+      "id": "2026-aston-martin-austin",
+      "team_id": "2026-aston-martin",
+      "label": "Austin \u00b7 Cognizant five years",
+      "motif": "cognizant",
+      "source": "https://www.formula1.com/en/latest/article/gallery-aston-martin-reveal-special-livery-for-united-states-grand-prix.54xJBwPZxuLxE2ON1Oh2bi",
+      "notes": "Blue nose, front-wing and geometric web accents over green.",
+      "wing_color": "#407a9d"
+    },
+    {
+      "id": "2026-mclaren-monza",
+      "team_id": "2026-mclaren",
+      "label": "Monza / Madrid \u00b7 OKX",
+      "motif": "okx",
+      "source": "https://www.mclaren.com/racing/formula-1/2026/italian-grand-prix/okx-livery/",
+      "notes": "Black sidepod with original white pixel-inspired OKX treatment.",
+      "sponsor": "OKX"
+    },
+    {
+      "id": "2026-audi-sao-paulo",
+      "team_id": "2026-audi",
+      "label": "S\u00e3o Paulo \u00b7 Piso Paulista",
+      "motif": "paulista",
+      "source": "https://x.com/F1/status/2118130984759480513",
+      "notes": "Green and gold pavement-inspired geometry; officially revealed 4 November.",
+      "color": "#134a36",
+      "secondary": "#12392d",
+      "accent": "#cfb96b",
+      "wing_color": "#174b38"
+    }
+  ]
+}
