@@ -62,14 +62,14 @@ mod tests {
     #[test]
     fn full_constructor_rosters_are_unique_and_have_distinct_handling() {
         let mut ids = std::collections::HashSet::new();
-        for (e, count) in [9, 18, 10, 10, 10].into_iter().enumerate() {
+        for (e, count) in [9, 18, 10, 10, 10, 11].into_iter().enumerate() {
             assert_eq!(teams(e).len(), count);
             let mut powers = std::collections::HashSet::new();
             for (i, t) in teams(e).iter().enumerate() {
                 assert!(ids.insert(&t.id));
                 let s = crate::car_spec(e, i);
                 assert!(s.power.is_finite() && s.power > 100000.);
-                assert!(powers.insert(s.power.to_bits()));
+                assert!(powers.insert(s.power.to_bits()) || e == 5); // 2026 baseline deliberately does not invent rankings
                 assert_eq!(s.lag > 0.5, e == 1 && t.turbo);
                 assert!(!t.engine.is_empty());
             }

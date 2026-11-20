@@ -1,8 +1,17 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.16.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.17.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## Graphics update / 2026 grid
+
+- **All 13 circuits:** region-specific daylight/haze/ground bounce, restrained bank-following rubber and braking marks, repair seams, grid edges, street drainage at Monaco/Baku and instanced roadside delineators outside full-loop, pit and mapped-building clearance. Existing collision/road shapes and old-era handling are retained.
+- **Six eras / 68 constructor-season entries.** The 2026 grid adds McLaren, Mercedes, Ferrari, Red Bull, Williams, Racing Bulls, Aston Martin, Haas, Audi, Alpine and Cadillac. Existing save indices remain unchanged; 2026 is appended as era 5.
+- **22 selectable 2026 specials**, separate from team physics: Japan calligraphy/wolf/Godzilla, Miami, Monaco, Barcelona, Silverstone, Monza/Madrid, Singapore, Austin and São Paulo treatments. Curated official-source references through **8 November 2026** in [data/liveries-2026.json](data/liveries-2026.json); not an exhaustive season archive. No fabricated Red Bull race paint based only on special suits.
+- Separate original 2026 chassis: compact 3.4 m wheelbase, narrower tyres, covered 18-inch-style wheels, sculpted/undercut pods, recessed intakes, exposed suspension, simpler compact wing/endplate treatment. Woven carbon micro-surface and brake rotor vent detail extend across the car collection. Per-team proportion differences remain estimates, not constructor CAD.
+- 2026 uses an explicit illustrative gameplay baseline, not invented performance rankings. V6 audio is procedural. **No active aero, energy-deployment or overtake simulation; 2026 has no DRS.** Existing five-era brake/steering code is unchanged.
+- See [graphics scope, references and limitations](data/GRAPHICS-2026-NOTICE.md). All paintwork is original simplified artwork, not official textures, exact decals or scans. Native shares the new chassis and base roster but retains simpler rendering; special-paint selection is a browser feature.
 
 ## Sketch-led driving HUD (browser)
 
@@ -84,9 +93,9 @@ Rebuild additions: `python3 scripts/refine-photo-roster.py`; shape/livery/corner
 ## 0.13 — full 2021 grid / car realism / handling
 
 - **[Compare all ten 2021 cars with real photographs](https://the-crab-post-office.github.io/apex-heritage/car-comparison.html)**. The self-contained HTML embeds credited CC BY-SA 4.0 reference photos and actual production-render captures, plus per-car remaining differences. Downloaded/previewed offline, it needs no network assets. The game menu also links to it.
-- Full 2021 grid: Mercedes W12, Red Bull RB16B, Ferrari SF21, Aston Martin AMR21, McLaren MCL35M, Alpine A521, Williams FW43B, AlphaTauri AT02, Alfa Romeo C41 and Haas VF-21. **57 constructor-season entries / five eras**. 2021 is appended internally as era 4, preserving existing 1967/1988/2004/2023 save/record indices; the web menu is displayed chronologically.
+- Full 2021 grid: Mercedes W12, Red Bull RB16B, Ferrari SF21, Aston Martin AMR21, McLaren MCL35M, Alpine A521, Williams FW43B, AlphaTauri AT02, Alfa Romeo C41 and Haas VF-21. **68 constructor-season entries / six eras**. 2021 is appended internally as era 4, preserving existing 1967/1988/2004/2023 save/record indices; the web menu is displayed chronologically.
 - Separate 2021 geometry: flat stepped floor, diagonal floor cut, multi-vane bargeboards, narrower squared rear-wing assembly and open-spoke 13-inch wheels, not a 2023 repaint. Modern tyre widths/radii and wheel centres are shared with physics. The 2023 cars retain their ground-effect treatment and larger covered rims, with revised wheel/wing dimensions.
-- Reworked modern season-specific paint blocks, conformal unmirrored sponsor/number decals, helmet/suit colours, matte vs metallic finishes and estimated team nose/pod/engine-cover proportion variants. Native shares authored geometry, variant transforms and atlases but has simpler lighting. These remain shared-base reconstructions with estimated team differences, **not ten exact constructor CAD models or scans**; 0/57 verified scans integrated.
+- Reworked modern season-specific paint blocks, conformal unmirrored sponsor/number decals, helmet/suit colours, matte vs metallic finishes and estimated team nose/pod/engine-cover proportion variants. Native shares authored geometry, variant transforms and atlases but has simpler lighting. These remain shared-base reconstructions with estimated team differences, **not ten exact constructor CAD models or scans**; 0/68 verified scans integrated.
 - Shared Rust handling adds a combined-slip tyre-force budget for every era, sublinear load sensitivity under downforce, rear-load response to braking/acceleration, tyre-limited braking and wheelbase-derived steering. Browser front wheels use matching speed-sensitive Ackermann steering, and tyre rotation/support use the actual shared radius. The 2021 preset has a 752 kg base mass/eight ratios; other tuning is approximate, not validated vehicle telemetry. No Rapier dependency was needed.
 - Five-era pit-stop durations, AI pace, HUD RPM, procedural hybrid audio, mobile controls and deep links are covered. Selecting a comparison car via `?season=2021&constructor=2021-mercedes` changes the setup, not auto-starting a race. Existing strict core compatibility, bounded stale-build recovery and modern-all-eras Monaco/Spa refinements remain intact.
 
@@ -153,7 +162,7 @@ See [photo-reference notice](data/PHOTO-REFERENCE-NOTICE.md). This is a photo-gu
 ## Retained 0.8 collection update
 
 - Full season constructor selection shared by Rust, web/native menus, handling and web rival liveries. 1967 counts constructor representatives, excluding F2 guests and duplicate privateer/engine entries; one representative car per constructor, not every driver/race variant. Quick races still use the existing smaller AI field, not 57 simultaneous cars.
-- 57 original 2048×1024 offline-generated atlases: characteristic colour blocking, race numbers, period sponsor lettering, wing/endplate panels and web tyre/rim details. These remain **stylised reconstructions**, not exact corporate fonts or race-by-race replicas. Chassis are shared per-era models; native has simpler decal/tyre coverage.
+- 90 original 2048×1024 offline-generated atlases (68 constructor-season schemes plus 22 2026 specials): characteristic colour blocking, race numbers, period sponsor lettering, wing/endplate panels and web tyre/rim details. These remain **stylised reconstructions**, not exact corporate fonts or race-by-race replicas. Chassis are shared per-era models; native has simpler decal/tyre coverage.
 - Dark/sage browser menu, orbitable selected-car showroom, camera presets, constructor strip, engine/power/number data and clearer session setup. Native setup has a simpler 3D car studio; native camera field-of-view units are corrected. Reduced-motion, mobile sizing, failed-texture fallback and resource disposal are covered by browser tests.
 - Removed redundant checked-in map/building databases and obsolete concept hero; runtime and offline generators use authoritative `data/` inputs. Existing licenses and releases are retained.
 - 1988 naturally aspirated constructors no longer inherit turbo lag/boost.
@@ -180,7 +189,7 @@ Full source evidence, photo links, database attribution and limitations: [corner
 ## Retained prototype features
 
 - Ten circuits: Spa, Monaco, Monza, Silverstone, Suzuka, Interlagos, Imola, Nürburgring GP, Montréal and Hockenheim.
-- Five car eras (1967, 1988, 2004, 2021, 2023), **57 constructor-season entries** (9 / 18 / 10 / 10 / 10), distinct power/grip/braking and era handling, turbo boost, wet-weather grip and progressive rear breakaway. Handling is inspired by the eras, not calibrated real vehicle telemetry.
+- Six car eras (1967, 1988, 2004, 2021, 2023, 2026), **68 constructor-season entries** (9 / 18 / 10 / 10 / 10 / 11), illustrative era handling (2026 intentionally uses a common constructor baseline), turbo boost, wet-weather grip and progressive rear breakaway. Handling is inspired by the eras, not calibrated real vehicle telemetry.
 - Practice, time trial and browser quick races with five AI cars; keyboard, touch and standard controller inputs.
 - Real mapped recent pit routes, lane following/limiter, marked-box stop and timed tyre/fuel service. **Pit entry practice** avoids needing a full lap. Not full race strategy.
 - Phase-locked timbre derived from licensed real recordings for the first three eras; modern V6 synthesis and safe missing-recording fallback. The source cars/dates are approximate era stand-ins, not exact roster-car recordings.

@@ -7,6 +7,7 @@ export const GUIDE_SPECS = [
   { mass: 605, power: 660000, grip: 1.75, aero: 2.8, brake: 30, drag: 0.86 },
   { mass: 798, power: 735000, grip: 1.9, aero: 4.1, brake: 32, drag: 0.91 },
   { mass: 752, power: 735000, grip: 1.94, aero: 3.8, brake: 32, drag: 0.87 },
+  { mass: 770, power: 735000, grip: 1.88, aero: 3.4, brake: 32, drag: 0.78 },
 ];
 export function racingGuide(
   track,
@@ -18,7 +19,7 @@ export function racingGuide(
     points = path.points,
     n = points.length,
     spec = carSpec || GUIDE_SPECS[3];
-  const cap = [75, 94, 98, 100, 99][era] || 96,
+  const cap = [75, 94, 98, 100, 99, 100][era] || 96,
     factor = wet ? 0.7 : 1;
   const gripAt = (v) => {
     const mechanical = spec.grip * 9.81 * factor,

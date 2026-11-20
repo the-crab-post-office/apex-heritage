@@ -1,0 +1,41 @@
+import {test,expect} from '@playwright/test';
+import {openSetup,launchSession} from '../scripts/menu-navigation.mjs';
+test.use({hasTouch:true});
+test('2026 mobile setup saves a special paint separately and drives that paint through the real sixth-era core',async({page})=>{
+ test.setTimeout(240000);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:390,height:844});
+ await page.addInitScript(()=>{
+  if(!localStorage.getItem('apex-config'))localStorage.setItem('apex-config',JSON.stringify({era:5,team:2,track:2,quality:'low',mode:'practice',sound:false,weather:'dry'}));
+ });
+ await page.goto('/');
+ await page.waitForFunction(()=>window.__showroom?.container.dataset.ready==='true');
+ await page.evaluate(()=>cancelAnimationFrame(window.__showroom.animation));
+ await openSetup(page,'team');
+ await expect(page.locator('[data-team]')).toHaveCount(11);
+ await page.selectOption('#livery-select','2026-ferrari-monza');
+ await page.waitForFunction(()=>window.__showroom.car.userData.livery.id==='2026-ferrari-monza'&&window.__showroom.container.dataset.ready==='true');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('apex-config')));
+ expect(stored.era).toBe(5);expect(stored.team).toBe(2);expect(stored.livery).toBe('2026-ferrari-monza');
+ await page.reload();
+ await page.waitForFunction(()=>window.__showroom?.container.dataset.ready==='true');
+ await page.evaluate(()=>cancelAnimationFrame(window.__showroom.animation));
+ await openSetup(page,'team');
+ await expect(page.locator('#livery-select')).toHaveValue('2026-ferrari-monza');
+ await page.evaluate(()=>{const s=window.__showroom;s.renderer.render(s.scene,s.camera);});
+ await page.screenshot({path:'artifacts/022-graphics/mobile-paint.jpg',type:'jpeg',quality:78,fullPage:true});
+ await launchSession(page);
+ await page.waitForFunction(()=>window.__apex?.race?.world?.player&&document.querySelector('#session-loading').hidden&&window.__apex.race.animation);
+ const actual=await page.evaluate(()=>{
+  const r=window.__apex.race;cancelAnimationFrame(r.animation);r.paused=true;r.countdown=-1;
+  for(let i=0;i<600;i++)r.sim.step(1,0,0,1/120);
+  r.state=JSON.parse(r.sim.state_json());r.world.update(r.state,1/60);r.updateHud(performance.now());document.querySelector('#start-lights').hidden=true;
+  return {era:r.config.era,team:r.config.team,id:r.world.player.userData.livery.id,spec:JSON.parse(r.sim.spec_json()),speed:r.state.speed};
+ });
+ expect(actual.era).toBe(5);expect(actual.team).toBe(2);expect(actual.id).toBe('2026-ferrari-monza');expect(actual.spec.mass).toBe(770);expect(actual.speed).toBeGreaterThan(5);
+ await expect(page.locator('#hud-drs')).toHaveText('NO DRS');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:'artifacts/022-graphics/mobile-driving.jpg',type:'jpeg',quality:78});
+ expect(errors).toEqual([]);
+});

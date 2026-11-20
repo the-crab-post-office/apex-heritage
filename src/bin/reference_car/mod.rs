@@ -12,7 +12,7 @@ pub struct Cars {
 impl Cars {
     pub fn new() -> Self {
         let mut meshes = HashMap::new();
-        for era in 0..5 {
+        for era in 0..6 {
             let batches = apex_heritage::car_shapes::model(era)
                 .unwrap()
                 .iter()

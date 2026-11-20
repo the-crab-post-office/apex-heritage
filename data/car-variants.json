@@ -118,5 +118,60 @@
     "pod_scale": 1.0,
     "engine_scale": 1.0,
     "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+  },
+  "2026-mclaren": {
+    "pod_scale": 1.0,
+    "nose_scale": 1.0,
+    "engine_scale": 1.0
+  },
+  "2026-mercedes": {
+    "pod_scale": 0.97,
+    "nose_scale": 0.98,
+    "engine_scale": 0.98
+  },
+  "2026-ferrari": {
+    "pod_scale": 1.02,
+    "nose_scale": 1.02,
+    "engine_scale": 1.01
+  },
+  "2026-red-bull": {
+    "pod_scale": 0.96,
+    "nose_scale": 0.96,
+    "engine_scale": 0.97
+  },
+  "2026-williams": {
+    "pod_scale": 1.01,
+    "nose_scale": 1.0,
+    "engine_scale": 1.0
+  },
+  "2026-racing-bulls": {
+    "pod_scale": 0.99,
+    "nose_scale": 0.99,
+    "engine_scale": 0.99
+  },
+  "2026-aston-martin": {
+    "pod_scale": 1.03,
+    "nose_scale": 1.03,
+    "engine_scale": 1.02
+  },
+  "2026-haas": {
+    "pod_scale": 1.0,
+    "nose_scale": 1.0,
+    "engine_scale": 1.0
+  },
+  "2026-audi": {
+    "pod_scale": 0.98,
+    "nose_scale": 1.01,
+    "engine_scale": 1.01
+  },
+  "2026-alpine": {
+    "pod_scale": 1.01,
+    "nose_scale": 0.99,
+    "engine_scale": 0.98
+  },
+  "2026-cadillac": {
+    "pod_scale": 0.99,
+    "nose_scale": 1.02,
+    "engine_scale": 1.0
   }
 }

@@ -66,7 +66,7 @@ mod tests {
             .iter()
             .filter(|f| f.tag != "retaining-wall")
             .all(|f| f.p.iter().all(|p| p[1] >= 10.99)));
-        assert!((0..5).all(|era| for_track("Monaco", era).is_some()));
+        assert!((0..6).all(|era| for_track("Monaco", era).is_some()));
         assert!(for_track("Spa-Francorchamps", 2).is_none());
         assert!(for_track("Spa-Francorchamps", 4).is_some());
     }

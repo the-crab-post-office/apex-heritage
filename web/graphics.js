@@ -1,3 +1,4 @@
+import { buildTrackFinish, lightingFor } from "./track-finish.js";
 import { RacingLine } from "./racing-line.js";
 import { addBuildingRoofs } from "./building-roofs.js";
 import appearanceData from "../data/building-appearance.json";
@@ -72,10 +73,11 @@ export class World {
     this.config = config;
     this.scene = new THREE.Scene();
     const wet = config.weather === "wet";
-    this.scene.background = new THREE.Color(wet ? "#8c9f9d" : "#b0c5bd");
+    const light = lightingFor(track.code);
+    this.scene.background = new THREE.Color(wet ? "#8c9f9d" : light.sky);
     this.scene.fog = new THREE.FogExp2(
-      wet ? "#8c9f9d" : "#b4c8d0",
-      wet ? 0.0014 : 0.00038,
+      wet ? "#8c9f9d" : light.sky,
+      wet ? 0.0014 : light.fog,
     );
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -98,14 +100,14 @@ export class World {
     );
     this.scene.add(
       new THREE.HemisphereLight(
-        wet ? "#bdced6" : "#d4e3e6",
-        "#5d6545",
+        wet ? "#bdced6" : light.sky,
+        light.ground,
         wet ? 2 : 1.35,
       ),
     );
     this.sun = new THREE.DirectionalLight(
-      wet ? "#d4dfe1" : "#fff0d2",
-      wet ? 1.1 : 2.3,
+      wet ? "#d4dfe1" : light.sun,
+      wet ? 1.1 : light.strength,
     );
     this.sun.position.set(100, 180, 130);
     this.sun.castShadow = true;
@@ -142,7 +144,7 @@ export class World {
           12000,
         );
         this.scene.environment = this.skyEnvironment.texture;
-        this.scene.environmentIntensity = 0.35;
+        this.scene.environmentIntensity = 0.45;
         generator.dispose();
         environmentScene.clear();
       }
@@ -177,6 +179,7 @@ export class World {
     this.buildTunnel();
     addReferenceScene(this);
     buildVenue(this);
+    buildTrackFinish(this);
     this.racingLine = new RacingLine(this);
     this.photoReady = Promise.all(this.surfaces.pending);
     this.player = makeCar(config.era, config.color, config.teamData);

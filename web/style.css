@@ -2683,3 +2683,10 @@ kbd {
   font: 14px sans-serif;
   cursor: pointer;
 }
+
+/* 2026 paint choices are independent of constructor / handling selection. */
+.season-livery-field { margin: 12px 0; display:grid; gap:7px; padding:14px 18px; border:1px solid #ffffff25; background:#151c1a; border-radius:12px; }
+.season-livery-field[hidden] { display:none; }
+.season-livery-field label {font-size:10px;letter-spacing:.16em;color:#b1c2b9;}
+.season-livery-field select {width:100%;min-height:40px;padding:8px 10px;color:#edf3e8;background:#232e28;border:1px solid #728472;border-radius:5px;font:inherit;}
+.season-livery-field small {font-size:11px;line-height:1.5;color:#bac7be;}

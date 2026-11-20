@@ -86,8 +86,19 @@ impl Details {
             .expect("every circuit detail record");
         let p = &record.profiles[era.min(3)];
         let mut d = Self {
-            year: if era == 4 { 2021 } else { p.year },
-            label: if era == 4 {
+            year: if era == 5 {
+                2026
+            } else if era == 4 {
+                2021
+            } else {
+                p.year
+            },
+            label: if era == 5 {
+                format!(
+                    "{} · recent-layout substitute",
+                    p.label.replace("2023", "2026")
+                )
+            } else if era == 4 {
                 format!(
                     "{} · recent-layout substitute",
                     p.label.replace("2023", "2021")
@@ -96,7 +107,9 @@ impl Details {
                 p.label.clone()
             },
             geometry_status: p.geometry_status.clone(),
-            notes: if era == 4 {
+            notes: if era == 5 {
+                format!("{} 2026 uses the latest supported mapped surface, not a reconstructed 2026 circuit.",p.notes)
+            } else if era == 4 {
                 format!("{} 2021 uses the latest supported surface preset, not a reconstructed 2021 circuit.",p.notes)
             } else {
                 p.notes.clone()

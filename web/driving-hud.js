@@ -3,7 +3,7 @@ const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 export function gaugeTelemetry(state, era) {
   const rpm = Math.max(0, Number(state.rpm) || 0),
     speed = Math.abs(Number(state.speed) || 0) * 3.6,
-    peak = [10000, 12500, 19000, 12500, 12500][era] || 12500;
+    peak = [10000, 12500, 19000, 12500, 12500, 12500][era] || 12500;
   const modern = era === 3 || era === 4,
     supported = modern && typeof state.drs_active === "boolean";
   return {

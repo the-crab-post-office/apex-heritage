@@ -1,3 +1,4 @@
+import { carbonFinish } from "./car-finish.js";
 import { wheelRig } from "./wheel-motion.js";
 import { variantPoint } from "./car-variants.js";
 import * as THREE from "three";
@@ -25,7 +26,7 @@ export function referenceCar(era, team) {
     front_endplate: mat(team.front_endplate_color || team.color, 0.35, 0.1),
     suit: mat(team.color, 0.85, 0),
     tyre: l.tyre,
-    carbon: mat("#14191f", 0.48, 0.25),
+    carbon: carbonFinish(),
     rubber: mat("#111317", 0.85, 0),
     rim: l.rim,
     engine: mat("#56595a", 0.45, 0.7),
@@ -55,7 +56,7 @@ export function referenceCar(era, team) {
       "position",
       new THREE.Float32BufferAttribute(
         batch.positions.flatMap((p) =>
-          variantPoint(team.id, batch.material, p),
+          variantPoint(team.constructor_id || team.id, batch.material, p),
         ),
         3,
       ),
@@ -86,7 +87,7 @@ export function referenceCar(era, team) {
   }
   car.userData.wheels = wheels;
   car.userData.layout = layout;
-  car.userData.steeringLock = [0.5, 0.34, 0.31, 0.28, 0.29][era];
+  car.userData.steeringLock = [0.5, 0.34, 0.31, 0.28, 0.29, 0.29][era];
   car.userData.materials = [...Object.values(materials), haloMaterial];
   car.userData.liveryReady = l.ready;
   car.userData.livery = {
@@ -111,6 +112,7 @@ export function referenceCar(era, team) {
           "2004-v10",
           "2023-ground-effect",
           "2021-flat-floor-13inch",
+          "2026-compact-hybrid-18inch",
         ][era],
     components,
     paintedVertices: shapes.models[String(era)]

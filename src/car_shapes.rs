@@ -88,7 +88,7 @@ mod tests {
     use super::*;
     #[test]
     fn reference_meshes_are_finite_indexed_and_have_the_distinguishing_components() {
-        for era in 0..5 {
+        for era in 0..6 {
             let m = model(era).unwrap();
             let names = m
                 .iter()

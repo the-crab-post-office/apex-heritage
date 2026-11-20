@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn recent_spa_barriers_are_era_scoped_and_leave_every_requested_corner_drivable() {
         let t = crate::tracks().remove(0);
-        for era in 0..5 {
+        for era in 0..6 {
             let v = Venue::for_era(&t.name, era);
             assert_eq!(
                 v.barriers.iter().any(|b| b.kind.starts_with("spa-")),

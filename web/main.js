@@ -155,6 +155,7 @@ $("#info-dialog").addEventListener("click", (e) => {
       e.target.close();
   }
 });
+import { liveriesFor } from "./season-liveries.js";
 let showroom = null;
 let menuFlow = null;
 function updateShowroom() {
@@ -197,8 +198,30 @@ function updateShowroom() {
     document.querySelector("#app").dataset.screen === "team"
   )
     $("#team-collection .selected")?.focus({ preventScroll: true });
+  let paint = $("#livery-select");
+  if (!paint) {
+    const wrap = document.createElement("div");
+    wrap.className = "season-livery-field";
+    wrap.innerHTML = '<label for="livery-select">RACE LIVERY</label><select id="livery-select"></select><small id="livery-description"></small>';
+    $("#showroom-stage").insertAdjacentElement("afterend", wrap);
+    paint = $("#livery-select");
+    paint.onchange = () => { config.livery = paint.value; save(); updateShowroom(); };
+  }
+  const options = liveriesFor(t);
+  if (!options.some(l => l.id === config.livery)) config.livery = "";
+  paint.parentElement.hidden = !options.length;
+  paint.innerHTML = '<option value="">Season launch livery</option>' + options.map(l => `<option value="${l.id}">${l.label}</option>`).join("");
+  paint.value = config.livery;
+  const chosen = options.find(l => l.id === config.livery);
+  $("#livery-description").textContent = chosen ? chosen.notes + " Original interpretation." : "Photo-guided launch colours · original artwork";
+  if (chosen) {
+    const source = document.createElement("a");
+    source.href = chosen.source; source.target = "_blank"; source.rel = "noopener";
+    source.textContent = " Official reference ↗";
+    $("#livery-description").append(source);
+  }
   if (showroom) {
-    showroom.select(config.era, config.team);
+    showroom.select(config.era, config.team, config.livery);
     revealMenu($("#showroom-stage"));
   }
   menuFlow?.sync();
@@ -241,7 +264,7 @@ function updateMachine() {
 function updateLayoutNote() {
   const note = document.getElementById("layout-note");
   if (note) {
-    note.textContent = `${eras[config.era].year} SURFACE PRESET · ${config.era < 3 || config.era === 4 ? "RECENT LAYOUT SUBSTITUTE" : "RECENT MAPPED ALIGNMENT"}`;
+    note.textContent = `${eras[config.era].year} SURFACE PRESET · ${config.era < 3 || config.era >= 4 ? "RECENT LAYOUT SUBSTITUTE" : "RECENT MAPPED ALIGNMENT"}`;
     if (config.track === 0)
       note.textContent += " · EAU ROUGE PHOTO UPDATE (ALL ERAS)";
     if (config.track === 1)
@@ -411,7 +434,7 @@ $("#info-dialog").addEventListener("close", () =>
 );
 function showGarage() {
   showDialog(
-    `<div class="dialog-kicker">FIVE GENERATIONS. FIVE PERSONALITIES.</div><h2 class="dialog-heading">The evolution of speed.</h2><p class="dialog-subtitle">Not skins. Five era-specific driving presets, with 57 constructor-season entries across five seasons.</p><div class="era-grid">${eras.map((e, i) => `<article class="era-info ${config.era === i ? "chosen" : ""}"><h3>${e.year}</h3><h4>${e.name}</h4><p>${e.description}</p><button data-pick-era="${i}">${config.era === i ? "SELECTED" : "DRIVE THIS ERA"}</button></article>`).join("")}</div><p class="dialog-note">Handling is inspired by each generation, not a validated reproduction of real vehicle telemetry. Original car silhouettes with reference-guided colours, period sponsor lettering and stylised markings; not licensed scans or exact race-specific replicas.</p>`,
+    `<div class="dialog-kicker">SIX GENERATIONS. SIX PERSONALITIES.</div><h2 class="dialog-heading">The evolution of speed.</h2><p class="dialog-subtitle">Not skins. Six era-specific driving presets, with 68 constructor-season entries across six seasons and sourced 2026 special paint choices.</p><div class="era-grid">${eras.map((e, i) => `<article class="era-info ${config.era === i ? "chosen" : ""}"><h3>${e.year}</h3><h4>${e.name}</h4><p>${e.description}</p><button data-pick-era="${i}">${config.era === i ? "SELECTED" : "DRIVE THIS ERA"}</button></article>`).join("")}</div><p class="dialog-note">Handling is inspired by each generation, not a validated reproduction of real vehicle telemetry. Original car silhouettes with reference-guided colours, period sponsor lettering and stylised markings; not licensed scans or exact race-specific replicas.</p>`,
   );
   $$("[data-pick-era]").forEach(
     (b) =>
@@ -431,7 +454,7 @@ $("#car-detail").onclick = () => {
   const e = eras[config.era],
     t = e.teams[config.team];
   showDialog(
-    `<div class="dialog-kicker">${e.year} / ${e.name}</div><h2 class="dialog-heading">${t.name} ${t.car}</h2><p class="dialog-subtitle">${e.description}</p><div class="spec-grid"><div class="spec-box"><span>POWER · APPROX.</span><b>${t.power} hp</b></div><div class="spec-box"><span>MINIMUM MASS</span><b>${[540, 540, 605, 798, 752][config.era]} kg</b></div><div class="spec-box"><span>GEARBOX</span><b>${[5, 6, 7, 8, 8][config.era]} speed</b></div></div><table class="team-comparison"><thead><tr><th>TEAM / CAR</th><th>POWER</th><th>GRIP INDEX</th><th>BRAKING INDEX</th></tr></thead><tbody>${e.teams.map((t) => `<tr><td><span class="team-dot" style="background:${t.color}"></span>${t.name} ${t.car}</td><td>${t.power} hp</td><td>${t.grip}</td><td>${t.brake}</td></tr>`).join("")}</tbody></table><p class="dialog-note">Indices are relative to the leading car within this era. All values are gameplay approximations, not historical rankings or engineering specifications.</p>`,
+    `<div class="dialog-kicker">${e.year} / ${e.name}</div><h2 class="dialog-heading">${t.name} ${t.car}</h2><p class="dialog-subtitle">${e.description}</p><div class="spec-grid"><div class="spec-box"><span>POWER · APPROX.</span><b>${t.power} hp</b></div><div class="spec-box"><span>MINIMUM MASS</span><b>${[540, 540, 605, 798, 752, 770][config.era]} kg</b></div><div class="spec-box"><span>GEARBOX</span><b>${[5, 6, 7, 8, 8, 8][config.era]} speed</b></div></div><table class="team-comparison"><thead><tr><th>TEAM / CAR</th><th>POWER</th><th>GRIP INDEX</th><th>BRAKING INDEX</th></tr></thead><tbody>${e.teams.map((t) => `<tr><td><span class="team-dot" style="background:${t.color}"></span>${t.name} ${t.car}</td><td>${t.power} hp</td><td>${t.grip}</td><td>${t.brake}</td></tr>`).join("")}</tbody></table><p class="dialog-note">Indices are relative to the leading car within this era. All values are gameplay approximations, not historical rankings or engineering specifications.</p>`,
   );
 };
 $("#view-circuit").onclick = () => {

@@ -10,7 +10,7 @@ test("Monaco is explicit overhead architecture, not a road-clearance exemption",
     (s) => s.track === "Monaco",
   );
   const track = read("data/tracks.json")[1];
-  assert.deepEqual(scene.eras, [0, 1, 2, 3, 4]);
+  assert.deepEqual(scene.eras, [0, 1, 2, 3, 4, 5]);
   const floors = scene.facets.filter((f) => f.tag === "hotel-overhead-floor");
   let covered = 0;
   for (let i = 303; i < 340; i++) {
@@ -39,7 +39,7 @@ test("Monaco is explicit overhead architecture, not a road-clearance exemption",
     read("data/reference-scenes.json").scenes.find((s) =>
       s.track.startsWith("Spa"),
     ).eras,
-    [3, 4],
+    [3, 4, 5],
   );
 });
 test("seven-view report contains actual capture bytes and matching source inputs", () => {

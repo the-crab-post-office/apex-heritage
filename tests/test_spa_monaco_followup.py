@@ -43,13 +43,13 @@ class FollowupTests(unittest.TestCase):
    a,b=points[i-1],points[i+1];dx,dz=b[0]-a[0],b[1]-a[1];l=math.hypot(dx,dz)
    self.assertTrue(asphalt.buffer(.01).covers(Point(points[i][0]+dz/l*(half+2),points[i][1]-dx/l*(half+2))),i)
  def test_monaco_floor_bridges_the_mapped_hotel_gap_and_keeps_clearance(self):
-  scenes=read('data/reference-scenes.json')['scenes'];s=scenes[0];self.assertEqual(s['eras'],list(range(5)))
+  scenes=read('data/reference-scenes.json')['scenes'];s=scenes[0];self.assertEqual(s['eras'],list(range(6)))
   floor=unary_union([Polygon([(p[0],p[2])for p in f['p']])for f in s['facets']if f['tag']=='hotel-overhead-floor'])
   hotel=unary_union([Polygon(b['footprint'])for b in read('data/buildings.json')['tracks'][1]['buildings']if b.get('style')=='fairmont'])
   self.assertGreater(floor.intersection(hotel).area,1.,'overhead infill must connect to the mapped hotel, not float in the gap')
   self.assertGreaterEqual(min(p[1]for f in s['facets']if f['tag']!='retaining-wall'for p in f['p']),11.)
   t=read('data/tracks.json')[1]
   self.assertGreaterEqual(sum(floor.buffer(.02).covers(Point(t['points'][i]))for i in range(303,340)),25)
-  self.assertEqual(scenes[1]['eras'],[3,4])
+  self.assertEqual(scenes[1]['eras'],[3,4,5])
  def test_reference_scene_generator_is_offline_and_deterministic(self):
   p=R/'data/reference-scenes.json';before=p.read_bytes();subprocess.run([sys.executable,'scripts/build-reference-scenes.py'],cwd=R,check=True,capture_output=True);self.assertEqual(p.read_bytes(),before)

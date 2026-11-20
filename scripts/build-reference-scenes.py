@@ -28,7 +28,7 @@ def section(t,i,offset,h=0):
     pts=t['points'];n=len(pts);a,b=pts[(i-1)%n],pts[(i+1)%n];dx,dz=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dz)
     return [pts[i][0]+dz/length*offset,t['heights'][i]+h,pts[i][1]-dx/length*offset]
 
-s=scene('Monaco',[0,1,2,3,4]);t=tracks[1]
+s=scene('Monaco',[0,1,2,3,4,5]);t=tracks[1]
 ref=json.loads((R/'data/monaco-reference.json').read_text())
 hotel=next(r for r in ref['landmarks']if r['style']=='fairmont')
 o=t['origin'];co=math.cos(math.radians(o['latitude']))
@@ -80,7 +80,7 @@ for i in range(294,310):
 s['scope']='Modern Monaco for every era, as requested. Over-road Fairmont infill on the original mapped hotel footprint, plus estimated portal connection. Not a survey; image-12.png reference only.'
 s['clearance']={'start_index':303,'end_index':340,'floor_y':round(bottom,4),'min_road_clearance':4.65,'roof_y':round(top,4),'hotel_osm_id':hotel['osm_id']}
 
-s=scene('Spa-Francorchamps',[3,4]);t=tracks[0]
+s=scene('Spa-Francorchamps',[3,4,5]);t=tracks[0]
 # Staggered grid boxes approaching the unchanged physics timing line at index 0.
 # Each paint ribbon follows the actual road sections, not a flat world plane.
 for row,side in enumerate([-1,1]):

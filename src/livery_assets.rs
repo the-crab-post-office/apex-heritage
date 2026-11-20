@@ -58,6 +58,55 @@ pub fn png(id: &str) -> &'static [u8] {
         "2021-alphatauri" => include_bytes!("../web/assets/liveries/2021-alphatauri.png"),
         "2021-alfa-romeo" => include_bytes!("../web/assets/liveries/2021-alfa-romeo.png"),
         "2021-haas" => include_bytes!("../web/assets/liveries/2021-haas.png"),
+        "2026-mclaren" => include_bytes!("../web/assets/liveries/2026-mclaren.png"),
+        "2026-mercedes" => include_bytes!("../web/assets/liveries/2026-mercedes.png"),
+        "2026-ferrari" => include_bytes!("../web/assets/liveries/2026-ferrari.png"),
+        "2026-red-bull" => include_bytes!("../web/assets/liveries/2026-red-bull.png"),
+        "2026-williams" => include_bytes!("../web/assets/liveries/2026-williams.png"),
+        "2026-racing-bulls" => include_bytes!("../web/assets/liveries/2026-racing-bulls.png"),
+        "2026-aston-martin" => include_bytes!("../web/assets/liveries/2026-aston-martin.png"),
+        "2026-haas" => include_bytes!("../web/assets/liveries/2026-haas.png"),
+        "2026-audi" => include_bytes!("../web/assets/liveries/2026-audi.png"),
+        "2026-alpine" => include_bytes!("../web/assets/liveries/2026-alpine.png"),
+        "2026-cadillac" => include_bytes!("../web/assets/liveries/2026-cadillac.png"),
+        "2026-racing-bulls-japan" => {
+            include_bytes!("../web/assets/liveries/2026-racing-bulls-japan.png")
+        }
+        "2026-racing-bulls-miami" => {
+            include_bytes!("../web/assets/liveries/2026-racing-bulls-miami.png")
+        }
+        "2026-racing-bulls-barcelona" => {
+            include_bytes!("../web/assets/liveries/2026-racing-bulls-barcelona.png")
+        }
+        "2026-mercedes-japan" => include_bytes!("../web/assets/liveries/2026-mercedes-japan.png"),
+        "2026-haas-japan" => include_bytes!("../web/assets/liveries/2026-haas-japan.png"),
+        "2026-mclaren-monaco" => include_bytes!("../web/assets/liveries/2026-mclaren-monaco.png"),
+        "2026-audi-monaco" => include_bytes!("../web/assets/liveries/2026-audi-monaco.png"),
+        "2026-aston-martin-monaco" => {
+            include_bytes!("../web/assets/liveries/2026-aston-martin-monaco.png")
+        }
+        "2026-mclaren-silverstone" => {
+            include_bytes!("../web/assets/liveries/2026-mclaren-silverstone.png")
+        }
+        "2026-williams-silverstone" => {
+            include_bytes!("../web/assets/liveries/2026-williams-silverstone.png")
+        }
+        "2026-cadillac-miami" => include_bytes!("../web/assets/liveries/2026-cadillac-miami.png"),
+        "2026-cadillac-silverstone" => {
+            include_bytes!("../web/assets/liveries/2026-cadillac-silverstone.png")
+        }
+        "2026-ferrari-monza" => include_bytes!("../web/assets/liveries/2026-ferrari-monza.png"),
+        "2026-audi-singapore" => include_bytes!("../web/assets/liveries/2026-audi-singapore.png"),
+        "2026-ferrari-austin" => include_bytes!("../web/assets/liveries/2026-ferrari-austin.png"),
+        "2026-mercedes-austin" => include_bytes!("../web/assets/liveries/2026-mercedes-austin.png"),
+        "2026-haas-austin" => include_bytes!("../web/assets/liveries/2026-haas-austin.png"),
+        "2026-cadillac-austin" => include_bytes!("../web/assets/liveries/2026-cadillac-austin.png"),
+        "2026-alpine-miami" => include_bytes!("../web/assets/liveries/2026-alpine-miami.png"),
+        "2026-aston-martin-austin" => {
+            include_bytes!("../web/assets/liveries/2026-aston-martin-austin.png")
+        }
+        "2026-mclaren-monza" => include_bytes!("../web/assets/liveries/2026-mclaren-monza.png"),
+        "2026-audi-sao-paulo" => include_bytes!("../web/assets/liveries/2026-audi-sao-paulo.png"),
         _ => include_bytes!("../web/assets/liveries/2004-ferrari.png"),
     }
 }

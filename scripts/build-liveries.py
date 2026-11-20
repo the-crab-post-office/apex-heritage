@@ -102,6 +102,9 @@ def panel(t,pods=False):
     for xx in [256,768]:d.rectangle((xx-130,0,xx+130,511),fill=s)
   elif style=='haas':
    for xx in [256,768]:d.polygon([(xx-130,190),(xx-20,170),(xx+125,400),(xx+55,450)],fill='#d12c3f');d.line((xx-130,175,xx-20,155,xx+140,390),fill='#2a54a3',width=18)
+ if int(t["id"][:4])==2026:
+  from livery_2026 import draw
+  draw(d,t,pods)
  # Specific photo-reviewed corrections; other constructor schemes are retained.
  if t['id']=='1988-mclaren':
   d.rectangle((0,0,1023,511),fill=base)
@@ -128,6 +131,9 @@ def panel(t,pods=False):
  label=text_layer(str(t['number']),115,36,ink);n.paste(label,(37,6),label)
  for xx in [-95,929]:im.paste(n,(xx,110),n)
  return im
+specials=json.loads((ROOT/"data/liveries-2026.json").read_text())["specials"]
+base_teams={t["id"]:t for e in D["eras"] for t in e["teams"]}
+D["eras"].append({"year":"2026","teams":[{**base_teams[s["team_id"]],**s,"reference":s["source"]} for s in specials]})
 manifest=[];rust=[]
 for era in D['eras']:
  for t in era['teams']:
@@ -138,6 +144,9 @@ for era in D['eras']:
    d.rectangle((1024,512,1535,767),fill=wingbase)
    for xx in [1042,1302]:
     word=text_layer(t['wing'],205,88,contrast(wingbase));atlas.paste(word,(xx,596),word)
+  if int(era["year"])==2026:
+   from livery_2026 import wing
+   wing(d,t)
   # Sidewall band, repeated around the circumference by each wheel's UVs.
   d.rectangle((0,768,2047,1023),fill='#141719');tyre=t['tyre'].upper();ink='#e9d12f'if tyre=='PIRELLI'else'#eeeee4'
   for x in [260,1284]:
@@ -145,7 +154,7 @@ for era in D['eras']:
   # Separate alpha-backed decal strips, conformally placed on the actual pods.
   d.rectangle((0,940,2047,1023),fill=(0,0,0,0))
   ink=('#e62738'if (t['style']=='haas' or (t['style']=='bull' and era['year']=='2021'))else '#151b23'if t['style']=='mclaren' or t['id']=='1988-mclaren'else contrast(t['color'])if int(era['year'])in[1988,2004]else '#f6f4ee')
-  sponsor=text_layer(t['sponsor'],1000,66,ink);atlas.paste(sponsor,(12,944),sponsor)
+  sponsor=text_layer('1000' if t.get('motif')=='milestone' else t['sponsor'],1000,66,contrast(t['color']) if int(era['year'])==2026 else ink);atlas.paste(sponsor,(12,944),sponsor)
   number=text_layer(str(t['number']),150,66,contrast(t['color']));atlas.paste(number,(1060,944),number)
   partner=text_layer(t['minor'],780,66,contrast(t['color']));atlas.paste(partner,(1250,944),partner)
   atlas.quantize(colors=128,method=Image.Quantize.FASTOCTREE,dither=Image.Dither.NONE).save(OUT/(t['id']+'.png'),optimize=True)

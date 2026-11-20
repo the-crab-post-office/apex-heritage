@@ -76,7 +76,7 @@ mod tests {
             }
             panic!("failed stopping rig era {era}");
         }
-        for era in 0..5 {
+        for era in 0..6 {
             assert!(stop(era, true) > stop(era, false) * 1.10, "era {era}");
         }
     }

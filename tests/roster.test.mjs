@@ -8,11 +8,11 @@ const manifest = JSON.parse(
 test("complete season constructor counts, unique ids and local original atlases", () => {
   assert.deepEqual(
     roster.eras.map((e) => e.teams.length),
-    [9, 18, 10, 10, 10],
+    [9, 18, 10, 10, 10, 11],
   );
   const teams = roster.eras.flatMap((e) => e.teams);
-  assert.equal(new Set(teams.map((t) => t.id)).size, 57);
-  assert.equal(manifest.teams.length, 57);
+  assert.equal(new Set(teams.map((t) => t.id)).size, 68);
+  assert.equal(manifest.teams.length, 90);
   assert.equal(manifest.photo_pixels, false);
   for (const t of teams) {
     const png = fs.readFileSync(`web/assets/liveries/${t.id}.png`);

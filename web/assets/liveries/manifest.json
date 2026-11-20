@@ -514,6 +514,303 @@
       "number": 47,
       "style": "haas",
       "source": "https://en.wikipedia.org/wiki/Haas_VF-21"
+    },
+    {
+      "id": "2026-mclaren",
+      "file": "2026-mclaren.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 1,
+      "style": "mclaren",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-mercedes",
+      "file": "2026-mercedes.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 63,
+      "style": "mercedes",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-ferrari",
+      "file": "2026-ferrari.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 16,
+      "style": "ferrari",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-red-bull",
+      "file": "2026-red-bull.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 3,
+      "style": "bull",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-williams",
+      "file": "2026-williams.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 23,
+      "style": "williams",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-racing-bulls",
+      "file": "2026-racing-bulls.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 30,
+      "style": "racingbulls",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-aston-martin",
+      "file": "2026-aston-martin.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 14,
+      "style": "aston",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-haas",
+      "file": "2026-haas.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 31,
+      "style": "haas",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-audi",
+      "file": "2026-audi.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 27,
+      "style": "audi",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-alpine",
+      "file": "2026-alpine.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 10,
+      "style": "alpine",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-cadillac",
+      "file": "2026-cadillac.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 11,
+      "style": "cadillac",
+      "source": "https://www.theguardian.com/sport/gallery/2026/feb/10/f1-2026-formula-one-new-season-cars-in-pictures"
+    },
+    {
+      "id": "2026-racing-bulls-japan",
+      "file": "2026-racing-bulls-japan.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 30,
+      "style": "racingbulls",
+      "source": "https://www.formula1.com/en/latest/article/gallery-check-out-racing-bulls-special-livery-for-the-japanese-grand-prix.3xzvEGBKo1rfFJhCEkbOCh"
+    },
+    {
+      "id": "2026-racing-bulls-miami",
+      "file": "2026-racing-bulls-miami.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 30,
+      "style": "racingbulls",
+      "source": "https://www.formula1.com/en/latest/article/gallery-racing-bulls-reveal-vibrant-yellow-livery-for-miami-grand-prix-weekend.3qkktjcjeVnMY6j9hZLPYR"
+    },
+    {
+      "id": "2026-racing-bulls-barcelona",
+      "file": "2026-racing-bulls-barcelona.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 30,
+      "style": "racingbulls",
+      "source": "https://www.formula1.com/en/latest/article/gallery-racing-bulls-show-off-football-inspired-special-livery-for-barcelona.3ijlEuQv361CqHhvYMJgMe"
+    },
+    {
+      "id": "2026-mercedes-japan",
+      "file": "2026-mercedes-japan.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 63,
+      "style": "mercedes",
+      "source": "https://www.formula1.com/en/latest/article/9-moments-you-might-have-missed-from-the-2026-japanese-grand-prix.4q3PrCagqD8LdJSvAbLtUX"
+    },
+    {
+      "id": "2026-haas-japan",
+      "file": "2026-haas-japan.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 31,
+      "style": "haas",
+      "source": "https://www.formula1.com/en/latest/article/9-moments-you-might-have-missed-from-the-2026-japanese-grand-prix.4q3PrCagqD8LdJSvAbLtUX"
+    },
+    {
+      "id": "2026-mclaren-monaco",
+      "file": "2026-mclaren-monaco.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 1,
+      "style": "mclaren",
+      "source": "https://www.mclaren.com/racing/formula-1/2026/monaco-grand-prix/monaco-1000th-gp-livery-and-grid-moment/"
+    },
+    {
+      "id": "2026-audi-monaco",
+      "file": "2026-audi-monaco.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 27,
+      "style": "audi",
+      "source": "https://www.formula1.com/en/latest/article/all-the-liveries-special-helmet-designs-and-eye-catching-looks-for-monaco.B2w22A5AjE8qtqhuIvqnL"
+    },
+    {
+      "id": "2026-aston-martin-monaco",
+      "file": "2026-aston-martin-monaco.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 14,
+      "style": "aston",
+      "source": "https://www.formula1.com/en/latest/article/gallery-aston-martin-reveal-special-livery-for-the-monaco-grand-prix.5cFPFnHMs4SfUK0B0QO4VA"
+    },
+    {
+      "id": "2026-mclaren-silverstone",
+      "file": "2026-mclaren-silverstone.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 1,
+      "style": "mclaren",
+      "source": "https://www.formula1.com/en/latest/article/all-the-liveries-special-helmet-designs-and-eye-catching-looks-for-silverstone.4fczG4euu9xrz4esyymc3T"
+    },
+    {
+      "id": "2026-williams-silverstone",
+      "file": "2026-williams-silverstone.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 23,
+      "style": "williams",
+      "source": "https://www.formula1.com/en/latest/article/all-the-liveries-special-helmet-designs-and-eye-catching-looks-for-silverstone.4fczG4euu9xrz4esyymc3T"
+    },
+    {
+      "id": "2026-cadillac-miami",
+      "file": "2026-cadillac-miami.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 11,
+      "style": "cadillac",
+      "source": "https://www.formula1.com/en/latest/article/how-cadillacs-first-home-race-in-f1-panned-out-at-the-miami-grand-prix.45YDvMWTXacrSx01e8RI3H"
+    },
+    {
+      "id": "2026-cadillac-silverstone",
+      "file": "2026-cadillac-silverstone.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 11,
+      "style": "cadillac",
+      "source": "https://www.formula1.com/en/latest/article/all-the-liveries-special-helmet-designs-and-eye-catching-looks-for-silverstone.4fczG4euu9xrz4esyymc3T"
+    },
+    {
+      "id": "2026-ferrari-monza",
+      "file": "2026-ferrari-monza.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 16,
+      "style": "ferrari",
+      "source": "https://www.formula1.com/en/latest/article/gallery-ferrari-reveal-schumacher-inspired-livery-for-home-grand-prix-at-monza.5burkVG8etBZzPdZrIN7bX"
+    },
+    {
+      "id": "2026-audi-singapore",
+      "file": "2026-audi-singapore.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 27,
+      "style": "audi",
+      "source": "https://www.formula1.com/en/latest/article/gallery-audi-unveil-special-livery-for-singapore-grand-prix.5Z07QWFA7vVqCPC1jb6AIq"
+    },
+    {
+      "id": "2026-ferrari-austin",
+      "file": "2026-ferrari-austin.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 16,
+      "style": "ferrari",
+      "source": "https://www.formula1.com/en/latest/article/gallery-ferrari-become-latest-team-to-unveil-special-livery-for-united-states-grand-prix.4EbG3ECmHt6RxHQYeFPkvD"
+    },
+    {
+      "id": "2026-mercedes-austin",
+      "file": "2026-mercedes-austin.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 63,
+      "style": "mercedes",
+      "source": "https://www.formula1.com/en/latest/article/gallery-mercedes-show-off-special-livery-for-united-states-grand-prix-weekend.56I955QMPnrmCAzO1hQdpu"
+    },
+    {
+      "id": "2026-haas-austin",
+      "file": "2026-haas-austin.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 31,
+      "style": "haas",
+      "source": "https://www.formula1.com/en/latest/article/gallery-haas-reveal-striking-godzilla-themed-livery-for-united-states-grand-prix-in-austin.37aecsdQPx4DOh7q1qrYTX"
+    },
+    {
+      "id": "2026-cadillac-austin",
+      "file": "2026-cadillac-austin.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 11,
+      "style": "cadillac",
+      "source": "https://news.cadillac.com/newsroom.detail.html/Pages/news/us/en/2026/oct/1020-cadillac-formula-1-grand-prix.html"
+    },
+    {
+      "id": "2026-alpine-miami",
+      "file": "2026-alpine-miami.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 10,
+      "style": "alpine",
+      "source": "https://media.alpinecars.com/la-livree-jaune-emblematique-de-mercado-libre-fait-son-retour-avec-bwt-alpine-formula-one-team-au-grand-prix-de-miami/?lang=fra"
+    },
+    {
+      "id": "2026-aston-martin-austin",
+      "file": "2026-aston-martin-austin.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 14,
+      "style": "aston",
+      "source": "https://www.formula1.com/en/latest/article/gallery-aston-martin-reveal-special-livery-for-united-states-grand-prix.54xJBwPZxuLxE2ON1Oh2bi"
+    },
+    {
+      "id": "2026-mclaren-monza",
+      "file": "2026-mclaren-monza.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 1,
+      "style": "mclaren",
+      "source": "https://www.mclaren.com/racing/formula-1/2026/italian-grand-prix/okx-livery/"
+    },
+    {
+      "id": "2026-audi-sao-paulo",
+      "file": "2026-audi-sao-paulo.png",
+      "width": 2048,
+      "height": 1024,
+      "number": 27,
+      "style": "audi",
+      "source": "https://x.com/F1/status/2118130984759480513"
     }
   ]
 }

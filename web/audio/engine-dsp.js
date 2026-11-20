@@ -58,6 +58,7 @@ ENGINE_PROFILES.push({
   name: "2021 / hybrid V6 (procedural)",
   harmonics: [...ENGINE_PROFILES[3].harmonics],
 });
+ENGINE_PROFILES.push({ ...ENGINE_PROFILES[3], name: "2026 / hybrid V6 (procedural approximation)", harmonics: [...ENGINE_PROFILES[3].harmonics] });
 function tables(profile, limit, off) {
   const table = new Float32Array(SIZE + 1);
   for (let i = 0; i < SIZE; i++) {

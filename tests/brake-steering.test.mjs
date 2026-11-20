@@ -5,8 +5,8 @@ import * as Core from "../web/wasm/apex.js";
 await Core.default({
   module_or_path: fs.readFileSync("web/wasm/apex_bg.wasm"),
 });
-test("released WASM retains turn-in with full brake in all five eras, dry and wet", () => {
-  for (let era = 0; era < 5; era++)
+test("released WASM retains turn-in with full brake in all six eras, dry and wet", () => {
+  for (let era = 0; era < 6; era++)
     for (const wet of [false, true]) {
       const run = (brake) => {
         const sim = new Core.Simulation(2, era, 0, wet, true);

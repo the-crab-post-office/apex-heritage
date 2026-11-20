@@ -51,7 +51,7 @@ try {
       track,
     );
     await launchSession(page);
-    await page.waitForFunction(() => window.__apex?.race?.world?.player, null, {
+    await page.waitForFunction(() => window.__apex?.race?.world?.player && document.querySelector("#session-loading").hidden && window.__apex.race.animation !== undefined, null, {
       timeout: 180000,
     });
     const result = await page.evaluate(

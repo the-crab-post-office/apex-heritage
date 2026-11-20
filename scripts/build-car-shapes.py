@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Original detailed meshes for all five era silhouettes.
+"""Original detailed meshes for all six era silhouettes.
 No photo pixels or third-party meshes. Shared by web and native renderers.
 Units metres; +Z forward. Wheels remain separate, driven by contact geometry.
 """
@@ -77,7 +77,7 @@ class Model:
  def wheels(self,classic):
   # Rounded tyre shoulders, dished rims and sidewall compound stripe.
   for typ in ['front','rear']:
-   layout=LAYOUTS[str(self.era)];radius=layout.get(typ+'_radius',layout['radius']);width=layout[typ+'_width'];rimratio=.635 if self.era==3 else .493 if self.era==4 else .50
+   layout=LAYOUTS[str(self.era)];radius=layout.get(typ+'_radius',layout['radius']);width=layout[typ+'_width'];rimratio=.635 if self.era in [3,5] else .493 if self.era==4 else .50
    p=[];uv=[];idx=[]
    profile=[(-.5,rimratio),(-.53,.74),(-.5,.89),(-.40,.98),(-.25,1),(0,1),(.25,1),(.40,.98),(.5,.89),(.53,.74),(.5,rimratio)]
    for i,(x,r)in enumerate(profile):
@@ -99,11 +99,11 @@ class Model:
     p=[[side*width*.46,0,0]]+[[side*width*.48,math.cos(i/48*TAU)*radius*rimratio,math.sin(i/48*TAU)*radius*rimratio]for i in range(49)];idx=[]
     for j in range(48):idx.extend([0,j+1,j+2])
     self.mesh(typ+' wheel dish','rim'if classic else'carbon',p,idx,wheel=typ)
-    if self.era==3:
+    if self.era in [3,5]:
      p=[[side*width*.522,0,0]]+[[side*width*.520,math.cos(i/64*TAU)*radius*.59,math.sin(i/64*TAU)*radius*.59]for i in range(65)];idx=[]
      for j in range(64):idx.extend([0,j+1,j+2])
      self.mesh(typ+' aerodynamic wheel cover','carbon',p,idx,wheel=typ)
-    for j in range(0 if self.era==3 else(8 if classic else 12)):
+    for j in range(0 if self.era in [3,5] else(8 if classic else 12)):
      a=j/(8 if classic else 12)*TAU;self.tube(typ+' wheel spoke','rim',[[side*width*.5,math.cos(a)*radius*.12,math.sin(a)*radius*.12],[side*width*.49,math.cos(a)*radius*(rimratio-.05),math.sin(a)*radius*(rimratio-.05)]],.012,5);self.parts[-1]['wheel']=typ
  def driver(self,classic):
   y=.93 if classic else .87
@@ -226,6 +226,10 @@ def finish(m,era):
    # Brake rotor and centre-lock hardware are local to the spinning wheel.
    m.ellipsoid('ventilated brake rotor','brake',[side*layout['front_width'if front else'rear_width']*.44,0,0],[.012,r*.48,r*.48]);m.parts[-1]['wheel']='front'if front else'rear'
    m.ellipsoid('centre-lock wheel nut','accent',[side*layout['front_width'if front else'rear_width']*.55,0,0],[.055,.055,.055]);m.parts[-1]['wheel']='front'if front else'rear'
+   for j in range(12):
+    angle=j/12*TAU
+    m.tube('brake rotor cooling slot','rubber',[[side*layout['front_width'if front else'rear_width']*.458,math.cos(angle)*r*rr,math.sin(angle)*r*rr]for rr in [.32,.43]],.003,4);m.parts[-1]['wheel']='front'if front else'rear'
+
   if era==3:
    m.panel('solid curved rear endplate','endplate',side*.89,[(-2.52,.68),(-2.02,.68),(-1.98,.96),(-2.11,1.31),(-2.46,1.38),(-2.56,1.20)])
    m.panel('front endplate surface','front_endplate',side*.985,[(1.98,.18),(2.56,.18),(2.55,.31),(2.11,.43),(1.98,.37)])
@@ -253,12 +257,16 @@ def period_decals(m,era):
 
 models={}
 from car_2021 import build as build_2021,decals
-for era in range(5):
+from car_2026 import build as build_2026
+LAYOUTS["5"]=dict(half=.76,front=1.65,rear=-1.75,front_width=.280,rear_width=.375,radius=.355,front_radius=.350,rear_radius=.355)
+for era in range(6):
  model=Model(era)
- if era==4:build_2021(model)
+ if era==5:build_2026(model)
+ elif era==4:build_2021(model)
  elif era in [0,3]:model.build(era==0)
  else:period_car(model,era)
- finish(model,era);decals(model,era)
+ finish(model,era)
+ if era!=5:decals(model,era)
  # Reference-photo proportion correction; estimates, not constructor CAD.
  if era>0:
   rear=[p for p in model.parts if ('rear'in p['name']and any(n in p['name']for n in ['wing','mainplane','flap','endplate','swan neck']))or 'DRS'in p['name']]
@@ -286,5 +294,5 @@ for era,parts in models.items():
   offset=len(b['positions']);b['components'].append(part['name']);b['positions']+=part['positions'];b['uvs']+=part['uvs'];b['indices'] += [v+offset for v in part['indices']]
  models[era]=batches
 (R/'data/car-layouts.json').write_text(json.dumps(LAYOUTS,separators=(',',':'))+'\n')
-path=R/'data/car-shapes.json';path.write_text(json.dumps(dict(schema=2,source='Original five-era reconstructions, including a distinct photo-guided 2021 flat-floor/13-inch design and 2023 ground-effect design. Team proportion variants are estimated, not exact replicas or scans.',models=models,layouts=LAYOUTS),separators=(',',':'))+'\n')
+path=R/'data/car-shapes.json';path.write_text(json.dumps(dict(schema=2,source='Original six-era reconstructions with a distinct compact photo-guided 2026 design, including a distinct photo-guided 2021 flat-floor/13-inch design and 2023 ground-effect design. Team proportion variants are estimated, not exact replicas or scans.',models=models,layouts=LAYOUTS),separators=(',',':'))+'\n')
 print('Shared car geometry:',path.stat().st_size,'bytes;',[(e,sum(len(b['positions'])for b in m))for e,m in models.items()])

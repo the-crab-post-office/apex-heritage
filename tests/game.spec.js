@@ -31,7 +31,7 @@ test("thirteen circuits, geographic filters, car selection and persistent setup"
   await expect(page.locator(".track-card")).toHaveCount(5);
   await page.locator('[data-filter="Europe"]').click();
   await expect(page.locator(".track-card")).toHaveCount(8);
-  for (let era = 0; era < 5; era++) {
+  for (let era = 0; era < 6; era++) {
     await openSetup(page, "era");
     await page.locator(`[data-era="${era}"]`).click();
     await expect(page.locator("#team-select option")).toHaveCount(
@@ -67,7 +67,7 @@ test("thirteen circuits, geographic filters, car selection and persistent setup"
   );
   await page.locator('[data-nav="garage"]').click();
   await page.locator("#compare-eras").click();
-  await expect(page.locator(".era-info")).toHaveCount(5);
+  await expect(page.locator(".era-info")).toHaveCount(6);
   await page.locator(".dialog-close").click();
   await page.locator('[data-nav="records"]').click();
   await page.locator("#profile-records").click();

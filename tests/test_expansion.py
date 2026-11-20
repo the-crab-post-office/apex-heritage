@@ -38,7 +38,7 @@ class ExpansionTests(unittest.TestCase):
   refs=read('data/expansion-references.json');self.assertEqual(len(refs['photos']),4);self.assertTrue(all(not p['redistributed']for p in refs['photos']))
   scenes=read('data/reference-scenes.json')['scenes']
   for name in ['Yas Marina','Zandvoort','Baku']:
-   s=next(s for s in scenes if s['track']==name);self.assertEqual(s['eras'],[0,1,2,3,4]);self.assertGreater(len(s['facets']),0)
+   s=next(s for s in scenes if s['track']==name);self.assertEqual(s['eras'],[0,1,2,3,4,5]);self.assertGreater(len(s['facets']),0)
   yas=next(s for s in scenes if s['track']=='Yas Marina');self.assertGreater(sum(f['tag']=='yas-hotel-lattice'for f in yas['facets']),1000)
   baku=next(s for s in scenes if s['track']=='Baku');self.assertTrue(any(f['tag']=='castle-wall'for f in baku['facets']));self.assertTrue(any(f['tag']=='water'for f in baku['facets']))
   self.assertEqual(next(o for o in baku['objects']if o['name']=='Old City wall / castle corridor')['osm_way'],1502989778)

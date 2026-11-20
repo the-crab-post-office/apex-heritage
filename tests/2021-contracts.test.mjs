@@ -8,7 +8,7 @@ const cars = read("data/car-shapes.json"),
   roster = read("data/roster.json");
 test("2021 is additive: stable old season IDs and all ten distinct teams", () => {
   assert.deepEqual(
-    roster.eras.map((e) => e.year),
+    roster.eras.slice(0, 5).map((e) => e.year),
     ["1967", "1988", "2004", "2023", "2021"],
   );
   assert.equal(roster.eras[4].teams.length, 10);
@@ -66,7 +66,7 @@ test("each comparison photo is licensed, attributed, local and has a matching 20
   }
 });
 test("2021 has a valid explicitly procedural V6 audio profile", () => {
-  assert.equal(ENGINE_PROFILES.length, 5);
+  assert.equal(ENGINE_PROFILES.length, 6);
   assert.equal(ENGINE_PROFILES[4].cylinders, 6);
   assert.match(ENGINE_PROFILES[4].name, /2021/);
 });

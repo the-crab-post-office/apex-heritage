@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn partial_car_over_the_line_stays_legal_until_all_four_tyres_leave() {
         let t = straight();
-        for era in 0..5 {
+        for era in 0..6 {
             assert_eq!(wheels_on_road(&t, 2, 0., 0., 0., era), 4);
             assert_eq!(wheels_on_road(&t, 2, 5., 0., 0., era), 2);
             assert_eq!(wheels_on_road(&t, 2, 7., 0., 0., era), 0);
@@ -135,7 +135,7 @@ mod tests {
     #[test]
     fn sideways_front_or_rear_axle_still_on_track_is_legal() {
         let t = straight();
-        for era in 0..5 {
+        for era in 0..6 {
             let yaw = std::f32::consts::FRAC_PI_2;
             assert_eq!(wheels_on_road(&t, 2, 5.3, 0., yaw, era), 2);
             assert_eq!(wheels_on_road(&t, 2, 7., 0., yaw, era), 0);

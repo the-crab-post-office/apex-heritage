@@ -7,6 +7,6 @@ export function makeCar(era = 2, color = "#e53c2f", selectedTeam = null) {
     eras[era].teams.find((t) => t.color === color) ||
     eras[era].teams[0];
   const car = referenceCar(era, team);
-  car.userData.assetProvenance = assetStatus.cars.find((c) => c.id === team.id);
+  car.userData.assetProvenance = assetStatus.cars.find((c) => c.id === (team.constructor_id || team.id));
   return car;
 }

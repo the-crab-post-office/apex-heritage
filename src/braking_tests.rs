@@ -28,7 +28,7 @@ fn rig(era: usize, wet: bool, overlap: bool, start: f32, pedal: f32, steer: f32)
 }
 #[test]
 fn stops_have_absolute_distance_bounds_not_just_less_than_starting_speed() {
-    for era in 0..5 {
+    for era in 0..6 {
         let (d, t) = rig(era, false, false, 100., 1., 0.);
         eprintln!("era {era}: 100–0 km/h = {d:.2} m / {t:.2} s");
         assert!(
@@ -45,7 +45,7 @@ fn stops_have_absolute_distance_bounds_not_just_less_than_starting_speed() {
 }
 #[test]
 fn full_brake_overrides_held_accelerator_on_all_five_eras() {
-    for era in 0..5 {
+    for era in 0..6 {
         let a = rig(era, false, false, 100., 1., 0.);
         let b = rig(era, false, true, 100., 1., 0.);
         assert!((a.0 - b.0).abs() < 0.01);
@@ -55,7 +55,7 @@ fn full_brake_overrides_held_accelerator_on_all_five_eras() {
 }
 #[test]
 fn wet_is_longer_partial_pedal_is_progressive_and_turning_keeps_brake_authority() {
-    for era in 0..5 {
+    for era in 0..6 {
         let dry = rig(era, false, false, 100., 1., 0.).0;
         assert!(rig(era, true, false, 100., 1., 0.).0 > dry * 1.15);
         assert!(rig(era, false, false, 100., 0.5, 0.).0 > dry * 1.5);
@@ -93,7 +93,7 @@ fn banked_road_support_matches_the_rendered_cross_slope_and_rolls_the_car() {
 fn full_brake_preserves_matched_speed_turn_in_across_all_eras() {
     // Hold station/speed/heading to measure steering authority, not the natural
     // reduction in yaw rate as the car slows, or collisions on a tight road.
-    for era in 0..5 {
+    for era in 0..6 {
         for wet in [false, true] {
             let turn = |brake| {
                 let mut sim = Simulation::new(2, era, 0, wet, true);

@@ -29,7 +29,7 @@ def append_scenes(R,tracks,scenes):
   dx,dz=b[0]-a[0],b[2]-a[2];ll=math.hypot(dx,dz)or 1;nx,nz=dz/ll*r,-dx/ll*r
   quad(s,[[a[0]-nx,a[1]-.05,a[2]-nz],[b[0]-nx,b[1]-.05,b[2]-nz],[b[0]+nx,b[1]+.05,b[2]+nz],[a[0]+nx,a[1]+.05,a[2]+nz]],color,tag)
  for t in tracks[-3:]:
-  id=t['id'];src=next(s for s in source if s['id']==id);s=dict(track=t['name'],eras=[0,1,2,3,4],facets=[],objects=[],scope='Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.');scenes.append(s)
+  id=t['id'];src=next(s for s in source if s['id']==id);s=dict(track=t['name'],eras=[0,1,2,3,4,5],facets=[],objects=[],scope='Modern scenery for all cars. Original map/photo-guided estimates; no historical reconstruction.');scenes.append(s)
   road=LineString(t['points']+[t['points'][0]]).buffer(t['width']/2+2);pit=next(p for p in pits if p['id']==id);pitpoly=LineString([(p[0],p[2])for p in pit['points']]).buffer(pit['width']/2+1);protected=unary_union([road,pitpoly])
   if id in ['ae-2009','az-2016']:
    # Coarse water boundaries traced in the retained georeferenced Sentinel crop.

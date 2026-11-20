@@ -1,3 +1,4 @@
+import { paintedTeam } from "./season-liveries.js";
 import { LapDelta, gaugeTelemetry, formatDelta } from "./driving-hud.js";
 import { startSequence, startDuration } from "./start-sequence.js";
 import { advanceWheel } from "./wheel-motion.js";
@@ -78,7 +79,7 @@ export class Race {
     this.track = track;
     this.config = config;
     this.callbacks = callbacks;
-    this.config.teamData = eras[config.era].teams[config.team];
+    this.config.teamData = paintedTeam(eras[config.era].teams[config.team], config.livery);
     this.config.color = this.config.teamData.color;
     this.sim = new Core.Simulation(
       config.track,
@@ -395,11 +396,11 @@ export class Race {
         curve = Math.max(curve, Math.abs(angle) / 12);
       }
       const grip =
-        [12, 19, 26, 29, 29][this.config.era] *
+        [12, 19, 26, 29, 29, 28][this.config.era] *
         (this.config.weather === "wet" ? 0.7 : 1);
       const target =
         Math.min(
-          [74, 84, 91, 94, 94][this.config.era],
+          [74, 84, 91, 94, 94, 94][this.config.era],
           Math.sqrt(grip / Math.max(curve, 0.0001)),
         ) * a.skill;
       a.speed = Math.max(
@@ -516,7 +517,7 @@ export class Race {
     $("#hud-position").textContent =
       this.config.mode === "race" ? `P${this.position()} / 6` : "FREE RUN";
     this.world.updatePit?.(s);
-    const peak = [10000, 12500, 19000, 12500, 12500][this.config.era];
+    const peak = [10000, 12500, 19000, 12500, 12500, 12500][this.config.era];
     document
       .querySelectorAll("#rpm-leds i")
       .forEach((led, i) =>

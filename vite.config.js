@@ -39,6 +39,10 @@ function buildIdentity() {
 // Keep redistributed databases editable and asset-specific licenses accessible,
 // without maintaining another checked-in copy of the same data.
 const notices = {
+  "graphics-2026-validation.json": "data/graphics-2026-validation.json",
+  "graphics-2026-baseline.json": "data/graphics-2026-baseline.json",
+  "liveries-2026.json": "data/liveries-2026.json",
+  "graphics-2026.md": "data/GRAPHICS-2026-NOTICE.md",
   "building-appearance.md": "data/BUILDING-APPEARANCE-NOTICE.md",
   "building-appearance.json": "data/building-appearance.json",
   "building-photo-references.json": "data/building-photo-references.json",

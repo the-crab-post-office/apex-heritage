@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-test("57 constructor liveries load; repeated changes release GPU resources", async ({
+test("68 constructor liveries load; repeated changes release GPU resources", async ({
   page,
 }) => {
   test.setTimeout(480000);
@@ -17,8 +17,8 @@ test("57 constructor liveries load; repeated changes release GPU resources", asy
       maxGeometry = 0,
       maxTextures = 0;
     for (let pass = 0; pass < 2; pass++)
-      for (let e = 0; e < 5; e++)
-        for (let i = 0; i < [9, 18, 10, 10, 10][e]; i++) {
+      for (let e = 0; e < 6; e++)
+        for (let i = 0; i < [9, 18, 10, 10, 10, 11][e]; i++) {
           await s.select(e, i);
           if (s.container.dataset.ready !== "true")
             throw new Error(`Atlas failed ${e}:${i}`);
@@ -32,7 +32,7 @@ test("57 constructor liveries load; repeated changes release GPU resources", asy
         }
     return { n, maxGeometry, maxTextures };
   });
-  expect(result.n).toBe(114);
+  expect(result.n).toBe(136);
   expect(result.maxGeometry).toBeLessThan(65);
   expect(result.maxTextures).toBeLessThan(8);
   expect(errors).toEqual([]);

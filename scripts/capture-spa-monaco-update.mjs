@@ -91,7 +91,7 @@ try {
       view.track,
     );
     await launchSession(page);
-    await page.waitForFunction(() => window.__apex?.race?.world?.player);
+    await page.waitForFunction(() => window.__apex?.race?.world?.player && document.querySelector("#session-loading").hidden && window.__apex.race.animation !== undefined);
     const result = await page.evaluate(async (view) => {
       const race = window.__apex.race,
         w = race.world;

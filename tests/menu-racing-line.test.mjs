@@ -43,7 +43,7 @@ test("five individual red lights accumulate, hold together and go out together",
 });
 test("all circuits and eras have finite, closed-loop braking envelopes; wet guidance is slower", () => {
   for (const t of tracks)
-    for (let era = 0; era < 5; era++) {
+    for (let era = 0; era < 6; era++) {
       const dry = racingGuide(t, era),
         wet = racingGuide(t, era, true),
         n = t.points.length;

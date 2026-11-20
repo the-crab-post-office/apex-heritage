@@ -111,6 +111,17 @@ pub fn car_spec(era: usize, team: usize) -> CarSpec {
             lag: 0.,
             gears: 7,
         },
+        5 => CarSpec {
+            mass: 770.,
+            power: 735000.,
+            grip: 1.88,
+            aero: 3.4,
+            brake: 32.,
+            steer: 0.29,
+            drag: 0.78,
+            lag: 0.16,
+            gears: 8,
+        },
         4 => CarSpec {
             mass: 752.,
             power: 735000.,
@@ -135,7 +146,7 @@ pub fn car_spec(era: usize, team: usize) -> CarSpec {
         },
     };
     let t = roster::team(era, team);
-    s.power *= t.power / [410., 680., 900., 1000., 1000.][roster::era_index(era)];
+    s.power *= t.power / [410., 680., 900., 1000., 1000., 1000.][roster::era_index(era)];
     s.grip *= t.grip / 100.;
     s.brake *= t.brake / 100.;
     if era.min(3) == 1 && !t.turbo {
@@ -610,11 +621,11 @@ impl Simulation {
             if s.pit_phase == 1 && box_error < 1.75 && s.speed < 0.7 {
                 s.pit_phase = 2;
                 s.speed = 0.;
-                s.pit_remaining = [12., 7., 4., 2.8, 2.8][self.era];
+                s.pit_remaining = [12., 7., 4., 2.8, 2.8, 2.8][self.era];
                 if pit::refuelling_allowed(self.era) {
                     s.pit_remaining = s
                         .pit_remaining
-                        .max((1. - s.fuel) * [18., 0., 12., 0., 0.][self.era]);
+                        .max((1. - s.fuel) * [18., 0., 12., 0., 0., 0.][self.era]);
                 }
             } else if s.pit_phase == 1 && s.pit_distance > self.pit.box_distance + 1.75 {
                 s.pit_missed = true;
@@ -673,7 +684,7 @@ mod tests {
     #[test]
     fn pit_stops_enter_service_and_exit_in_all_eras() {
         for circuit in 0..tracks().len() {
-            for era in 0..5 {
+            for era in 0..6 {
                 let mut sim = Simulation::new(circuit, era, 0, false, true);
                 let e = sim.pit.points[0];
                 let (_, yaw, _, _) = sim.pit.sample(0., sim.track.points.len());
@@ -818,7 +829,7 @@ mod tests {
     }
     #[test]
     fn actual_simulation_transmits_slides_and_recover_resets_velocity_heading() {
-        for era in 0..5 {
+        for era in 0..6 {
             let mut sim = Simulation::new(0, era, 0, false, false);
             let p = sim.track.points[0];
             // A fixed-speed on-road handling rig: hold position at the same

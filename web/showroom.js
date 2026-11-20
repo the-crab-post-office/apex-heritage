@@ -1,3 +1,4 @@
+import { paintedTeam } from "./season-liveries.js";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
@@ -124,15 +125,15 @@ export class Showroom {
     this.tick = this.tick.bind(this);
     this.animation = requestAnimationFrame(this.tick);
   }
-  async select(era, index) {
+  async select(era, index, livery = "") {
     const rev = ++this.revision;
     this.era = era;
     this.team = index;
     this.container.dataset.ready = "loading";
     if (this.car) disposeCar(this.car);
-    const team = eras[era].teams[index];
+    const team = paintedTeam(eras[era].teams[index], livery);
     this.car = makeCar(era, team.color, team);
-    this.car.position.y = [-0.01, 0, 0, 0.03, 0][era];
+    this.car.position.y = [-0.01, 0, 0, 0.03, 0, 0.02][era];
     this.scene.add(this.car);
     this.dirty = true;
     const ready = await this.car.userData.liveryReady;

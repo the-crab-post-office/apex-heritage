@@ -70,7 +70,7 @@ test("2021 deep link selects the right team, drives through Rust and supports ra
   await page.screenshot({ path: "artifacts/2021-monaco-driving.png" });
   expect(errors).toEqual([]);
 });
-test("five-era menu fits on mobile and preserves old 2023 saved selection", async ({
+test("six-era menu fits on mobile and preserves old 2023 saved selection", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -91,6 +91,7 @@ test("five-era menu fits on mobile and preserves old 2023 saved selection", asyn
     "2004",
     "2021",
     "2023",
+    "2026",
   ]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,
