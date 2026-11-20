@@ -11,8 +11,8 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23f35c35' d='M2 32 18 6h8L12 32zm17 0 10-17 9 17z'/%3E%3C/svg%3E"
       rel="icon"
     />
-    <script type="module" crossorigin src="./assets/index-bEarXPK5.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BHsqVVhf.css">
+    <script type="module" crossorigin src="./assets/index-KyZdVMfD.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-B0B9Osbp.css">
   </head>
   <body>
     <div data-screen="home" id="app">
@@ -446,28 +446,42 @@
       <span class="loading-note">ORIGINAL CARS / SHARED RUST PHYSICS</span>
     </section>
     <div hidden="" id="race-view">
-      <aside class="pit-panel">
-        <div id="pit-status">P / X · REQUEST PIT STOP</div>
-        <small id="pit-resources"></small>
-        <div class="pit-actions">
-          <button id="pit-practice">PIT ENTRY PRACTICE · RESET LAP</button>
-          <button id="request-pit">REQUEST PIT · P / X</button
-          ><button aria-pressed="false" id="pit-limiter">
-            80 km/h LIMITER OFF · L / Y
-          </button>
+      <details class="pit-panel" id="hud-tools">
+        <summary>PIT &amp; SESSION <span>⌄</span></summary>
+        <div class="hud-tools-content">
+          <div class="car-label" id="hud-car">FERRARI F2004</div>
+
+          <div class="session-times">
+            <span>SESSION BEST <b id="hud-best">—</b></span
+            ><span>LAST LAP <b id="hud-last">—</b></span>
+          </div>
+          <div class="elevation-telemetry">
+            <div><span>ELEVATION</span><b id="hud-elevation">—</b></div>
+            <div><span>GRADE</span><b id="hud-grade">—</b></div>
+          </div>
+
+          <div id="pit-status">P / X · REQUEST PIT STOP</div>
+          <small id="pit-resources"></small>
+          <div class="pit-actions">
+            <button id="pit-practice">PIT ENTRY PRACTICE · RESET LAP</button>
+            <button id="request-pit">REQUEST PIT · P / X</button
+            ><button aria-pressed="false" id="pit-limiter">
+              80 km/h LIMITER OFF · L / Y
+            </button>
+          </div>
+          <small
+            >Assisted lane · brake inside yellow box<br />Mapped OSM lane ·
+            estimated widths/heights</small
+          >
+          <div class="controller-status" id="controller-status">
+            KEYBOARD / TOUCH · Connect a standard gamepad
+          </div>
+          <div class="hud-layout" id="hud-layout"></div>
+          <div class="hud-build" id="hud-build">
+            v0.16.0-preview.1 · checking build
+          </div>
         </div>
-        <small
-          >Assisted lane · brake inside yellow box<br />Mapped OSM lane ·
-          estimated widths/heights</small
-        >
-      </aside>
-      <div class="controller-status" id="controller-status">
-        KEYBOARD / TOUCH · Connect a standard gamepad
-      </div>
-      <div class="hud-layout" id="hud-layout"></div>
-      <div class="hud-build" id="hud-build">
-        v0.16.0-preview.1 · checking build
-      </div>
+      </details>
       <canvas aria-label="3D racing game" id="race-canvas"></canvas>
       <div class="race-vignette"></div>
       <div class="hud-top">
@@ -477,29 +491,37 @@
           <i data-lucide="pause"></i> PAUSE <kbd>ESC</kbd>
         </button>
       </div>
-      <div class="timing-panel">
-        <div class="hud-kicker" id="hud-mode">TIME TRIAL</div>
-        <div class="lap-line">
-          LAP <strong id="hud-lap">1</strong
-          ><span id="hud-position">FREE RUN</span>
+      <section class="timing-panel" aria-label="Lap timing">
+        <div class="timing-current">
+          <div class="timing-meta">
+            <span id="hud-mode">TIME TRIAL</span
+            ><span
+              >LAP <b id="hud-lap">1</b> ·
+              <b id="hud-position">FREE RUN</b></span
+            >
+          </div>
+          <span class="timer-label">LAP TIME</span>
+          <div class="lap-timer" id="hud-time">00:00.000</div>
         </div>
-        <div class="lap-timer" id="hud-time">00:00.000</div>
-        <div class="timing-row">
-          <span>BEST</span><b id="hud-best">— — : — — . — — —</b>
-        </div>
-        <div class="timing-row">
-          <span>LAST</span><b id="hud-last">— — : — — . — — —</b>
-        </div>
-        <div class="elevation-telemetry">
-          <div><span>ELEVATION</span><b id="hud-elevation">—</b></div>
-          <div><span>GRADE</span><b id="hud-grade">—</b></div>
+        <div class="timing-delta">
+          <div>
+            <span class="timer-label">DELTA TO BEST</span
+            ><small id="hud-delta-status">SET A VALID LAP</small>
+          </div>
+          <strong id="hud-delta">—.———</strong>
         </div>
         <div class="invalid-label" hidden="" id="invalid-label">
           LAP INVALID · TRACK LIMITS
         </div>
-      </div>
+      </section>
       <div class="minimap-wrap">
-        <canvas height="190" id="minimap" width="240"></canvas>
+        <canvas
+          height="190"
+          id="minimap"
+          width="240"
+          aria-label="Circuit map with player and opponent positions"
+          role="img"
+        ></canvas>
         <div id="map-caption">SPA-FRANCORCHAMPS</div>
         <div style="font-size: 9px; margin-top: 4px; color: #c3ccb8">
           Buildings ©
@@ -522,18 +544,143 @@
         >
       </div>
       <div class="race-message" id="race-message"></div>
-      <div class="telemetry">
-        <div class="rpm-leds" id="rpm-leds"></div>
-        <div class="speed-block">
-          <div class="gear" id="hud-gear">N</div>
-          <div><strong id="hud-speed">000</strong><span>KM / H</span></div>
-          <div class="pedals">
-            <div><i id="throttle-bar"></i></div>
-            <div><i id="brake-bar"></i></div>
+      <section class="telemetry wheel-hud" aria-label="Driving instruments">
+        <svg class="wheel-shell" viewBox="0 0 600 216" aria-hidden="true">
+          <defs>
+            <linearGradient id="wheel-shade" x2="0" y2="1">
+              <stop stop-color="#283141" />
+              <stop offset="1" stop-color="#0b1019" />
+            </linearGradient>
+            <pattern
+              id="wheel-carbon"
+              width="8"
+              height="8"
+              patternUnits="userSpaceOnUse"
+            >
+              <path d="M0 0h4v4H0zM4 4h4v4H4z" fill="#ffffff" opacity=".025" />
+            </pattern>
+          </defs>
+          <path
+            class="wheel-outline"
+            d="M82 27Q113 16 151 25L208 21Q228 21 242 29H357Q372 21 392 21L451 25Q489 16 521 30Q557 47 568 77L580 126Q584 151 563 165Q542 178 511 167L458 157Q439 155 426 171L395 193Q378 205 359 199L326 186Q300 176 275 186L241 199Q223 205 206 192L174 170Q160 155 141 158L90 168Q61 179 38 164Q17 150 22 126L34 77Q45 45 82 27Z"
+            fill="url(#wheel-shade)"
+            stroke="#8993a8"
+            stroke-width="2"
+          />
+          <path
+            d="M82 27Q113 16 151 25L208 21Q228 21 242 29H357Q372 21 392 21L451 25Q489 16 521 30Q557 47 568 77L580 126Q584 151 563 165Q542 178 511 167L458 157Q439 155 426 171L395 193Q378 205 359 199L326 186Q300 176 275 186L241 199Q223 205 206 192L174 170Q160 155 141 158L90 168Q61 179 38 164Q17 150 22 126L34 77Q45 45 82 27Z"
+            fill="url(#wheel-carbon)"
+          />
+          <path
+            d="M73 44Q45 68 42 109L38 136Q42 153 64 153M527 44Q555 68 558 109L563 136Q558 153 536 153"
+            fill="none"
+            stroke="#060a10"
+            stroke-width="10"
+            stroke-linecap="round"
+          />
+        </svg>
+        <div
+          id="hud-drs"
+          class="drs-strip"
+          data-active="false"
+          title="DRS is not simulated in this build"
+        >
+          DRS N/A
+        </div>
+        <div class="rpm-leds" id="rpm-leds" aria-hidden="true"></div>
+        <div class="wheel-dial rpm-dial" aria-label="RPM gauge">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle
+              cx="60"
+              cy="60"
+              r="52"
+              fill="#0b1018"
+              stroke="#495469"
+              stroke-width="2"
+            />
+            <path
+              d="M24 94 A49 49 0 1 1 96 94"
+              fill="none"
+              stroke="#556079"
+              stroke-width="3"
+            />
+            <path
+              d="M24 94 A49 49 0 1 1 96 94"
+              fill="none"
+              stroke="#d3ef8c"
+              stroke-width="3"
+              pathLength="100"
+              class="gauge-fill"
+            />
+            <path
+              d="M21 77l7-3 M22 43l7 3 M44 16l3 8 M76 16l-3 8 M99 43l-7 3 M99 77l-7-3"
+              stroke="#a0aabd"
+              stroke-width="2"
+            />
+            <g class="gauge-needle">
+              <path
+                d="M60 67V24"
+                stroke="#f4f6fb"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <circle cx="60" cy="60" r="4" fill="#f0f3f8" />
+            </g>
+          </svg>
+          <div class="dial-reading"><b id="hud-rpm">0</b><span>RPM</span></div>
+        </div>
+        <div class="wheel-dial speed-dial" aria-label="KM/H gauge">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle
+              cx="60"
+              cy="60"
+              r="52"
+              fill="#0b1018"
+              stroke="#495469"
+              stroke-width="2"
+            />
+            <path
+              d="M24 94 A49 49 0 1 1 96 94"
+              fill="none"
+              stroke="#556079"
+              stroke-width="3"
+            />
+            <path
+              d="M24 94 A49 49 0 1 1 96 94"
+              fill="none"
+              stroke="#93c9ef"
+              stroke-width="3"
+              pathLength="100"
+              class="gauge-fill"
+            />
+            <path
+              d="M21 77l7-3 M22 43l7 3 M44 16l3 8 M76 16l-3 8 M99 43l-7 3 M99 77l-7-3"
+              stroke="#a0aabd"
+              stroke-width="2"
+            />
+            <g class="gauge-needle">
+              <path
+                d="M60 67V24"
+                stroke="#f4f6fb"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <circle cx="60" cy="60" r="4" fill="#f0f3f8" />
+            </g>
+          </svg>
+          <div class="dial-reading">
+            <b id="hud-gauge-speed">0</b><span>KM/H</span>
           </div>
         </div>
-        <div class="car-label" id="hud-car">FERRARI F2004</div>
-      </div>
+        <div class="wheel-speed">
+          <strong id="hud-speed">000</strong><span>KM/H</span>
+          <div class="wheel-gear">GEAR <b id="hud-gear">N</b></div>
+        </div>
+        <div class="pedals" aria-label="Throttle and brake">
+          <div><i id="throttle-bar"></i></div>
+          <div><i id="brake-bar"></i></div>
+        </div>
+      </section>
       <div class="race-controls">
         <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> DRIVE</span
         ><span><kbd>SPACE</kbd> BRAKE</span
