@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "scope": "Year labels follow the user assignments exactly. User photos are private references: no photo pixels enter game textures and no redistribution rights are assumed.",
+  "references": [
+    {
+      "number": 1,
+      "year": 2026,
+      "file": "/home/user/uploads/image-15.png",
+      "sha256": "b18ffc580594b25a2c8549e6bc26659daa53600893b39d8efc744a6436ae9063",
+      "interpretation": "FIA concept/proportion reference, not a team-specific scan"
+    },
+    {
+      "number": 2,
+      "year": 2026,
+      "file": "/home/user/uploads/image-16.png",
+      "sha256": "baadc0b2febb6953c05918fef1ddd3cb879ea5552b5c298f00590a73f1957273",
+      "interpretation": "FIA concept/proportion reference, not a team-specific scan"
+    },
+    {
+      "number": 3,
+      "year": 2026,
+      "file": "/home/user/uploads/image-17.png",
+      "sha256": "5fd5a36665f17e645347c652a8279bd70ea175bc3e960ca6ffed3028be0f4329",
+      "interpretation": "FIA concept/proportion reference, not a team-specific scan"
+    },
+    {
+      "number": 4,
+      "year": 2023,
+      "file": "/home/user/uploads/image-18.png",
+      "sha256": "a1b8ba6394d6c38ab16ad0d1f9138aaba5cdda2a62ddbe637f9b8e41280ed872",
+      "interpretation": "Team bodywork/livery reference, not constructor CAD"
+    },
+    {
+      "number": 5,
+      "year": 2023,
+      "file": "/home/user/uploads/image-19.png",
+      "sha256": "0c5592c7b9a72730be5da2d517eb97a3ea1926eaa320c8cfd8974931f15e981b",
+      "interpretation": "Team bodywork/livery reference, not constructor CAD"
+    },
+    {
+      "number": 6,
+      "year": 2023,
+      "file": "/home/user/uploads/image-20.png",
+      "sha256": "e6a4bc35d6e2c069b23a616e247b876b129cb3343cbcd1702ec85ccf3416dc30",
+      "interpretation": "Team bodywork/livery reference, not constructor CAD"
+    },
+    {
+      "number": 7,
+      "year": 2026,
+      "file": "/home/user/uploads/image-21.png",
+      "sha256": "9d99be2ce42878d38267778fe23ce50fd20da294155c405b30d0837c2e47ef23",
+      "interpretation": "Team bodywork/livery reference, not constructor CAD"
+    },
+    {
+      "number": 8,
+      "year": 2023,
+      "file": "/home/user/uploads/image-22.png",
+      "sha256": "c31801995c3e4178191a8d7af7d57ae46d5f4baaacf6f7c32e21b481a9c6b1c0",
+      "interpretation": "Team bodywork/livery reference, not constructor CAD"
+    },
+    {
+      "number": 9,
+      "year": 2021,
+      "file": "/home/user/uploads/image-23.png",
+      "sha256": "d784b3ec30b32c6ad570c00a2ac13e830541f5f9fbeb05b862af43c4e2c207fa",
+      "interpretation": "Team bodywork/livery reference, not constructor CAD"
+    },
+    {
+      "number": 10,
+      "year": 2021,
+      "file": "/home/user/uploads/image-24.png",
+      "sha256": "7f674a511af130f0a6ac4aabc98fda1672c4fe62b46a7aab846f13deff17f9e9",
+      "interpretation": "Team bodywork/livery reference, not constructor CAD"
+    }
+  ],
+  "baseline_commit": "9f70b63b3d99f465c9b9b529dab74200741c6e29",
+  "unchanged_older_models": {
+    "0": "919064291f45211aa59f36b0f44ef9f07dac38c15a5d5f2c9be96a76b192796d",
+    "1": "490cf6f7dcbaa9404170c05541ab75cc33190e8879c69fe3fdc11b2365e42e37",
+    "2": "2ebbef832c0c9b0c374a84881031f743c8be6275ff42b45ce9b5716b45c8fdfd"
+  },
+  "unchanged_physics_and_track_inputs": {
+    "data/car-layouts.json": "24f2aa75817d41a7aadf198841380a7435a61a2cbad8006322b7bc56b38981fb",
+    "data/tracks.json": "aad2365f23deb20481ad8d8a8f02141005c3da07f5e29793e68eeac64f8749f4",
+    "data/corner-details.json": "bfd8079a5fad43b6dde85ac180fe9037059436deb4979624b6cc40fab2c4da83",
+    "data/pit-lanes.json": "bdcc26edea7458c894b3a38c0480b53a3f0606285344cbd7cb2ff38cfb771f4a",
+    "src/lib.rs": "156c6ad6b0d4fc47923400efcab920e57f2e6c16d929c8d8b93af7199c6f3043",
+    "src/contact.rs": "a344312f833a36c2d92b101c00e42331ecd9bccf8d4056ba8d6b5cf68832098e",
+    "src/tyres.rs": "2d1b0ee26a4cf07438863c2562ee790714a2ea5bdcbeff0d41b0fb468e9b358c",
+    "src/braking_tests.rs": "e9234f0cbb31f6f7f97e34edfa26960c1f6a63f1bd8b09f3628ce187d6a4804e",
+    "web/driving-hud.js": "ebfaca4f8d3279c6f3e2b5a137d457a916614299ccfa6d4754d47d3376f14528",
+    "web/race.js": "a02f488eb16ab1f7da37548f2fbdafbae5b39a9708b87f7ed48aedc7c78a5a19"
+  },
+  "limitations": [
+    "Shared per-era bases with estimated team contour adjustments, not exact constructor CAD.",
+    "Early-2023 slim-sidepod Mercedes is a representative configuration, not every 2023 update.",
+    "Static wing geometry only; no new active-aero, deployment or handling simulation.",
+    "References span concepts, renders, launches and race-specific liveries; colours are not reassigned across years."
+  ]
+}
