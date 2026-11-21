@@ -91,7 +91,7 @@ test("sketched HUD has real driving gauges, upper-right two-row timing, lower-le
   await page.locator("#hud-tools summary").click();
   await expect(page.locator("#pit-practice")).toBeVisible();
   await expect(page.locator("#hud-best")).toBeVisible();
-  await expect(page.locator("#hud-build")).toContainText("0.17.0");
+  await expect(page.locator("#hud-build")).toContainText("0.18.0");
   await page.locator("#hud-tools summary").click();
   await page.locator("#hud-tools summary").focus();
   await page.keyboard.press("Space");

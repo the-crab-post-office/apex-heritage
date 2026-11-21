@@ -1,3 +1,19 @@
+# Photo-guided car realism — 0.18.0-preview.1
+
+Branch `feature/photo-guided-car-realism`, based on `9f70b63`. The ten supplied images are assigned exactly as requested in `data/car-realism-reference.json`. Three modern bases and team contours are refined; original photo pixels are not redistributed.
+
+- **79 Rust library tests PASS**, **40 Python tests PASS**, **native binary/feature cargo check PASS**, production WASM/bindings and Vite build PASS.
+- Four new Python mesh regressions check both directions of modern loft skin/cap normals, ellipsoid winding, monotone interpolation bounds and finite pod projection.
+- Four new Node contracts check original older-model hashes and unchanged physics/contact/track/HUD bytes, bounded modern features, and identical pod/duct/decal deformations without wheel displacement.
+- **175/175 final Node tests PASS**, including the four new appearance/provenance contracts. The four older visual reports were genuinely recaptured from 0.18 before their source/image manifests were regenerated. The new report embeds actual 0.17/0.18 views, not generated concept images.
+- **31/31 modern constructor entries / 34 production car views** captured with no page errors. Max observed showroom memory is 44 geometries / 6 textures, below the existing 65 / 8 bounds. Actual screenshot SHA-256 values and render inputs are retained in `data/car-realism-captures.json`.
+- **13/13 current race-world probes** completed: racing-road missing/terrain/overlay/centre-height errors all zero at stride 20. Both independently confirmed pre-existing Zandvoort/Baku pit-edge no-hits remain explicit. No road/physics geometry was modified to obtain this result. All 11 launch cars and 22 special atlases were reloaded in the first completed batch; later track-only batches do not pretend to repeat those checks.
+- Final mobile 2026 paint persistence/reload/real-WASM driving and both HUD checks: **3/3 PASS**. Final dedicated showroom resource, reduced-motion and deliberate missing-atlas fallback rerun: **3/3 PASS**, for **6/6 final browser checks**. The 136-swap memory stress uses a 320 × 200 real WebGL target with shadows disabled to isolate allocations; full-size shadowed appearance is covered by the 34 genuine production views. The previous 0.17 results below are historical, not silently carried forward.
+- Final WASM **0.18.0-preview.1 / 1511aa6e**, SHA-256 `148a510eb8ba7cfb40d07ebe7a9151bad0544b7721ee6b548d8bf8197be74c3c`; no mixed-version core. Overall final suites: **175 Node + 79 Rust + 40 Python + 6 browser checks PASS**. Public source/version/car-component verification follows publication.
+- First concurrent browser run: mobile 2026 paint/drive and mobile HUD passed; one desktop HUD expectation still named 0.17 and was corrected to 0.18. 136-constructor-swap memory, reduced motion and fallback checks passed. A concurrent road-audit browser was stopped by a renderer crash after six genuine successful probes; remaining worlds are checked sequentially in smaller batches to avoid the sandbox's 2 GB memory ceiling. This is not an assertion failure being ignored.
+
+---
+
 # Graphics / 2026 validation (0.17.0-preview.1)
 
 New integration adds 11 teams / 22 separate paint choices, shared Rust era 5, 2026 geometry/layouts, six-era audio/AI/HUD coverage and low-draw-call surface detail across all thirteen venues. Official-source research cutoff is 8 November 2026. Tests distinguish gameplay approximations from real technical specifications.

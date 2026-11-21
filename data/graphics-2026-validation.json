@@ -1,7 +1,7 @@
 {
-  "version": "0.17.0-preview.1",
-  "scope": "Real released-WASM era-5 construction/finite driving, all eleven launch atlases and twenty-two specials; all thirteen race worlds. Sampled audits, not full driven laps or exhaustive hardware certification.",
-  "wasm_sha256": "7823e6307ddc8e763817c8c9e3f5c445b318b2c6ee3b549b9aea3fc28f33cec8",
+  "version": "0.18.0-preview.1",
+  "scope": "Actual released-WASM era-5 construction/driving, all eleven cars and twenty-two special atlases, and all thirteen production race worlds. Not complete driven laps or exhaustive hardware certification.",
+  "wasm_sha256": "148a510eb8ba7cfb40d07ebe7a9151bad0544b7721ee6b548d8bf8197be74c3c",
   "cars": 11,
   "specials": 22,
   "tracks": [
@@ -50,6 +50,12 @@
         "samples": 1400,
         "missing": []
       },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 5
+      },
       "reference": {
         "facets": 174,
         "eras": [
@@ -57,7 +63,10 @@
           4,
           5
         ]
-      }
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Monaco",
@@ -225,11 +234,20 @@
           }
         ]
       },
+      "buildings": {
+        "checked": 273,
+        "hits": 273,
+        "missing": 0,
+        "drawBatches": 4
+      },
       "reference": {
         "covered": 32,
         "blocked": 0,
         "minClearance": 4.761200253295899
-      }
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Monza",
@@ -275,7 +293,16 @@
       "terrain": {
         "samples": 1160,
         "missing": []
-      }
+      },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 5
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Silverstone",
@@ -321,7 +348,16 @@
       "terrain": {
         "samples": 1180,
         "missing": []
-      }
+      },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 5
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Suzuka",
@@ -372,7 +408,16 @@
             "offset": 8
           }
         ]
-      }
+      },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 5
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Interlagos",
@@ -418,7 +463,16 @@
       "terrain": {
         "samples": 860,
         "missing": []
-      }
+      },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 7
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Imola",
@@ -464,7 +518,16 @@
       "terrain": {
         "samples": 980,
         "missing": []
-      }
+      },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 50
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "N\u00fcrburgring GP",
@@ -510,7 +573,16 @@
       "terrain": {
         "samples": 1040,
         "missing": []
-      }
+      },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 5
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Montr\u00e9al",
@@ -556,7 +628,16 @@
       "terrain": {
         "samples": 880,
         "missing": []
-      }
+      },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 6
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Hockenheim",
@@ -602,7 +683,16 @@
       "terrain": {
         "samples": 920,
         "missing": []
-      }
+      },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 5
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Yas Marina",
@@ -649,6 +739,12 @@
         "samples": 1060,
         "missing": []
       },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 5
+      },
       "reference": {
         "facets": 17931,
         "eras": [
@@ -659,7 +755,10 @@
           4,
           5
         ]
-      }
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Zandvoort",
@@ -706,6 +805,12 @@
         "samples": 860,
         "missing": []
       },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 5
+      },
       "reference": {
         "facets": 60,
         "eras": [
@@ -716,7 +821,10 @@
           4,
           5
         ]
-      }
+      },
+      "finite": [
+        true
+      ]
     },
     {
       "name": "Baku",
@@ -763,6 +871,12 @@
         "samples": 1200,
         "missing": []
       },
+      "buildings": {
+        "checked": 0,
+        "hits": 0,
+        "missing": 0,
+        "drawBatches": 4
+      },
       "reference": {
         "facets": 1483,
         "eras": [
@@ -773,24 +887,28 @@
           4,
           5
         ]
-      }
+      },
+      "finite": [
+        true
+      ]
     }
   ],
   "notes": [
     "All thirteen racing-road audits: zero missing triangles, zero terrain/overlay intrusions and zero centre-height errors at stride 20.",
     "Zandvoort and Baku each retain one pre-existing pit-edge no-hit at stride 12, independently checked against the previous 0.16.0 production build. Zero pit intrusions.",
-    "Outside-road ground no-hit probes are recorded, not suppressed. No claim of surveyed track reconstruction."
+    "Outside-road ground no-hit probes are recorded, not suppressed. No claim of surveyed track reconstruction.",
+    "0.18 re-verification: independent browsers in small batches after a concurrent software-GPU renderer crash. Every retained row is a completed actual probe; no failed assertion is removed."
   ],
   "inputs": {
     "web/track-finish.js": "27246fe7a1b9f0027e652c00d28c3bcd9e0a6046089f686f7eb6cf93bd214ef8",
-    "web/car-finish.js": "19c016a1c8f84f5dcec0061e522066d6a5878c5d8b6df3dfc68c2ac6497718a5",
+    "web/car-finish.js": "330aee27047c8c29118bb87c3314e61775be4bbeea8fd064e42af428b79690fd",
     "web/season-liveries.js": "f770dce4aff85c47bb2efa7459e547feb4478277db926b1ec8d162445fa941c3",
     "web/graphics.js": "fabe8c08c204f621ecf9f64cd4caa15eb37098b26c03343a6d971700ea4cc6e5",
-    "web/reference-car.js": "c79482e514360e6a89686397cfcce6472077b5d3305d5ba8752d97860f92a6a0",
+    "web/reference-car.js": "5bf3ebacf89f70fbb7954506aad6aad4a187112f637b5a5b9bf016fbaaa58d85",
     "web/livery.js": "f024eeddaf0c0a739744ca8c59128edcd60711c38c1f7e01eb8747637355611d",
-    "data/car-shapes.json": "5dac29ae7e1f0459fd35b7c0fb45857f1c0b1b020431ab5e67494dc22a37b7b7",
+    "data/car-shapes.json": "02a1d66bf77d62c3087798c254e451930868afd03e1029ca45c64bf044682eb0",
     "data/car-layouts.json": "24f2aa75817d41a7aadf198841380a7435a61a2cbad8006322b7bc56b38981fb",
-    "data/car-variants.json": "5f1b6c29cc634269835d21197c989372a5d564dd84486c3f320f8a3af1bd10f6",
+    "data/car-variants.json": "e8f08c135729d1a7411038ee84fcc94f577739b58d4f6053bcecf794206f817e",
     "data/roster.json": "c385f6cb13be4711521a2f68202dc037fca5a43752a269d1e92ef813eff4cd13",
     "data/liveries-2026.json": "070383a5892c98b2dc595640264cdef640bbad79348aaf180723304f814d2090",
     "data/graphics-2026-baseline.json": "4a397c388611f55fb064c020312f33b6ff39573cc6679364ec4d2b748cf57ea4"

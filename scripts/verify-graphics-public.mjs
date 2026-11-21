@@ -13,19 +13,19 @@ try{
  await page.waitForFunction(()=>window.__showroom?.container.dataset.ready==='true');
  const remote=await page.evaluate(async()=>{
   const read=async p=>{const r=await fetch(p+'?proof='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('Missing '+p);return r.json();};
-  return {deployment:await read('./deployment.json'),version:await read('./version.json'),roster:await read('./licenses/roster.json'),liveries:await read('./licenses/liveries-2026.json')};
+  return {deployment:await read('./deployment.json'),version:await read('./version.json'),roster:await read('./licenses/roster.json'),liveries:await read('./licenses/liveries-2026.json'),cars:await read('./licenses/car-realism-captures.json')};
  });
- assert.equal(remote.version.version,'0.17.0-preview.1');assert.equal(remote.deployment.source_commit,expected);assert.equal(remote.roster.eras[5].teams.length,11);assert.equal(remote.liveries.specials.length,22);
+ assert.equal(remote.version.version,'0.18.0-preview.1');assert.equal(remote.deployment.source_commit,expected);assert.equal(remote.roster.eras[5].teams.length,11);assert.equal(remote.liveries.specials.length,22);assert.equal(remote.cars.version,'0.18.0-preview.1');assert.equal(remote.cars.teams,31);assert.equal(remote.cars.captures.length,34);assert.deepEqual(remote.cars.inputs,JSON.parse(fs.readFileSync('data/car-realism-captures.json')).inputs);
  await page.evaluate(()=>{cancelAnimationFrame(window.__showroom.animation);document.querySelector('[data-nav=drive]').click();for(let i=0;i<3;i++)document.querySelector('#setup-next').click();document.querySelector('#start-race').click();});
  await page.waitForFunction(()=>window.__apex?.race?.world?.player&&document.querySelector('#session-loading').hidden&&window.__apex.race.animation);
  const actual=await page.evaluate(()=>{
   const r=window.__apex.race;cancelAnimationFrame(r.animation);r.paused=true;r.countdown=-1;
   for(let i=0;i<600;i++)r.sim.step(1,0,0,1/120);
   r.state=JSON.parse(r.sim.state_json());r.world.update(r.state,1/60);r.updateHud(performance.now());document.querySelector('#start-lights').hidden=true;
-  return {era:r.config.era,team:r.config.team,livery:r.world.player.userData.livery.id,spec:JSON.parse(r.sim.spec_json()),speed:r.state.speed,rpm:r.state.rpm,gear:r.state.gear,finish:r.world.finishAudit,drs:document.querySelector('#hud-drs').textContent,build:document.querySelector('#hud-build').textContent};
+  return {components:r.world.player.userData.detail.components,era:r.config.era,team:r.config.team,livery:r.world.player.userData.livery.id,spec:JSON.parse(r.sim.spec_json()),speed:r.state.speed,rpm:r.state.rpm,gear:r.state.gear,finish:r.world.finishAudit,drs:document.querySelector('#hud-drs').textContent,build:document.querySelector('#hud-build').textContent};
  });
- assert.equal(actual.era,5);assert.equal(actual.spec.mass,770);assert.equal(actual.livery,'2026-ferrari-austin');assert.ok(actual.speed>10&&Number.isFinite(actual.rpm));assert.equal(actual.drs,'NO DRS');assert.deepEqual(errors,[]);
- await page.screenshot({path:'artifacts/022-public-driving.jpg',type:'jpeg',quality:82});
- fs.writeFileSync('artifacts/022-public-results.json',JSON.stringify({url,source_commit:expected,version:remote.version,teams:11,specials:22,actual,errors,note:'600 actual released-WASM fixed steps, not a completed player-driven lap.'},null,2));
- console.log('PASS public 0.17.0, matching source deployment, full 2026 roster, 22 specials, actual sixth-era WASM, selected Austin paint and HUD; no page errors');
+ assert.ok(actual.components.includes('sculpted cockpit coaming'));assert.ok(actual.components.some(n=>n.includes('recessed duct walls')));assert.equal(actual.era,5);assert.equal(actual.spec.mass,770);assert.equal(actual.livery,'2026-ferrari-austin');assert.ok(actual.speed>10&&Number.isFinite(actual.rpm));assert.equal(actual.drs,'NO DRS');assert.deepEqual(errors,[]);
+ await page.screenshot({path:'artifacts/023-public-driving.jpg',type:'jpeg',quality:82});
+ fs.writeFileSync('artifacts/023-public-results.json',JSON.stringify({url,source_commit:expected,version:remote.version,teams:11,specials:22,actual,errors,note:'600 actual released-WASM fixed steps, not a completed player-driven lap.'},null,2));
+ console.log('PASS public 0.18.0, matching source deployment, full 2026 roster, 22 specials, actual sixth-era WASM, selected Austin paint and HUD; no page errors');
 }finally{await browser.close();}

@@ -7,7 +7,7 @@ const page=await browser.newPage({viewport:{width:1280,height:800}});
 page.setDefaultTimeout(180000);
 const errors=[];page.on('pageerror',e=>{errors.push(e.message);console.error('PAGEERROR',e.message);});
 await page.addInitScript(()=>localStorage.setItem('apex-config',JSON.stringify({era:5,team:2,quality:'high',sound:false,weather:'dry',mode:'practice',racingLine:false})));
-const dir='artifacts/022-graphics';fs.mkdirSync(dir,{recursive:true});
+const dir=process.env.GRAPHICS_DIR||'artifacts/022-graphics';fs.mkdirSync(dir,{recursive:true});
 try {
  await page.goto(process.env.APEX_URL||'http://127.0.0.1:5190/');
  console.log('loaded document');
@@ -23,6 +23,7 @@ try {
  const specials=JSON.parse(fs.readFileSync('data/liveries-2026.json')).specials;
  const roster=JSON.parse(fs.readFileSync('data/roster.json')).eras[5].teams;
  const cars=[];
+ if(!process.env.SKIP_CARS) {
  for(const [index,t] of roster.entries()) {
   const r=await page.evaluate(async({index})=>{
    const s=window.__showroom;s.inView=false;cancelAnimationFrame(s.animation);s.controls.autoRotate=false;
@@ -38,6 +39,7 @@ try {
   const index=roster.findIndex(t=>t.id===livery.team_id);
   const result=await page.evaluate(async({index,id})=>{const s=window.__showroom;await s.select(5,index,id);return {id:s.car.userData.livery.id,ready:s.container.dataset.ready};},{index,id:livery.id});
   assert.equal(result.id,livery.id);assert.equal(result.ready,'true');
+ }
  }
  // Restore selected constructor's preview and use saved UI paint for the race.
  await page.selectOption('#livery-select','2026-ferrari-austin');
@@ -69,6 +71,6 @@ try {
   await page.evaluate(()=>document.querySelector('#exit-race').click());
  }
  assert.deepEqual(errors,[]);
- fs.writeFileSync(`${dir}/results-${process.env.TRACK_FROM||0}.json`,JSON.stringify({cars,specials:specials.length,circuits,errors},null,2));
- console.log(`PASS eleven 2026 cars, twenty-two special atlases, ${circuits.length} circuits in this batch, actual 2026 WASM; no page errors`);
+ fs.writeFileSync(`${dir}/results-${process.env.TRACK_FROM||0}.json`,JSON.stringify({cars,specials:process.env.SKIP_CARS?0:specials.length,circuits,errors},null,2));
+ console.log(`PASS ${cars.length} cars / ${process.env.SKIP_CARS?0:specials.length} specials checked, ${circuits.length} circuits in this batch, actual 2026 WASM; no page errors`);
 } finally {await browser.close();}

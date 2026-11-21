@@ -1,4 +1,4 @@
-import { carbonFinish } from "./car-finish.js";
+import { carbonFinish, tyreFinish } from "./car-finish.js";
 import { wheelRig } from "./wheel-motion.js";
 import { variantPoint } from "./car-variants.js";
 import * as THREE from "three";
@@ -15,6 +15,7 @@ export function referenceCar(era, team) {
       metalness,
       side: THREE.DoubleSide,
     });
+  const carbon = carbonFinish();
   const materials = {
     body: l.body,
     pods: l.pods,
@@ -26,7 +27,12 @@ export function referenceCar(era, team) {
     front_endplate: mat(team.front_endplate_color || team.color, 0.35, 0.1),
     suit: mat(team.color, 0.85, 0),
     tyre: l.tyre,
-    carbon: carbonFinish(),
+    carbon,
+    pod_carbon: carbon,
+    pod_shadow: mat("#080a0d", .92, 0),
+    pod_metal: mat("#34383c", .65, .35),
+    wheel_cover: mat("#44484d", .42, .48),
+    tyre_rubber: tyreFinish(),
     rubber: mat("#111317", 0.85, 0),
     rim: l.rim,
     engine: mat("#56595a", 0.45, 0.7),
@@ -37,8 +43,9 @@ export function referenceCar(era, team) {
     belt: mat("#b52b21", 0.7, 0),
     brake: mat("#74716c", 0.55, 0.65),
     groove: mat("#070809", 0.95, 0),
-    compound: mat(classic ? "#202224" : "#c62a36", 0.75, 0),
+    compound: mat(classic ? "#202224" : era>=3 ? "#b8a82b" : "#c62a36", 0.75, 0),
   };
+  if (era>=3) {materials.rim.color.set('#646970');materials.rim.roughness=.42;}
   for (const m of Object.values(materials)) m.side = THREE.DoubleSide;
   const layout = shapes.layouts[String(era)];
   const wheels = [];

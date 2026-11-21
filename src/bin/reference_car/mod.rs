@@ -108,12 +108,23 @@ impl Cars {
                 "belt" => hex("#b52b21"),
                 "brake" => hex("#74716c"),
                 "groove" => hex("#070809"),
+                "tyre_rubber" => hex("#202124"),
+                "wheel_cover" => hex("#44484d"),
+                "pod_carbon" => hex("#24282d"),
+                "pod_shadow" => hex("#080a0d"),
+                "pod_metal" => hex("#34383c"),
                 "helmet" => hex(t.helmet_color.as_deref().unwrap_or("#ece9da")),
                 "suit" => hex(&t.color),
                 "endplate" => hex(t.endplate_color.as_deref().unwrap_or(&t.color)),
                 "front_endplate" => hex(t.front_endplate_color.as_deref().unwrap_or(&t.color)),
                 "accent" => hex(if era == 0 { &t.secondary } else { &t.accent }),
-                "compound" => hex(if era == 0 { "#202224" } else { "#c62a36" }),
+                "compound" => hex(if era == 0 {
+                    "#202224"
+                } else if era >= 3 {
+                    "#b8a82b"
+                } else {
+                    "#c62a36"
+                }),
                 _ => WHITE,
             };
             if *ghost && self.hide_head {

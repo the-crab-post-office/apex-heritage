@@ -1,8 +1,17 @@
 # APEX / HERITAGE
 
-**Playable unofficial single-seater racing prototype — 0.17.0-preview.1.**
+**Playable unofficial single-seater racing prototype — 0.18.0-preview.1.**
 
 Shared **Rust** physics, a Three.js/WebAssembly browser client, and a simpler Macroquad native client. Browser rendering/UI are JavaScript; there is no JavaScript physics fallback. Original car geometry and reference-guided period liveries, including sponsor/team lettering and stylised marks. No licensed corporate artwork or scanned chassis. The menu now renders the selected in-game car in a live 3D showroom.
+
+## User-photo car realism follow-up
+
+- Your year grouping is explicit: **2026 images 1/2/3/7; 2023 images 4/5/6/8; 2021 images 9/10**. FIA concept views guide proportions rather than being represented as constructor scans.
+- Rebuilt compound-surface 2023 body; smoother shouldered noses/cowls on all three modern bases; sculpted sidepod undercuts; open recessed radiator ducts and fine core geometry; thinner chord-scaled wings; coamings, fairings, camera pods and smaller centre locks.
+- Estimated Ferrari-bowl / Red Bull-downwash / early slim-Mercedes contour variation moves radiator trim and conformal decals together. 2021 retains open-spoke smaller rims and bargeboards; 2023/2026 retain larger covered wheels.
+- Restrained carbon and rubber micro-surfaces, satin wheel covers and revised showroom lighting/shadow precision. The actual race meshes are shown, not generated preview artwork.
+- **Handling, contacts, tracks, HUD and the older three model arrays are unchanged.** These remain original approximations, not exact replicas or photorealistic CAD. Native shares geometry/contours with simpler shading.
+- [Scope, image assignments and limitations](data/CAR-REALISM-NOTICE.md); [actual before/after renders](https://the-crab-post-office.github.io/apex-heritage/car-realism.html).
 
 ## Graphics update / 2026 grid
 

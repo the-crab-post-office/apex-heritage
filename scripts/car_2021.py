@@ -1,5 +1,6 @@
 """Original 2021 high-rake/flat-floor silhouette, not a 2023 repaint or scan."""
 import math
+from car_surface import pod,intake,finishing,pod_outer,smooth_sections
 
 def build(m):
  m.loft('2021 narrow thumb nose','body',[[2.70,.055,.29,.045],[2.57,.11,.31,.06],[2.32,.14,.36,.065],[1.77,.17,.45,.085],[1.05,.22,.50,.12],[.48,.30,.51,.19]])
@@ -8,8 +9,8 @@ def build(m):
  m.box('2021 flat stepped reference floor','carbon',[0,.13,-.62],[1.46,.035,3.05])
  m.panel('2021 shark fin spine','body',0,[(-1.90,.39),(-.83,.79),(-.79,1.02),(-1.48,.79),(-1.90,.56)],.016)
  for side in [-1,1]:
-  m.loft('2021 undercut radiator sidepod','pods',[[-1.90,.07,.27,.08,side*.33],[-1.35,.15,.34,.12,side*.49],[-.92,.21,.42,.16,side*.60],[-.35,.235,.46,.17,side*.65],[.30,.205,.49,.16,side*.65],[.51,.175,.52,.105,side*.64]])
-  m.ellipsoid('2021 rectangular radiator inlet','rubber',[side*.64,.55,.525],[.165,.075,.016])
+  pod(m,'2021 undercut radiator sidepod',[[-1.90,.07,.27,.08,.33],[-1.35,.15,.34,.12,.49],[-.92,.21,.42,.16,.60],[-.35,.235,.46,.17,.65],[.30,.205,.49,.16,.65],[.51,.175,.52,.105,.64]],side)
+  intake(m,'2021 rectangular radiator inlet',side,.64,.55,.529,.165,.073)
   m.tube('2021 sidepod inlet upper lip','pods',[[side*.46,.61,.52],[side*.63,.63,.52],[side*.81,.60,.52]],.018)
   # Multiple vertical turning vanes distinguish 2021 from the 2022+ venturi era.
   for j in range(5):
@@ -45,13 +46,14 @@ def build(m):
  for part in m.parts:
   if any(n in part['name']for n in ['rear endplate','rear mainplane','DRS','rear-wing pylon']):
    for p in part['positions']:p[1]=round(.18+(p[1]-.18)*.77,5)
- m.driver(False);m.wheels(False)
+ finishing(m);m.driver(False);m.wheels(False)
 
 def decals(m,era):
  # Conforming sponsor patches on the actual outside of each modern pod.
  # UV artwork is shared with the native renderer; letters are not mirrored.
  if era not in [3,4]:return
  sections=([[-1.35,.15,.34,.12,.49],[-.92,.21,.42,.16,.60],[-.35,.235,.46,.17,.65],[.30,.205,.49,.16,.65]]if era==4 else[[-1.5,.19,.32,.14,.48],[-.9,.25,.41,.20,.62],[-.32,.28,.49,.20,.64],[.26,.29,.56,.14,.61]])
+ sections=smooth_sections(sections,4)
  def profile(z):
   for a,b in zip(sections,sections[1:]):
    if a[0]<=z<=b[0]:
@@ -62,7 +64,7 @@ def decals(m,era):
   for j in range(25):
    z=-1.02+j/24*1.20;w,cy,h,cx=profile(z)
    for row in range(5):
-    y=cy+(row/4-.5)*h*1.12;x=side*(cx+w*math.sqrt(max(0,1-((y-cy)/h)**2))+.006)
+    y=cy+(row/4-.5)*h*1.12;x=side*(pod_outer(w,cy,h,cx,y)+.005)
     p.append([x,y,z]);u=(j/24 if side<0 else 1-j/24)*.499;v=(1008-row/4*64)/1024;uv.append([u,v])
   for j in range(24):
    for row in range(4):
@@ -77,7 +79,7 @@ def decals(m,era):
     z=start+(end-start)*j/16
     a,b=next((a,b)for a,b in zip(engine,engine[1:])if a[0]<=z<=b[0]);t=(z-a[0])/(b[0]-a[0]);w,cy,h=[a[k]+t*(b[k]-a[k])for k in[1,2,3]]
     for row in range(4):
-     y=cy+(row/3-.20)*h*.70;x=side*(w*math.sqrt(max(0,1-((y-cy)/h)**2))+.007)
+     y=cy+(row/3-.20)*h*.70;x=side*(w*max(0,1-abs((y-cy)/h)**(2/.78))**(.78/2)+.006)
      p.append([x,y,z]);f=j/16 if side<0 else 1-j/16;uv.append([ulo+(uhi-ulo)*f,(1008-row/3*64)/1024])
    for j in range(16):
     for row in range(3):k=j*4+row;idx.extend([k,k+1,k+4,k+1,k+5,k+4])

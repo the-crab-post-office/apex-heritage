@@ -9,7 +9,10 @@
     "nose_scale": 0.8,
     "pod_scale": 1.02,
     "engine_scale": 1.0,
-    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry. User photo-guided shoulder/downwash estimates, not an exact race specification.",
+    "pod_crown": -0.01,
+    "pod_bowl": 0,
+    "pod_downwash": 0.075
   },
   "2021-ferrari": {
     "nose_scale": 1.13,
@@ -21,7 +24,10 @@
     "nose_scale": 0.84,
     "pod_scale": 1.0,
     "engine_scale": 1.0,
-    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry."
+    "notes": "Estimated proportions from credited Austrian GP side photographs; not constructor CAD or photogrammetry. User photo-guided shoulder/downwash estimates, not an exact race specification.",
+    "pod_crown": 0.015,
+    "pod_bowl": 0,
+    "pod_downwash": 0.025
   },
   "2021-mclaren": {
     "nose_scale": 0.94,
@@ -63,31 +69,46 @@
     "nose_scale": 1.0,
     "pod_scale": 1.0,
     "engine_scale": 1.0,
-    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation. User photo-guided shoulder/downwash estimates, not an exact race specification.",
+    "pod_crown": 0.012,
+    "pod_bowl": 0,
+    "pod_downwash": 0.1
   },
   "2023-mercedes": {
     "nose_scale": 0.9,
-    "pod_scale": 0.83,
+    "pod_scale": 0.67,
     "engine_scale": 1.0,
-    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation. User photo-guided shoulder/undercut and downwash estimates; Mercedes represents its early-2023 slim-sidepod body, not every subsequent update.",
+    "pod_crown": -0.04,
+    "pod_bowl": 0,
+    "pod_downwash": 0.03
   },
   "2023-ferrari": {
     "nose_scale": 1.1,
     "pod_scale": 1.07,
     "engine_scale": 1.0,
-    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation. User photo-guided shoulder/downwash estimates, not an exact race specification.",
+    "pod_crown": 0.035,
+    "pod_bowl": 0.075,
+    "pod_downwash": 0.03
   },
   "2023-aston-martin": {
     "nose_scale": 1.0,
     "pod_scale": 1.04,
     "engine_scale": 1.0,
-    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation. User photo-guided shoulder/downwash estimates, not an exact race specification.",
+    "pod_crown": 0.025,
+    "pod_bowl": 0.035,
+    "pod_downwash": 0.1
   },
   "2023-mclaren": {
     "nose_scale": 1.0,
     "pod_scale": 1.0,
     "engine_scale": 1.0,
-    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation."
+    "notes": "Authored visual differentiation, not race-specific CAD; 2023 remains a representative season approximation. User photo-guided shoulder/downwash estimates, not an exact race specification.",
+    "pod_crown": -0.015,
+    "pod_bowl": 0.02,
+    "pod_downwash": 0.09
   },
   "2023-alpine": {
     "nose_scale": 1.0,

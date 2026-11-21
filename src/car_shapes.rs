@@ -63,6 +63,12 @@ struct Variant {
     nose_scale: f32,
     pod_scale: f32,
     engine_scale: f32,
+    #[serde(default)]
+    pod_crown: f32,
+    #[serde(default)]
+    pod_bowl: f32,
+    #[serde(default)]
+    pod_downwash: f32,
 }
 pub fn variant_point(id: &str, material: &str, mut p: [f32; 3]) -> [f32; 3] {
     static VARIANTS: OnceLock<HashMap<String, Variant>> = OnceLock::new();
@@ -70,8 +76,13 @@ pub fn variant_point(id: &str, material: &str, mut p: [f32; 3]) -> [f32; 3] {
         serde_json::from_str(include_str!("../data/car-variants.json")).expect("car variants")
     });
     if let Some(v) = variants.get(id) {
-        if material == "pods" || material == "decals" {
+        if ["pods", "decals", "pod_carbon", "pod_shadow", "pod_metal"].contains(&material) {
             p[0] *= v.pod_scale;
+            let upper = ((p[1] - 0.30) / 0.30).clamp(0., 1.);
+            let shoulder = (-((p[2] + 0.25) / 0.8).powi(2)).exp();
+            let bowl = (-((p[0].abs() - 0.65) / 0.16).powi(2)).exp();
+            p[1] += v.pod_crown * shoulder * upper - v.pod_bowl * shoulder * bowl * upper;
+            p[1] -= v.pod_downwash * (-p[2] / 1.6).clamp(0., 1.) * (p[1] - 0.24).max(0.);
         } else if material == "body" || material == "engine_decals" {
             if p[2] > 0.7 {
                 p[0] *= 1. + (v.nose_scale - 1.) * ((p[2] - 0.7) / 0.7).min(1.);

@@ -13,6 +13,13 @@ test("68 constructor liveries load; repeated changes release GPU resources", asy
   const result = await page.evaluate(async () => {
     const s = window.__showroom;
     s.controls.autoRotate = false;
+    // A small real WebGL target exercises allocations without spending minutes
+    // rasterizing identical studio pixels in the software-GPU test runner.
+    // Full-size visual captures are tested separately by capture-car-realism.
+    cancelAnimationFrame(s.animation);
+    s.renderer.setPixelRatio(1);
+    s.renderer.setSize(320, 200, false);
+    s.renderer.shadowMap.enabled = false;
     let n = 0,
       maxGeometry = 0,
       maxTextures = 0;

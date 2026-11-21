@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Before/after actual production render report. Never substitutes generated imagery."""
+from pathlib import Path
+import base64,hashlib,html,json
+R=Path(__file__).resolve().parents[1]
+read=lambda p:json.loads((R/p).read_text())
+sha=lambda b:hashlib.sha256(b).hexdigest()
+after=read('artifacts/023-cars/captures.json');before=read('artifacts/023-before/captures.json')
+assert after['version']=='0.18.0-preview.1',after['version']
+assert before['version']=='0.17.0-preview.1',before['version']
+assert len(after['captures'])==34,len(after['captures'])
+assert len({c['id']for c in after['captures']})==31
+for path,hash in after['inputs'].items():assert sha((R/path).read_bytes())==hash,path
+cards=[];selected=[]
+for id,title,detail in [
+ ('2026-ferrari','2026 / compact chassis','User references 1, 2, 3 and 7: short-wheelbase proportions, shouldered body, thinner static wing profiles, recessed ducts and larger covered rims. FIA concept paint is not assigned across the teams.'),
+ ('2023-mercedes','2023 / slim sidepods','User references 4, 5, 6 and 8: separate sculpted ground-effect body, slim early-Mercedes contour, downwash shoulders, spoon-wing forms and rim covers. This is a representative early configuration, not every later update.'),
+ ('2021-red-bull','2021 / smaller open rims','User references 9 and 10: retain the distinct 2021 narrow-nose, squared wings, open-spoke wheels, bargeboards and flat-floor character; new compound surfaces, duct depth and material separation do not turn it into a later-era car.')]:
+ pair=[]
+ for label,manifest in [('BEFORE / 0.17',before),('AFTER / 0.18',after)]:
+  c=next(c for c in manifest['captures']if c['id']==id and c['view']=='hero');data=(R/c['path']).read_bytes();assert sha(data)==c['sha256'],c['path']
+  selected.append(dict(label=label,**c));image='data:image/jpeg;base64,'+base64.b64encode(data).decode()
+  pair.append(f'<figure><figcaption>{label} · ACTUAL PRODUCTION MESH</figcaption><img src="{image}" alt="{html.escape(label+" "+id)}"></figure>')
+ cards.append(f'<section><h2>{title}</h2><div class="pair">{"".join(pair)}</div><p>{detail}</p></section>')
+page='''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>APEX / HERITAGE — actual car realism comparison</title><style>
+*{box-sizing:border-box}body{margin:0;background:#10151b;color:#edf2f6;font:15px/1.7 system-ui,sans-serif}main{max-width:1300px;margin:auto;padding:30px 24px 60px}nav{display:flex;justify-content:space-between;gap:20px;border-bottom:1px solid #39434f;padding-bottom:16px;font-size:11px;letter-spacing:.13em}h1{font-size:clamp(38px,6vw,70px);line-height:1.08;letter-spacing:-.05em;margin:42px 0 24px}h1 span{color:#acd6cc}.lead{max-width:1000px;color:#bdcbd5}a{color:#b7e0d6}.facts{display:flex;gap:9px;flex-wrap:wrap;margin:24px 0}.facts span{border:1px solid #43515b;border-radius:5px;padding:8px 12px;font-size:11px}section{background:#19212a;border:1px solid #3d4956;border-radius:10px;margin:25px 0;overflow:hidden}h2{padding:18px 22px;margin:0;font-size:25px;letter-spacing:-.025em}.pair{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#4b5864}figure{margin:0;background:#10161d}figcaption{padding:12px 16px;font-size:10px;letter-spacing:.1em}img{display:block;width:100%;height:auto}section p{padding:17px 22px;margin:0;font-size:13px;color:#c4d0d9}.limits{border-left:3px solid #d1bc8a;background:#242621;padding:20px 24px;font-size:13px;margin:30px 0}.limits b{color:#ead6a7}footer{font-size:12px;color:#9cabb8}@media(max-width:700px){.pair{grid-template-columns:1fr}main{padding:22px 14px}nav{font-size:9px}h2{font-size:22px}}
+</style></head><body><main><nav><b>APEX / HERITAGE</b><span>CAR REALISM / 0.18</span></nav><h1>Refined geometry.<br><span>Actual game renders.</span></h1><p class="lead">A photo-guided pass across all 31 constructor entries in the 2026, 2023 and 2021 selections. Below are actual earlier and revised production cars, with the same standardized camera and the revised studio lighting. The showroom uses the same original car meshes and materials as the race renderer. No AI-generated car images are used.</p><div class="facts"><span>31 modern team entries loaded</span><span>34 production views captured</span><span>3 year-specific bases</span><span>Physics / contacts / tracks / HUD unchanged</span></div>CARDS<div class="limits"><b>What this comparison does not prove.</b> These are still real-time original approximations, not photorealistic replicas, scans, constructor CAD or calibrated photogrammetry. Shared era bases have estimated team contour adjustments; small aerodynamic details and sponsor letterforms remain simplified. User references include concept renders, launch views and particular race liveries. The supplied year assignments are respected, but a concept is not presented as exact constructor engineering. Lighting and stage changed, so pixel differences are not a quantitative geometry score. Original user photographs are private references and are not redistributed on this page.</div><footer>Skin/cap winding, monotone surfaces, recessed radiator throats, thinner chord-scaled wings, matching pod/decal deformation, carbon/rubber micro-surfaces and satin covers are implemented in the actual models. 1967/1988/2004 model arrays and the handling/contact/track sources remain unchanged.<br><br><a href="./">Play the update ↗</a> · <a href="./licenses/car-realism.md">Scope and reference assignments ↗</a> · <a href="./licenses/car-realism-captures.json">Capture checksums ↗</a> · <a href="./car-comparison.html">2021 source-photo comparison ↗</a></footer></main></body></html>'''.replace('CARDS',''.join(cards))
+(R/'web/public/car-realism.html').write_text(page)
+result=dict(version=after['version'],inputs=after['inputs'],before_version=before['version'],before_source_commit=before['source_commit'],camera='Same 1100x650 hero camera; lighting and stage are also revised. Not photographic camera calibration.',teams=31,captures=after['captures'],report_images=selected,errors=after['errors'])
+(R/'data/car-realism-captures.json').write_text(json.dumps(result,indent=2)+'\n')
+print('Built actual before/after car-realism.html:',len(page.encode()),'bytes;',len(after['captures']),'captures;',31,'constructors')

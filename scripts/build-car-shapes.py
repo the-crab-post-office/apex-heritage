@@ -13,21 +13,31 @@ class Model:
  def mesh(self,name,mat,p,tri,uv=None,wheel=None):
   self.parts.append(dict(name=name,material=mat,positions=[[round(v,5) for v in q] for q in p],indices=tri,uvs=uv or [[0,0]for _ in p],wheel=wheel))
  def loft(self,name,mat,sections,steps=32,opening=False):
+  # Modern compound surfaces: monotone cubic sections avoid the old faceted
+  # sausage silhouette. Cap and skin winding follows increasing/decreasing Z.
+  if self.era in [3,4,5]:
+   from car_surface import smooth_sections
+   sections=smooth_sections(sections,3);steps=24
   p=[];uv=[];idx=[]
   for z,w,y,h,*extra in sections:
    cx=extra[0]if extra else 0
    for j in range(steps+1):
-    a=TAU*j/steps;p.append([cx+math.sin(a)*w,y+math.cos(a)*h,z]);uv.append([round((.5 if mat=='pods'else 0)+j/steps*.5,5),round((2.6-z)/10.4,5)])
+    a=TAU*j/steps;sn=math.sin(a);co=math.cos(a);soft=self.era in[3,4,5] and mat=='body';p.append([cx+(math.copysign(abs(sn)**.78,sn)if soft else sn)*w,y+(math.copysign(abs(co)**.78,co)if soft else co)*h,z]);uv.append([round((.5 if mat=='pods'else 0)+j/steps*.5,5),round((2.6-z)/10.4,5)])
   for i in range(len(sections)-1):
    for j in range(steps):
     if opening and (j<steps*.15 or j>=steps*.85):continue
     k=i*(steps+1)+j;idx.extend([k,k+steps+1,k+1,k+1,k+steps+1,k+steps+2])
+  skin_indices=len(idx)
   # End bulkheads are explicit, with separate normals (not open loft holes).
   for end,sign in [(0,-1),(len(sections)-1,1)]:
    if name=='rounded cigar nose' and end==0:continue # intentional radiator opening
    ring=p[end*(steps+1):(end+1)*(steps+1)];center=[sum(q[k]for q in ring[:-1])/steps for k in range(3)];offset=len(p);p.append(center);uv.append([.25,(2.6-center[2])/10.4])
    p.extend(ring);uv.extend([[.25,(2.6-center[2])/10.4]for _ in ring])
    for j in range(steps):idx.extend([offset,offset+j+1,offset+j+2]if sign>0 else[offset,offset+j+2,offset+j+1])
+  if self.era in[3,4,5]:
+   descending=sections[-1][0]<sections[0][0]
+   for k in range(0,len(idx),3):
+    if (k<skin_indices and descending)or(k>=skin_indices and not descending):idx[k+1],idx[k+2]=idx[k+2],idx[k+1]
   self.mesh(name,mat,p,idx,uv)
  def tube(self,name,mat,points,r=.018,steps=8):
   p=[];idx=[]
@@ -46,6 +56,8 @@ class Model:
     b=TAU*j/24;p.append([c[0]+s[0]*math.sin(a)*math.cos(b),c[1]+s[1]*math.cos(a),c[2]+s[2]*math.sin(a)*math.sin(b)])
   for i in range(12):
    for j in range(24):k=i*25+j;idx.extend([k,k+25,k+1,k+1,k+25,k+26])
+  if self.era in[3,4,5]:
+   for k in range(0,len(idx),3):idx[k+1],idx[k+2]=idx[k+2],idx[k+1]
   self.mesh(name,mat,p,idx)
  def box(self,name,mat,c,s):
   x,y,z=c;w,h,d=[v/2 for v in s];corners=[[x+a*w,y+b*h,z+e*d]for a,b,e in[(-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1)]];p=[];idx=[]
@@ -65,9 +77,9 @@ class Model:
   # Closed cambered airfoil with continuous curved tips, not stacked boxes.
   p=[];uv=[];idx=[];nx=40;nc=16
   for j in range(nx+1):
-   x=-half+2*half*j/nx;t=abs(x/half);dihedral=(.11*t**5 if rear else .15*t**3)if self.era==3 else(0 if rear or self.era==1 else .035*t*t);sweep=(.13*t*t if rear else -.26*t*t)if self.era==3 else(0 if self.era==1 else -.07*t*t)
+   x=-half+2*half*j/nx;t=abs(x/half);dihedral=(.045*t**5 if rear else .085*t**3)if self.era==3 else(0 if rear or self.era==1 else .035*t*t);sweep=(.13*t*t if rear else -.26*t*t)if self.era==3 else(0 if self.era==1 else -.07*t*t)
    for k in range(nc+1):
-    a=TAU*k/nc;f=(1-math.cos(a))/2;zz=z+sweep+(f-.5)*chord;yy=y+dihedral+(.10 if rear else .055)*math.sin(math.pi*f)+(.12*f if rear else 0)+.014*math.sin(a)
+    a=TAU*k/nc;f=(1-math.cos(a))/2;cc=chord*(1-.20*t*t)if self.era in[3,4,5]else chord;zz=z+sweep+(f-.5)*cc;yy=y+dihedral+((cc*.12 if rear else cc*.085)if self.era in[3,4,5]else(.10 if rear else .055))*math.sin(math.pi*f)+((.06 if self.era in[3,4,5]else .12)*f if rear else 0)+(.004 if self.era in[3,4,5]else .014)*math.sin(a)
     p.append([x,yy,zz]);uv.append([round(.5+j/nx*.25 if mat=='front_wing'else j/nx*.5,5),round(.5+f*.25,5)])
   for j in range(nx):
    for k in range(nc):q=j*(nc+1)+k;idx.extend([q,q+1,q+nc+1,q+1,q+nc+2,q+nc+1])
@@ -84,7 +96,7 @@ class Model:
     for j in range(65):a=j/64*TAU;p.append([x*width,math.cos(a)*radius*r,math.sin(a)*radius*r]);uv.append([j/64,(r-.6)/.4])
    for i in range(len(profile)-1):
     for j in range(64):q=i*65+j;idx.extend([q,q+1,q+65,q+1,q+66,q+65])
-   self.mesh(typ+' rounded tyre','rubber',p,idx,uv,typ)
+   self.mesh(typ+' rounded tyre','tyre_rubber'if self.era in[3,4,5]else'rubber',p,idx,uv,typ)
    for side in [-1,1]:
     p=[];uv=[];idx=[]
     for rr in [.70,.94]:
@@ -102,7 +114,7 @@ class Model:
     if self.era in [3,5]:
      p=[[side*width*.522,0,0]]+[[side*width*.520,math.cos(i/64*TAU)*radius*.59,math.sin(i/64*TAU)*radius*.59]for i in range(65)];idx=[]
      for j in range(64):idx.extend([0,j+1,j+2])
-     self.mesh(typ+' aerodynamic wheel cover','carbon',p,idx,wheel=typ)
+     self.mesh(typ+' aerodynamic wheel cover','wheel_cover',p,idx,wheel=typ)
     for j in range(0 if self.era in [3,5] else(8 if classic else 12)):
      a=j/(8 if classic else 12)*TAU;self.tube(typ+' wheel spoke','rim',[[side*width*.5,math.cos(a)*radius*.12,math.sin(a)*radius*.12],[side*width*.49,math.cos(a)*radius*(rimratio-.05),math.sin(a)*radius*(rimratio-.05)]],.012,5);self.parts[-1]['wheel']=typ
  def driver(self,classic):
@@ -225,13 +237,13 @@ def finish(m,era):
    m.tube('upright steering link','engine',[[side*(half-.10),r-.10,z],[side*(half-.10),r+.13,z]],.03,10)
    # Brake rotor and centre-lock hardware are local to the spinning wheel.
    m.ellipsoid('ventilated brake rotor','brake',[side*layout['front_width'if front else'rear_width']*.44,0,0],[.012,r*.48,r*.48]);m.parts[-1]['wheel']='front'if front else'rear'
-   m.ellipsoid('centre-lock wheel nut','accent',[side*layout['front_width'if front else'rear_width']*.55,0,0],[.055,.055,.055]);m.parts[-1]['wheel']='front'if front else'rear'
+   m.ellipsoid('centre-lock wheel nut','accent',[side*layout['front_width'if front else'rear_width']*.55,0,0],([.027,.027,.027]if era in[3,4,5]else[.055,.055,.055]));m.parts[-1]['wheel']='front'if front else'rear'
    for j in range(12):
     angle=j/12*TAU
     m.tube('brake rotor cooling slot','rubber',[[side*layout['front_width'if front else'rear_width']*.458,math.cos(angle)*r*rr,math.sin(angle)*r*rr]for rr in [.32,.43]],.003,4);m.parts[-1]['wheel']='front'if front else'rear'
 
   if era==3:
-   m.panel('solid curved rear endplate','endplate',side*.89,[(-2.52,.68),(-2.02,.68),(-1.98,.96),(-2.11,1.31),(-2.46,1.38),(-2.56,1.20)])
+   m.panel('solid curved rear endplate','endplate',side*.59,[(-2.52,.46),(-2.02,.46),(-1.98,.65),(-2.11,.90),(-2.46,.948),(-2.56,.82)])
    m.panel('front endplate surface','front_endplate',side*.985,[(1.98,.18),(2.56,.18),(2.55,.31),(2.11,.43),(1.98,.37)])
    for i in range(6):m.box('sidepod cooling gill','rubber',[side*(.69+i*.015),.674,-.30-i*.115],[.18,.012,.032])
   if classic:
@@ -258,17 +270,19 @@ def period_decals(m,era):
 models={}
 from car_2021 import build as build_2021,decals
 from car_2026 import build as build_2026
+from car_2023 import build as build_2023
 LAYOUTS["5"]=dict(half=.76,front=1.65,rear=-1.75,front_width=.280,rear_width=.375,radius=.355,front_radius=.350,rear_radius=.355)
 for era in range(6):
  model=Model(era)
  if era==5:build_2026(model)
  elif era==4:build_2021(model)
- elif era in [0,3]:model.build(era==0)
+ elif era==3:build_2023(model)
+ elif era==0:model.build(True)
  else:period_car(model,era)
  finish(model,era)
  if era!=5:decals(model,era)
  # Reference-photo proportion correction; estimates, not constructor CAD.
- if era>0:
+ if era in[1,2,4,5]:
   rear=[p for p in model.parts if ('rear'in p['name']and any(n in p['name']for n in ['wing','mainplane','flap','endplate','swan neck']))or 'DRS'in p['name']]
   top=max(v[1]for part in rear for v in part['positions'])
   target=1.00 if era in[1,2]else .95
@@ -294,5 +308,5 @@ for era,parts in models.items():
   offset=len(b['positions']);b['components'].append(part['name']);b['positions']+=part['positions'];b['uvs']+=part['uvs'];b['indices'] += [v+offset for v in part['indices']]
  models[era]=batches
 (R/'data/car-layouts.json').write_text(json.dumps(LAYOUTS,separators=(',',':'))+'\n')
-path=R/'data/car-shapes.json';path.write_text(json.dumps(dict(schema=2,source='Original six-era reconstructions with a distinct compact photo-guided 2026 design, including a distinct photo-guided 2021 flat-floor/13-inch design and 2023 ground-effect design. Team proportion variants are estimated, not exact replicas or scans.',models=models,layouts=LAYOUTS),separators=(',',':'))+'\n')
+path=R/'data/car-shapes.json';path.write_text(json.dumps(dict(schema=2,source='Photo-guided compound-surface six-era reconstructions with a distinct compact photo-guided 2026 design, including a distinct photo-guided 2021 flat-floor/13-inch design and 2023 ground-effect design. Team proportion variants are estimated, not exact replicas or scans.',models=models,layouts=LAYOUTS),separators=(',',':'))+'\n')
 print('Shared car geometry:',path.stat().st_size,'bytes;',[(e,sum(len(b['positions'])for b in m))for e,m in models.items()])

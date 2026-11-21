@@ -34,6 +34,7 @@ export class Showroom {
       room = new RoomEnvironment();
     this.environment = pmrem.fromScene(room, 0.045);
     this.scene.environment = this.environment.texture;
+    this.scene.environmentIntensity = 0.65;
     room.dispose();
     pmrem.dispose();
     this.camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
@@ -50,8 +51,8 @@ export class Showroom {
     this.controls.autoRotate = !matchMedia("(prefers-reduced-motion: reduce)")
       .matches;
     this.controls.autoRotateSpeed = 0.65;
-    this.scene.add(new THREE.HemisphereLight("#d5e0ef", "#232528", 1.15));
-    const key = new THREE.DirectionalLight("#fff2df", 2.3);
+    this.scene.add(new THREE.HemisphereLight("#d5e0ef", "#232528", 0.6));
+    const key = new THREE.DirectionalLight("#fff2df", 3.1);
     key.position.set(-3, 6, 5);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -59,7 +60,10 @@ export class Showroom {
     key.shadow.camera.right = 4;
     key.shadow.camera.top = 4;
     key.shadow.camera.bottom = -4;
-    key.shadow.normalBias = 0.015;
+    key.shadow.camera.near = 0.2;
+    key.shadow.camera.far = 20;
+    key.shadow.normalBias = 0.003;
+    key.shadow.bias = -0.00015;
     this.scene.add(key);
     const rim = new THREE.DirectionalLight("#a9c8e5", 1.5);
     rim.position.set(4, 2, -4);
@@ -67,10 +71,10 @@ export class Showroom {
     const ground = new THREE.Mesh(
       new THREE.CircleGeometry(3.7, 96),
       new THREE.MeshStandardMaterial({
-        color: "#deded6",
+        color: "#9da4ac",
         envMapIntensity: 0.15,
-        roughness: 0.5,
-        metalness: 0.25,
+        roughness: 0.75,
+        metalness: 0.08,
       }),
     );
     ground.rotation.x = -Math.PI / 2;
